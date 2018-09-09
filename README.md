@@ -4,13 +4,13 @@ pppoe 用户鉴权计费
 
 ### 运行鉴权
 ``` bash
-./bin/run_auth.sh
+python src/auth.py
 ```
 
 
 ### 运行计费
 ``` bash
-./bin/run_acct.sh
+python src/acct.py
 ```
 
 
