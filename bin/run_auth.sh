@@ -1,6 +1,3 @@
 #!/usr/bin/env sh
 
-export DICTIONARY_DIR=../dictionary
-#export SECRET=testing123
-
-python3 ../src/auth.py
+python3 /root/radius_server/src/auth.py
