@@ -1,6 +1,3 @@
-#!/usr/bin/env python36
-# coding:utf-8
-
 import os
 # 第三方库
 from decouple import config
@@ -9,6 +6,7 @@ from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT
+from auth.models import User
 
 DICTIONARY_DIR = config('DICTIONARY_DIR')
 SECRET = str.encode(config('SECRET'))
@@ -29,13 +27,13 @@ class EchoServer(DatagramServer):
     def __init__(self, dictionary, *args, **kwargs):
         super(self.__class__, self).__init__(*args, **kwargs)
         self.dictionary = dictionary
-
     def handle(self, data, address):
         ip, port = address
         print('from %s, data: %r' % (ip, data))
         # 处理
         request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
         is_user = True
+        user = User.select()
         if is_user:
             reply = access_accept(request)
             print('access_accept')
