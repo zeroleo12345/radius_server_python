@@ -3,10 +3,12 @@ import peewee as models
 from decouple import config
 from playhouse.pool import PooledMySQLDatabase
 from playhouse.db_url import parse
+from decouple import config
 
+USER_DB = config('USER_DB')
 
 db = SqliteQueueDatabase(
-    'my_app.db',
+    USER_DB,
     use_gevent=True,  # Use the standard library "threading" module.
     autostart=False,  # The worker thread now must be started manually.
     queue_max_size=64,  # Max. # of pending writes that can accumulate.
@@ -20,16 +22,8 @@ class User(models.Model):
     class Meta:
         db_table = 'user'
 
-    ROLE = (
-        ('vip', 'VIP用户'),
-        ('user', '用户'),
-        ('guest', '访客'),
-    )
-
     username = models.CharField(max_length=255, unique=True, null=True)
     password = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
-    role = models.CharField(max_length=32, choices=ROLE, default='user')
 
     def __str__(self):
         return self.username
