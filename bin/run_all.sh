@@ -8,4 +8,4 @@ export PYTHONPATH=$project_root/src:$PYTHONPATH
 export DICTIONARY_DIR=$project_root/dictionary
 export SECRET="testing123"
 export USER_DB=$project_root/data/users.db
-python3 $project_root/src/auth/auth.py
+python3 $project_root/src/auth/processor.py
