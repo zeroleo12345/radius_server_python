@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# coding:utf-8
+import hashlib
 
 CODE_INVALID = 0
 CODE_ACCESS_REQUEST = 1
@@ -14,3 +13,13 @@ CODE_DISCONNECT_NAK = 42
 CODE_COA_REQUEST = 43
 CODE_COA_ACK = 44
 CODE_COA_NAK = 45
+
+
+def get_chap_rsp(chap_id, password, challenge):
+    """
+    MD5(chapId+password+chapChallenge)
+    """
+    s = chap_id+password+challenge
+    h = hashlib.md5()
+    h.update(s)
+    return h.digest()

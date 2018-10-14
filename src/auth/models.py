@@ -14,6 +14,7 @@ db = SqliteQueueDatabase(
 
 db.start()
 
+
 # 账户, 密码
 class User(models.Model):
     class Meta:
