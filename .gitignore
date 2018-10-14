@@ -109,3 +109,4 @@ venv.bak/
 # Self Define
 *.swp
 data/
+nohup.out
