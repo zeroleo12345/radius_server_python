@@ -38,6 +38,7 @@ class EchoServer(DatagramServer):
         if is_valid_user:
             reply = acct_res(request)
         else:
+            # TODO 断开链接
             pass
         # 返回
         self.socket.sendto(reply.ReplyPacket(), address)
@@ -47,11 +48,11 @@ def verify(request):
     from pprint import pprint; import pdb; pdb.set_trace()
     acct_status_type = request["Acct-Status-Type"][0]   # Start: 1; Stop: 2; Interim-Update: 3; Accounting-On: 7; Accounting-Off: 8
     username = request['User-Name'][0]
+    calling_station_id = request['Calling-Station-Id']
 
     user = User.select().where((User.username == username) & (User.is_valid == True)).first()
-
-    # 算法判断上报的用户密码是否正确
-    #if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
+    if not user:
+        return False
 
     return True
 
