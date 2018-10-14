@@ -1,9 +1,10 @@
 CREATE TABLE `user` (
-    `username` varchar(255) NOT NULL,
-    `password` varchar(255) NOT NULL
+    `id` INTEGER PRIMARY KEY,
+    `username` VARCHAR(255) NOT NULL,
+    `password` VARCHAR(255) NOT NULL
 );
 CREATE UNIQUE INDEX user_username ON `user`(username);
 
-INSERT INTO `user`(username, password) VALUES('zhoulixin', 'zhoulixin');
-INSERT INTO `user`(username, password) VALUES('zhouliying', 'zhouliying');
-INSERT INTO `user`(username, password) VALUES('zhangfengjian', 'zhangfengjian');
+INSERT INTO `user`(id, username, password) VALUES(NULL, 'zhoulixin', 'zhoulixin');
+INSERT INTO `user`(id, username, password) VALUES(NULL, 'zhouliying', 'zhouliying');
+INSERT INTO `user`(id, username, password) VALUES(NULL, 'zhangfengjian', 'zhangfengjian');
