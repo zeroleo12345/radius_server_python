@@ -1,9 +1,6 @@
 from playhouse.sqliteq import SqliteQueueDatabase
 import peewee as models
 from decouple import config
-from playhouse.pool import PooledMySQLDatabase
-from playhouse.db_url import parse
-from decouple import config
 
 USER_DB = config('USER_DB')
 
