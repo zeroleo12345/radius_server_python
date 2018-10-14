@@ -19,6 +19,7 @@ def get_chap_rsp(chap_id, password, challenge):
     """
     MD5(chapId+password+chapChallenge)
     """
+    # TODO     s = ''.join((chap_id, password, challenge))
     s = chap_id+password+challenge
     h = hashlib.md5()
     h.update(s)
