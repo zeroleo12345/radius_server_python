@@ -1,6 +1,3 @@
-#!/usr/bin/env python36
-# coding:utf-8
-
 import os
 # 第三方库
 from decouple import config
