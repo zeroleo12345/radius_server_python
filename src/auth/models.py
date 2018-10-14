@@ -20,6 +20,7 @@ db.start()
 # 账户, 密码
 class User(models.Model):
     class Meta:
+        database = db
         db_table = 'user'
 
     username = models.CharField(max_length=255, unique=True, null=True)

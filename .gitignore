@@ -108,4 +108,4 @@ venv.bak/
 
 # Self Define
 *.swp
-data/*.db
+data/
