@@ -33,12 +33,12 @@ class EchoServer(DatagramServer):
         print('from %s, data: %r' % (ip, data))
         # 处理
         request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
+        from pprint import pprint; import pdb; pdb.set_trace()
         username = request['User-Name'][0]
         challenge = request['CHAP-Challenge'][0]
         chap_password = request['CHAP-Password'][0]
         chap_id, resp_digest = chap_password[0:1], chap_password[1:]
 
-        from pprint import pprint; import pdb; pdb.set_trace()
         user = User.select().where((User.username == username) & (User.is_active == True)).first()
         user_password = user.password
 
