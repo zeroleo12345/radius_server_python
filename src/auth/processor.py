@@ -51,7 +51,7 @@ def verify(request):
     chap_password = request['CHAP-Password'][0]
     chap_id, resp_digest = chap_password[0:1], chap_password[1:]
 
-    user = User.select().where(User.username == username).first()
+    user = User.select().where((User.username == username) & (User.is_valid == True)).first()
     if not user:
         return False
 

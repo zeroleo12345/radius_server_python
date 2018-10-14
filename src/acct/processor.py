@@ -30,16 +30,30 @@ class EchoServer(DatagramServer):
     def handle(self, data, address):
         ip, port = address
         print('from %s, data: %r' % (ip, data))
-        # 处理
+        # 解析报文
         request = AcctPacket(dict=self.dictionary, secret=SECRET, packet=data)
-        is_user = True
-        if is_user:
+        # 验证用户
+        is_valid_user = verify(request)
+        # 接受或断开链接
+        if is_valid_user:
             reply = acct_res(request)
-            print('acct_res')
         else:
             pass
         # 返回
         self.socket.sendto(reply.ReplyPacket(), address)
+
+
+def verify(request):
+    from pprint import pprint; import pdb; pdb.set_trace()
+    acct_status_type = request["Acct-Status-Type"][0]   # Start: 1; Stop: 2; Interim-Update: 3; Accounting-On: 7; Accounting-Off: 8
+    username = request['User-Name'][0]
+
+    user = User.select().where((User.username == username) & (User.is_valid == True)).first()
+
+    # 算法判断上报的用户密码是否正确
+    #if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
+
+    return True
 
 
 def acct_res(request):
