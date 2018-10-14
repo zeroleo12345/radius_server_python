@@ -15,12 +15,13 @@ CODE_COA_ACK = 44
 CODE_COA_NAK = 45
 
 
-def get_chap_rsp(chap_id, password, challenge):
+def get_chap_rsp(chap_id, user_password, challenge):
     """
-    MD5(chapId+password+chapChallenge)
+    chap_id: Byte
+    user_password: Str  用户密码 (明文)
+    challenge: Byte
     """
-    # TODO     s = ''.join((chap_id, password, challenge))
-    s = chap_id+password+challenge
-    h = hashlib.md5()
-    h.update(s)
-    return h.digest()
+    byte_str = b''.join([chap_id, user_password.encode(), challenge])
+    chap_rsp = hashlib.md5(byte_str).digest()
+    return chap_rsp
+

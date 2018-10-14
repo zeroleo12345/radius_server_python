@@ -31,37 +31,35 @@ class EchoServer(DatagramServer):
     def handle(self, data, address):
         ip, port = address
         print('from %s, data: %r' % (ip, data))
-        # 处理
+        # 解析报文
         request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
-        username = request['User-Name'][0]
-        challenge = request['CHAP-Challenge'][0]
-        chap_password = request['CHAP-Password'][0]
-        chap_id, resp_digest = chap_password[0:1], chap_password[1:]
-
-        from pprint import pprint; import pdb; pdb.set_trace()
-        user = User.select().where(User.username == username).first()
-        user_password = user.password
-
-        is_valid_user = True
-
-        # 算法判断上报的用户密码是否正确
-        if resp_digest != get_chap_rsp(chap_id, user_password, challenge):
-            is_valid_user = False
-
-        if not user:
-            is_valid_user = False
-
+        # 验证用户
+        is_valid_user = verify(request)
         # 接受或拒绝
         if is_valid_user:
             reply = access_accept(request)
-            print('access_accept')
         else:
             reply = access_reject(request)
-            print('access_reject')
-        reply['Acct-Interim-Interval'] = 60
-
         # 返回
+        reply['Acct-Interim-Interval'] = 60
         self.socket.sendto(reply.ReplyPacket(), address)
+
+
+def verify(request):
+    username = request['User-Name'][0]
+    challenge = request['CHAP-Challenge'][0]
+    chap_password = request['CHAP-Password'][0]
+    chap_id, resp_digest = chap_password[0:1], chap_password[1:]
+
+    user = User.select().where(User.username == username).first()
+    if not user:
+        return False
+
+    # 算法判断上报的用户密码是否正确
+    if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
+        return False
+
+    return True
 
 
 def access_reject(request):
