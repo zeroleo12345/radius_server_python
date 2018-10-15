@@ -1,0 +1,23 @@
+# 鉴权报文
+{6: [b'\x00\x00\x00\x02'], 7: [b'\x00\x00\x00\x01'], 1: [b'zhoulixin'], 60: [b'\xd9\xd5J\xeenWTQ\xf6\xf5\x9c\x8c\xad\x01\tC\xc5\x8er\xaf\x03\x80'], 3: [b'\x9f\xf4M \xf8\xab\xc21\xaf6\\p\xf4\xceE\xf4\xa4'], 31: [b'58:D9:D5:D4:7E:09'], 4: [b'\x7f\x00\x00\x01'], 5: [b'\x00\x00\x00\x01']}
+
+ATTRIBUTE   User-Name  1  string
+ATTRIBUTE   NAS-IP-Address      4   ipaddr
+ATTRIBUTE   NAS-Port        5   integer
+ATTRIBUTE   Calling-Station-Id  31  string
+
+# 计费报文
+{44: [b'5BC2EA8D7B7B00'], 1: [b'zhoulixin'], 40: [b'\x00\x00\x00\x01'], 6: [b'\x00\x00\x00\x02'], 7: [b'\x00\x00\x00\x01'], 31: [b'58:D9:D5:D4:7E:09'], 45: [b'\x00\x00\x00\x01'], 61: [b'\x00\x00\x00\x00'], 8: [b'\n\x00\x00.'], 4: [b'\x7f\x00\x00\x01'], 5: [b'\x00\x00\x00\x01'], 41: [b'\x00\x00\x00\x00']}
+
+ATTRIBUTE   User-Name  1  string
+ATTRIBUTE   NAS-IP-Address      4   ipaddr
+ATTRIBUTE   NAS-Port        5   integer
+ATTRIBUTE   Service-Type        6   integer
+ATTRIBUTE   Framed-Protocol     7   integer
+ATTRIBUTE   Framed-IP-Address   8   ipaddr
+ATTRIBUTE   Calling-Station-Id  31  string
+ATTRIBUTE   Acct-Status-Type    40  integer
+ATTRIBUTE   Acct-Delay-Time     41  integer
+ATTRIBUTE   Acct-Session-Id     44  string
+ATTRIBUTE   Acct-Authentic      45  integer
+ATTRIBUTE   NAS-Port-Type       61  integer
