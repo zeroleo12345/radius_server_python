@@ -33,10 +33,10 @@ class EchoServer(DatagramServer):
 
     def handle(self, data, address):
         ip, port = address
-        print('from %s, data: %r' % (ip, data))
+        #print('from %s, data: %r' % (ip, data))
         # 解析报文
         request = AcctPacket(dict=self.dictionary, secret=SECRET, packet=data)
-        log.d('recv request: {}'.format(request))
+        #log.d('recv request: {}'.format(request))
         # 验证用户
         is_valid_user = verify(request)
         # 接受或断开链接
