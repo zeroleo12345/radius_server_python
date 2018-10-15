@@ -2,7 +2,7 @@
 pppoe 用户鉴权计费
 
 
-### 安装
+### 安装依赖库
 ``` bash
 pip3 install -r requirements/requirements.txt
 
@@ -11,6 +11,15 @@ python3 setup.py install
 
 git clone https://github.com/zeroleo12345/mybase3.git
 python3 setup.py install
+
+mkdir -p /data/log/
+```
+
+
+### 安装Supervisord
+``` bash
+git clone git@github.com:zeroleo12345/supervisor.git
+python2 setup.py install
 ```
 
 
