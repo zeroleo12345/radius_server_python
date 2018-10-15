@@ -16,27 +16,37 @@ mkdir -p /data/log/
 ```
 
 
-### 安装Supervisord
+### 运行
+- 鉴权
+``` bash
+python src/auth.py
+```
+
+- 计费
+``` bash
+python src/acct.py
+```
+
+- 使用客户端测试服务 (目前项目内固定secret为: testing123)
+``` bash
+radtest  test  test  192.168.1.97  0  testing123
+```
+
+
+### Supervisord
+- 安装
 ``` bash
 git clone git@github.com:zeroleo12345/supervisor.git
 python2 setup.py install
 ```
 
-
-### 运行鉴权
+- 启动Demon程序
 ``` bash
-python src/auth.py
+supervisord  -c /root/radius_server/etc/supervisord.ini
 ```
 
-
-### 运行计费
+- 查看状态
 ``` bash
-python src/acct.py
-```
-
-
-### 使用客户端测试服务 (目前项目内固定secret为: testing123)
-``` bash
-radtest  test  test  192.168.1.97  0  testing123
+supervisorctl  -c /root/radius_server/etc/supervisord.ini status
 ```
 
