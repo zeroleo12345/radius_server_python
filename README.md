@@ -2,6 +2,18 @@
 pppoe 用户鉴权计费
 
 
+### 安装
+``` bash
+pip3 install -r requirements/requirements.txt
+
+git clone https://github.com/zeroleo12345/myclog-python.git
+python3 setup.py install
+
+git clone https://github.com/zeroleo12345/mybase3.git
+python3 setup.py install
+```
+
+
 ### 运行鉴权
 ``` bash
 python src/auth.py
