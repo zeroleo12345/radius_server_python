@@ -5,11 +5,9 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
+from settings import DICTIONARY_DIR, SECRET
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT, get_chap_rsp
 from auth.models import User
-
-DICTIONARY_DIR = config('DICTIONARY_DIR')
-SECRET = str.encode(config('SECRET'))
 
 
 def init_dictionary():

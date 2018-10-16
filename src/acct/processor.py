@@ -5,14 +5,9 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 from pyrad.packet import AcctPacket
 # 自己的库
+from settings import DICTIONARY_DIR, SECRET, log
 from child_pyrad.packet import CODE_ACCOUNT_RESPONSE
-from mybase.mylog3 import log
 from auth.models import User
-
-DICTIONARY_DIR = config('DICTIONARY_DIR')
-SECRET = str.encode(config('SECRET'))
-
-log.init(header="acct", directory="/data/log", level="debug", max_buffer=0, max_line=100000)
 
 
 def init_dictionary():

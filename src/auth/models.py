@@ -1,8 +1,7 @@
 from playhouse.sqliteq import SqliteQueueDatabase
 import peewee as models
-from decouple import config
-
-USER_DB = config('USER_DB')
+# 自己的库
+from settings import USER_DB
 
 db = SqliteQueueDatabase(
     USER_DB,
