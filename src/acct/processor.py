@@ -5,7 +5,7 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 from pyrad.packet import AcctPacket
 # 自己的库
-from settings import DICTIONARY_DIR, SECRET, log
+from settings import log, DICTIONARY_DIR, SECRET
 from child_pyrad.packet import CODE_ACCOUNT_RESPONSE
 from auth.models import User
 

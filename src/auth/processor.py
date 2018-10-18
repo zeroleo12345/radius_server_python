@@ -5,7 +5,7 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
-from settings import DICTIONARY_DIR, SECRET
+from settings import log, DICTIONARY_DIR, SECRET
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT, get_chap_rsp
 from auth.models import User
 
@@ -51,10 +51,12 @@ def verify(request):
 
     user = User.select().where((User.username == username) & (User.is_valid == True)).first()
     if not user:
+        log.e(f'reject. user: {user} not exist')
         return False
 
     # 算法判断上报的用户密码是否正确
     if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
+        log.e(f'reject. password not correct')
         return False
 
     return True
