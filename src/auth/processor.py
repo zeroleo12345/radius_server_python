@@ -51,14 +51,15 @@ def verify(request):
 
     user = User.select().where((User.username == username) & (User.is_valid == True)).first()
     if not user:
-        log.e(f'reject. user: {username} not exist')
+        log.e(f'reject! user: {username} not exist')
         return False
 
     # 算法判断上报的用户密码是否正确
     if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
-        log.e(f'reject. password: {user.password} not correct')
+        log.e(f'reject! password: {user.password} not correct')
         return False
 
+    log.i(f'accept. user: {username}')
     return True
 
 
