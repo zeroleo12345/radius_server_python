@@ -8,3 +8,4 @@ export PYTHONPATH=$project_root/src:$PYTHONPATH
 export DICTIONARY_DIR=$project_root/dictionary
 export SECRET="testing123"
 export USER_DB=$project_root/data/users.db
+export API_URL="http://192.168.1.6"
