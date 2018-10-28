@@ -24,4 +24,3 @@ def get_chap_rsp(chap_id, user_password, challenge):
     byte_str = b''.join([chap_id, user_password.encode(), challenge])
     chap_rsp = hashlib.md5(byte_str).digest()
     return chap_rsp
-

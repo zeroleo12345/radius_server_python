@@ -1,4 +1,5 @@
 import os
+import datetime
 # 第三方库
 from decouple import config
 from gevent.server import DatagramServer
@@ -49,7 +50,8 @@ def verify(request):
     chap_password = request['CHAP-Password'][0]
     chap_id, resp_digest = chap_password[0:1], chap_password[1:]
 
-    user = User.select().where((User.username == username) & (User.is_valid == True)).first()
+    now = datetime.datetime.now()
+    user = User.select().where((User.username == username) & (User.expired_at >= now)).first()
     if not user:
         log.e(f'reject! user: {username} not exist')
         return False
