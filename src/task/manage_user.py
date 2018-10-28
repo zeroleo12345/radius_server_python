@@ -16,7 +16,7 @@ def sync_users_data():
         timeout = 5
         response = requests.request(method='GET', url=f'{API_URL}/user/sync', timeout=timeout)
     except requests.Timeout:
-        log.e(f'request timeout, seconds: {timeout}')
+        log.e(f'request {timeout} seconds timeout')
         return
 
     log.d(f'/user/sync response: {response}')
