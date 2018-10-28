@@ -13,6 +13,7 @@ INTERVAL_SECONDS = 20
 
 def sync_users_data():
     response = requests.get(f'{API_URL}/user/sync')
+    log.d(f'/user/sync response: {response}')
     data = response.json()['data']
     for item in data:
         username = item['username']
@@ -41,6 +42,7 @@ class ServiceLoop(object):
             # 消息循环
             while not self.term:
                 sync_users_data()
+                log.d(f'sleep {INTERVAL_SECONDS} seconds')
                 time.sleep(INTERVAL_SECONDS)    # 睡眠 X 秒
         except KeyboardInterrupt:
             log.d('KeyboardInterrupt, break')
@@ -52,3 +54,4 @@ class ServiceLoop(object):
 
 
 ServiceLoop().start()
+
