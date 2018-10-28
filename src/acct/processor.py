@@ -1,6 +1,3 @@
-#!/usr/bin/env python36
-# coding:utf-8
-
 import os
 # 第三方库
 from decouple import config
@@ -8,10 +5,9 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 from pyrad.packet import AcctPacket
 # 自己的库
+from settings import log, DICTIONARY_DIR, SECRET
 from child_pyrad.packet import CODE_ACCOUNT_RESPONSE
-
-DICTIONARY_DIR = config('DICTIONARY_DIR')
-SECRET = str.encode(config('SECRET'))
+from auth.models import User
 
 
 def init_dictionary():
@@ -32,17 +28,33 @@ class EchoServer(DatagramServer):
 
     def handle(self, data, address):
         ip, port = address
-        print('from %s, data: %r' % (ip, data))
-        # 处理
+        #print('from %s, data: %r' % (ip, data))
+        # 解析报文
         request = AcctPacket(dict=self.dictionary, secret=SECRET, packet=data)
-        is_user = True
-        if is_user:
+        #log.d('recv request: {}'.format(request))
+        # 验证用户
+        is_valid_user = verify(request)
+        # 接受或断开链接
+        if is_valid_user:
             reply = acct_res(request)
-            print('acct_res')
         else:
+            # TODO 断开链接
             pass
         # 返回
         self.socket.sendto(reply.ReplyPacket(), address)
+
+
+def verify(request):
+    acct_status_type = request["Acct-Status-Type"][0]   # Start: 1; Stop: 2; Interim-Update: 3; Accounting-On: 7; Accounting-Off: 8
+    username = request['User-Name'][0]
+    calling_station_id = request['Calling-Station-Id'][0]
+    log.d('IN: {iut}|{username}|{mac}'.format(iut=acct_status_type, username=username, mac=calling_station_id))
+
+    user = User.select().where((User.username == username) & (User.is_valid == True)).first()
+    if not user:
+        return False
+
+    return True
 
 
 def acct_res(request):

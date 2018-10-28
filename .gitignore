@@ -105,3 +105,8 @@ venv.bak/
 
 # IDEA
 .idea/
+
+# Self Define
+*.swp
+data/
+nohup.out

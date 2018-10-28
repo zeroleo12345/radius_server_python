@@ -1,0 +1,3 @@
+sqlite3 users.db '.tables'
+
+sqlite3 users.db 'select * from user;'

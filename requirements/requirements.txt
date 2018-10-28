@@ -1,3 +1,5 @@
 gevent==1.2.2
 pyrad==2.1      # https://github.com/wichert/pyrad.git
 python-decouple==3.1
+requests==2.19.1
+peewee==3.7.1

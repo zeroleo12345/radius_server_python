@@ -1,6 +1,3 @@
-#!/usr/bin/env python36
-# coding:utf-8
-
 import os
 # 第三方库
 from decouple import config
@@ -8,10 +5,9 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
-from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT
-
-DICTIONARY_DIR = config('DICTIONARY_DIR')
-SECRET = str.encode(config('SECRET'))
+from settings import log, DICTIONARY_DIR, SECRET
+from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT, get_chap_rsp
+from auth.models import User
 
 
 def init_dictionary():
@@ -33,18 +29,38 @@ class EchoServer(DatagramServer):
     def handle(self, data, address):
         ip, port = address
         print('from %s, data: %r' % (ip, data))
-        # 处理
+        # 解析报文
         request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
-        is_user = True
-        if is_user:
+        # 验证用户
+        is_valid_user = verify(request)
+        # 接受或拒绝
+        if is_valid_user:
             reply = access_accept(request)
-            print('access_accept')
         else:
             reply = access_reject(request)
-            print('access_reject')
-        reply['Acct-Interim-Interval'] = 60
         # 返回
+        reply['Acct-Interim-Interval'] = 60
         self.socket.sendto(reply.ReplyPacket(), address)
+
+
+def verify(request):
+    username = request['User-Name'][0]
+    challenge = request['CHAP-Challenge'][0]
+    chap_password = request['CHAP-Password'][0]
+    chap_id, resp_digest = chap_password[0:1], chap_password[1:]
+
+    user = User.select().where((User.username == username) & (User.is_valid == True)).first()
+    if not user:
+        log.e(f'reject! user: {username} not exist')
+        return False
+
+    # 算法判断上报的用户密码是否正确
+    if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
+        log.e(f'reject! password: {user.password} not correct')
+        return False
+
+    log.i(f'accept. user: {username}')
+    return True
 
 
 def access_reject(request):
