@@ -37,13 +37,9 @@ class ServiceLoop(object):
             self.term = 1
 
     def start(self):
-        start_time, end_time = self.init_start_time_end_time()
         try:
             # 消息循环
             while not self.term:
-                end_time = self.cal_end_time()
-                log.d(f'start_time: {start_time}, end_time: {end_time}')
-
                 sync_users_data()
                 time.sleep(INTERVAL_SECONDS)    # 睡眠 X 秒
         except KeyboardInterrupt:
