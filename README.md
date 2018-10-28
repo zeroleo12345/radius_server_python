@@ -16,6 +16,13 @@ mkdir -p /data/log/
 ```
 
 
+### 初始化sqlite3数据库
+``` bash
+rm data/users.db
+sh migrate/init_db.sh
+```
+
+
 ### 运行
 - 鉴权
 ``` bash
