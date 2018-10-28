@@ -3,6 +3,7 @@ import signal
 import time
 import traceback
 # 第三方库
+import dateutil
 # 自己的库
 from settings import API_URL
 from auth.models import User
@@ -19,13 +20,21 @@ def sync_users_data():
         log.e(f'request {timeout} seconds timeout')
         return
 
-    log.d(f'/user/sync response: {response}')
-    data = response.json()['data']
+    json_response = response.json()
+    log.d(f'/user/sync response: {json_response}')
+
+    if not response.ok:
+        log.e(f'response != 200')
+        return
+
+    data = json_response['data']
     for item in data:
         username = item['username']
         password = item['password']
         expired_at = item['expired_at']
-        User.replace(username=username, password=password, expired_at=expired_at)
+        #
+        expired_at = dateutil.parser.parse(expired_at).strftime('%Y-%m-%d %H:%M:%S')
+        User.replace(username=username, password=password, expired_at=expired_at).execute()
 
 
 class ServiceLoop(object):
