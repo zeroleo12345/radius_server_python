@@ -21,8 +21,7 @@ class User(models.Model):
 
     username = models.CharField(max_length=255, unique=True, null=True)
     password = models.CharField(max_length=255)
-    is_valid = models.BooleanField(default=True)
+    expired_at = models.DateTimeField()
 
     def __str__(self):
         return self.username
-

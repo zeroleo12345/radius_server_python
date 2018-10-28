@@ -1,6 +1,6 @@
 from decouple import config
 # 自己的库
-from mybase.mylog3 import log 
+from mybase3.mylog3 import log
 
 USER_DB = config('USER_DB')
 DICTIONARY_DIR = config('DICTIONARY_DIR')

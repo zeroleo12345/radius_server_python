@@ -1,4 +1,5 @@
 import os
+import datetime
 # 第三方库
 from decouple import config
 from gevent.server import DatagramServer
@@ -28,10 +29,10 @@ class EchoServer(DatagramServer):
 
     def handle(self, data, address):
         ip, port = address
-        #print('from %s, data: %r' % (ip, data))
+        # print('from %s, data: %r' % (ip, data))
         # 解析报文
         request = AcctPacket(dict=self.dictionary, secret=SECRET, packet=data)
-        #log.d('recv request: {}'.format(request))
+        # log.d('recv request: {}'.format(request))
         # 验证用户
         is_valid_user = verify(request)
         # 接受或断开链接
@@ -50,7 +51,8 @@ def verify(request):
     calling_station_id = request['Calling-Station-Id'][0]
     log.d('IN: {iut}|{username}|{mac}'.format(iut=acct_status_type, username=username, mac=calling_station_id))
 
-    user = User.select().where((User.username == username) & (User.is_valid == True)).first()
+    now = datetime.datetime.now()
+    user = User.select().where((User.username == username) & (User.expired_at >= now)).first()
     if not user:
         return False
 
