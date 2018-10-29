@@ -8,6 +8,6 @@ export PYTHONPATH=$project_root/src:$PYTHONPATH
 export DICTIONARY_DIR=$project_root/dictionary
 export SECRET="testing123"
 export USER_DB=$project_root/data/users.db
-export API_URL="http://api.lynatgz.cn"
+export API_URL="https://api.lynatgz.cn"
 export LOG_DIR="/data/log"
 export LOG_LEVEL="debug"
