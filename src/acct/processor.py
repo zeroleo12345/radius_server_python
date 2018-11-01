@@ -41,15 +41,18 @@ class EchoServer(DatagramServer):
 
         # 接受或断开链接
         if is_valid_user:
-            reply = acct_res(request)
+            pass
         else:
             # 断开链接
             log.i(f'disconnect session. username: {req_info.username}, mac: {req_info.calling_station_id}')
-            ret = subprocess.getoutput(f"ps -ef | grep pppoe_sess | grep -i :{req_info.calling_station_id} | awk '{{print $2}}' | xargs kill")
+            command = f"ps -ef | grep -v grep | grep pppoe_sess | grep -i :{req_info.calling_station_id} | awk '{{print $2}}' | xargs kill"
+            ret = subprocess.getoutput(command)
+            log.d(f'ret: {ret}, command: {command}')
             if ret.find('error') > -1:
                 log.e(f'session disconnect error! ret: {ret}')
 
         # 返回
+        reply = acct_res(request)
         self.socket.sendto(reply.ReplyPacket(), address)
 
 
