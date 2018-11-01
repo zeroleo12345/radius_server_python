@@ -44,6 +44,7 @@ class EchoServer(DatagramServer):
             reply = acct_res(request)
         else:
             # 断开链接
+            log.i(f'disconnect session. username: {user.username}, mac: {user.calling_station_id}')
             ret = subprocess.getoutput(f"ps -ef | grep pppoe_sess | grep -i :{user.calling_station_id} | awk '{{print $2}}' | xargs kill")
             if ret.find('error') > -1:
                 log.e(f'session disconnect error! ret: {ret}')
