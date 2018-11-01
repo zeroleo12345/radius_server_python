@@ -37,15 +37,15 @@ class EchoServer(DatagramServer):
         # log.d('recv request: {}'.format(request))
 
         # 验证用户
-        user, is_valid_user = verify(request)
+        req_info, is_valid_user = verify(request)
 
         # 接受或断开链接
         if is_valid_user:
             reply = acct_res(request)
         else:
             # 断开链接
-            log.i(f'disconnect session. username: {user.username}, mac: {user.calling_station_id}')
-            ret = subprocess.getoutput(f"ps -ef | grep pppoe_sess | grep -i :{user.calling_station_id} | awk '{{print $2}}' | xargs kill")
+            log.i(f'disconnect session. username: {req_info.username}, mac: {req_info.calling_station_id}')
+            ret = subprocess.getoutput(f"ps -ef | grep pppoe_sess | grep -i :{req_info.calling_station_id} | awk '{{print $2}}' | xargs kill")
             if ret.find('error') > -1:
                 log.e(f'session disconnect error! ret: {ret}')
 
@@ -53,26 +53,26 @@ class EchoServer(DatagramServer):
         self.socket.sendto(reply.ReplyPacket(), address)
 
 
-class User(object):
+class ReqInfo(object):
     acct_status_type = ''
     username = ''
     calling_station_id = ''     # mac 地址
 
 def verify(request):
-    user = User()
-    user.acct_status_type = request["Acct-Status-Type"][0]   # Start: 1; Stop: 2; Interim-Update: 3; Accounting-On: 7; Accounting-Off: 8
-    user.username = request['User-Name'][0]
-    user.calling_station_id = request['Calling-Station-Id'][0]
-    log.d('IN: {iut}|{username}|{mac}'.format(iut=user.acct_status_type, username=user.username, mac=user.calling_station_id))
+    req_info = ReqInfo()
+    req_info.acct_status_type = request["Acct-Status-Type"][0]   # Start: 1; Stop: 2; Interim-Update: 3; Accounting-On: 7; Accounting-Off: 8
+    req_info.username = request['User-Name'][0]
+    req_info.calling_station_id = request['Calling-Station-Id'][0]
+    log.d('IN: {iut}|{username}|{mac}'.format(iut=req_info.acct_status_type, username=req_info.username, mac=req_info.calling_station_id))
 
     is_valid_user = True
 
     now = datetime.datetime.now()
-    user = User.select().where((User.username == user.username) & (User.expired_at >= now)).first()
+    user = User.select().where((User.username == req_info.username) & (User.expired_at >= now)).first()
     if not user:
         is_valid_user = False
 
-    return user, is_valid_user
+    return req_info, is_valid_user
 
 
 def acct_res(request):
