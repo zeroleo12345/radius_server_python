@@ -3,7 +3,7 @@ import signal
 import time
 import traceback
 # 第三方库
-import dateutil
+from dateutil.parser import parse
 # 自己的库
 from settings import API_URL
 from auth.models import User
@@ -33,7 +33,7 @@ def sync_users_data():
         password = item['password']
         expired_at = item['expired_at']
         #
-        expired_at = dateutil.parser.parse(expired_at).strftime('%Y-%m-%d %H:%M:%S')
+        expired_at = parse(expired_at).strftime('%Y-%m-%d %H:%M:%S')
         User.replace(username=username, password=password, expired_at=expired_at).execute()
 
 
