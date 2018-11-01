@@ -63,12 +63,12 @@ def verify(request):
     user.acct_status_type = request["Acct-Status-Type"][0]   # Start: 1; Stop: 2; Interim-Update: 3; Accounting-On: 7; Accounting-Off: 8
     user.username = request['User-Name'][0]
     user.calling_station_id = request['Calling-Station-Id'][0]
-    log.d('IN: {iut}|{username}|{mac}'.format(iut=acct_status_type, username=username, mac=calling_station_id))
+    log.d('IN: {iut}|{username}|{mac}'.format(iut=user.acct_status_type, username=user.username, mac=user.calling_station_id))
 
     is_valid_user = True
 
     now = datetime.datetime.now()
-    user = User.select().where((User.username == username) & (User.expired_at >= now)).first()
+    user = User.select().where((User.username == user.username) & (User.expired_at >= now)).first()
     if not user:
         is_valid_user = False
 
