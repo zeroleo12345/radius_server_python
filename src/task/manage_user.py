@@ -34,7 +34,14 @@ def sync_users_data():
         expired_at = item['expired_at']
         #
         expired_at = parse(expired_at).strftime('%Y-%m-%d %H:%M:%S')
-        User.replace(username=username, password=password, expired_at=expired_at).execute()
+        user = User.select().where((User.username == username)).first()
+        if not user:
+            User.insert(username=username, password=password, expired_at=expired_at).execute()
+        else:
+            if user.expired_at != expired_at or user.password != password:
+                user.expired_at = expired_at
+                user.password = password
+                user.save()
 
 
 class ServiceLoop(object):

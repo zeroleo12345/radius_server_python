@@ -30,15 +30,19 @@ class EchoServer(DatagramServer):
     def handle(self, data, address):
         ip, port = address
         print('from %s, data: %r' % (ip, data))
+
         # 解析报文
         request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
+
         # 验证用户
         is_valid_user = verify(request)
+
         # 接受或拒绝
         if is_valid_user:
             reply = access_accept(request)
         else:
             reply = access_reject(request)
+
         # 返回
         reply['Acct-Interim-Interval'] = 60
         self.socket.sendto(reply.ReplyPacket(), address)
