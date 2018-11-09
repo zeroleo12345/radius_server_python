@@ -13,6 +13,8 @@ git clone https://github.com/zeroleo12345/mybase3.git
 python3 setup.py install
 
 mkdir -p /data/log/
+
+ln -s  /data/ ./run
 ```
 
 
