@@ -25,3 +25,9 @@ class User(models.Model):
 
     def __str__(self):
         return self.username
+
+
+class AuthUser(object):
+    username = ''
+    calling_station_id = ''     # mac 地址
+    is_valid_user = True
