@@ -9,9 +9,6 @@ pip3 install -r requirements/requirements.txt
 git clone https://github.com/zeroleo12345/myclog-python.git
 python3 setup.py install
 
-git clone https://github.com/zeroleo12345/mybase3.git
-python3 setup.py install
-
 mkdir -p /data/log/
 
 ln -s  /data/ ./run
@@ -25,7 +22,7 @@ sh migrate/init_db.sh
 ```
 
 
-### 运行
+### 开发调试运行
 - 鉴权
 ``` bash
 python src/auth.py
@@ -42,14 +39,14 @@ radtest  test  test  192.168.1.97  0  testing123
 ```
 
 
-### Supervisord
-- 安装
+### 生产运行
+- 安装 Supervisord
 ``` bash
 git clone git@github.com:zeroleo12345/supervisor.git
 python2 setup.py install
 ```
 
-- 启动Demon程序
+- 启动 Supervisord Demon 程序
 ``` bash
 supervisord  -c /root/radius_server/etc/supervisord.ini
 ```
