@@ -15,4 +15,6 @@ CREATE TABLE `session` (
     `id` INTEGER PRIMARY KEY,
     `username` VARCHAR(255) NOT NULL,
     `mac_address` VARCHAR(255) NOT NULL,
+    `acct_session_id` VARCHAR(255) NOT NULL,
+    `updated_at` DATETIME
 );
