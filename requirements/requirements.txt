@@ -5,3 +5,4 @@ requests==2.20.0
 peewee==3.7.1
 python-dateutil==2.7.5
 git+https://github.com/zeroleo12345/myclog-python.git
+sentry_sdk==0.5.5
