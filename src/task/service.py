@@ -4,7 +4,7 @@ import traceback
 from abc import ABC, abstractmethod
 # 第三方库
 # 自己的库
-from mybase3.mylog3 import log
+from settings import log
 
 
 class Service(ABC):

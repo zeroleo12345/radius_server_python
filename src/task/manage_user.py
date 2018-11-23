@@ -3,9 +3,8 @@ import requests
 from dateutil.parser import parse
 # 自己的库
 from task.service import Service
-from settings import API_URL
+from settings import API_URL, log
 from auth.models import User
-from mybase3.mylog3 import log
 
 
 class ServiceLoop(Service):
