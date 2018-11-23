@@ -3,6 +3,7 @@ import subprocess
 from decouple import config
 import sentry_sdk
 # 自己的库
+from settings import log
 from task.service import Service
 
 SENTRY_DSN = config('SENTRY_DSN')
@@ -21,7 +22,8 @@ class ServiceLoop(Service):
         for process in processes:
             command = f'ps -ef | grep -v grep | grep {process}'
             ret = subprocess.getoutput(command)
-            if not ret:
+            if process not in ret:
+                log.e(f'process: {process} not alive!')
                 sentry_sdk.capture_message(f'process: {process} not alive!')
 
 
