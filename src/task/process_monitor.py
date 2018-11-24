@@ -4,18 +4,18 @@ from decouple import config
 import sentry_sdk
 # 自己的库
 from settings import log
-from task.service import Service
+from task import Task
 
 SENTRY_DSN = config('SENTRY_DSN')
 sentry_sdk.init(SENTRY_DSN)
 
 
-class ServiceLoop(Service):
+class TaskLoop(Task):
     interval = 10   # 单位秒
 
     def __processor__(self):
         processes = [
-            'manage_user.py',
+            'task/manage_user.py',
             'auth/processor.py',
             'acct/processor.py',
         ]
@@ -27,4 +27,4 @@ class ServiceLoop(Service):
                 sentry_sdk.capture_message(f'process: {process} not alive!')
 
 
-ServiceLoop().start()
+TaskLoop().start()
