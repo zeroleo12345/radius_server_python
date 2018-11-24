@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from settings import log
 
 
-class Service(ABC):
+class Task(ABC):
     interval = 20   # 单位秒
     term = 0
 
