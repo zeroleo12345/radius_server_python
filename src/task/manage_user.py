@@ -10,7 +10,7 @@ from auth.models import User
 class TaskLoop(Task):
     interval = 20   # 单位秒
 
-    def __processor__(self):
+    def run(self):
         try:
             timeout = 5
             response = requests.request(method='GET', url=f'{API_URL}/user/sync', timeout=timeout)

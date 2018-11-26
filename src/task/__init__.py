@@ -15,7 +15,7 @@ class Task(ABC):
         self.signal_register()
 
     @abstractmethod
-    def __processor__(self):
+    def run(self):
         pass
 
     def signal_register(self):
@@ -31,7 +31,7 @@ class Task(ABC):
         try:
             # 消息循环
             while not self.term:
-                self.__processor__()
+                self.run()
                 log.d(f'sleep {self.interval} seconds')
                 time.sleep(self.interval)    # 睡眠 X 秒
         except KeyboardInterrupt:
