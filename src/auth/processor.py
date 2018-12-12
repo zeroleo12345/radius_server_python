@@ -5,7 +5,7 @@ from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
 from utils import get_dictionaries
-from settings import log, DICTIONARY_DIR, SECRET
+from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT, get_chap_rsp
 from auth.models import User, AuthUser
 
@@ -34,7 +34,7 @@ class EchoServer(DatagramServer):
                 reply = access_accept(request)
 
         # 返回
-        reply['Acct-Interim-Interval'] = 60
+        reply['Acct-Interim-Interval'] = ACCT_INTERVAL
         self.socket.sendto(reply.ReplyPacket(), address)
 
 
