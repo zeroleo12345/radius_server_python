@@ -2,13 +2,10 @@ import subprocess
 # 第三方库
 from decouple import config
 import psutil
-import sentry_sdk
 # 自己的库
+from utils import sentry_sdk
 from settings import log
 from task import Task
-
-SENTRY_DSN = config('SENTRY_DSN')
-sentry_sdk.init(SENTRY_DSN)
 
 
 class TaskLoop(Task):
