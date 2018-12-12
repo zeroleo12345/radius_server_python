@@ -36,16 +36,13 @@ class Sessions(object):
         """
         :param username:
         :param mac_address:
-        :return: True - 新增； False - 已存在, 没有新增
+        :return: 返回当前用户下的mac地址个数
         """
         if username not in cls.sessions:
             cls.sessions[username] = set()
 
-        if mac_address in cls.sessions[username]:
-            return False
-        else:
-            cls.sessions[username].add(mac_address)
-            return True
+        cls.sessions[username].add(mac_address)
+        return len(cls.sessions[username])
 
 
 class EchoServer(DatagramServer):
@@ -71,7 +68,7 @@ class EchoServer(DatagramServer):
 
         # 接受或断开链接
         if acct_user.is_valid:
-            if not Sessions.put(acct_user.username, acct_user.mac_address):
+            if Sessions.put(acct_user.username, acct_user.mac_address) > 1:
                 sentry_sdk.capture_message(f'user: {acct_user.username} multiple session!')
         else:
             # 断开链接
