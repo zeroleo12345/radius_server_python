@@ -17,7 +17,7 @@ deceypt .env.x
 
 # 初始化sqlite3数据库
 rm data/users.db
-sh migrate/init_db.sh
+sh startup/init_db.sh
 ```
 
 ### 开发调试运行
