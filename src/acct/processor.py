@@ -2,7 +2,6 @@ import os
 import datetime
 import subprocess
 # 第三方库
-from decouple import config
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 from pyrad.packet import AcctPacket
