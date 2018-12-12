@@ -2,25 +2,23 @@
 pppoe 用户鉴权计费
 
 
-### 安装依赖库
+### 初始化
+- 安装依赖库
 ``` bash
 pip3 install -r requirements/requirements.txt
 
 git clone https://github.com/zeroleo12345/myclog-python.git
 python3 setup.py install
-
-mkdir -p /data/log/
-
-ln -s  /data/ ./run
 ```
 
+- 环境变量
+```
+deceypt .env.x
 
-### 初始化sqlite3数据库
-``` bash
+# 初始化sqlite3数据库
 rm data/users.db
 sh migrate/init_db.sh
 ```
-
 
 ### 开发调试运行
 - 鉴权
@@ -33,8 +31,9 @@ python src/auth.py
 python src/acct.py
 ```
 
-- 使用客户端测试服务 (目前项目内固定secret为: testing123)
+- 使用客户端radtest测试服务 (来自freeradius工具包)
 ``` bash
+# 目前项目内固定secret为: testing123
 radtest  test  test  192.168.1.97  0  testing123
 ```
 

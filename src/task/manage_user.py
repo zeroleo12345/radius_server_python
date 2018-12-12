@@ -2,15 +2,15 @@ import requests
 # 第三方库
 from dateutil.parser import parse
 # 自己的库
-from task.service import Service
+from task import Task
 from settings import API_URL, log
 from auth.models import User
 
 
-class ServiceLoop(Service):
+class TaskLoop(Task):
     interval = 20   # 单位秒
 
-    def __processor__(self):
+    def run(self):
         try:
             timeout = 5
             response = requests.request(method='GET', url=f'{API_URL}/user/sync', timeout=timeout)
@@ -42,4 +42,4 @@ class ServiceLoop(Service):
                     user.save()
 
 
-ServiceLoop().start()
+TaskLoop().start()
