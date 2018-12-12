@@ -38,11 +38,10 @@ class EchoServer(DatagramServer):
         auth_user = verify(request)
 
         # 接受或拒绝
+        reply = access_reject(request)
         if auth_user.is_valid:
-            reply = access_accept(request)
-            unique_session(mac_address=auth_user.calling_station_id)
-        else:
-            reply = access_reject(request)
+            if is_unique_session(mac_address=auth_user.mac_address):
+                reply = access_accept(request)
 
         # 返回
         reply['Acct-Interim-Interval'] = 60
@@ -54,7 +53,7 @@ def verify(request):
 
     # 提取报文
     auth_user.username = request['User-Name'][0]
-    auth_user.calling_station_id = request['Calling-Station-Id'][0]
+    auth_user.mac_address = request['Calling-Station-Id'][0]
     challenge = request['CHAP-Challenge'][0]
     chap_password = request['CHAP-Password'][0]
     chap_id, resp_digest = chap_password[0:1], chap_password[1:]
@@ -87,8 +86,9 @@ def access_accept(request):
     return reply
 
 
-def unique_session(mac_address):
-    pass
+def is_unique_session(mac_address):
+    # TODO
+    return True
 
 
 def main():

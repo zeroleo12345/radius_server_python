@@ -29,5 +29,5 @@ class User(models.Model):
 
 class AuthUser(object):
     username = ''
-    calling_station_id = ''     # mac 地址
+    mac_address = ''     # mac 地址
     is_valid = True

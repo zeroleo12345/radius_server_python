@@ -45,7 +45,7 @@ class EchoServer(DatagramServer):
             pass
         else:
             # 断开链接
-            disconnect(mac_address=acct_user.calling_station_id)
+            disconnect(mac_address=acct_user.mac_address)
 
         # 返回
         reply = acct_res(request)
@@ -59,9 +59,9 @@ def verify(request):
     # Acct-Status-Type:  Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
     acct_user.acct_status_type = request["Acct-Status-Type"][0]
     acct_user.username = request['User-Name'][0]
-    acct_user.calling_station_id = request['Calling-Station-Id'][0]
+    acct_user.mac_address = request['Calling-Station-Id'][0]
     log.d('IN: {iut}|{username}|{mac_address}'.format(
-        iut=acct_user.acct_status_type, username=acct_user.username, mac_address=acct_user.calling_station_id)
+        iut=acct_user.acct_status_type, username=acct_user.username, mac_address=acct_user.mac_address)
     )
 
     now = datetime.datetime.now()
