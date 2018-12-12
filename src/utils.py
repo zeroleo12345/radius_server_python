@@ -2,7 +2,7 @@ import os
 
 
 def get_dictionaries(directory):
-    if not os.path.exists(dir):
+    if not os.path.exists(directory):
         raise Exception('directory:{} not exist'.format(directory))
     # 遍历目录一次
     root, dirs, files = next(os.walk(directory))
