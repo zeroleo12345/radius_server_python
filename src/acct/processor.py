@@ -6,7 +6,7 @@ from pyrad.dictionary import Dictionary
 from pyrad.packet import AcctPacket
 # 自己的库
 from utils import get_dictionaries
-from settings import log, DICTIONARY_DIR, SECRET, sentry_sdk
+from settings import log, DICTIONARY_DIR, SECRET, sentry_sdk, ACCT_INTERVAL
 from child_pyrad.packet import CODE_ACCOUNT_RESPONSE
 from auth.models import User
 from acct.models import AcctUser
@@ -63,8 +63,8 @@ class EchoServer(DatagramServer):
         # 验证用户
         acct_user = verify(request)
 
-        # 每隔30分钟清理会话
-        Sessions.clean(interval=1800)
+        # 每隔x秒清理会话
+        Sessions.clean(interval=ACCT_INTERVAL*2)
 
         # 接受或断开链接
         if acct_user.is_valid:
