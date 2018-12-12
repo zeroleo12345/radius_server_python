@@ -1,4 +1,3 @@
-import os
 import datetime
 # 第三方库
 from gevent.server import DatagramServer

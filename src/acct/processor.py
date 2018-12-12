@@ -1,4 +1,3 @@
-import os
 import datetime
 import subprocess
 # 第三方库
@@ -7,10 +6,46 @@ from pyrad.dictionary import Dictionary
 from pyrad.packet import AcctPacket
 # 自己的库
 from utils import get_dictionaries
-from settings import log, DICTIONARY_DIR, SECRET
+from settings import log, DICTIONARY_DIR, SECRET, sentry_sdk
 from child_pyrad.packet import CODE_ACCOUNT_RESPONSE
 from auth.models import User
 from acct.models import AcctUser
+
+
+class Sessions(object):
+    last_datetime = datetime.datetime.now()
+    sessions = {
+        'username': {'mac_address'}
+    }
+
+    @classmethod
+    def clean(cls, interval):
+        """
+        每隔多久清空
+        :param interval: 秒数
+        """
+        now = datetime.datetime.now()
+        if now - cls.last_datetime > datetime.timedelta(seconds=interval):
+            cls.last_datetime = now
+            cls.sessions = {
+                'username': {'mac_address'}
+            }
+
+    @classmethod
+    def put(cls, username, mac_address):
+        """
+        :param username:
+        :param mac_address:
+        :return: True - 新增； False - 已存在, 没有新增
+        """
+        if username not in cls.sessions:
+            cls.sessions[username] = set()
+
+        if mac_address in cls.sessions[username]:
+            return False
+        else:
+            cls.sessions[username].add(mac_address)
+            return True
 
 
 class EchoServer(DatagramServer):
@@ -31,9 +66,13 @@ class EchoServer(DatagramServer):
         # 验证用户
         acct_user = verify(request)
 
+        # 每隔30分钟清理会话
+        Sessions.clean(interval=1800)
+
         # 接受或断开链接
         if acct_user.is_valid:
-            pass
+            if not Sessions.put(acct_user.username, acct_user.mac_address):
+                sentry_sdk.capture_message(f'user: {acct_user.username} multiple session!')
         else:
             # 断开链接
             disconnect(mac_address=acct_user.mac_address)
