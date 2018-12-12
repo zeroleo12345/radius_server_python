@@ -19,7 +19,7 @@ class TaskLoop(Task):
             return
 
         json_response = response.json()
-        log.d(f'/user/sync response: {json_response}')
+        # log.d(f'/user/sync response: {json_response}')
 
         if not response.ok:
             log.e(f'response != 200')
