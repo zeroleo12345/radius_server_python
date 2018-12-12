@@ -1,6 +1,5 @@
 import subprocess
 # 第三方库
-from decouple import config
 import psutil
 # 自己的库
 from settings import log, sentry_sdk
