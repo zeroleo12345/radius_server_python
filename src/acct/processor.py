@@ -82,7 +82,7 @@ def acct_res(request):
 
 
 def main():
-    dictionary = Dictionary(get_dictionaries(DICTIONARY_DIR))
+    dictionary = Dictionary(*get_dictionaries(DICTIONARY_DIR))
     print('listening on :1813')
     server = EchoServer(dictionary, ':1813')
     server.serve_forever()

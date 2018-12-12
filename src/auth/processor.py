@@ -84,7 +84,7 @@ def is_unique_session(mac_address):
 
 
 def main():
-    dictionary = Dictionary(get_dictionaries(DICTIONARY_DIR))
+    dictionary = Dictionary(*get_dictionaries(DICTIONARY_DIR))
     print('listening on :1812')
     server = EchoServer(dictionary, ':1812')
     server.serve_forever()
