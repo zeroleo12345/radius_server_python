@@ -6,18 +6,10 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
+from utils import get_dictionaries
 from settings import log, DICTIONARY_DIR, SECRET
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT, get_chap_rsp
 from auth.models import User, AuthUser
-
-
-def init_dictionary():
-    if not os.path.exists(DICTIONARY_DIR):
-        raise Exception('DICTIONARY_DIR:{} not exist'.format(DICTIONARY_DIR))
-    # 遍历目录一次
-    root, dirs, files = next(os.walk(DICTIONARY_DIR))
-    dictionaries = [os.path.join(root, f) for f in files]
-    return Dictionary(*dictionaries)
 
 
 class EchoServer(DatagramServer):
@@ -92,7 +84,7 @@ def is_unique_session(mac_address):
 
 
 def main():
-    dictionary = init_dictionary()
+    dictionary = Dictionary(get_dictionaries(DICTIONARY_DIR))
     print('listening on :1812')
     server = EchoServer(dictionary, ':1812')
     server.serve_forever()

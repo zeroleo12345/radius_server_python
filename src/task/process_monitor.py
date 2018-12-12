@@ -3,8 +3,7 @@ import subprocess
 from decouple import config
 import psutil
 # 自己的库
-from utils import sentry_sdk
-from settings import log
+from settings import log, sentry_sdk
 from task import Task
 
 
