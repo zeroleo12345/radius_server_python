@@ -30,4 +30,4 @@ class User(models.Model):
 class AuthUser(object):
     username = ''
     calling_station_id = ''     # mac 地址
-    is_valid_user = True
+    is_valid = True

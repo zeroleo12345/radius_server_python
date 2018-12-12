@@ -41,7 +41,7 @@ class EchoServer(DatagramServer):
         acct_user = verify(request)
 
         # 接受或断开链接
-        if acct_user.is_valid_user:
+        if acct_user.is_valid:
             pass
         else:
             # 断开链接
@@ -67,7 +67,7 @@ def verify(request):
     now = datetime.datetime.now()
     user = User.select().where((User.username == acct_user.username) & (User.expired_at >= now)).first()
     if not user:
-        acct_user.is_valid_user = False
+        acct_user.is_valid = False
 
     return acct_user
 

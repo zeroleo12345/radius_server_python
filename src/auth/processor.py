@@ -38,7 +38,7 @@ class EchoServer(DatagramServer):
         auth_user = verify(request)
 
         # 接受或拒绝
-        if auth_user.is_valid_user:
+        if auth_user.is_valid:
             reply = access_accept(request)
             unique_session(mac_address=auth_user.calling_station_id)
         else:
@@ -63,13 +63,13 @@ def verify(request):
     user = User.select().where((User.username == auth_user.username) & (User.expired_at >= now)).first()
     if not user:
         log.e(f'reject! user: {auth_user.username} not exist')
-        auth_user.is_valid_user = False
+        auth_user.is_valid = False
         return auth_user
 
     # 算法判断上报的用户密码是否正确
     if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
         log.e(f'reject! password: {user.password} not correct')
-        auth_user.is_valid_user = False
+        auth_user.is_valid = False
 
     log.i(f'accept. user: {auth_user.username}')
     return auth_user
