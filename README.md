@@ -16,8 +16,8 @@ python3 setup.py install
 deceypt .env.x
 
 # 初始化sqlite3数据库
-rm data/users.db
-sh migrate/init_db.sh
+rm run/data/users.db
+sh startup/init_db.sh
 ```
 
 ### 开发调试运行

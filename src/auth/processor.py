@@ -1,23 +1,13 @@
-import os
 import datetime
 # 第三方库
-from decouple import config
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
-from settings import log, DICTIONARY_DIR, SECRET
+from utils import get_dictionaries
+from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT, get_chap_rsp
-from auth.models import User
-
-
-def init_dictionary():
-    if not os.path.exists(DICTIONARY_DIR):
-        raise Exception('DICTIONARY_DIR:{} not exist'.format(DICTIONARY_DIR))
-    # 遍历目录一次
-    root, dirs, files = next(os.walk(DICTIONARY_DIR))
-    dictionaries = [os.path.join(root, f) for f in files]
-    return Dictionary(*dictionaries)
+from auth.models import User, AuthUser
 
 
 class EchoServer(DatagramServer):
@@ -29,44 +19,49 @@ class EchoServer(DatagramServer):
 
     def handle(self, data, address):
         ip, port = address
-        print('from %s, data: %r' % (ip, data))
+        # print('from %s, data: %r' % (ip, data))
 
         # 解析报文
         request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
 
         # 验证用户
-        is_valid_user = verify(request)
+        auth_user = verify(request)
 
         # 接受或拒绝
-        if is_valid_user:
-            reply = access_accept(request)
-        else:
-            reply = access_reject(request)
+        reply = access_reject(request)
+        if auth_user.is_valid:
+            if is_unique_session(mac_address=auth_user.mac_address):
+                reply = access_accept(request)
 
         # 返回
-        reply['Acct-Interim-Interval'] = 60
+        reply['Acct-Interim-Interval'] = ACCT_INTERVAL
         self.socket.sendto(reply.ReplyPacket(), address)
 
 
 def verify(request):
-    username = request['User-Name'][0]
+    auth_user = AuthUser()
+
+    # 提取报文
+    auth_user.username = request['User-Name'][0]
+    auth_user.mac_address = request['Calling-Station-Id'][0]
     challenge = request['CHAP-Challenge'][0]
     chap_password = request['CHAP-Password'][0]
     chap_id, resp_digest = chap_password[0:1], chap_password[1:]
 
     now = datetime.datetime.now()
-    user = User.select().where((User.username == username) & (User.expired_at >= now)).first()
+    user = User.select().where((User.username == auth_user.username) & (User.expired_at >= now)).first()
     if not user:
-        log.e(f'reject! user: {username} not exist')
-        return False
+        log.e(f'reject! user: {auth_user.username} not exist')
+        auth_user.is_valid = False
+        return auth_user
 
     # 算法判断上报的用户密码是否正确
     if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
         log.e(f'reject! password: {user.password} not correct')
-        return False
+        auth_user.is_valid = False
 
-    log.i(f'accept. user: {username}')
-    return True
+    log.i(f'accept. user: {auth_user.username}')
+    return auth_user
 
 
 def access_reject(request):
@@ -81,8 +76,13 @@ def access_accept(request):
     return reply
 
 
+def is_unique_session(mac_address):
+    # TODO
+    return True
+
+
 def main():
-    dictionary = init_dictionary()
+    dictionary = Dictionary(*get_dictionaries(DICTIONARY_DIR))
     print('listening on :1812')
     server = EchoServer(dictionary, ':1812')
     server.serve_forever()
