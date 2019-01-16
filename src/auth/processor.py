@@ -59,6 +59,7 @@ def verify(request):
     if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
         log.e(f'reject! password: {user.password} not correct')
         auth_user.is_valid = False
+        return auth_user
 
     log.i(f'accept. user: {auth_user.username}')
     return auth_user
