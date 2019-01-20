@@ -61,7 +61,7 @@ def verify(request):
         auth_user.is_valid = False
         return auth_user
 
-    log.i(f'accept. user: {auth_user.username}')
+    log.i(f'accept. user: {auth_user.username}, mac: {auth_user.mac_address}')
     return auth_user
 
 
