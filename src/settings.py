@@ -17,3 +17,4 @@ LOG_DIR = config('LOG_DIR')
 LOG_LEVEL = config('LOG_LEVEL')
 
 log.init(header=LOG_HEADER, directory=LOG_DIR, level=LOG_LEVEL, max_buffer=0, max_line=100000)
+log.i('start')
