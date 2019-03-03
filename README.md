@@ -18,7 +18,7 @@ deceypt .env.x
 
 # 初始化sqlite3数据库
 rm run/data/users.db
-sh run/data/init_database.sh
+cd run/data/ && sh init_database.sh
 ```
 
 ## 生产运行
