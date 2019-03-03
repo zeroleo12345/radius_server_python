@@ -53,8 +53,11 @@ radtest  test  test  192.168.1.97  0  testing123
 
 ## 检查步骤
 ``` bash
-1. /var/log/pppd.log 是否存在日志, 存在表示pppoe-server正常运行, 且有用户拨号!
+1.1 /var/log/pppd.log 是否存在日志, 存在表示pppoe-server正常运行, 且有用户拨号.
+1.2 /var/log/pppd.log 确认日志内容是否正常.
+
 2. 检查交换机指示灯是否绿色. (绿色表示正常)
-3. 检查run/log/auth*日志是否正常, 日志缓存已设为0 buffer, 可及时看到日志!
+
+3. 检查run/log/auth*日志是否正常, 日志缓存已设为0 buffer, 可及时看到日志.
 ```
 
