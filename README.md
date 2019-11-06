@@ -6,14 +6,14 @@ pppoe 用户鉴权计费
 
 - 安装依赖库
 ``` bash
-pip3 install -r requirements/requirements.txt   --proxy 192.168.1.6:1080
+pip3 install -r requirements/requirements.txt   --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple
 pip2 install git+https://gitee.com/zeroleo12345/supervisor-3.3.2.git        # 安装supervisor
 ```
 
 
 - 环境变量
 ```
-deceypt .env.x
+decrypt .env.x
 cd run/data/ && rm users.db; sh init_database.sh      # 初始化sqlite3数据库
 ```
 
