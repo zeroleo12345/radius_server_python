@@ -4,6 +4,6 @@ python-decouple==3.1
 requests==2.20.0
 peewee==3.7.1
 python-dateutil==2.7.5
-git+https://github.com/zeroleo12345/myclog-python.git
 psutil==5.4.8
 sentry_sdk==0.5.5
+git+https://github.com/zeroleo12345/myclog-python.git
