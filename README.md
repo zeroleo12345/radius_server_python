@@ -34,13 +34,13 @@ sh bin/status.sh       # supervisorctl  -c /root/radius_server/etc/supervisord.i
 ## 开发调试运行
 - 鉴权
 ``` bash
-python src/auth/processor.py
+python3 src/auth/processor.py
 ```
 
 
 - 计费
 ``` bash
-python src/acct/processor.py
+python3 src/acct/processor.py
 ```
 
 
