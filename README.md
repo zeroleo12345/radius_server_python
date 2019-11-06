@@ -10,7 +10,6 @@ pip3 install -r requirements/requirements.txt   --trusted-host mirrors.aliyun.co
 pip2 install git+https://gitee.com/zeroleo12345/supervisor-3.3.2.git        # 安装supervisor
 ```
 
-
 - 环境变量
 ```
 decrypt .env.x
@@ -21,7 +20,11 @@ cd run/data/ && rm users.db; sh init_database.sh      # 初始化sqlite3数据�
 ## 生产运行
 - 启动 Supervisord Demon 程序
 ``` bash
+# 启动所有进程
 sh bin/all_start.sh    # supervisord  -c /root/radius_server/etc/supervisord.ini
+
+# 重启指定进程
+supervisorctl -c /root/radius_server/etc/supervisord.ini restart auth
 ```
 
 
