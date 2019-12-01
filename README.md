@@ -2,6 +2,12 @@
 pppoe 用户鉴权计费
 
 
+## [Pycharm pyenv 环境设置](https://stackoverflow.com/questions/41129504/pycharm-with-pyenv)
+```
+settings -> Project Interpreter -> Add... -> Virtualenv Environment -> Existing environment -> /Users/zlx/.pyenv/versions/3.6.5/bin/python
+```
+
+
 ## 初始化
 
 - 安装依赖库
@@ -35,23 +41,7 @@ sh bin/status.sh       # supervisorctl  -c /root/radius_server/etc/supervisord.i
 
 
 ## 开发调试运行
-- 鉴权
-``` bash
-python3 src/auth/processor.py
-```
-
-
-- 计费
-``` bash
-python3 src/acct/processor.py
-```
-
-
-- 使用客户端radtest测试服务 (来自freeradius工具包)
-``` bash
-# 目前项目内固定secret为: testing123
-radtest  test  test  192.168.1.97  0  testing123
-```
+详情查看目录: `tools`
 
 
 ## 检查步骤

@@ -8,8 +8,9 @@ from pyrad.packet import AcctPacket
 from utils import get_dictionaries
 from settings import log, DICTIONARY_DIR, SECRET, sentry_sdk, ACCT_INTERVAL
 from child_pyrad.packet import CODE_ACCOUNT_RESPONSE
-from auth.models import User
-from acct.models import AcctUser
+from controls.acct import AcctUser
+from models import Session
+from models.auth import User
 
 
 class Sessions(object):
@@ -92,7 +93,8 @@ def verify(request):
     )
 
     now = datetime.datetime.now()
-    user = User.select().where((User.username == acct_user.username) & (User.expired_at >= now)).first()
+    session = Session()
+    user = session.query(User).filter(User.username == acct_user.username, User.expired_at >= now).first()
     if not user:
         acct_user.is_valid = False
 

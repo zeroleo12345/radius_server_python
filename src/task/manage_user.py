@@ -4,7 +4,8 @@ from dateutil.parser import parse
 # 自己的库
 from task import Task
 from settings import API_URL, log
-from auth.models import User
+from models import Session
+from models.auth import User
 
 
 class TaskLoop(Task):
@@ -26,20 +27,25 @@ class TaskLoop(Task):
             return
 
         data = json_response['data']
+        session = Session()
         for item in data:
             username = item['username']
             password = item['password']
             expired_at = item['expired_at']
             #
-            expired_at = parse(expired_at).strftime('%Y-%m-%d %H:%M:%S')
-            user = User.select().where((User.username == username)).first()
+            expired_at_dt = parse(expired_at)   # datetime 类型
+            expired_at_str = expired_at_dt.strftime('%Y-%m-%d %H:%M:%S')    # 字符串类型
+            user = session.query(User).filter(User.username == username).first()
             if not user:
-                User.insert(username=username, password=password, expired_at=expired_at).execute()
+                new_user = User(username=username, password=password, expired_at=expired_at_dt)
+                session.add(new_user)
+                session.commit()
             else:
                 if user.expired_at != expired_at or user.password != password:
-                    user.expired_at = expired_at
+                    user.expired_at = expired_at_dt
                     user.password = password
-                    user.save()
+                    session.commit()
+        session.close()
 
 
 TaskLoop().start()
