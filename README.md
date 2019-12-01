@@ -2,6 +2,12 @@
 pppoe 用户鉴权计费
 
 
+## Pycharm pyenv 环境设置
+```
+settings -> Project Interpreter -> Add... -> Virtualenv Environment -> Existing environment -> /Users/zlx/.pyenv/versions/3.6.5/bin/python
+```
+
+
 ## 初始化
 
 - 安装依赖库

@@ -2,7 +2,8 @@ gevent==1.2.2
 pyrad==2.1      # https://github.com/wichert/pyrad.git
 python-decouple==3.1
 requests==2.20.0
-peewee==3.7.1
+sqlalchemy==1.3.11
+# peewee==3.7.1
 python-dateutil==2.7.5
 psutil==5.4.8
 sentry_sdk==0.5.5

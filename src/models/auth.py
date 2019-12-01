@@ -3,14 +3,18 @@ import peewee as models
 # 自己的库
 from settings import USER_DB
 
-db = SqliteQueueDatabase(
-    USER_DB,
-    use_gevent=True,  # Use the standard library "threading" module.
-    autostart=False,  # The worker thread now must be started manually.
-    queue_max_size=64,  # Max. # of pending writes that can accumulate.
-    results_timeout=5.0)  # Max. time to wait for query to be executed.
+DB_CONNECT_STRING = f'sqlite:///{USER_DB}'
+engine = create_engine(DB_CONNECT_STRING, echo=True)
 
-db.start()
+
+from sqlalchemy import Column, Integer, String
+from Models import Base
+
+class User(Base):
+    __tablename__ = 'user'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    username = Column('username', String(255))
+    age = Column('age', Integer)
 
 
 # 账户, 密码
