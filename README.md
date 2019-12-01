@@ -43,19 +43,21 @@ sh bin/status.sh       # supervisorctl  -c /root/radius_server/etc/supervisord.i
 ## 开发调试运行
 - 鉴权
 ``` bash
-python3 src/auth/processor.py
+sh bin/auth.sh  # python3 src/auth/processor.py
 ```
 
 
 - 计费
 ``` bash
-python3 src/acct/processor.py
+sh bin/acct.sh  # python3 src/acct/processor.py
 ```
 
 
 - 使用客户端radtest测试服务 (来自freeradius工具包)
 ``` bash
-# 目前项目内固定secret为: testing123
+brew install freeradius-server
+
+# 项目内固定secret为: testing123
 radtest  test  test  192.168.1.97  0  testing123
 ```
 
