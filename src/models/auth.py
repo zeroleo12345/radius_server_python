@@ -1,5 +1,6 @@
-from playhouse.sqliteq import SqliteQueueDatabase
-import peewee as models
+from . import Base
+# 第三方库
+from sqlalchemy import Column, Integer, String, DateTime
 # 自己的库
 from settings import USER_DB
 
@@ -7,27 +8,15 @@ DB_CONNECT_STRING = f'sqlite:///{USER_DB}'
 engine = create_engine(DB_CONNECT_STRING, echo=True)
 
 
-from sqlalchemy import Column, Integer, String
-from Models import Base
-
 class User(Base):
     __tablename__ = 'user'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    username = Column('username', String(255))
-    age = Column('age', Integer)
 
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(255), unique=True, nullable=True)
+    password = Column(String(255))
+    expired_at = Column(DateTime)
 
-# 账户, 密码
-class User(models.Model):
-    class Meta:
-        database = db
-        db_table = 'user'
-
-    username = models.CharField(max_length=255, unique=True, null=True)
-    password = models.CharField(max_length=255)
-    expired_at = models.DateTimeField()
-
-    def __str__(self):
+    def __repr__(self):
         return self.username
 
 
