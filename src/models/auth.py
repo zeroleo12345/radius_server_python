@@ -1,4 +1,4 @@
-from models import Base
+from . import Base
 # 第三方库
 from sqlalchemy import Column, Integer, String, DateTime
 
