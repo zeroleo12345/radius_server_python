@@ -33,15 +33,16 @@ class TaskLoop(Task):
             password = item['password']
             expired_at = item['expired_at']
             #
-            expired_at = parse(expired_at).strftime('%Y-%m-%d %H:%M:%S')
+            expired_at_dt = parse(expired_at)   # datetime 类型
+            expired_at_str = expired_at_dt.strftime('%Y-%m-%d %H:%M:%S')    # 字符串类型
             user = session.query(User).filter(User.username == username).first()
             if not user:
-                new_user = User(username=username, password=password, expired_at=expired_at)
+                new_user = User(username=username, password=password, expired_at=expired_at_dt)
                 session.add(new_user)
                 session.commit()
             else:
                 if user.expired_at != expired_at or user.password != password:
-                    user.expired_at = expired_at
+                    user.expired_at = expired_at_dt
                     user.password = password
                     session.commit()
         session.close()
