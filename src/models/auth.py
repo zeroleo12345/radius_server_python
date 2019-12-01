@@ -1,4 +1,4 @@
-from . import Base
+from models import Base
 # 第三方库
 from sqlalchemy import Column, Integer, String, DateTime
 
@@ -13,9 +13,3 @@ class User(Base):
 
     def __repr__(self):
         return self.username
-
-
-class AuthUser(object):
-    username = ''
-    mac_address = ''     # mac 地址
-    is_valid = True
