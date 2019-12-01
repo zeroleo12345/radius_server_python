@@ -34,7 +34,7 @@ class TaskLoop(Task):
             expired_at = item['expired_at']
             #
             expired_at = parse(expired_at).strftime('%Y-%m-%d %H:%M:%S')
-            user = User.query.filter(User.username == username).first()
+            user = session.query(User).filter(User.username == username).first()
             if not user:
                 new_user = User(username=username, password=password, expired_at=expired_at)
                 session.add(new_user)

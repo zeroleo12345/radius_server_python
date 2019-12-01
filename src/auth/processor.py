@@ -8,6 +8,7 @@ from utils import get_dictionaries
 from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT, get_chap_rsp
 from controls.auth import AuthUser
+from models import Session
 from models.auth import User
 
 
@@ -50,7 +51,8 @@ def verify(request):
     chap_id, resp_digest = chap_password[0:1], chap_password[1:]
 
     now = datetime.datetime.now()
-    user = User.query.filter(User.username == auth_user.username, User.expired_at >= now).first()
+    session = Session()
+    user = session.query(User).filter(User.username == auth_user.username, User.expired_at >= now).first()
     if not user:
         log.e(f'reject! user: {auth_user.username} not exist')
         auth_user.is_valid = False
