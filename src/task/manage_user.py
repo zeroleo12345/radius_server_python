@@ -4,7 +4,7 @@ from dateutil.parser import parse
 # 自己的库
 from task import Task
 from settings import API_URL, log
-from auth.models import User
+from models.auth import User
 
 
 class TaskLoop(Task):

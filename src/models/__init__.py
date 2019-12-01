@@ -1,3 +1,11 @@
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+# 自己的库
+from settings import USER_DB
 
-Base = declarative_base()
+
+engine = create_engine(f'sqlite:///{USER_DB}', echo=True)
+metadata = MetaData(bind = engine)
+Base = declarative_base(bind=engine)
+Session = sessionmaker(bind=engine)

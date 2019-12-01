@@ -1,11 +1,6 @@
 from . import Base
 # 第三方库
 from sqlalchemy import Column, Integer, String, DateTime
-# 自己的库
-from settings import USER_DB
-
-DB_CONNECT_STRING = f'sqlite:///{USER_DB}'
-engine = create_engine(DB_CONNECT_STRING, echo=True)
 
 
 class User(Base):

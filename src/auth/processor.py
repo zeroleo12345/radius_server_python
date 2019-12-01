@@ -7,7 +7,7 @@ from pyrad.packet import AuthPacket
 from utils import get_dictionaries
 from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT, get_chap_rsp
-from auth.models import User, AuthUser
+from models.auth import User, AuthUser
 
 
 class EchoServer(DatagramServer):
