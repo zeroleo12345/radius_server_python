@@ -24,5 +24,9 @@ radtest  test  test  192.168.1.97  0  testing123
 建议使用: radclient [options] server[:port] <command> [<secret>]
 
 ```
-radclient 127.0.0.1:1812  auth  testing123 < chap.txt
+# 鉴权报文
+radclient 127.0.0.1:1812  auth  'testing123'  < auth/chap.txt
+
+# 计费报文
+radclient -d ./dictionary 127.0.0.1:1813  acct  'testing123'  < acct/i.txt
 ```
