@@ -2,7 +2,7 @@
 pppoe 用户鉴权计费
 
 
-## Pycharm pyenv 环境设置
+## [Pycharm pyenv 环境设置](https://stackoverflow.com/questions/41129504/pycharm-with-pyenv)
 ```
 settings -> Project Interpreter -> Add... -> Virtualenv Environment -> Existing environment -> /Users/zlx/.pyenv/versions/3.6.5/bin/python
 ```
