@@ -4,7 +4,7 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
-from utils import get_dictionaries
+from child_pyrad.dictionary import get_dictionaries
 from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT, get_chap_rsp
 from controls.auth import AuthUser
