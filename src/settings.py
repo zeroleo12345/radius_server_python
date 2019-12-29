@@ -18,4 +18,4 @@ LOG_LEVEL = config('LOG_LEVEL')
 LOG_BUFFER_SIZE = config('LOG_BUFFER_SIZE', default=0, cast=int)
 
 log.init(header=LOG_HEADER, directory=LOG_DIR, level=LOG_LEVEL, max_buffer=LOG_BUFFER_SIZE, max_line=100000)
-log.i('start')
+log.i(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_BUFFER_SIZE: {LOG_BUFFER_SIZE}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
