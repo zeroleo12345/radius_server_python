@@ -11,6 +11,8 @@ from child_pyrad.packet import CODE_ACCOUNT_RESPONSE
 from controls.acct import AcctUser
 from models import Session
 from models.auth import User
+from utils.signal import Signal
+Signal.register()
 
 
 class Sessions(object):
@@ -53,7 +55,19 @@ class EchoServer(DatagramServer):
         super(self.__class__, self).__init__(*args, **kwargs)
         self.dictionary = dictionary
 
+    @classmethod
+    def handle_signal(cls):
+        if Signal.is_usr1:
+            log.flush()
+            Signal.is_usr1 = False
+            return
+        if Signal.is_usr2:
+            log.flush()
+            Signal.is_usr2 = False
+            return
+
     def handle(self, data, address):
+        self.handle_signal()
         ip, port = address
         # print('from %s, data: %r' % (ip, data))
 
