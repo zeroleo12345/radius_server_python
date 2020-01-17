@@ -12,8 +12,11 @@ settings -> Project Interpreter -> Add... -> Virtualenv Environment -> Existing 
 
 - 安装依赖库
 ``` bash
-pip3 install -r requirements/requirements.txt   --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple
-pip2 install git+https://gitee.com/zeroleo12345/supervisor-3.3.2.git        # 安装supervisor
+#
+pip3 install -r requirements/requirements.txt  --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple
+
+# 安装supervisor
+pip2 install git+https://gitee.com/zeroleo12345/supervisor-3.3.2.git
 ```
 
 - 环境变量
