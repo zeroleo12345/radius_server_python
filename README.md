@@ -56,6 +56,6 @@ sh bin/status.sh       # supervisorctl  -c /root/radius_server/etc/supervisord.i
 
 2. 检查交换机指示灯是否绿色. (绿色表示正常)
 
-3. 检查run/log/auth*日志是否正常, 日志缓存已设为0 buffer, 可及时看到日志.
+3. 检查 ~/radius_server/run/log/auth* 日志是否正常, 日志缓存已设为0 buffer, 可及时看到日志.
 ```
 
