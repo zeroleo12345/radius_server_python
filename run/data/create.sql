@@ -9,6 +9,7 @@ CREATE UNIQUE INDEX user_username ON `user`(username);
 INSERT INTO `user`(id, username, password, expired_at) VALUES(NULL, 'zhoulixin', 'zhoulixin', '2099-01-01 00:00:00');
 INSERT INTO `user`(id, username, password, expired_at) VALUES(NULL, 'zhouliying', 'zhouliying', '2099-01-01 00:00:00');
 INSERT INTO `user`(id, username, password, expired_at) VALUES(NULL, 'zhangfengjian', 'zhangfengjian', '2099-01-01 00:00:00');
+INSERT INTO `user`(id, username, password, expired_at) VALUES(NULL, 'jiankong', 'jiankong', '2099-01-01 00:00:00');
 INSERT INTO `user`(id, username, password, expired_at) VALUES(NULL, '301', 'password', '2099-01-01 00:00:00');
 
 
