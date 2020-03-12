@@ -1,4 +1,5 @@
 import requests
+import datetime
 # 第三方库
 from dateutil.parser import parse
 # 自己的库
@@ -6,6 +7,8 @@ from task import Task
 from settings import API_URL, log
 from models import Session
 from models.auth import User
+
+LOCAL_TZ = datetime.timezone(datetime.timedelta(hours=8))
 
 
 class TaskLoop(Task):
@@ -34,6 +37,7 @@ class TaskLoop(Task):
             expired_at = item['expired_at']
             #
             expired_at_dt = parse(expired_at)   # datetime 类型
+            expired_at_str = expired_at_dt.strftime('%Y-%m-%d %H:%M:%S')    # 字符串类型
             user = session.query(User).filter(User.username == username).first()
             if not user:
                 new_user = User(username=username, password=password, expired_at=expired_at_dt)
@@ -41,7 +45,7 @@ class TaskLoop(Task):
                 session.commit()
                 log.i(f'insert user: {username}')
             else:
-                if user.expired_at != expired_at or user.password != password:
+                if user.expired_at.strftime('%Y-%m-%d %H:%M:%S') != expired_at_str or user.password != password:
                     user.expired_at = expired_at_dt
                     user.password = password
                     session.commit()
