@@ -1,0 +1,94 @@
+version: '3.5'
+
+services:
+  auth:
+    container_name: radius_auth
+    build:
+       context: .
+       dockerfile: ./docker/radius/Dockerfile
+    ports:      # 外部端口:docker内部端口
+      - "1812:1812"
+    environment:
+      DEBUG: "${DEBUG}"
+      ENVIRONMENT: "${ENVIRONMENT}"
+    env_file:
+      - .env
+    volumes:    # 挂载盘: - 主机路径:docker内部路径
+      - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
+      - ./data:/data
+    # entrypoint: sh      # 用于调试
+    entrypoint: /app/bin/auth.sh
+    tty: true
+    restart: unless-stopped
+    networks:
+      - pppoe_system
+
+
+  acct:
+    container_name: radius_acct
+    build:
+       context: .
+       dockerfile: ./docker/radius/Dockerfile
+    ports:      # 外部端口:docker内部端口
+      - "1813:1813"
+    environment:
+      DEBUG: "${DEBUG}"
+      ENVIRONMENT: "${ENVIRONMENT}"
+    env_file:
+      - .env
+    volumes:    # 挂载盘: - 主机路径:docker内部路径
+      - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
+      - ./data:/data
+    # entrypoint: sh      # 用于调试
+    entrypoint: /app/bin/acct.sh
+    tty: true
+    restart: unless-stopped
+    networks:
+      - pppoe_system
+
+
+  user:
+    container_name: radius_user
+    build:
+       context: .
+       dockerfile: ./docker/radius/Dockerfile
+    environment:
+      DEBUG: "${DEBUG}"
+      ENVIRONMENT: "${ENVIRONMENT}"
+    env_file:
+      - .env
+    volumes:    # 挂载盘: - 主机路径:docker内部路径
+      - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
+      - ./data:/data
+    # entrypoint: sh      # 用于调试
+    entrypoint: /app/bin/user.sh
+    tty: true
+    restart: unless-stopped
+    networks:
+      - pppoe_system
+
+
+  monitor:
+    container_name: radius_monitor
+    build:
+       context: .
+       dockerfile: ./docker/radius/Dockerfile
+    environment:
+      DEBUG: "${DEBUG}"
+      ENVIRONMENT: "${ENVIRONMENT}"
+    env_file:
+      - .env
+    volumes:    # 挂载盘: - 主机路径:docker内部路径
+      - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
+      - ./data:/data
+    # entrypoint: sh      # 用于调试
+    entrypoint: /app/bin/monitor.sh
+    tty: true
+    restart: unless-stopped
+    networks:
+      - pppoe_system
+
+
+networks:
+  pppoe_system:
+    name: pppoe_system_network_name
