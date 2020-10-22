@@ -138,8 +138,8 @@ def acct_res(request):
 
 def main():
     dictionary = Dictionary(*get_dictionaries(DICTIONARY_DIR))
-    print('listening on :1813')
-    server = EchoServer(dictionary, ':1813')
+    print('listening on 0.0.0.0:1813')
+    server = EchoServer(dictionary, '0.0.0.0:1813')
     server.serve_forever()
 
 
