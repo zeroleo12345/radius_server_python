@@ -1,3 +1,4 @@
+import traceback
 import datetime
 import subprocess
 # 第三方库
@@ -67,31 +68,34 @@ class EchoServer(DatagramServer):
             return
 
     def handle(self, data, address):
-        self.handle_signal()
-        ip, port = address
-        # print('from %s, data: %r' % (ip, data))
+        try:
+            self.handle_signal()
+            ip, port = address
+            # print('from %s, data: %r' % (ip, data))
 
-        # 解析报文
-        request = AcctPacket(dict=self.dictionary, secret=SECRET, packet=data)
-        # log.d('recv request: {}'.format(request))
+            # 解析报文
+            request = AcctPacket(dict=self.dictionary, secret=SECRET, packet=data)
+            # log.d('recv request: {}'.format(request))
 
-        # 验证用户
-        acct_user = verify(request)
+            # 验证用户
+            acct_user = verify(request)
 
-        # 每隔x秒清理会话
-        Sessions.clean(interval=ACCT_INTERVAL*2)
+            # 每隔x秒清理会话
+            Sessions.clean(interval=ACCT_INTERVAL*2)
 
-        # 接受或断开链接
-        if acct_user.is_valid:
-            if Sessions.put(acct_user.username, acct_user.mac_address) > 1:
-                sentry_sdk.capture_message(f'user: {acct_user.username} multiple session!')
-        else:
-            # 断开链接
-            disconnect(mac_address=acct_user.mac_address)
+            # 接受或断开链接
+            if acct_user.is_valid:
+                if Sessions.put(acct_user.username, acct_user.mac_address) > 1:
+                    sentry_sdk.capture_message(f'user: {acct_user.username} multiple session!')
+            else:
+                # 断开链接
+                disconnect(mac_address=acct_user.mac_address)
 
-        # 返回
-        reply = acct_res(request)
-        self.socket.sendto(reply.ReplyPacket(), address)
+            # 返回
+            reply = acct_res(request)
+            self.socket.sendto(reply.ReplyPacket(), address)
+        except Exception:
+            log.e(traceback.format_exc())
 
 
 def verify(request):

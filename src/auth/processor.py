@@ -1,3 +1,4 @@
+import traceback
 import datetime
 # 第三方库
 from gevent.server import DatagramServer
@@ -33,25 +34,28 @@ class EchoServer(DatagramServer):
             return
 
     def handle(self, data, address):
-        self.handle_signal()
-        ip, port = address
-        # print('from %s, data: %r' % (ip, data))
+        try:
+            self.handle_signal()
+            ip, port = address
+            # print('from %s, data: %r' % (ip, data))
 
-        # 解析报文
-        request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
+            # 解析报文
+            request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
 
-        # 验证用户
-        auth_user = verify(request)
+            # 验证用户
+            auth_user = verify(request)
 
-        # 接受或拒绝
-        reply = access_reject(request)
-        if auth_user.is_valid:
-            if is_unique_session(mac_address=auth_user.mac_address):
-                reply = access_accept(request)
+            # 接受或拒绝
+            reply = access_reject(request)
+            if auth_user.is_valid:
+                if is_unique_session(mac_address=auth_user.mac_address):
+                    reply = access_accept(request)
 
-        # 返回
-        reply['Acct-Interim-Interval'] = ACCT_INTERVAL
-        self.socket.sendto(reply.ReplyPacket(), address)
+            # 返回
+            reply['Acct-Interim-Interval'] = ACCT_INTERVAL
+            self.socket.sendto(reply.ReplyPacket(), address)
+        except Exception:
+            log.e(traceback.format_exc())
 
 
 def verify(request):
