@@ -19,6 +19,10 @@ class EapPeap(object):
         # 2. 从redis获取会话
 
         # 3. return 对应流程的处理函数
+        raw_eap = EAP.mergeEapMessage( self.packet['EAP-Message'] )
+        req_eap = EAP( raw_eap )
+        req_peap = None
+        if req_eap.type == TYPE_EAP_PEAP: req_peap = EAP_PEAP( content=raw_eap )
         return True, auth_user
 
     @staticmethod
