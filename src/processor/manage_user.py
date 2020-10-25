@@ -3,7 +3,7 @@ import datetime
 # 第三方库
 from dateutil.parser import parse
 # 自己的库
-from task import Task
+from processor import Task
 from settings import API_URL, log
 from models import Session
 from models.auth import User
@@ -15,8 +15,8 @@ class TaskLoop(Task):
     interval = 20   # 单位秒
 
     def run(self):
+        timeout = 5
         try:
-            timeout = 5
             response = requests.request(method='GET', url=f'{API_URL}/user/sync', timeout=timeout)
         except (requests.Timeout, requests.ConnectionError):
             log.e(f'request {timeout} seconds timeout')

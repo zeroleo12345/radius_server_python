@@ -3,7 +3,7 @@ import subprocess
 import psutil
 # 自己的库
 from settings import log, sentry_sdk
-from task import Task
+from processor import Task
 
 
 class TaskLoop(Task):
@@ -15,9 +15,9 @@ class TaskLoop(Task):
 
     def process(self):
         processes = [
-            'task/manage_user.py',
-            'auth/processor.py',
-            'acct/processor.py',
+            'processor/manage_user.py',
+            'processor/auth_processor.py',
+            'processor/acct_processor.py',
         ]
         for process in processes:
             command = f'ps -ef | grep -v grep | grep {process}'
