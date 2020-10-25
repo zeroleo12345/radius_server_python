@@ -98,7 +98,7 @@ class EchoServer(DatagramServer):
             log.e(traceback.format_exc())
 
 
-def verify(request):
+def verify(request: AcctPacket):
     acct_user = AcctUser()
 
     # 提取报文
@@ -130,7 +130,7 @@ def disconnect(mac_address):
         log.e(f'session disconnect error! ret: {ret}')
 
 
-def acct_res(request):
+def acct_res(request: AcctPacket):
     reply = request.CreateReply()
     reply.code = CODE_ACCOUNT_RESPONSE
     return reply

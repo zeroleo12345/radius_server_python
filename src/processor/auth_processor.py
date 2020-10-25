@@ -58,7 +58,7 @@ class EchoServer(DatagramServer):
             log.e(traceback.format_exc())
 
 
-def verify(request):
+def verify(request: AuthPacket):
     auth_user = AuthUser()
 
     # 提取报文
@@ -86,13 +86,13 @@ def verify(request):
     return auth_user
 
 
-def access_reject(request):
+def access_reject(request: AuthPacket):
     reply = request.CreateReply()
     reply.code = CODE_ACCESS_REJECT
     return reply
 
 
-def access_accept(request):
+def access_accept(request: AuthPacket):
     reply = request.CreateReply()
     reply.code = CODE_ACCESS_ACCEPT
     return reply
