@@ -78,13 +78,13 @@ class EchoServer(DatagramServer):
             # log.d('recv request: {}'.format(request))
 
             # 验证用户
-            acct_user = verify(request)
+            is_ok, acct_user = verify(request)
 
             # 每隔x秒清理会话
             Sessions.clean(interval=ACCT_INTERVAL*2)
 
             # 接受或断开链接
-            if acct_user.is_valid:
+            if is_ok:
                 if Sessions.put(acct_user.username, acct_user.mac_address) > 1:
                     sentry_sdk.capture_message(f'user: {acct_user.username} multiple session!')
             else:
@@ -114,9 +114,9 @@ def verify(request: AcctPacket):
     session = Session()
     user = session.query(User).filter(User.username == acct_user.username, User.expired_at >= now).first()
     if not user:
-        acct_user.is_valid = False
+        return False, acct_user
 
-    return acct_user
+    return True, acct_user
 
 
 def disconnect(mac_address):

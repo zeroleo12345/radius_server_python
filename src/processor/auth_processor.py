@@ -43,10 +43,10 @@ class EchoServer(DatagramServer):
             request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
 
             # 验证用户
-            auth_user = verify(request)
+            is_ok, auth_user = verify(request)
 
             # 接受或拒绝
-            if auth_user.is_valid and is_unique_session(mac_address=auth_user.mac_address):
+            if is_ok and is_unique_session(mac_address=auth_user.mac_address):
                 reply = access_accept(request)
                 log.i(f'accept. user: {auth_user.username}, mac: {auth_user.mac_address}')
             else:
@@ -73,8 +73,16 @@ def verify(request: AuthPacket):
     user = session.query(User).filter(User.username == auth_user.username, User.expired_at >= now).first()
     if not user:
         log.e(f'user: {auth_user.username} not exist')
-        auth_user.is_valid = False
-        return auth_user
+        return False, auth_user
+
+    # 根据报文内容, 选择认证方式
+    if 'CHAP-Password' in request:
+        'chap'
+    elif 'EAP-Message' in request:
+        'eap_peap'
+    else:
+        log.e('can not choose auth method')
+        return False, auth_user
 
     # 算法判断上报的用户密码是否正确
     chap_password = request['CHAP-Password'][0]
@@ -82,10 +90,9 @@ def verify(request: AuthPacket):
     challenge = request['CHAP-Challenge'][0]
     if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
         log.e(f'password: {user.password} not correct')
-        auth_user.is_valid = False
-        return auth_user
+        return False, auth_user
 
-    return auth_user
+    return True, auth_user
 
 
 def access_reject(request: AuthPacket):
