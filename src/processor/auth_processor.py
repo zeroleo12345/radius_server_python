@@ -43,6 +43,7 @@ class EchoServer(DatagramServer):
 
             # 解析报文
             request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
+            request.raw_packet = data
 
             # 验证用户
             is_ok, auth_user = verify(request)
