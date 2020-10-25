@@ -1,0 +1,2 @@
+class PacketError(Exception):
+    pass

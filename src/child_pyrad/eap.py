@@ -5,14 +5,12 @@ reference:
 import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_into
 import os
 import ctypes
+#
+from child_pyrad.exception import PacketError
 
 
 def get_eap_lib():
     return ctypes.CDLL(os.path.join(os.path.dirname(__file__), 'libeap.so'))
-
-
-class PacketError(Exception):
-    pass
 
 
 class Eap(object):
@@ -67,12 +65,12 @@ class Eap(object):
             raise PacketError('EAP header is corrupt')
         if len(packet) != _length:
             raise PacketError('EAP has invalid length')
-        if self.code in [CODE_EAP_REQUEST, CODE_EAP_RESPONSE]:
+        if self.code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]:
             self.type, = struct.unpack("!B", packet[4:5]) if _length > 4 else None
             self.type_data = packet[5:_length] if _length > 5 else ''
 
     def pack(self):
-        if self.code in [CODE_EAP_REQUEST, CODE_EAP_RESPONSE]:
+        if self.code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]:
             header = struct.pack('!2BHB', self.code, self.id, (5 + len(self.type_data)), self.type)
         else:
             header = struct.pack('!2BH', self.code, self.id, 4)

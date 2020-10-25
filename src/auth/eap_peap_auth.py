@@ -4,7 +4,8 @@ from pyrad.packet import AuthPacket
 # 自己的库
 from mybase3.mylog3 import log
 from controls.auth import AuthUser
-from auth.eap import Eap
+from child_pyrad.eap import Eap
+from child_pyrad.eap_peap import EapPeap
 
 
 class EapPeapAuth(object):
@@ -20,10 +21,11 @@ class EapPeapAuth(object):
         # 2. 从redis获取会话
 
         # 3. return 对应流程的处理函数
-        eap_messages = Eap.merge_eap_message(request['EAP-Message'])
-        req_eap = Eap(eap_messages)
+        raw_eap_messages = Eap.merge_eap_message(request['EAP-Message'])
+        req_eap = Eap(raw_eap_messages)
         req_peap = None
-        if req_eap.type == Eap.TYPE_EAP_PEAP: req_peap = EAP_PEAP( content=raw_eap )
+        if req_eap.type == Eap.TYPE_EAP_PEAP:
+            req_peap = EapPeap(content=raw_eap_messages)
         return True, auth_user
 
     @staticmethod
