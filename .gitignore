@@ -106,6 +106,9 @@ venv.bak/
 # IDEA
 .idea/
 
+# MacOS
+.DS_Store
+
 # Self Define
 run/data/
 *.tmp

@@ -13,8 +13,10 @@ class Chap(object):
 
     @staticmethod
     def verify(request: AuthPacket, auth_user: AuthUser):
-        # 根据算法, 判断上报的用户密码是否正确
+        # 获取报文
         chap_password = request['CHAP-Password'][0]
+
+        # 根据算法, 判断上报的用户密码是否正确
         chap_id, resp_digest = chap_password[0:1], chap_password[1:]
         challenge = request['CHAP-Challenge'][0]
         if resp_digest != Chap.get_chap_rsp(chap_id, auth_user.password, challenge):
