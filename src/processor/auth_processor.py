@@ -46,10 +46,12 @@ class EchoServer(DatagramServer):
             auth_user = verify(request)
 
             # 接受或拒绝
-            reply = access_reject(request)
-            if auth_user.is_valid:
-                if is_unique_session(mac_address=auth_user.mac_address):
-                    reply = access_accept(request)
+            if auth_user.is_valid and is_unique_session(mac_address=auth_user.mac_address):
+                reply = access_accept(request)
+                log.i(f'accept. user: {auth_user.username}, mac: {auth_user.mac_address}')
+            else:
+                reply = access_reject(request)
+                log.i(f'reject. user: {auth_user.username}, mac: {auth_user.mac_address}')
 
             # 返回
             reply['Acct-Interim-Interval'] = ACCT_INTERVAL
@@ -64,25 +66,25 @@ def verify(request: AuthPacket):
     # 提取报文
     auth_user.username = request['User-Name'][0]
     auth_user.mac_address = request['Calling-Station-Id'][0]
-    challenge = request['CHAP-Challenge'][0]
-    chap_password = request['CHAP-Password'][0]
-    chap_id, resp_digest = chap_password[0:1], chap_password[1:]
 
+    # 查找用户
     now = datetime.datetime.now()
     session = Session()
     user = session.query(User).filter(User.username == auth_user.username, User.expired_at >= now).first()
     if not user:
-        log.e(f'reject! user: {auth_user.username} not exist')
+        log.e(f'user: {auth_user.username} not exist')
         auth_user.is_valid = False
         return auth_user
 
     # 算法判断上报的用户密码是否正确
+    chap_password = request['CHAP-Password'][0]
+    chap_id, resp_digest = chap_password[0:1], chap_password[1:]
+    challenge = request['CHAP-Challenge'][0]
     if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
-        log.e(f'reject! password: {user.password} not correct')
+        log.e(f'password: {user.password} not correct')
         auth_user.is_valid = False
         return auth_user
 
-    log.i(f'accept. user: {auth_user.username}, mac: {auth_user.mac_address}')
     return auth_user
 
 
