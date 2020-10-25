@@ -3,8 +3,8 @@ eap=PEAP
 eapol_flags=0
 key_mgmt=IEEE8021X
 identity="testuser"
-password="ctm"
-ca_cert="/etc/pki/CA/cacert.pem"
+password="testing123"
+ca_cert="../certs/ca.cer.pem"
 phase2="auth=gtc"
 anonymous_identity="anonymous"
 }
