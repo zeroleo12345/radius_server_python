@@ -1,0 +1,10 @@
+network={
+eap=TTLS
+eapol_flags=0
+key_mgmt=IEEE8021X
+identity="testuser"
+password="password"
+anonymous_identity="anonymous"
+ca_cert="/home/gcheng/myCA/cacert.pem"
+phase2="auth=MD5"
+}
