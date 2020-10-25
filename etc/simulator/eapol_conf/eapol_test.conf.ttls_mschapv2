@@ -4,7 +4,7 @@ eapol_flags=0
 key_mgmt=IEEE8021X
 identity="testuser"
 password="password"
-anonymous_identity="anonymous"
-ca_cert="/home/gcheng/myCA/cacert.pem"
+ca_cert="../certs/ca.cer.pem"
 phase2="auth=MSCHAPV2"
+anonymous_identity="anonymous"
 }
