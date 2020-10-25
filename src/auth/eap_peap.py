@@ -6,7 +6,7 @@ from mybase3.mylog3 import log
 from controls.auth import AuthUser
 
 
-class Chap(object):
+class EapPeap(object):
 
     def __init__(self):
         pass
@@ -22,14 +22,3 @@ class Chap(object):
             return False, auth_user
 
         return True, auth_user
-
-    @staticmethod
-    def get_chap_rsp(chap_id, user_password, challenge):
-        """
-        chap_id: Byte
-        user_password: Str  用户密码 (明文)
-        challenge: Byte
-        """
-        byte_str = b''.join([chap_id, user_password.encode(), challenge])
-        chap_rsp = hashlib.md5(byte_str).digest()
-        return chap_rsp

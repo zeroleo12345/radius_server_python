@@ -6,8 +6,10 @@ from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.dictionary import get_dictionaries
+from auth.chap import Chap
+from auth.eap_peap import EapPeap
 from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
-from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT, get_chap_rsp
+from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT
 from controls.auth import AuthUser
 from models import Session
 from models.auth import User
@@ -61,11 +63,7 @@ class EchoServer(DatagramServer):
 
 
 def verify(request: AuthPacket):
-    auth_user = AuthUser()
-
-    # 提取报文
-    auth_user.username = request['User-Name'][0]
-    auth_user.mac_address = request['Calling-Station-Id'][0]
+    auth_user = AuthUser(request)
 
     # 查找用户
     now = datetime.datetime.now()
@@ -74,25 +72,17 @@ def verify(request: AuthPacket):
     if not user:
         log.e(f'user: {auth_user.username} not exist')
         return False, auth_user
+    # 赋值
+    auth_user.set_password(user.password)
 
     # 根据报文内容, 选择认证方式
     if 'CHAP-Password' in request:
-        'chap'
+        return Chap.verify(request=request, auth_user=auth_user)
     elif 'EAP-Message' in request:
-        'eap_peap'
-    else:
-        log.e('can not choose auth method')
-        return False, auth_user
+        return EapPeap.verify(request=request, auth_user=auth_user)
 
-    # 算法判断上报的用户密码是否正确
-    chap_password = request['CHAP-Password'][0]
-    chap_id, resp_digest = chap_password[0:1], chap_password[1:]
-    challenge = request['CHAP-Challenge'][0]
-    if resp_digest != get_chap_rsp(chap_id, user.password, challenge):
-        log.e(f'password: {user.password} not correct')
-        return False, auth_user
-
-    return True, auth_user
+    log.e('can not choose auth method')
+    return False, auth_user
 
 
 def access_reject(request: AuthPacket):
