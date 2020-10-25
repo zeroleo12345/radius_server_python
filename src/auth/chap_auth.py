@@ -6,7 +6,7 @@ from mybase3.mylog3 import log
 from controls.auth import AuthUser
 
 
-class Chap(object):
+class ChapAuth(object):
 
     def __init__(self):
         pass
@@ -19,7 +19,7 @@ class Chap(object):
         # 根据算法, 判断上报的用户密码是否正确
         chap_id, resp_digest = chap_password[0:1], chap_password[1:]
         challenge = request['CHAP-Challenge'][0]
-        if resp_digest != Chap.get_chap_rsp(chap_id, auth_user.password, challenge):
+        if resp_digest != ChapAuth.get_chap_rsp(chap_id, auth_user.password, challenge):
             log.e(f'password: {auth_user.password} not correct')
             return False, auth_user
 

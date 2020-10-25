@@ -4,9 +4,10 @@ from pyrad.packet import AuthPacket
 # 自己的库
 from mybase3.mylog3 import log
 from controls.auth import AuthUser
+from auth.eap import Eap
 
 
-class EapPeap(object):
+class EapPeapAuth(object):
 
     def __init__(self):
         pass
@@ -19,10 +20,10 @@ class EapPeap(object):
         # 2. 从redis获取会话
 
         # 3. return 对应流程的处理函数
-        raw_eap = EAP.mergeEapMessage( self.packet['EAP-Message'] )
-        req_eap = EAP( raw_eap )
+        eap_messages = Eap.merge_eap_message(request['EAP-Message'])
+        req_eap = Eap(eap_messages)
         req_peap = None
-        if req_eap.type == TYPE_EAP_PEAP: req_peap = EAP_PEAP( content=raw_eap )
+        if req_eap.type == Eap.TYPE_EAP_PEAP: req_peap = EAP_PEAP( content=raw_eap )
         return True, auth_user
 
     @staticmethod
@@ -44,7 +45,7 @@ class EapPeap(object):
         except KeyError:
             return False
         buff = request.raw_packet.replace(message_authenticator, '\x00'*16)
-        expect_authenticator = EapPeap.get_message_authenticator(request.secret, buff)
+        expect_authenticator = EapPeapAuth.get_message_authenticator(request.secret, buff)
         if expect_authenticator != message_authenticator:
             log.e(f"Message-Authenticator not match. expect: {expect_authenticator.encode('hex')}, get: {message_authenticator}]")
             return False

@@ -6,8 +6,8 @@ from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.dictionary import get_dictionaries
-from auth.chap import Chap
-from auth.eap_peap import EapPeap
+from auth.chap_auth import ChapAuth
+from auth.eap_peap_auth import EapPeapAuth
 from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT
 from controls.auth import AuthUser
@@ -78,9 +78,9 @@ def verify(request: AuthPacket):
 
     # 根据报文内容, 选择认证方式
     if 'CHAP-Password' in request:
-        return Chap.verify(request=request, auth_user=auth_user)
+        return ChapAuth.verify(request=request, auth_user=auth_user)
     elif 'EAP-Message' in request:
-        return EapPeap.verify(request=request, auth_user=auth_user)
+        return EapPeapAuth.verify(request=request, auth_user=auth_user)
 
     log.e('can not choose auth method')
     return False, auth_user

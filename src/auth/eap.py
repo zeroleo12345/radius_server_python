@@ -6,22 +6,6 @@ import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_i
 import os
 import ctypes
 
-# EAP Code
-CODE_EAP_REQUEST = 1
-CODE_EAP_RESPONSE = 2
-CODE_EAP_SUCCESS = 3
-CODE_EAP_FAILURE = 4
-
-# EAP Type
-TYPE_EAP_IDENTITY = 1
-TYPE_EAP_NOTIFICATION = 2
-TYPE_EAP_NAK = 3
-TYPE_EAP_GTC = 6
-TYPE_EAP_SIM = 18
-TYPE_EAP_AKA = 23
-TYPE_EAP_PEAP = 25
-TYPE_EAP_MSCHAPV2 = 26
-
 
 def get_eap_lib():
     return ctypes.CDLL(os.path.join(os.path.dirname(__file__), 'libeap.so'))
@@ -31,7 +15,23 @@ class PacketError(Exception):
     pass
 
 
-class EAP(object):
+class Eap(object):
+    # EAP Code
+    CODE_EAP_REQUEST = 1
+    CODE_EAP_RESPONSE = 2
+    CODE_EAP_SUCCESS = 3
+    CODE_EAP_FAILURE = 4
+
+    # EAP Type
+    TYPE_EAP_IDENTITY = 1
+    TYPE_EAP_NOTIFICATION = 2
+    TYPE_EAP_NAK = 3
+    TYPE_EAP_GTC = 6
+    TYPE_EAP_SIM = 18
+    TYPE_EAP_AKA = 23
+    TYPE_EAP_PEAP = 25
+    TYPE_EAP_MSCHAPV2 = 26
+
     """
     Request/Response:
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
