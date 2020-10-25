@@ -3,7 +3,7 @@ eap=PEAP
 eapol_flags=0
 key_mgmt=IEEE8021X
 identity="testuser"
-password="testing123"
+password="password"
 ca_cert="../certs/ca.cer.pem"
 phase2="auth=gtc"
 anonymous_identity="anonymous"
