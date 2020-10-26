@@ -40,19 +40,19 @@ class EapPeapFlow(object):
 
         log.d(f'{auth_user.username}|{auth_user.mac_address}.[previd,recvid][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
         # 4. 调用对应状态的处理函数
-        return cls.state_machine(request=request, eap=eap, peap=peap, auth_user=auth_user, session=session)
+        return cls.state_machine(request=request, eap=eap, peap=peap, session=session)
 
     @classmethod
-    def state_machine(cls, request: AuthRequest, eap: Eap, peap: EapPeap, auth_user: AuthUser, session: EapPeapSession):
+    def state_machine(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
         if session.prev_id == request.id or session.prev_eap_id == eap.id:
             # 重复请求
             if session.reply:
                 # 会话已经处理过
-                log.i(f'duplicate packet, resend. username: {auth_user.username}, mac: {auth_user.mac_address}, stay_state: {session.stay_state}')
+                log.i(f'duplicate packet, resend. username: {request.username}, mac: {request.mac_address}, stay_state: {session.stay_state}')
                 return session.resend()
             else:
                 # 会话正在处理中
-                log.i(f'processor handling. username: {auth_user.username}, mac: {auth_user.mac_address}, stay_state: {session.stay_state}')
+                log.i(f'processor handling. username: {request.username}, mac: {request.mac_address}, stay_state: {session.stay_state}')
                 return
         elif session.next_eap_id == -1 or session.next_eap_id == eap.id:
             # 正常eap-peap流程

@@ -2,15 +2,13 @@ from child_pyrad.request import AuthRequest
 
 
 class AuthUser(object):
-    username = ''
-    password = ''
-    mac_address = ''     # mac 地址
-    is_valid = True
 
     def __init__(self, request: AuthRequest):
         # 提取报文
-        self.username = request['User-Name'][0]
-        self.mac_address = request['Calling-Station-Id'][0]
+        self.username = request.username
+        self.mac_address = request.mac_address      # mac地址
+        self.password = ''
+        self.is_valid = True
 
     def set_password(self, password):
         self.password = password

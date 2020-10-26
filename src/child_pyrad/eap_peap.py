@@ -107,7 +107,6 @@ class EapPeap(object):
         header = struct.pack('!2BH2B', self.code, self.id, (6 + len(attr)), self.type, _flag)
         return header + attr
 
-
     def __str__(self):
         attr_len = 0
         attr = 'Attribute:\n'
