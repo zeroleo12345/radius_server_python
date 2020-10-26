@@ -6,11 +6,11 @@ from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.dictionary import get_dictionaries
-from child_pyrad.packet import AuthRequest
+from child_pyrad.request import AuthRequest
+from child_pyrad.packet import Packet
 from auth.chap_flow import ChapFlow
 from auth.eap_peap_flow import EapPeapFlow
 from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
-from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT
 from controls.auth import AuthUser
 from models import Session
 from models.auth import User
@@ -89,13 +89,13 @@ def verify(request: AuthRequest):
 
 def access_reject(request: AuthRequest) -> AuthPacket:
     reply = request.CreateReply()
-    reply.code = CODE_ACCESS_REJECT
+    reply.code = Packet.CODE_ACCESS_REJECT
     return reply
 
 
 def access_accept(request: AuthRequest) -> AuthPacket:
     reply = request.CreateReply()
-    reply.code = CODE_ACCESS_ACCEPT
+    reply.code = Packet.CODE_ACCESS_ACCEPT
     return reply
 
 

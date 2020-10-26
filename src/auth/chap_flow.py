@@ -1,6 +1,6 @@
 import hashlib
 # 第三方库
-from child_pyrad.packet import AuthRequest
+from child_pyrad.request import AuthRequest
 # 自己的库
 from mybase3.mylog3 import log
 from controls.auth import AuthUser
