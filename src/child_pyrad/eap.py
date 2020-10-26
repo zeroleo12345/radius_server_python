@@ -3,14 +3,8 @@ reference:
     [rfc4186]   http://tools.ietf.org/search/rfc4186#appendix-B
 """
 import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_into
-import os
-import ctypes
 #
 from child_pyrad.exception import PacketError
-
-
-def get_eap_lib():
-    return ctypes.CDLL(os.path.join(os.path.dirname(__file__), 'libeap.so'))
 
 
 class Eap(object):
