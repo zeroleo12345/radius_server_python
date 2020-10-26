@@ -1,6 +1,7 @@
 import hmac
 # 第三方库
-from pyrad.packet import AuthRequest
+from pyrad.packet import AuthPacket
+from child_pyrad.packet import AuthRequest
 # 自己的库
 from mybase3.mylog3 import log
 from controls.auth import AuthUser
@@ -11,7 +12,7 @@ from child_pyrad.eap_peap import EapPeap
 class EapPeapFlow(object):
 
     @staticmethod
-    def verify(request: AuthRequest, auth_user: AuthUser) -> (bool, AuthUser):
+    def verify(request: AuthRequest, auth_user: AuthUser):
         # 1. 获取报文
         chap_password = request['CHAP-Password'][0]
 
@@ -25,15 +26,18 @@ class EapPeapFlow(object):
         raw_eap_messages = Eap.merge_eap_message(request['EAP-Message'])
         req_eap = Eap(raw_eap_messages)
         req_peap = None
-        if req_eap.type == Eap.TYPE_EAP_PEAP:
+        if Eap.is_eap_peap(type=req_eap.type):
             req_peap = EapPeap(content=raw_eap_messages)
         #
         log.d(f'{auth_user.username}|{auth_user.mac_address}.[previd,recvid][{session.prev_id},{request.id}][{session.prev_eap_id},{req_eap.id}]')
         if session.prev_id == request.id or session.prev_eap_id == req_eap.id:
             if session.reply:
-                ret = session.resend()
+                log.i(f'duplicate packet, resend. username: {auth_user.username}, mac: {auth_user.mac_address}, next_state: {session.next_state}')
+                return session.resend()
             else:
-                ret = (None, 'processor handling. account:%s, usermac:%s, next_state:%s' % (session.account, session.usermac, session.next_state))
+                # 会话正在处理中
+                log.i(f'processor handling. username: {auth_user.username}, mac: {auth_user.mac_address}, next_state: {session.next_state}')
+                return
         elif session.next_eap_id == -1 or session.next_eap_id == req_eap.id:
             session.next_eap_id = Eap.get_next_id(req_eap.id)
             session.next_id = Eap.get_next_id(session.request.id)
@@ -58,7 +62,7 @@ class EapPeapFlow(object):
                 ret = self.peap_gtc_user_info_req(req_peap)
             elif req_peap is not None and session.next_state == self.PEAP_GTC_ACCEPT:
                 ret = self.peap_gtc_accept(req_peap)
-                _last = True # end move
+                _last = True    # end move
             else:
                 g_log.error("eap peap auth error. unknown eap packet type")
                 return False, auth_user
@@ -67,12 +71,7 @@ class EapPeapFlow(object):
             return False, auth_user
         session.prev_id = request.id
         session.prev_eap_id = req_eap.id
-
-        if ret[0] is False:
-            return ret
-        if _last:
-            return ret
-        return True, auth_user
+        return
 
     @staticmethod
     def get_message_authenticator(secret, buff):
@@ -102,7 +101,8 @@ class EapPeapFlow(object):
 
 
 class EapPeapSession(object):
-    def __init__(self, request):
+
+    def __init__(self, request: AuthRequest):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
         self.next_state = 0
         self.prev_id = -1
@@ -110,12 +110,11 @@ class EapPeapSession(object):
         self.prev_eap_id = -1
         self.next_eap_id = -1
         self.request = request
-        self.reply = None
+        self.reply: AuthPacket = None
 
     def resend(self):
-        log.i(f'duplicate packet, resend. account: {self.account}, usermac: {self.usermac},next_state: {self.next_state}')
         self.reply.id = self.request.id
         self.reply['Proxy-State'] = self.request['Proxy-State'][0]
-        g_sock.sendto(self.reply.Pack(), (self.src_ip, self.src_port))
-        log.d(f'rsend packet:{self.reply.id}')
-        return True, ''
+        self.request.sendto(self.reply)
+        log.d(f'resend packet:{self.reply.id}')
+        return

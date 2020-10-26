@@ -1,4 +1,4 @@
-from pyrad.packet import AuthRequest
+from child_pyrad.packet import AuthRequest
 
 
 class AuthUser(object):

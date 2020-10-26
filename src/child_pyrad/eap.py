@@ -128,3 +128,7 @@ class Eap(object):
         # if len(eap_messages) == 1:
         #     return eap_messages[0]
         return ''.join(eap_messages)
+
+    @classmethod
+    def is_eap_peap(cls, type):
+        return type == cls.TYPE_EAP_PEAP
