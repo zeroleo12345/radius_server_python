@@ -1,4 +1,4 @@
-from pyrad.packet import AuthPacket
+from pyrad.packet import AuthRequest
 
 
 class AuthUser(object):
@@ -7,7 +7,7 @@ class AuthUser(object):
     mac_address = ''     # mac 地址
     is_valid = True
 
-    def __init__(self, request: AuthPacket):
+    def __init__(self, request: AuthRequest):
         # 提取报文
         self.username = request['User-Name'][0]
         self.mac_address = request['Calling-Station-Id'][0]

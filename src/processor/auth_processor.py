@@ -6,8 +6,9 @@ from pyrad.dictionary import Dictionary
 from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.dictionary import get_dictionaries
-from auth.chap_auth import ChapAuth
-from auth.eap_peap_auth import EapPeapAuth
+from child_pyrad.packet import AuthRequest
+from auth.chap_flow import ChapFlow
+from auth.eap_peap_flow import EapPeapFlow
 from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
 from child_pyrad.packet import CODE_ACCESS_REJECT, CODE_ACCESS_ACCEPT
 from controls.auth import AuthUser
@@ -38,11 +39,11 @@ class EchoServer(DatagramServer):
     def handle(self, data, address):
         try:
             self.handle_signal()
-            ip, port = address
+            # ip, port = address
             # print('from %s, data: %r' % (ip, data))
 
             # 解析报文
-            request = AuthPacket(dict=self.dictionary, secret=SECRET, packet=data)
+            request = AuthRequest(dict=self.dictionary, secret=SECRET, packet=data, socket=self.socket, address=address)
             request.raw_packet = data
 
             # 验证用户
@@ -63,7 +64,7 @@ class EchoServer(DatagramServer):
             log.e(traceback.format_exc())
 
 
-def verify(request: AuthPacket):
+def verify(request: AuthRequest):
     auth_user = AuthUser(request)
 
     # 查找用户
@@ -78,21 +79,21 @@ def verify(request: AuthPacket):
 
     # 根据报文内容, 选择认证方式
     if 'CHAP-Password' in request:
-        return ChapAuth.verify(request=request, auth_user=auth_user)
+        return ChapFlow.verify(request=request, auth_user=auth_user)
     elif 'EAP-Message' in request:
-        return EapPeapAuth.verify(request=request, auth_user=auth_user)
+        return EapPeapFlow.verify(request=request, auth_user=auth_user)
 
     log.e('can not choose auth method')
     return False, auth_user
 
 
-def access_reject(request: AuthPacket):
+def access_reject(request: AuthRequest) -> AuthPacket:
     reply = request.CreateReply()
     reply.code = CODE_ACCESS_REJECT
     return reply
 
 
-def access_accept(request: AuthPacket):
+def access_accept(request: AuthRequest) -> AuthPacket:
     reply = request.CreateReply()
     reply.code = CODE_ACCESS_ACCEPT
     return reply
