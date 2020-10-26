@@ -9,14 +9,15 @@ import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_i
 import ctypes
 import os
 #
-from child_pyrad.exception import PacketError
+from .exception import PacketError
+from .packet import Packet
 
 
 def get_wpa_server_lib():
     return ctypes.CDLL(os.path.join(os.path.dirname(__file__), 'libwpa_server.so'), mode=257)
 
 
-class EapPeap(object):
+class EapPeap(Packet):
     """
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |     Code      |   Identifier  |            Length             |

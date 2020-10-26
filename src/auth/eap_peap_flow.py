@@ -3,6 +3,7 @@ import traceback
 # 第三方库
 # 自己的库
 from child_pyrad.request import AuthRequest
+from child_pyrad.response import AuthResponse
 from mybase3.mylog3 import log
 from controls.auth import AuthUser
 from child_pyrad.eap import Eap
@@ -40,10 +41,20 @@ class EapPeapFlow(object):
 
         log.d(f'{auth_user.username}|{auth_user.mac_address}.[previd,recvid][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
         # 4. 调用对应状态的处理函数
-        return cls.state_machine(request=request, eap=eap, peap=peap, session=session)
+        is_go_next = cls.state_machine(request=request, eap=eap, peap=peap, session=session)
+        if is_go_next:
+            session.prev_id = request.id
+            session.prev_eap_id = eap.id
 
     @classmethod
     def state_machine(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+        """
+        :param request:
+        :param eap:
+        :param peap:
+        :param session:
+        :return:  成功(进入下一步骤) - True; 重发报文(停留当前步骤) - False;
+        """
         if session.prev_id == request.id or session.prev_eap_id == eap.id:
             # 重复请求
             if session.reply:
@@ -78,32 +89,26 @@ class EapPeapFlow(object):
             elif peap is not None and session.stay_state == cls.PEAP_GTC_ACCEPT:
                 return cls.peap_gtc_accept(peap)    # end move
             else:
-                log.error("eap peap auth error. unknown eap packet type")
+                log.error('eap peap auth error. unknown eap packet type')
                 return
-        else:
-            log.e(f'id error. [prev, recv][{session.prev_id}, {session.request.id}][{session.prev_eap_id}, {eap.id}]')
-            return
-        session.prev_id = request.id
-        session.prev_eap_id = eap.id
+        log.e(f'id error. [prev, recv][{session.prev_id}, {session.request.id}][{session.prev_eap_id}, {eap.id}]')
         return
 
     @classmethod
-    def peap_start(cls, eap: Eap, peap: EapPeap):
+    def peap_start(cls, request: AuthRequest, eap: Eap, peap: EapPeap):
         log.d('peap_start')
-        try:
-            out = EapPeap(code=Eap.CODE_EAP_REQUEST, id=self.next_eap_id, flag_start=1)
-            self.peapChallenge(out)
-            ''' judge next move '''
-            self.next_state = self.PEAP_SERVER_HELLO
-            return True, ''
-        except Exception as e:
-            log.e(traceback.format_exc())
-            return False, "1003:system error"
+        out_peap = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=self.next_eap_id, flag_start=1)
+        reply = AuthResponse.create_peap_challenge(request=request, peap=out_peap)
+        request.sendto(reply)
+
+        # judge next move
+        self.next_state = cls.PEAP_SERVER_HELLO
+        return True, ''
 
     @classmethod
-    def peap_server_hello(cls, peap):
+    def peap_server_hello(cls, request: AuthRequest, eap: Eap, peap: EapPeap):
         if peap.tls_data == '':
-            log.e("tls_data is None")
+            log.e('tls_data is None')
             return False, "1003:tls data is None"
         p_tls_in_data = ctypes.create_string_buffer(peap.tls_data)
         tls_in_data_len = ctypes.c_ulonglong(len(peap.tls_data))
@@ -116,33 +121,36 @@ class EapPeapFlow(object):
                 return False, "1003:system error"
             tls_out_data_len = tls_out.contents.used
             tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
-            self.peap_fragment = EapPeap(code=CODE_EAP_REQUEST, id=self.next_eap_id, tls_data=tls_out_data)
-            self.peapChallenge(self.peap_fragment)
+            peap_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=self.next_eap_id, tls_data=tls_out_data)
+            reply = AuthResponse.create_peap_challenge(request=request, peap=peap_fragment)
+            request.sendto(reply)
         finally:
             LIBWPA_SERVER.wpabuf_free(tls_in)
             LIBWPA_SERVER.wpabuf_free(tls_out)
-        ''' judge next move '''
+
+        # judge next move
         if self.peap_fragment.IsFragmentLast():
-            self.next_state = self.PEAP_CHANGE_CIPHER_SPEC
+            self.next_state = cls.PEAP_CHANGE_CIPHER_SPEC
         else:
-            self.next_state = self.PEAP_SERVER_HELLO_FRAGMENT
-            self.peap_fragment.FragmentNext()
+            self.next_state = cls.PEAP_SERVER_HELLO_FRAGMENT
+            self.peap_fragment.FragmentNext()   # TODO 记录fpos
         return True, ''
 
     @classmethod
-    def peap_server_hello_fragment(cls, peap):
+    def peap_server_hello_fragment(cls, request: AuthRequest, eap: Eap, peap: EapPeap):
         self.peap_fragment.id = self.next_eap_id
         self.peapChallenge(self.peap_fragment)
-        ''' judge next move '''
+
+        # judge next move
         if self.peap_fragment.IsFragmentLast():
-            self.next_state = self.PEAP_CHANGE_CIPHER_SPEC
+            self.next_state = cls.PEAP_CHANGE_CIPHER_SPEC
         else:
-            self.next_state = self.PEAP_SERVER_HELLO_FRAGMENT
+            self.next_state = cls.PEAP_SERVER_HELLO_FRAGMENT
             self.peap_fragment.FragmentNext()
         return True, ''
 
     @classmethod
-    def peap_change_cipher_spec(cls, peap):
+    def peap_change_cipher_spec(cls, request: AuthRequest, eap: Eap, peap: EapPeap):
         if peap.tls_data == '':
             log.e('tls_data is None')
             return False, "1003:tls data is None"
@@ -157,37 +165,40 @@ class EapPeapFlow(object):
                 return False, "1003:system error"
             tls_out_data_len = tls_out.contents.used
             tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
-            self.peap_fragment = EapPeap(code=Eap.CODE_EAP_REQUEST, id=self.next_eap_id, tls_data=tls_out_data)
+            self.peap_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=self.next_eap_id, tls_data=tls_out_data)
             self.peapChallenge(self.peap_fragment)
         finally:
             LIBWPA_SERVER.wpabuf_free(tls_in)
             LIBWPA_SERVER.wpabuf_free(tls_out)
-        ''' judge next move '''
-        self.next_state = self.PEAP_IDENTITY
+
+        # judge next move
+        self.next_state = cls.PEAP_IDENTITY
         return True, ''
 
     @classmethod
-    def peap_identity(cls, peap):
+    def peap_identity(cls, request: AuthRequest, eap: Eap, peap: EapPeap):
         # 返回数据
         eap_identity = Eap(code=Eap.CODE_EAP_REQUEST, id=self.next_eap_id, type=TYPE_EAP_IDENTITY)
-        tls_plaintext = eap_identity.Pack()
+        tls_plaintext = eap_identity.pack()
+
         # 加密
         tls_out_data = Encrypt(LIBWPA_SERVER, ssl_ctx, self.conn, tls_plaintext)
         if tls_out_data == None:
             log.e('Encrypt Error!')
             return False, '1003:system error'
-        self.peap_fragment = EapPeap(code=Eap.CODE_EAP_REQUEST, id=self.next_eap_id, tls_data=tls_out_data)
+        self.peap_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=self.next_eap_id, tls_data=tls_out_data)
         self.peapChallenge(self.peap_fragment)
 
-        ''' judge next move '''
-        self.next_state = self.PEAP_GTC_PASSWORD
+        # judge next move
+        self.next_state = cls.PEAP_GTC_PASSWORD
         return True, ''
 
     @classmethod
-    def peap_gtc_password(cls, peap):
+    def peap_gtc_password(cls, request: AuthRequest, eap: Eap, peap: EapPeap):
         if peap.tls_data == '':
             log.e('tls_data is None')
             return False, '1003:tls data is None'
+
         # 解密
         tls_decr_data = Decrypt(LIBWPA_SERVER, ssl_ctx, self.conn, peap.tls_data)
         if tls_decr_data == None:
@@ -198,46 +209,49 @@ class EapPeapFlow(object):
             self.account = eap_identity.type_data.split('@ctm')[0] # @ctm-此种情况为漫游,去掉得到真实username
         except UserNameError:
             return False, "1004:realname not match regex"
+
         # 返回数据
         response = "Password"
         type_data = struct.pack('!%ds' % len(response), response)
         eap_gtc = Eap(code=Eap.CODE_EAP_REQUEST, id=self.next_eap_id, type=TYPE_EAP_GTC, type_data=type_data)
-        tls_plaintext = eap_gtc.Pack()
+        tls_plaintext = eap_gtc.pack()
+
         # 加密
         tls_out_data = Encrypt(LIBWPA_SERVER, ssl_ctx, self.conn, tls_plaintext)
         if tls_out_data == None:
             log.e('Encrypt Error!')
             return False, '1003:system error'
-        self.peap_fragment = EapPeap(code=Eap.CODE_EAP_REQUEST, id=self.next_eap_id, tls_data=tls_out_data)
+        self.peap_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=self.next_eap_id, tls_data=tls_out_data)
         self.peapChallenge(self.peap_fragment)
 
-        ''' judge next move '''
-        self.next_state = self.PEAP_GTC_EAP_SUCCESS
+        # judge next move
+        self.next_state = cls.PEAP_GTC_EAP_SUCCESS
         return True, ''
 
     @classmethod
-    def peap_gtc_eap_success(cls):
+    def peap_gtc_eap_success(cls, request: AuthRequest, eap: Eap, peap: EapPeap):
         # 返回数据
         eap_success = Eap(code=Eap.CODE_EAP_SUCCESS, id=self.next_eap_id)
-        tls_plaintext = eap_success.Pack()
+        tls_plaintext = eap_success.pack()
+
         # 加密
         tls_out_data = Encrypt(LIBWPA_SERVER, ssl_ctx, self.conn, tls_plaintext)
         if tls_out_data == None:
             log.e('Encrypt Error!')
             return False, '1003:system error'
-        self.peap_fragment = EapPeap(code=Eap.CODE_EAP_REQUEST, id=self.next_eap_id, tls_data=tls_out_data)
-        self.peapChallenge(self.peap_fragment)
-        ''' judge next move '''
-        self.next_state = self.PEAP_GTC_ACCEPT
+        peap_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=self.next_eap_id, tls_data=tls_out_data)
+        self.peapChallenge(peap_fragment)
+
+        # judge next move
+        self.next_state = cls.PEAP_GTC_ACCEPT
         return True, ''
 
     @classmethod
-    def peap_gtc_accept(cls, peap):
+    def peap_gtc_accept(cls, request: AuthRequest, eap: Eap, peap: EapPeap):
         max_out_len = 64
         p_out_data = ctypes.create_string_buffer(max_out_len)
         max_out_len = ctypes.c_ulonglong(max_out_len)
         p_label = ctypes.create_string_buffer("client eap encryption")
-        #pdb.set_trace()
         _ret = LIBWPA_SERVER.tls_connection_prf(ssl_ctx, self.conn, p_label, 0, 0, p_out_data, max_out_len)
         if _ret == -1:
             log.e('tls_connection_prf Error!')

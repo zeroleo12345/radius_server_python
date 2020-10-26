@@ -4,25 +4,11 @@ reference:
 """
 import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_into
 #
-from child_pyrad.exception import PacketError
+from .exception import PacketError
+from .packet import Packet
 
 
-class Eap(object):
-    # EAP Code
-    CODE_EAP_REQUEST = 1
-    CODE_EAP_RESPONSE = 2
-    CODE_EAP_SUCCESS = 3
-    CODE_EAP_FAILURE = 4
-
-    # EAP Type
-    TYPE_EAP_IDENTITY = 1
-    TYPE_EAP_NOTIFICATION = 2
-    TYPE_EAP_NAK = 3
-    TYPE_EAP_GTC = 6
-    TYPE_EAP_SIM = 18
-    TYPE_EAP_AKA = 23
-    TYPE_EAP_PEAP = 25
-    TYPE_EAP_MSCHAPV2 = 26
+class Eap(Packet):
 
     """
     Request/Response:
