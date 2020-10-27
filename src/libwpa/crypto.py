@@ -164,7 +164,7 @@ if __name__ == "__main__":
         @staticmethod
         def random():
             import time, datetime
-            gmt_unix_time = int(time.mktime(datetime.datetime.now().timetuple())) 
+            gmt_unix_time = int(time.mktime(datetime.datetime.now().timetuple()))
             _random = os.urandom(28)
             return struct.pack('!I', gmt_unix_time) + _random
     """
