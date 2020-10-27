@@ -112,7 +112,7 @@ class EapPeapFlow(object):
         p_tls_in_data = ctypes.create_string_buffer(peap.tls_data)
         tls_in_data_len = ctypes.c_ulonglong(len(peap.tls_data))
         try:
-            LIBWPA_SERVER.tls_connection_server_handshake.restype = ctypes.POINTER(py_wpabuf)
+            LIBWPA_SERVER.tls_connection_server_handshake.restype = ctypes.POINTER(WpaBuffer)
             tls_in = LIBWPA_SERVER.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
             tls_out = LIBWPA_SERVER.tls_connection_server_handshake(ssl_ctx, self.conn, tls_in, None)
             if tls_out is None:
@@ -157,7 +157,7 @@ class EapPeapFlow(object):
         p_tls_in_data = ctypes.create_string_buffer(peap.tls_data)
         tls_in_data_len = ctypes.c_ulonglong(len(peap.tls_data))
         try:
-            LIBWPA_SERVER.tls_connection_server_handshake.restype = ctypes.POINTER(py_wpabuf)
+            LIBWPA_SERVER.tls_connection_server_handshake.restype = ctypes.POINTER(WpaBuffer)
             tls_in = LIBWPA_SERVER.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
             tls_out = LIBWPA_SERVER.tls_connection_server_handshake(ssl_ctx, self.conn, tls_in, None)
             if tls_out is None:
