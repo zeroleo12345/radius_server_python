@@ -72,10 +72,7 @@ class EapPeap(Packet):
     def fragment_next(self):
         self.fpos += 1
 
-    def fragment_pos(self):
-        return self.fpos
-
-    def is_fragment_last(self):
+    def is_last_fragment(self):
         return self.fpos >= len(self.fragments)
 
     def pack(self):
