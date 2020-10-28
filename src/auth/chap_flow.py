@@ -2,7 +2,7 @@ import hashlib
 # 第三方库
 from child_pyrad.request import AuthRequest
 # 自己的库
-from mybase3.mylog3 import log
+from settings import log
 from controls.auth import AuthUser
 
 
@@ -21,9 +21,9 @@ class ChapFlow(object):
         challenge = request['CHAP-Challenge'][0]
         if resp_digest != ChapFlow.get_chap_rsp(chap_id, auth_user.password, challenge):
             log.e(f'password: {auth_user.password} not correct')
-            return False, auth_user
+            return False, auth_user     # TODO
 
-        return True, auth_user
+        return True, auth_user     # TODO
 
     @staticmethod
     def get_chap_rsp(chap_id, user_password, challenge):

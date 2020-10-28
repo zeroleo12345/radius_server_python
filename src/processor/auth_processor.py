@@ -3,11 +3,9 @@ import datetime
 # 第三方库
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
-from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.request import AuthRequest
-from child_pyrad.packet import Packet
 from auth.chap_flow import ChapFlow
 from auth.eap_peap_flow import EapPeapFlow
 from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
@@ -44,17 +42,16 @@ class EchoServer(DatagramServer):
 
             # 解析报文
             request = AuthRequest(dict=self.dictionary, secret=SECRET, packet=data, socket=self.socket, address=address)
-            request.raw_packet = data
 
             # 验证用户
             is_ok, auth_user = verify(request)
 
             # 接受或拒绝
             if is_ok and is_unique_session(mac_address=auth_user.mac_address):
-                reply = access_accept(request)
+                reply = access_accept(request)      # TODO
                 log.i(f'accept. user: {auth_user.username}, mac: {auth_user.mac_address}')
             else:
-                reply = access_reject(request)
+                reply = access_reject(request)      # TODO
                 log.i(f'reject. user: {auth_user.username}, mac: {auth_user.mac_address}')
 
             # 返回
@@ -85,18 +82,6 @@ def verify(request: AuthRequest):
 
     log.e('can not choose auth method')
     return False, auth_user
-
-
-def access_reject(request: AuthRequest) -> AuthPacket:
-    reply = request.CreateReply()
-    reply.code = Packet.CODE_ACCESS_REJECT
-    return reply
-
-
-def access_accept(request: AuthRequest) -> AuthPacket:
-    reply = request.CreateReply()
-    reply.code = Packet.CODE_ACCESS_ACCEPT
-    return reply
 
 
 def is_unique_session(mac_address):

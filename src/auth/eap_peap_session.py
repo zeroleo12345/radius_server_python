@@ -3,13 +3,15 @@ from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.request import AuthRequest
 from child_pyrad.eap_peap import EapPeap
-from mybase3.mylog3 import log
+from settings import log
 
 
 class EapPeapSession(object):
 
-    def __init__(self, request: AuthRequest):
+    def __init__(self, request: AuthRequest, session_id: str):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
+        self.session_id = session_id
+        self.account = ''
         self.next_state = ''
         self.prev_id = -1
         self.next_id = -1
@@ -27,4 +29,17 @@ class EapPeapSession(object):
         self.reply['Proxy-State'] = self.request['Proxy-State'][0]
         self.request.sendto(self.reply)
         log.d(f'resend packet:{self.reply.id}')
+        return
+
+
+class RedisSession(object):
+
+    @staticmethod
+    def load(session_id: str) -> EapPeapSession:
+        # TODO
+        return EapPeapSession()
+
+    @staticmethod
+    def save(session: EapPeapSession):
+        # TODO
         return

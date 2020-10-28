@@ -8,7 +8,7 @@ from .eap_peap import EapPeap
 
 class AuthResponse(Packet):
 
-    def create_peap_challenge(self, request: AuthRequest, peap: EapPeap) -> AuthPacket:
+    def create_peap_challenge(self, request: AuthRequest, peap: EapPeap, session_id: str) -> AuthPacket:
         reply: AuthPacket = request.CreateReply()
         reply.code = self.CODE_ACCESS_CHALLENGE
         eap_message = peap.pack()
@@ -20,5 +20,5 @@ class AuthResponse(Packet):
             reply.AddAttribute('EAP-Message', eap_messages)
         reply['Message-Authenticator'] = struct.pack('!B', 0) * 16
         reply['Calling-Station-Id'] = request.mac_address
-        reply['State'] = ''   # TODO
+        reply['State'] = session_id
         return reply
