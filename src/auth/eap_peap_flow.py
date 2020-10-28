@@ -122,37 +122,37 @@ class EapPeapFlow(object):
                 return False, "1003:system error"
             tls_out_data_len = tls_out.contents.used
             tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
-            peap_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
-            reply = AuthResponse.create_peap_challenge(request=request, peap=peap_fragment)     # TODO
+            certificate_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+            reply = AuthResponse.create_peap_challenge(request=request, peap=certificate_fragment)     # TODO 根据State查询Redis ServerHello的分包
             request.sendto(reply)
         finally:
             libwpa.free_alloc(tls_in)
             libwpa.free_alloc(tls_out)
 
         # judge next move
-        if peap_fragment.is_last_fragment():
+        if certificate_fragment.is_last_fragment():
             # 不用分包
             session.next_state = cls.PEAP_CHANGE_CIPHER_SPEC
         else:
             # 需要分包
             session.next_state = cls.PEAP_SERVER_HELLO_FRAGMENT
-            peap_fragment.fragment_next()   # TODO 记录fpos
+            certificate_fragment.fragment_next()   # TODO 记录fpos
         return True, ''
 
     @classmethod
     def peap_server_hello_fragment(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
-        session.peap_fragment.id = session.next_eap_id
-        reply = AuthResponse.create_peap_challenge(request=request, peap=session.peap_fragment)
+        session.certificate_fragment.id = session.next_eap_id
+        reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment)
         request.sendto(reply)
 
         # judge next move
-        if session.peap_fragment.is_last_fragment():
+        if session.certificate_fragment.is_last_fragment():
             # 分包结束
             session.next_state = cls.PEAP_CHANGE_CIPHER_SPEC
         else:
             # 继续分包
             session.next_state = cls.PEAP_SERVER_HELLO_FRAGMENT
-            session.peap_fragment.fragment_next()
+            session.certificate_fragment.fragment_next()
         return True, ''
 
     @classmethod

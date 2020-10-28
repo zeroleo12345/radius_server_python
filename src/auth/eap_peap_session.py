@@ -19,7 +19,7 @@ class EapPeapSession(object):
         self.reply: AuthPacket = None
         #
         self.msk = ''
-        self.peap_fragment: EapPeap = None
+        self.certificate_fragment: EapPeap = None
         self.tls_connection = None
 
     def resend(self):
