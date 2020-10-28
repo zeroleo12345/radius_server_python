@@ -100,6 +100,7 @@ class EapPeapFlow(object):
         out_peap = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1)
         reply = AuthResponse.create_peap_challenge(request=request, peap=out_peap)
         request.sendto(reply)
+        session.reply = reply
 
         # judge next move
         session.next_state = cls.PEAP_SERVER_HELLO
@@ -128,6 +129,7 @@ class EapPeapFlow(object):
             session.certificate_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
             reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment)
             request.sendto(reply)
+            session.reply = reply
         finally:
             libwpa.free_alloc(tls_in)
             libwpa.free_alloc(tls_out)
@@ -147,6 +149,7 @@ class EapPeapFlow(object):
         session.certificate_fragment.id = session.next_eap_id
         reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment)
         request.sendto(reply)
+        session.reply = reply
 
         # judge next move
         if session.certificate_fragment.is_last_fragment():
@@ -178,6 +181,7 @@ class EapPeapFlow(object):
             peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
             reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply)
             request.sendto(reply)
+            session.reply = reply
         finally:
             libwpa.free_alloc(tls_in)
             libwpa.free_alloc(tls_out)
@@ -200,6 +204,7 @@ class EapPeapFlow(object):
         peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply)
         request.sendto(reply)
+        session.reply = reply
 
         # judge next move
         session.next_state = cls.PEAP_GTC_PASSWORD
@@ -234,6 +239,7 @@ class EapPeapFlow(object):
         peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply)
         request.sendto(reply)
+        session.reply = reply
 
         # judge next move
         session.next_state = cls.PEAP_GTC_EAP_SUCCESS
@@ -254,6 +260,7 @@ class EapPeapFlow(object):
         peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply)
         request.sendto(reply)
+        session.reply = reply
 
         # judge next move
         session.next_state = cls.PEAP_GTC_ACCEPT
