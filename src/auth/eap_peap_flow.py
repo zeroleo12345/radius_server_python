@@ -29,7 +29,8 @@ class EapPeapFlow(object):
 
         # 2. 从redis获取会话
         if 0:
-            session = None      # TODO
+            # TODO 根据State查询Redis ServerHello的分包
+            session = None
         else:
             session = EapPeapSession(request=request)
 
@@ -125,7 +126,7 @@ class EapPeapFlow(object):
             tls_out_data_len = tls_out.contents.used
             tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
             session.certificate_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
-            reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment)     # TODO 根据State查询Redis ServerHello的分包
+            reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment)
             request.sendto(reply)
         finally:
             libwpa.free_alloc(tls_in)
@@ -138,7 +139,7 @@ class EapPeapFlow(object):
         else:
             # 需要分包
             session.next_state = cls.PEAP_SERVER_HELLO_FRAGMENT
-            session.certificate_fragment.go_next_fragment()   # TODO 记录fpos
+            session.certificate_fragment.go_next_fragment()
         return True, ''
 
     @classmethod
