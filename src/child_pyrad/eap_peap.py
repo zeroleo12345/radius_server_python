@@ -69,7 +69,7 @@ class EapPeap(Packet):
         else:
             self.tls_data = ''
 
-    def fragment_next(self):
+    def go_next_fragment(self):
         self.fpos += 1
 
     def is_last_fragment(self):

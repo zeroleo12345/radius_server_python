@@ -138,7 +138,7 @@ class EapPeapFlow(object):
         else:
             # 需要分包
             session.next_state = cls.PEAP_SERVER_HELLO_FRAGMENT
-            session.certificate_fragment.fragment_next()   # TODO 记录fpos
+            session.certificate_fragment.go_next_fragment()   # TODO 记录fpos
         return True, ''
 
     @classmethod
@@ -154,7 +154,7 @@ class EapPeapFlow(object):
         else:
             # 继续分包
             session.next_state = cls.PEAP_SERVER_HELLO_FRAGMENT
-            session.certificate_fragment.fragment_next()
+            session.certificate_fragment.go_next_fragment()
         return True, ''
 
     @classmethod
