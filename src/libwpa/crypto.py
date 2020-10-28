@@ -27,14 +27,14 @@ class EapCrypto(object):
 
     def tls_connection_init(self):
         # connection每个认证会话维持一个
-        self.lib.tls_connection_init(self.tls_ctx)
+        return self.lib.tls_connection_init(self.tls_ctx)
 
-    def tls_connection_prf(self, connection, label_pointer, output_prf_pointer, output_prf_max_len):
-        return self.lib.tls_connection_prf(self.tls_ctx, connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
+    def tls_connection_prf(self, tls_connection, label_pointer, output_prf_pointer, output_prf_max_len):
+        return self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
 
-    def tls_connection_server_handshake(self, connection, input_tls_pointer):
+    def tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
         self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
-        return self.lib.tls_connection_server_handshake(self.tls_ctx, connection, input_tls_pointer, None)
+        return self.lib.tls_connection_server_handshake(self.tls_ctx, tls_connection, input_tls_pointer, None)
 
     def free_alloc(self, pointer):
         if pointer:
@@ -43,14 +43,14 @@ class EapCrypto(object):
     def set_log_level(self, level: int):
         self.lib.set_log_level(level)
 
-    def decrypt(self, connection, tls_in_data):
+    def decrypt(self, tls_connection, tls_in_data):
         tls_in_pointer, tls_out_pointer = None, None
         try:
             p_tls_in_data = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             tls_in_pointer = self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
             self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)
-            tls_out_pointer = self.lib.tls_connection_decrypt(self.tls_ctx, connection, tls_in_pointer)
+            tls_out_pointer = self.lib.tls_connection_decrypt(self.tls_ctx, tls_connection, tls_in_pointer)
             if tls_out_pointer is None:
                 raise EapCryptoError('decrypt tls_out_pointer is None')
             tls_out_data_len = tls_out_pointer.contents.used
@@ -60,14 +60,14 @@ class EapCrypto(object):
             self.free_alloc(tls_in_pointer)
             self.free_alloc(tls_out_pointer)
 
-    def encrypt(self, connection, tls_in_data):
+    def encrypt(self, tls_connection, tls_in_data):
         tls_in_pointer, tls_out_pointer = None, None
         try:
             p_tls_in_data = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             tls_in_pointer = self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
             self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)
-            tls_out_pointer = self.lib.tls_connection_encrypt(self.tls_ctx, connection, tls_in_pointer)
+            tls_out_pointer = self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, tls_in_pointer)
             if tls_out_pointer is None:
                 raise EapCryptoError('encrypt tls_out_pointer is None')
             tls_out_data_len = tls_out_pointer.contents.used

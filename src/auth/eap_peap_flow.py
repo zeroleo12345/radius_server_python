@@ -104,9 +104,9 @@ class EapPeapFlow(object):
 
     @classmethod
     def peap_server_hello(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
-        if session.conn is None:
-            session.conn = libwpa.tls_connection_init()
-        assert session.conn
+        if session.tls_connection is None:
+            session.tls_connection = libwpa.tls_connection_init()
+        assert session.tls_connection
         if peap.tls_data == '':
             log.e('tls_data is None')
             return False, "1003:tls data is None"
@@ -116,7 +116,7 @@ class EapPeapFlow(object):
         tls_in, tls_out = None, None
         try:
             tls_in = libwpa.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-            tls_out = libwpa.tls_connection_server_handshake(connection=session.conn, input_tls=tls_in)
+            tls_out = libwpa.tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls=tls_in)
             if tls_out is None:
                 log.e('tls_connection_server_handshake error!')
                 return False, "1003:system error"
@@ -162,7 +162,7 @@ class EapPeapFlow(object):
         tls_in, tls_out = None, None
         try:
             tls_in = libwpa.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-            tls_out = libwpa.tls_connection_server_handshake(connection=session.conn, input_tls=tls_in)
+            tls_out = libwpa.tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls=tls_in)
             if tls_out is None:
                 log.e("tls_connection_server_handshake error.")
                 return False, "1003:system error"
@@ -186,7 +186,7 @@ class EapPeapFlow(object):
         tls_plaintext = eap_identity.pack()
 
         # 加密
-        tls_out_data = libwpa.encrypt(session.conn, tls_plaintext)
+        tls_out_data = libwpa.encrypt(session.tls_connection, tls_plaintext)
         if tls_out_data is None:
             log.e('Encrypt Error!')
             return False, '1003:system error'
@@ -205,7 +205,7 @@ class EapPeapFlow(object):
             return False, '1003:tls data is None'
 
         # 解密
-        tls_decr_data = libwpa.decrypt(session.conn, peap.tls_data)
+        tls_decr_data = libwpa.decrypt(session.tls_connection, peap.tls_data)
         if tls_decr_data is None:
             log.e('Decrypt Error!')
             return False, '1003:system error'
@@ -219,7 +219,7 @@ class EapPeapFlow(object):
         tls_plaintext = eap_gtc.pack()
 
         # 加密
-        tls_out_data = libwpa.encrypt(session.conn, tls_plaintext)
+        tls_out_data = libwpa.encrypt(session.tls_connection, tls_plaintext)
         if tls_out_data is None:
             log.e('Encrypt Error!')
             return False, '1003:system error'
@@ -239,7 +239,7 @@ class EapPeapFlow(object):
         tls_plaintext = eap_success.pack()
 
         # 加密
-        tls_out_data = libwpa.encrypt(session.conn, tls_plaintext)
+        tls_out_data = libwpa.encrypt(session.tls_connection, tls_plaintext)
         if tls_out_data is None:
             log.e('Encrypt Error!')
             return False, '1003:system error'
@@ -258,7 +258,7 @@ class EapPeapFlow(object):
         p_out_data = ctypes.create_string_buffer(max_out_len)
         max_out_len = ctypes.c_ulonglong(max_out_len)
         p_label = ctypes.create_string_buffer(b'client eap encryption')
-        _ret = libwpa.tls_connection_prf(connection=session.conn, label_pointer=p_label, output_pointer=p_out_data, output_max_len=max_out_len)
+        _ret = libwpa.tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_pointer=p_out_data, output_max_len=max_out_len)
         if _ret == -1:
             log.e('tls_connection_prf Error!')
             return False, '1003:system error'

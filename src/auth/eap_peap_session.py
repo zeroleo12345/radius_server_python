@@ -20,6 +20,7 @@ class EapPeapSession(object):
         #
         self.msk = ''
         self.peap_fragment: EapPeap = None
+        self.tls_connection = None
 
     def resend(self):
         self.reply.id = self.request.id
