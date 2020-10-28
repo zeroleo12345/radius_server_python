@@ -5,7 +5,7 @@ import struct
 # 自己的库
 from child_pyrad.request import AuthRequest
 from child_pyrad.response import AuthResponse
-from libwpa.crypto import libwpa, TlsBuffer
+from libwpa.crypto import libwpa
 from mybase3.mylog3 import log
 from controls.auth import AuthUser
 from child_pyrad.eap import Eap
@@ -29,7 +29,7 @@ class EapPeapFlow(object):
 
         # 2. 从redis获取会话
         if 0:
-            session = None
+            session = None      # TODO
         else:
             session = EapPeapSession(request=request)
 
