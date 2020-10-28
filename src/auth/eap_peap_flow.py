@@ -123,7 +123,7 @@ class EapPeapFlow(object):
             tls_out_data_len = tls_out.contents.used
             tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
             peap_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
-            reply = AuthResponse.create_peap_challenge(request=request, peap=peap_fragment)
+            reply = AuthResponse.create_peap_challenge(request=request, peap=peap_fragment)     # TODO
             request.sendto(reply)
         finally:
             libwpa.free_alloc(tls_in)
@@ -131,8 +131,10 @@ class EapPeapFlow(object):
 
         # judge next move
         if peap_fragment.is_last_fragment():
+            # 不用分包
             session.next_state = cls.PEAP_CHANGE_CIPHER_SPEC
         else:
+            # 需要分包
             session.next_state = cls.PEAP_SERVER_HELLO_FRAGMENT
             peap_fragment.fragment_next()   # TODO 记录fpos
         return True, ''
@@ -145,8 +147,10 @@ class EapPeapFlow(object):
 
         # judge next move
         if session.peap_fragment.is_last_fragment():
+            # 分包结束
             session.next_state = cls.PEAP_CHANGE_CIPHER_SPEC
         else:
+            # 继续分包
             session.next_state = cls.PEAP_SERVER_HELLO_FRAGMENT
             session.peap_fragment.fragment_next()
         return True, ''
