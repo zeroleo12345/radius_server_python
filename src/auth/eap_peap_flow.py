@@ -46,6 +46,8 @@ class EapPeapFlow(object):
         if is_go_next:
             session.prev_id = request.id
             session.prev_eap_id = eap.id
+        # TODO 每次处理回复后, 保存session到Redis
+        pass
 
     @classmethod
     def state_machine(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
@@ -122,21 +124,21 @@ class EapPeapFlow(object):
                 return False, "1003:system error"
             tls_out_data_len = tls_out.contents.used
             tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
-            certificate_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
-            reply = AuthResponse.create_peap_challenge(request=request, peap=certificate_fragment)     # TODO 根据State查询Redis ServerHello的分包
+            session.certificate_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+            reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment)     # TODO 根据State查询Redis ServerHello的分包
             request.sendto(reply)
         finally:
             libwpa.free_alloc(tls_in)
             libwpa.free_alloc(tls_out)
 
         # judge next move
-        if certificate_fragment.is_last_fragment():
+        if session.certificate_fragment.is_last_fragment():
             # 不用分包
             session.next_state = cls.PEAP_CHANGE_CIPHER_SPEC
         else:
             # 需要分包
             session.next_state = cls.PEAP_SERVER_HELLO_FRAGMENT
-            certificate_fragment.fragment_next()   # TODO 记录fpos
+            session.certificate_fragment.fragment_next()   # TODO 记录fpos
         return True, ''
 
     @classmethod
