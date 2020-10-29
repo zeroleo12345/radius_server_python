@@ -297,8 +297,7 @@ class EapPeapFlow(object):
         reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
         reply['State'] = session.session_id
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = AuthResponse.create_mppe_recv_key_send_key(session.msk, reply.secret, reply.authenticator)
-        self.next_eap_id -= 1
-        reply['EAP-Message'] = struct.pack('!2BH', Eap.CODE_EAP_SUCCESS, self.next_eap_id, 4)
+        reply['EAP-Message'] = struct.pack('!2BH', Eap.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
         reply['Message-Authenticator'] = struct.pack('!B', 0) * 16
         request.sendto(reply)
         session.reply = reply
