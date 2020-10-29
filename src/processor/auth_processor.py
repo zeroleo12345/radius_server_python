@@ -44,20 +44,12 @@ class EchoServer(DatagramServer):
             request = AuthRequest(dict=self.dictionary, secret=SECRET, packet=data, socket=self.socket, address=address)
 
             # 验证用户
-            auth_user = verify(request)
-
-            # 接受或拒绝
-            if is_ok and is_unique_session(mac_address=auth_user.mac_address):
-                reply = access_accept(request)      # TODO
-                log.i(f'accept. user: {auth_user.outer_username}, mac: {auth_user.mac_address}')
-            else:
-                reply = access_reject(request)      # TODO
-                log.i(f'reject. user: {auth_user.outer_username}, mac: {auth_user.mac_address}')
+            verify(request)
         except Exception:
             log.e(traceback.format_exc())
 
 
-def verify(request: AuthRequest) -> AuthUser:
+def verify(request: AuthRequest):
     auth_user = AuthUser(request)
 
     # 查找用户
@@ -66,7 +58,7 @@ def verify(request: AuthRequest) -> AuthUser:
     user = session.query(User).filter(User.username == auth_user.outer_username, User.expired_at >= now).first()
     if not user:
         log.e(f'user: {auth_user.outer_username} not exist')
-        return auth_user
+        return
 
     # 保存用户密码
     auth_user.set_user_password(user.password)
@@ -78,11 +70,6 @@ def verify(request: AuthRequest) -> AuthUser:
         return EapPeapFlow.authenticate(request=request, auth_user=auth_user)
 
     raise Exception('can not choose auth method!')
-
-
-def is_unique_session(mac_address):
-    # TODO
-    return True
 
 
 def main():

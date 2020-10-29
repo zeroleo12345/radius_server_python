@@ -29,7 +29,6 @@ class EapPeapFlow(object):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         # 1. 获取报文
-        chap_password = request['CHAP-Password'][0]
         if 'State' in request:
             session_id = request['State'][0]
             # 2. 从redis获取会话
@@ -323,4 +322,3 @@ class EapPeapFlow(object):
         request.sendto(reply)
         session.reply = reply
         return
-
