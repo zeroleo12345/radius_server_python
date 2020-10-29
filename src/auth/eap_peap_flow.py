@@ -10,7 +10,7 @@ from controls.auth_user import AuthUser
 from child_pyrad.eap import Packet, Eap
 from child_pyrad.eap_peap import EapPeap
 from auth.eap_peap_session import EapPeapSession, RedisSession
-from settings import log, ACCT_INTERVAL
+from settings import log, ACCOUNTING_INTERVAL
 
 
 class EapPeapFlow(object):
@@ -52,8 +52,8 @@ class EapPeapFlow(object):
         if is_go_next:
             session.prev_id = request.id
             session.prev_eap_id = eap.id
-        # TODO 每次处理回复后, 保存session到Redis
-        pass
+        # 每次处理回复后, 保存session到Redis
+        RedisSession.save(session=session)
 
     @classmethod
     def state_machine(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
@@ -292,7 +292,7 @@ class EapPeapFlow(object):
         # reply['Idle-Timeout'] = 600
         reply['User-Name'] = request.username
         reply['Calling-Station-Id'] = request.mac_address
-        reply['Acct-Interim-Interval'] = ACCT_INTERVAL
+        reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
         reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
         reply['State'] = session.session_id
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = AuthResponse.create_mppe_recv_key_send_key(session.msk, reply.secret, reply.authenticator)

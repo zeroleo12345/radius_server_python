@@ -7,7 +7,7 @@ from pyrad.dictionary import Dictionary
 from pyrad.packet import AcctPacket
 # 自己的库
 from child_pyrad.dictionary import get_dictionaries
-from settings import log, DICTIONARY_DIR, SECRET, sentry_sdk, ACCT_INTERVAL
+from settings import log, RADIUS_DICTIONARY_DIR, RADIUS_SECRET, sentry_sdk, ACCOUNTING_INTERVAL
 from child_pyrad.request import CODE_ACCOUNT_RESPONSE
 from controls.acct_user import AcctUser
 from models import Session
@@ -74,14 +74,14 @@ class EchoServer(DatagramServer):
             # print('from %s, data: %r' % (ip, data))
 
             # 解析报文
-            request = AcctPacket(dict=self.dictionary, secret=SECRET, packet=data)
+            request = AcctPacket(dict=self.dictionary, secret=RADIUS_SECRET, packet=data)
             # log.d('recv request: {}'.format(request))
 
             # 验证用户
             is_ok, acct_user = verify(request)
 
             # 每隔x秒清理会话
-            Sessions.clean(interval=ACCT_INTERVAL*2)
+            Sessions.clean(interval=ACCOUNTING_INTERVAL*2)
 
             # 接受或断开链接
             if is_ok:
@@ -137,7 +137,7 @@ def acct_res(request: AcctPacket):
 
 
 def main():
-    dictionary = Dictionary(*get_dictionaries(DICTIONARY_DIR))
+    dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
     print('listening on 0.0.0.0:1813')
     server = EchoServer(dictionary, '0.0.0.0:1813')
     server.serve_forever()

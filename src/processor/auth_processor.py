@@ -8,7 +8,7 @@ from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.request import AuthRequest
 from auth.chap_flow import ChapFlow
 from auth.eap_peap_flow import EapPeapFlow
-from settings import log, DICTIONARY_DIR, SECRET
+from settings import log, RADIUS_DICTIONARY_DIR, RADIUS_SECRET
 from controls.auth_user import AuthUser
 from models import Session
 from models.auth import User
@@ -41,7 +41,7 @@ class EchoServer(DatagramServer):
             # print('from %s, data: %r' % (ip, data))
 
             # 解析报文
-            request = AuthRequest(dict=self.dictionary, secret=SECRET, packet=data, socket=self.socket, address=address)
+            request = AuthRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
 
             # 验证用户
             verify(request)
@@ -73,7 +73,7 @@ def verify(request: AuthRequest):
 
 
 def main():
-    dictionary = Dictionary(*get_dictionaries(DICTIONARY_DIR))
+    dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
     print('listening on 0.0.0.0:1812')
     server = EchoServer(dictionary, '0.0.0.0:1812')
     server.serve_forever()

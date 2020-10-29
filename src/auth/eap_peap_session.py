@@ -4,6 +4,7 @@ from pyrad.packet import AuthPacket
 from child_pyrad.request import AuthRequest
 from child_pyrad.eap_peap import EapPeap
 from controls.auth_user import AuthUser
+from utils.redispool import get_redis
 from settings import log
 
 
@@ -39,9 +40,11 @@ class RedisSession(object):
     @staticmethod
     def load(session_id: str) -> EapPeapSession:
         # TODO
+        redis = get_redis()
         return EapPeapSession()
 
     @staticmethod
     def save(session: EapPeapSession):
         # TODO
+        redis = get_redis()
         return
