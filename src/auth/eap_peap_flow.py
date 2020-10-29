@@ -34,8 +34,7 @@ class EapPeapFlow(object):
             # 2. 从redis获取会话
             session = RedisSession.load(session_id=session_id)  # 旧会话
             if not session:
-                # TODO reject
-                return
+                return cls.access_reject(request=request, session=session)
         else:
             # 新会话
             session = EapPeapSession(request=request, auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
@@ -283,10 +282,10 @@ class EapPeapFlow(object):
             log.e('tls_connection_prf Error!')
             return False, '1003:system error'
         session.msk = ctypes.string_at(p_out_data, max_out_len.value)
-        return cls.access_accept(request, eap, peap, session)
+        return cls.access_accept(request=request, session=session)
 
     @classmethod
-    def access_accept(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def access_accept(cls, request: AuthRequest, session: EapPeapSession):
         log.i(f'OUT:accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.mac_address}')
         reply = request.CreateReply(code=Packet.CODE_ACCESS_ACCEPT)
         # reply['Session-Timeout'] = 600
@@ -303,7 +302,7 @@ class EapPeapFlow(object):
         session.reply = reply
 
     @classmethod
-    def access_reject(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def access_reject(cls, request: AuthRequest, session: EapPeapSession):
         reply = request.CreateReply(code=Packet.CODE_ACCESS_REJECT)
         request.sendto(reply)
         session.reply = reply
