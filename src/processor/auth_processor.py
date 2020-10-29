@@ -8,8 +8,8 @@ from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.request import AuthRequest
 from auth.chap_flow import ChapFlow
 from auth.eap_peap_flow import EapPeapFlow
-from settings import log, DICTIONARY_DIR, SECRET, ACCT_INTERVAL
-from controls.auth import AuthUser
+from settings import log, DICTIONARY_DIR, SECRET
+from controls.auth_user import AuthUser
 from models import Session
 from models.auth import User
 from utils.signal import Signal
@@ -44,44 +44,40 @@ class EchoServer(DatagramServer):
             request = AuthRequest(dict=self.dictionary, secret=SECRET, packet=data, socket=self.socket, address=address)
 
             # 验证用户
-            is_ok, auth_user = verify(request)
+            auth_user = verify(request)
 
             # 接受或拒绝
             if is_ok and is_unique_session(mac_address=auth_user.mac_address):
                 reply = access_accept(request)      # TODO
-                log.i(f'accept. user: {auth_user.username}, mac: {auth_user.mac_address}')
+                log.i(f'accept. user: {auth_user.outer_username}, mac: {auth_user.mac_address}')
             else:
                 reply = access_reject(request)      # TODO
-                log.i(f'reject. user: {auth_user.username}, mac: {auth_user.mac_address}')
-
-            # 返回
-            reply['Acct-Interim-Interval'] = ACCT_INTERVAL
-            self.socket.sendto(reply.ReplyPacket(), address)
+                log.i(f'reject. user: {auth_user.outer_username}, mac: {auth_user.mac_address}')
         except Exception:
             log.e(traceback.format_exc())
 
 
-def verify(request: AuthRequest):
+def verify(request: AuthRequest) -> AuthUser:
     auth_user = AuthUser(request)
 
     # 查找用户
     now = datetime.datetime.now()
     session = Session()
-    user = session.query(User).filter(User.username == auth_user.username, User.expired_at >= now).first()
+    user = session.query(User).filter(User.username == auth_user.outer_username, User.expired_at >= now).first()
     if not user:
-        log.e(f'user: {auth_user.username} not exist')
-        return False, auth_user
-    # 赋值
-    auth_user.set_password(user.password)
+        log.e(f'user: {auth_user.outer_username} not exist')
+        return auth_user
+
+    # 保存用户密码
+    auth_user.set_user_password(user.password)
 
     # 根据报文内容, 选择认证方式
     if 'CHAP-Password' in request:
-        return ChapFlow.verify(request=request, auth_user=auth_user)
+        return ChapFlow.authenticate(request=request, auth_user=auth_user)
     elif 'EAP-Message' in request:
-        return EapPeapFlow.verify(request=request, auth_user=auth_user)
+        return EapPeapFlow.authenticate(request=request, auth_user=auth_user)
 
-    log.e('can not choose auth method')
-    return False, auth_user
+    raise Exception('can not choose auth method!')
 
 
 def is_unique_session(mac_address):

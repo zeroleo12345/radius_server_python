@@ -1,7 +1,7 @@
 import hmac
-import six
 # 第三方库
 from pyrad.packet import AuthPacket, AccessRequest
+from .exception import AuthenticatorError
 
 
 class AuthRequest(AuthPacket):
@@ -38,7 +38,6 @@ class AuthRequest(AuthPacket):
         buff = self.raw_packet.replace(message_authenticator, '\x00'*16)
         expect_authenticator = self.get_message_authenticator(self.secret, buff)
         if expect_authenticator != message_authenticator:
-            log.e(f"Message-Authenticator not match. expect: {expect_authenticator.encode('hex')}, get: {message_authenticator}]")
-            return False
+            raise AuthenticatorError(f"Message-Authenticator mismatch. expect: {expect_authenticator.encode('hex')}, get: {message_authenticator}]")
 
-        return True
+        return

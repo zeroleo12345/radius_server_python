@@ -6,7 +6,7 @@ import struct
 from child_pyrad.request import AuthRequest
 from child_pyrad.response import AuthResponse
 from libwpa.crypto import libwpa
-from controls.auth import AuthUser
+from controls.auth_user import AuthUser
 from child_pyrad.eap import Packet, Eap
 from child_pyrad.eap_peap import EapPeap
 from auth.eap_peap_session import EapPeapSession, RedisSession
@@ -27,7 +27,7 @@ class EapPeapFlow(object):
     PEAP_ACCESS_ACCEPT = 'peap_access_accept'
 
     @classmethod
-    def verify(cls, request: AuthRequest, auth_user: AuthUser):
+    def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         # 1. 获取报文
         chap_password = request['CHAP-Password'][0]
         if 'State' in request:
@@ -39,7 +39,7 @@ class EapPeapFlow(object):
                 return
         else:
             # 新会话
-            session = EapPeapSession(request=request, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
+            session = EapPeapSession(request=request, auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
         # 3. 解析eap报文和eap_peap报文
         raw_eap_messages = Eap.merge_eap_message(request['EAP-Message'])
@@ -48,7 +48,7 @@ class EapPeapFlow(object):
         if Eap.is_eap_peap(type=eap.type):
             peap = EapPeap(content=raw_eap_messages)
 
-        log.d(f'{auth_user.username}|{auth_user.mac_address}.[previd,recvid][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
+        log.d(f'{auth_user.outer_username}|{auth_user.mac_address}.[previd,recvid][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
         # 4. 调用对应状态的处理函数
         is_go_next = cls.state_machine(request=request, eap=eap, peap=peap, session=session)
         if is_go_next:
@@ -229,7 +229,7 @@ class EapPeapFlow(object):
             log.e('Decrypt Error!')
             return False, '1003:system error'
         eap_identity = Eap(content=tls_decr_data)
-        session.account = eap_identity.type_data
+        session.auth_user.inner_username = eap_identity.type_data
 
         # 返回数据
         response = "Password"
@@ -289,16 +289,16 @@ class EapPeapFlow(object):
 
     @classmethod
     def access_accept(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
-        log.i(f'OUT:accept|EAP-PEAP|{request.username}|{session.account}|{request.mac_address}')
+        log.i(f'OUT:accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.mac_address}')
         # response accept
         reply = request.CreateReply(code=Packet.CODE_ACCESS_ACCEPT)
         reply_dict = {}
         # reply_dict['Session-Timeout'] = 600
         # reply_dict['Idle-Timeout'] = 600
         reply_dict['User-Name'] = request.username
-        reply_dict['Calling-Station-Id'] = request.usermac
+        reply_dict['Calling-Station-Id'] = request.mac_address
         reply_dict['Acct-Interim-Interval'] = ACCT_INTERVAL
-        reply_dict['Class'] = '\x7f'.join(('EAP-PEAP', session.account, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
+        reply_dict['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
         # TODO
         reply_dict['State'] = session.session_id
             reply_dict['MS-MPPE-Recv-Key'], reply_dict['MS-MPPE-Send-Key'] = pyrad.packet.MS_MPPE_SEND_KEY(self.msk, self.reply.secret, self.reply.authenticator)

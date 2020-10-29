@@ -1,8 +1,8 @@
 """
 reference:
-    [rfc] PEAPv0 EAP-MSCHAPV2
+    PEAPv0 EAP-MSCHAPV2 - Microsoft's PEAP version 0 (Implementation in Windows XP SP1):
         https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00
-    [rfc] PEAPv1 EAP-GTC
+    PEAPv1 EAP-GTC - Protected EAP Protocol (PEAP)
         https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
 """
 import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_into

@@ -9,7 +9,7 @@ from pyrad.packet import AcctPacket
 from child_pyrad.dictionary import get_dictionaries
 from settings import log, DICTIONARY_DIR, SECRET, sentry_sdk, ACCT_INTERVAL
 from child_pyrad.request import CODE_ACCOUNT_RESPONSE
-from controls.acct import AcctUser
+from controls.acct_user import AcctUser
 from models import Session
 from models.auth import User
 from utils.signal import Signal

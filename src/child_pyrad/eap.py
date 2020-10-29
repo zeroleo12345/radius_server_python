@@ -1,6 +1,6 @@
 """
 reference:
-    [rfc4186]   http://tools.ietf.org/search/rfc4186#appendix-B
+    [rfc4186]   http://tools.ietf.org/search/rfc4186
 """
 import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_into
 #
