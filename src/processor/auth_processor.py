@@ -52,7 +52,7 @@ class EchoServer(DatagramServer):
 def verify(request: AuthRequest):
     auth_user = AuthUser(request)
 
-    # 查找用户
+    # 查找用户明文密码
     now = datetime.datetime.now()
     session = Session()
     user = session.query(User).filter(User.username == auth_user.outer_username, User.expired_at >= now).first()
