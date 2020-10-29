@@ -283,38 +283,25 @@ class EapPeapFlow(object):
             log.e('tls_connection_prf Error!')
             return False, '1003:system error'
         session.msk = ctypes.string_at(p_out_data, max_out_len.value)
-        # TODO access_accept
-        return True, ''
+        return cls.access_accept(request, eap, peap, session)
 
     @classmethod
     def access_accept(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
         log.i(f'OUT:accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.mac_address}')
-        # response accept
         reply = request.CreateReply(code=Packet.CODE_ACCESS_ACCEPT)
-        reply_dict = {}
-        # reply_dict['Session-Timeout'] = 600
-        # reply_dict['Idle-Timeout'] = 600
-        reply_dict['User-Name'] = request.username
-        reply_dict['Calling-Station-Id'] = request.mac_address
-        reply_dict['Acct-Interim-Interval'] = ACCT_INTERVAL
-        reply_dict['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
-        # TODO
-        reply_dict['State'] = session.session_id
-            reply_dict['MS-MPPE-Recv-Key'], reply_dict['MS-MPPE-Send-Key'] = pyrad.packet.MS_MPPE_SEND_KEY(self.msk, self.reply.secret, self.reply.authenticator)
-            if self.auth_method == 'eap_peap': self.next_eap_id -= 1
-            reply_dict['EAP-Message'] = struct.pack('!2BH', CODE_EAP_SUCCESS, self.next_eap_id, 4)
-            reply_dict['Message-Authenticator'] = struct.pack('!B', 0) * 16
-        g_log.db('reply:%s' % reply_dict)
-        for k, v in reply_dict.items():
-            self.reply[k] = v
-        request.sendto(reply)
-
-    @classmethod
-    def access_accept(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
-        reply = request.CreateReply(code=Packet.CODE_ACCESS_ACCEPT)
+        # reply['Session-Timeout'] = 600
+        # reply['Idle-Timeout'] = 600
+        reply['User-Name'] = request.username
+        reply['Calling-Station-Id'] = request.mac_address
+        reply['Acct-Interim-Interval'] = ACCT_INTERVAL
+        reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
+        reply['State'] = session.session_id
+        reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = AuthResponse.create_mppe_recv_key_send_key(session.msk, reply.secret, reply.authenticator)
+        self.next_eap_id -= 1
+        reply['EAP-Message'] = struct.pack('!2BH', Eap.CODE_EAP_SUCCESS, self.next_eap_id, 4)
+        reply['Message-Authenticator'] = struct.pack('!B', 0) * 16
         request.sendto(reply)
         session.reply = reply
-        return
 
     @classmethod
     def access_reject(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
