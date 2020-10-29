@@ -72,9 +72,6 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
-.envrc
-
 # celery beat schedule file
 celerybeat-schedule
 
@@ -110,6 +107,7 @@ venv.bak/
 .DS_Store
 
 # Self Define
+.direnv/
 run/data/
 *.tmp
 *.swp
