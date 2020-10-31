@@ -1,3 +1,4 @@
+import os
 import ctypes
 
 
@@ -21,8 +22,9 @@ class TlsBuffer(ctypes.Structure):
 
 class EapCrypto(object):
 
-    def __init__(self):
-        self.lib = ctypes.CDLL('./libwpa_server.so', mode=257)
+    def __init__(self, hostapd_library_path):
+        assert os.path.exists(hostapd_library_path)
+        self.lib = ctypes.CDLL(hostapd_library_path, mode=257)
         self.tls_ctx = self.lib.py_authsrv_init()
 
     def tls_connection_init(self):
@@ -35,6 +37,9 @@ class EapCrypto(object):
     def tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
         self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
         return self.lib.tls_connection_server_handshake(self.tls_ctx, tls_connection, input_tls_pointer, None)
+
+    def py_wpabuf_alloc(self, p_tls_in_data, tls_in_data_len):
+        return self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
 
     def free_alloc(self, pointer):
         if pointer:
@@ -78,9 +83,6 @@ class EapCrypto(object):
             self.free_alloc(tls_out_pointer)
 
 
-libwpa = EapCrypto()
-
-
 if __name__ == "__main__":
     def write(byte):
         with open('./output', 'wb') as f:
@@ -114,6 +116,7 @@ if __name__ == "__main__":
 
     def main():
         # global init
+        libwpa = EapCrypto(hostapd_library_path='./libhostapd.so')
         libwpa.set_log_level(1)
         ssl_ctx = libwpa.lib.py_authsrv_init()
         if ssl_ctx is None:

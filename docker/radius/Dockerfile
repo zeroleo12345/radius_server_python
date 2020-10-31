@@ -9,7 +9,7 @@ ADD requirements /app/requirements/
 RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone \
     && cp /app/requirements/sources.list.aliyun  /etc/apt/sources.list \
     && apt-get update \
-    && apt-get install -y build-essential git libssl-dev libnl-3-dev \
+    && apt-get install -y build-essential git libssl1.0-dev libnl-3-dev \
     && apt-get purge --auto-remove \
     && rm -rf /tmp/* /var/lib/apt/lists/* \
     && apt-get clean -y

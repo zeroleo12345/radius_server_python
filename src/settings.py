@@ -2,6 +2,7 @@
 from decouple import config
 import sentry_sdk
 # 自己的库
+from library.crypto import EapCrypto
 from mybase3.mylog3 import log
 
 SENTRY_DSN = config('SENTRY_DSN')
@@ -18,6 +19,9 @@ LOG_HEADER = config('LOG_HEADER')
 LOG_DIR = config('LOG_DIR')
 LOG_LEVEL = config('LOG_LEVEL')
 LOG_BUFFER_SIZE = config('LOG_BUFFER_SIZE', default=0, cast=int)
+# 初始化日志
+log.init(header=LOG_HEADER, directory=LOG_DIR, level=LOG_LEVEL, max_buffer=LOG_BUFFER_SIZE, max_line=100000)
+log.i(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_BUFFER_SIZE: {LOG_BUFFER_SIZE}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
 
 # Redis
 REDIS_HOST = config('REDIS_HOST')
@@ -25,6 +29,6 @@ REDIS_PORT = config('REDIS_PORT')
 REDIS_PASSWORD = config('REDIS_PASSWORD')
 REDIS_DB = config('REDIS_DB')
 
-# 初始化日志
-log.init(header=LOG_HEADER, directory=LOG_DIR, level=LOG_LEVEL, max_buffer=LOG_BUFFER_SIZE, max_line=100000)
-log.i(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_BUFFER_SIZE: {LOG_BUFFER_SIZE}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
+# 动态库
+HOSTAPD_LIBRARY = config('HOSTAPD_LIBRARY')
+libhostapd = EapCrypto(hostapd_library_path=HOSTAPD_LIBRARY)
