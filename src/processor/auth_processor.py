@@ -36,6 +36,7 @@ class EchoServer(DatagramServer):
 
     def handle(self, data, address):
         try:
+            log.d(f'receive packet from {address}, data: {data}')
             self.handle_signal()
             # ip, port = address
             # print('from %s, data: %r' % (ip, data))
