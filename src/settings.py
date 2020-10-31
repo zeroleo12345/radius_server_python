@@ -1,9 +1,10 @@
+import os
 # 第三方库
 from decouple import config
 import sentry_sdk
 # 自己的库
 from library.crypto import EapCrypto
-from mybase3.mylog3 import log
+from loguru import logger as log
 
 SENTRY_DSN = config('SENTRY_DSN')
 sentry_sdk.init(SENTRY_DSN)
@@ -20,7 +21,11 @@ LOG_DIR = config('LOG_DIR')
 LOG_LEVEL = config('LOG_LEVEL')
 LOG_BUFFER_SIZE = config('LOG_BUFFER_SIZE', default=0, cast=int)
 # 初始化日志
-log.init(header=LOG_HEADER, directory=LOG_DIR, level=LOG_LEVEL, max_buffer=LOG_BUFFER_SIZE, max_line=100000)
+log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00')
+log.i = log.info
+log.d = log.debug
+log.e = log.error
+log.w = log.warning
 log.i(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_BUFFER_SIZE: {LOG_BUFFER_SIZE}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
 
 # Redis

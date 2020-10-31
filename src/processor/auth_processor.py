@@ -76,10 +76,9 @@ def verify(request: AuthRequest):
 
 def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
-    # listen_ip = '0.0.0.0'
-    listen_ip = '127.0.0.1'
+    listen_ip = '0.0.0.0'
     listen_port = 1812
-    print(f'listening on {listen_ip}:{listen_port}')
+    log.d(f'listening on {listen_ip}:{listen_port}')
     server = EchoServer(dictionary, f'{listen_ip}:{listen_port}')
     server.serve_forever()
 
