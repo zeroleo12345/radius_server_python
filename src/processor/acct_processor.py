@@ -139,7 +139,10 @@ def acct_res(request: AcctPacket):
 def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
     print('listening on 0.0.0.0:1813')
-    server = EchoServer(dictionary, '0.0.0.0:1813')
+    listen_ip = '0.0.0.0'
+    listen_port = 1813
+    print(f'listening on {listen_ip}:{listen_port}')
+    server = EchoServer(dictionary, f'{listen_ip}:{listen_port}')
     server.serve_forever()
 
 
