@@ -69,9 +69,11 @@ class EchoServer(DatagramServer):
 
     def handle(self, data, address):
         try:
-            self.handle_signal()
             ip, port = address
-            # print('from %s, data: %r' % (ip, data))
+            log.d(f'receive packet from {address}, data: {data}')
+
+            # 处理信号
+            self.handle_signal()
 
             # 解析报文
             request = AcctPacket(dict=self.dictionary, secret=RADIUS_SECRET, packet=data)

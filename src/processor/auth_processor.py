@@ -36,10 +36,11 @@ class EchoServer(DatagramServer):
 
     def handle(self, data, address):
         try:
+            ip, port = address
             log.d(f'receive packet from {address}, data: {data}')
+
+            # 处理信号
             self.handle_signal()
-            # ip, port = address
-            # print('from %s, data: %r' % (ip, data))
 
             # 解析报文
             request = AuthRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
