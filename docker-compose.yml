@@ -16,8 +16,8 @@ services:
     volumes:    # 挂载盘: - 主机路径:docker内部路径
       - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
       - ./data:/data
-    # entrypoint: sh      # 用于调试
-    entrypoint: /app/bin/auth.sh
+    entrypoint: sh      # 用于调试
+    # entrypoint: /app/bin/auth.sh
     tty: true
     restart: unless-stopped
     networks:

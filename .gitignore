@@ -114,3 +114,4 @@ run/data/
 run/backup/*
 !run/backup/.gitkeep
 nohup.out
+hostapd-2.5/
