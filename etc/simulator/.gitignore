@@ -1,2 +1,5 @@
-certs/*
-!certs/README
+#certs/*
+#!certs/README
+certs/newcerts/
+certs/*.old
+certs/*.attr
