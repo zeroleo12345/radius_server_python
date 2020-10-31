@@ -89,6 +89,15 @@ services:
     networks:
       - pppoe_system
 
+  redis:
+    container_name: radius_redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass 123456     # 设置密码
+    networks:
+      - pppoe_system
+
 
 networks:
   pppoe_system:

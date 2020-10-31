@@ -22,10 +22,17 @@ class TlsBuffer(ctypes.Structure):
 
 class EapCrypto(object):
 
-    def __init__(self, hostapd_library_path):
+    def __init__(self, hostapd_library_path: str, ca_cert_path, client_cert_path, private_key_path, private_key_passwd: str, dh_file_path):
         assert os.path.exists(hostapd_library_path)
         self.lib = ctypes.CDLL(hostapd_library_path, mode=257)
-        self.tls_ctx = self.lib.py_authsrv_init()
+        ca_cert_path_pointer = ctypes.create_string_buffer(ca_cert_path.encode())
+        client_cert_path_pointer = ctypes.create_string_buffer(client_cert_path.encode())
+        private_key_path_pointer = ctypes.create_string_buffer(private_key_path.encode())
+        private_key_passwd_pointer = ctypes.create_string_buffer(private_key_passwd.encode())
+        dh_file_path_pointer = ctypes.create_string_buffer(dh_file_path.encode())
+        self.tls_ctx = self.lib.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
+                                                private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
+        assert self.tls_ctx
 
     def tls_connection_init(self):
         # connection每个认证会话维持一个

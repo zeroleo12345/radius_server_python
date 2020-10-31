@@ -29,6 +29,12 @@ REDIS_PORT = config('REDIS_PORT')
 REDIS_PASSWORD = config('REDIS_PASSWORD')
 REDIS_DB = config('REDIS_DB')
 
-# 动态库
+# HOSTAPD 动态库
 HOSTAPD_LIBRARY = config('HOSTAPD_LIBRARY')
-libhostapd = EapCrypto(hostapd_library_path=HOSTAPD_LIBRARY)
+CA_CERT = config('CA_CERT')
+CLIENT_CERT = config('CLIENT_CERT')
+PRIVATE_KEY = config('PRIVATE_KEY')
+PRIVATE_KEY_PASSWORD = config('PRIVATE_KEY_PASSWORD')
+DH_FILE = config('DH_FILE')
+libhostapd = EapCrypto(hostapd_library_path=HOSTAPD_LIBRARY, ca_cert_path=CA_CERT, client_cert_path=CLIENT_CERT,
+                       private_key_path=PRIVATE_KEY, private_key_passwd=PRIVATE_KEY_PASSWORD, dh_file_path=DH_FILE)
