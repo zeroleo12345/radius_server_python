@@ -62,10 +62,12 @@ class EapCrypto(object):
         return self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
 
     def tls_connection_decrypt(self, tls_connection, input_tls_pointer):
+        # ./src/crypto/tls_openssl.c:3292:struct wpabuf * tls_connection_decrypt(void *tls_ctx,
         self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_decrypt(self.tls_ctx, tls_connection, input_tls_pointer)
 
     def tls_connection_encrypt(self, tls_connection, input_tls_pointer):
+        # ./src/crypto/tls_openssl.c:3252:struct wpabuf * tls_connection_encrypt(void *tls_ctx,
         self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, input_tls_pointer)
 
