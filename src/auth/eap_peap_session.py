@@ -2,7 +2,6 @@ import pickle
 # 第三方库
 from pyrad.packet import AuthPacket
 # 自己的库
-# from child_pyrad.request import AuthRequest
 from child_pyrad.eap_peap import EapPeap
 from controls.auth_user import AuthUser
 from utils.redispool import get_redis
