@@ -129,13 +129,14 @@ if __name__ == "__main__":
         PRIVATE_KEY_PASSWORD = '1234'
         DH_FILE = '/app/etc/simulator/certs/dh'
         libwpa = ctypes.CDLL(HOSTAPD_LIBRARY, mode=257)
-        ca_cert_path_pointer = ctypes.create_string_buffer(CA_CERT.encode())
-        client_cert_path_pointer = ctypes.create_string_buffer(CLIENT_CERT.encode())
-        private_key_path_pointer = ctypes.create_string_buffer(PRIVATE_KEY.encode())
-        private_key_passwd_pointer = ctypes.create_string_buffer(PRIVATE_KEY_PASSWORD.encode())
-        dh_file_path_pointer = ctypes.create_string_buffer(DH_FILE.encode())
+        ca_cert_path_pointer = ctypes.create_string_buffer(CA_CERT.encode("utf-8"))
+        client_cert_path_pointer = ctypes.create_string_buffer(CLIENT_CERT.encode("utf-8"))
+        private_key_path_pointer = ctypes.create_string_buffer(PRIVATE_KEY.encode("utf-8"))
+        private_key_passwd_pointer = ctypes.create_string_buffer(PRIVATE_KEY_PASSWORD.encode("utf-8"))
+        dh_file_path_pointer = ctypes.create_string_buffer(DH_FILE.encode("utf-8"))
         tls_ctx = libwpa.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                          private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
+        assert tls_ctx
         libwpa.set_log_level(1)
 
         # session init
@@ -153,21 +154,21 @@ if __name__ == "__main__":
         # handle packet
         response_len = ctypes.c_ulonglong(0)    # size_t  ==  uint64
         p_response_len = ctypes.addressof(response_len)    # size_t *
-        tls_in = libwpa.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-        libwpa.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
-        tls_out = libwpa.lib.tls_connection_server_handshake(tls_ctx, conn, tls_in, None)    # response = ctypes.c_void_p() -> void *
+        tls_in = libwpa.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+        libwpa.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
+        tls_out = libwpa.tls_connection_server_handshake(tls_ctx, conn, tls_in, None)    # response = ctypes.c_void_p() -> void *
         if tls_out is None:
-            libwpa.lib.tls_connection_deinit(tls_ctx, conn)
-            libwpa.lib.tls_deinit(tls_ctx)
+            libwpa.tls_connection_deinit(tls_ctx, conn)
+            libwpa.tls_deinit(tls_ctx)
             raise Exception('tls_connection_server_handshake Error')
 
         tls_out_data_len = tls_out.contents.used
         tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
         print(tls_out_data.hex().upper())
-        libwpa.lib.wpabuf_free(tls_in)
-        libwpa.lib.wpabuf_free(tls_out)
-        libwpa.lib.tls_connection_deinit(tls_ctx, conn)
-        libwpa.lib.tls_deinit(tls_ctx)
+        libwpa.wpabuf_free(tls_in)
+        libwpa.wpabuf_free(tls_out)
+        libwpa.tls_connection_deinit(tls_ctx, conn)
+        libwpa.tls_deinit(tls_ctx)
 
     """
     class tls_global(ctypes.Structure):  # ctypes.Structure
