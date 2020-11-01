@@ -307,6 +307,6 @@ class EapPeapFlow(Flow):
         reply['State'] = session.session_id
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = AuthResponse.create_mppe_recv_key_send_key(session.msk, reply.secret, reply.authenticator)
         reply['EAP-Message'] = struct.pack('!2BH', Eap.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
-        reply['Message-Authenticator'] = struct.pack('!B', 0) * 16
+        reply.add_message_authenticator()
         request.reply_to(reply)
         session.reply = reply
