@@ -30,6 +30,7 @@ class EapCrypto(object):
         private_key_path_pointer = ctypes.create_string_buffer(private_key_path.encode())
         private_key_passwd_pointer = ctypes.create_string_buffer(private_key_passwd.encode())
         dh_file_path_pointer = ctypes.create_string_buffer(dh_file_path.encode())
+        # void* py_authsrv_init(char *ca_cert_path, char *client_cert_path, char *private_key_path, char *private_key_passwd, char *dh_file_path) {
         self.tls_ctx = self.lib.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                                 private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
         assert self.tls_ctx
@@ -143,6 +144,7 @@ if __name__ == "__main__":
         libwpa.set_log_level(0)
 
         # session init
+        # TODO
         conn = libwpa.tls_connection_init(tls_ctx)
         if conn is None:
             libwpa.tls_deinit(tls_ctx)
@@ -157,6 +159,7 @@ if __name__ == "__main__":
         # handle packet
         response_len = ctypes.c_ulonglong(0)    # size_t  ==  uint64
         p_response_len = ctypes.addressof(response_len)    # size_t *
+        # TODO
         tls_in = libwpa.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
         libwpa.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
         tls_out = libwpa.tls_connection_server_handshake(tls_ctx, conn, tls_in, None)    # response = ctypes.c_void_p() -> void *
