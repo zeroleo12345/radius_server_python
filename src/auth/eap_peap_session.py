@@ -10,6 +10,7 @@ from settings import log
 
 
 class EapPeapSession(object):
+    __exclude_pickle_field = ['request']
 
     def __init__(self, request: AuthRequest, auth_user: AuthUser, session_id: str):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
@@ -28,12 +29,20 @@ class EapPeapSession(object):
         self.certificate_fragment: EapPeap = None
         self.tls_connection = None
 
-    def resend(self):
-        self.reply.id = self.request.id
-        self.reply['Proxy-State'] = self.request['Proxy-State'][0]
-        self.request.reply_to(self.reply)
-        log.debug(f'resend packet:{self.reply.id}')
-        return
+    def __getstate__(self):
+        from pprint import pprint; import pdb; pdb.set_trace()
+        state = self.__dict__.copy()
+        # Don't pickle specific field
+        for field_name in self.__exclude_pickle_field:
+            del state[field_name]
+        return state
+
+    def __setstate__(self, state):
+        from pprint import pprint; import pdb; pdb.set_trace()
+        self.__dict__.update(state)
+        # Add field back since it doesn't exist in the pickle
+        for field_name in self.__exclude_pickle_field:
+            setattr(self, field_name, None)
 
 
 class RedisSession(object):

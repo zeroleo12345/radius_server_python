@@ -5,6 +5,7 @@ from .exception import AuthenticatorError
 
 
 class AuthRequest(AuthPacket):
+
     def __init__(self, secret: str, packet: str, socket, address,
                  code=AccessRequest, id=None, authenticator=None, **attributes):
         super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)

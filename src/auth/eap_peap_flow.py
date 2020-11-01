@@ -58,8 +58,11 @@ class EapPeapFlow(Flow):
             # 重复请求
             if session.reply:
                 # 会话已经处理过
-                log.info(f'duplicate packet, resend. username: {request.username}, mac: {request.mac_address}, next_state: {session.next_state}')
-                return session.resend()
+                reply = session.reply
+                request.reply_to(reply)
+                log.info(f'duplicate packet, resend. id: {reply.id}, username: {request.username},'
+                         f'mac: {request.mac_address}, next_state: {session.next_state}')
+                return
             else:
                 # 会话正在处理中
                 log.info(f'processor handling. username: {request.username}, mac: {request.mac_address}, next_state: {session.next_state}')
