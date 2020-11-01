@@ -27,7 +27,7 @@ class EapPeapFlow(Flow):
                 return cls.access_reject(request=request, auth_user=auth_user)
         else:
             # 新会话
-            session = EapPeapSession(request=request, auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
+            session = EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
         # 3. 解析eap报文和eap_peap报文
         raw_eap_messages = Eap.merge_eap_message(request['EAP-Message'])
@@ -71,7 +71,7 @@ class EapPeapFlow(Flow):
         elif session.next_eap_id == -1 or session.next_eap_id == eap.id:
             # 正常eap-peap流程
             session.next_eap_id = Eap.get_next_id(eap.id)
-            session.next_id = Eap.get_next_id(session.request.id)
+            session.next_id = Eap.get_next_id(request.id)
             log.info(f'peap auth. session_id: {session.session_id}, next_state: {session.next_state}')
             if eap.type == Eap.TYPE_EAP_IDENTITY and session.next_state == EapPeap.PEAP_CHALLENGE_START:
                 return cls.peap_challenge_start(request, eap, peap, session)
@@ -92,7 +92,7 @@ class EapPeapFlow(Flow):
             else:
                 log.error('eap peap auth error. unknown eap packet type')
                 return
-        log.error(f'id error. [prev, recv][{session.prev_id}, {session.request.id}][{session.prev_eap_id}, {eap.id}]')
+        log.error(f'id error. [prev, recv][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
         return
 
     @classmethod

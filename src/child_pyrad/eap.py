@@ -38,15 +38,15 @@ class Eap(Packet):
             # if self.type_data == '': raise PacketError('type_data missing')
             pass
 
-    def decode_packet(self, packet):
+    def decode_packet(self, packet: bytes):
         try:
-            self.code, self.id, _length = struct.unpack("!2BH", packet[:4].encode())
+            self.code, self.id, _length = struct.unpack("!2BH", packet[:4])
         except struct.error:
             raise PacketError('EAP header is corrupt')
         if len(packet) != _length:
             raise PacketError('EAP has invalid length')
         if self.code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]:
-            self.type, = struct.unpack("!B", packet[4:5].encode()) if _length > 4 else None
+            self.type, = struct.unpack("!B", packet[4:5]) if _length > 4 else None
             self.type_data = packet[5:_length] if _length > 5 else ''
 
     def pack(self):
@@ -94,7 +94,7 @@ class Eap(Packet):
         return [eap_messages[pos:pos+_step] for pos in range(0, _stop, _step)]
 
     @staticmethod
-    def merge_eap_message(eap_messages):
+    def merge_eap_message(eap_messages) -> bytes:
         """
         concatenation multiple Eap-Message field.
         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -105,9 +105,15 @@ class Eap(Packet):
         :return: Eap-Message binary string
         """
         assert isinstance(eap_messages, list)
+        result = b''
         # if len(eap_messages) == 1:
         #     return eap_messages[0]
-        return ''.join(eap_messages)
+        for eap_message in eap_messages:
+            if isinstance(eap_message, str):
+                result += eap_message.encode()
+            else:
+                result += eap_message
+        return result
 
     @classmethod
     def is_eap_peap(cls, type):

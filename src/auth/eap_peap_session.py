@@ -2,17 +2,15 @@ import pickle
 # 第三方库
 from pyrad.packet import AuthPacket
 # 自己的库
-from child_pyrad.request import AuthRequest
+# from child_pyrad.request import AuthRequest
 from child_pyrad.eap_peap import EapPeap
 from controls.auth_user import AuthUser
 from utils.redispool import get_redis
-from settings import log
 
 
 class EapPeapSession(object):
-    __exclude_pickle_field = ['request']
 
-    def __init__(self, request: AuthRequest, auth_user: AuthUser, session_id: str):
+    def __init__(self, auth_user: AuthUser, session_id: str):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
         self.session_id = session_id
         self.next_state = EapPeap.PEAP_CHALLENGE_START
@@ -22,25 +20,11 @@ class EapPeapSession(object):
         self.next_eap_id = -1
         #
         self.auth_user: AuthUser = auth_user
-        self.request: AuthRequest = request
         self.reply: AuthPacket = None
         #
         self.msk = ''
         self.certificate_fragment: EapPeap = None
         self.tls_connection = None
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        # Don't pickle specific field
-        for field_name in self.__exclude_pickle_field:
-            del state[field_name]
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        # Add field back since it doesn't exist in the pickle
-        for field_name in self.__exclude_pickle_field:
-            setattr(self, field_name, None)
 
 
 class RedisSession(object):
