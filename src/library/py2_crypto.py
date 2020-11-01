@@ -108,10 +108,10 @@ if __name__ == "__main__":
         from functools import reduce
         return reduce(lambda x, y: x + y, map(lambda x: binascii.a2b_hex(x), str.split()))
 
-    def sslstr_to_sslbin():
+    def sslstr_to_sslbin(client_hello_path):
         import sys
         # read
-        with open('/root/ctm-wifi-radius/build_ctm/hostapd-2.5/hostapd/py_client_hello1', 'r') as f:
+        with open(client_hello_path, 'r') as f:
             lines = f.readlines()   # 读取全部内容
             # 打印
             if len(lines) != 1:
@@ -130,6 +130,7 @@ if __name__ == "__main__":
         PRIVATE_KEY = '/root/github/radius_server/etc/simulator/certs/server.key.pem'
         PRIVATE_KEY_PASSWORD = '1234'
         DH_FILE = '/root/github/radius_server/etc/simulator/certs/dh'
+        client_hello = '/root/build/hostapd-2.5-ctm/hostapd/py_client_hello1'
         libwpa = ctypes.CDLL(HOSTAPD_LIBRARY, mode=257)
         ca_cert_path_pointer = ctypes.create_string_buffer(CA_CERT.encode())
         client_cert_path_pointer = ctypes.create_string_buffer(CLIENT_CERT.encode())
@@ -141,35 +142,35 @@ if __name__ == "__main__":
         libwpa.set_log_level(1)
 
         # session init
-        from pprint import pprint; import pdb; pdb.set_trace()
         conn = libwpa.tls_connection_init(tls_ctx)
         if conn is None:
             libwpa.tls_deinit(tls_ctx)
             raise Exception('tls_connection_init Error')
 
         # read packet from file
-        tls_buff = sslstr_to_sslbin()
+        tls_buff = sslstr_to_sslbin(client_hello_path=client_hello)
         p_tls_in_data = ctypes.create_string_buffer(tls_buff)    # u8 *  ==  uint8_t  *
         tls_in_data_len = ctypes.c_ulonglong(len(tls_buff))  # size_t  ==  uint64
 
         # handle packet
         response_len = ctypes.c_ulonglong(0)    # size_t  ==  uint64
         p_response_len = ctypes.addressof(response_len)    # size_t *
-        tls_in = libwpa.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-        libwpa.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
-        tls_out = libwpa.lib.tls_connection_server_handshake(tls_ctx, conn, tls_in, None)    # response = ctypes.c_void_p() -> void *
+        tls_in = libwpa.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+        libwpa.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
+        tls_out = libwpa.tls_connection_server_handshake(tls_ctx, conn, tls_in, None)    # response = ctypes.c_void_p() -> void *
         if tls_out is None:
-            libwpa.lib.tls_connection_deinit(tls_ctx, conn)
-            libwpa.lib.tls_deinit(tls_ctx)
+            libwpa.tls_connection_deinit(tls_ctx, conn)
+            libwpa.tls_deinit(tls_ctx)
             raise Exception('tls_connection_server_handshake Error')
 
         tls_out_data_len = tls_out.contents.used
         tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
-        print(tls_out_data.hex().upper())
-        libwpa.lib.wpabuf_free(tls_in)
-        libwpa.lib.wpabuf_free(tls_out)
-        libwpa.lib.tls_connection_deinit(tls_ctx, conn)
-        libwpa.lib.tls_deinit(tls_ctx)
+        print(tls_out_data.encode('hex').upper())
+        libwpa.wpabuf_free(tls_in)
+        libwpa.wpabuf_free(tls_out)
+        libwpa.tls_connection_deinit(tls_ctx, conn)
+        libwpa.tls_deinit(tls_ctx)
+        print('main end.')
 
     """
     class tls_global(ctypes.Structure):  # ctypes.Structure
