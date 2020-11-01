@@ -40,3 +40,9 @@ class AuthRequest(AuthPacket):
             raise AuthenticatorError(f"Message-Authenticator mismatch. expect: {expect_authenticator.encode('hex')}, get: {message_authenticator}]")
 
         return
+
+    def __str__(self):
+        msg = 'AuthPacket:\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg

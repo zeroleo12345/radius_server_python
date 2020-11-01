@@ -16,6 +16,7 @@ from settings import log, libhostapd, ACCOUNTING_INTERVAL
 class EapPeapFlow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
+        log.debug(request)
         # 1. 获取报文
         if 'State' in request:
             session_id = request['State'][0].decode()
