@@ -14,7 +14,7 @@ class EapPeapSession(object):
     def __init__(self, request: AuthRequest, auth_user: AuthUser, session_id: str):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
         self.session_id = session_id
-        self.next_state = ''
+        self.next_state = EapPeap.PEAP_CHALLENGE_START
         self.prev_id = -1
         self.next_id = -1
         self.prev_eap_id = -1

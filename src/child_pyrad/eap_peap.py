@@ -26,7 +26,18 @@ class EapPeap(Packet):
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |     TLS Message Length        |       TLS Data...
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    认证流程参考文档: PEAPv1(EAP-GTC).vsd
     """
+
+    PEAP_CHALLENGE_START = 'peap_challenge_start'
+    PEAP_CHALLENGE_SERVER_HELLO = 'peap_challenge_server_hello'
+    PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT = 'peap_challenge_server_hello_fragment'
+    PEAP_CHALLENGE_CHANGE_CIPHER_SPEC = 'peap_challenge_change_cipher_spec'
+    PEAP_CHALLENGE_IDENTITY = 'peap_challenge_identity'
+    PEAP_CHALLENGE_PASSWORD = 'peap_challenge_password'
+    PEAP_CHALLENGE_SUCCESS = 'peap_challenge_success'
+    PEAP_ACCESS_ACCEPT = 'peap_access_accept'
+
     def __init__(self, content=None, code=0, id=0, flag_start=0b0, flag_version=0b001, tls_data=''):
         super(self.__class__, self).__init__()
         self.tls_data = tls_data

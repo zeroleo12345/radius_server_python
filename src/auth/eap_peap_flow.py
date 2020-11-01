@@ -14,23 +14,11 @@ from settings import log, libhostapd, ACCOUNTING_INTERVAL
 
 
 class EapPeapFlow(Flow):
-    """
-    认证流程参考文档: PEAPv1(EAP-GTC).vsd
-    """
-
-    PEAP_CHALLENGE_SERVER_HELLO = 'peap_challenge_server_hello'
-    PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT = 'peap_challenge_server_hello_fragment'
-    PEAP_CHALLENGE_CHANGE_CIPHER_SPEC = 'peap_challenge_change_cipher_spec'
-    PEAP_CHALLENGE_IDENTITY = 'peap_challenge_identity'
-    PEAP_CHALLENGE_PASSWORD = 'peap_challenge_password'
-    PEAP_CHALLENGE_SUCCESS = 'peap_challenge_success'
-    PEAP_ACCESS_ACCEPT = 'peap_access_accept'
-
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         # 1. 获取报文
         if 'State' in request:
-            session_id = request['State'][0]
+            session_id = request['State'][0].encode()
             # 2. 从redis获取会话
             session = RedisSession.load(session_id=session_id)  # 旧会话
             if not session:
@@ -80,21 +68,21 @@ class EapPeapFlow(Flow):
             # 正常eap-peap流程
             session.next_eap_id = Eap.get_next_id(eap.id)
             session.next_id = Eap.get_next_id(session.request.id)
-            if eap.type == Eap.TYPE_EAP_IDENTITY and session.next_state == '':
+            if eap.type == Eap.TYPE_EAP_IDENTITY and session.next_state == EapPeap.PEAP_CHALLENGE_START:
                 return cls.peap_challenge_start(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO:
+            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_SERVER_HELLO:
                 return cls.peap_challenge_server_hello(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
+            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
+            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_IDENTITY:
+            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_IDENTITY:
                 return cls.peap_challenge_identity(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_PASSWORD:
+            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_PASSWORD:
                 return cls.peap_challenge_password(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SUCCESS:
+            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_SUCCESS:
                 return cls.peap_challenge_success(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_ACCESS_ACCEPT:
+            elif peap is not None and session.next_state == EapPeap.PEAP_ACCESS_ACCEPT:
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
             else:
                 log.error('eap peap auth error. unknown eap packet type')
@@ -110,7 +98,7 @@ class EapPeapFlow(Flow):
         session.reply = reply
 
         # judge next move
-        session.next_state = cls.PEAP_CHALLENGE_SERVER_HELLO
+        session.next_state = EapPeap.PEAP_CHALLENGE_SERVER_HELLO
         return
 
     @classmethod
@@ -146,10 +134,10 @@ class EapPeapFlow(Flow):
         # judge next move
         if session.certificate_fragment.is_last_fragment():
             # 不用分包
-            session.next_state = cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
+            session.next_state = EapPeap.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
         else:
             # 需要分包
-            session.next_state = cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
+            session.next_state = EapPeap.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
             session.certificate_fragment.go_next_fragment()
         return
 
@@ -163,10 +151,10 @@ class EapPeapFlow(Flow):
         # judge next move
         if session.certificate_fragment.is_last_fragment():
             # 分包结束
-            session.next_state = cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
+            session.next_state = EapPeap.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
         else:
             # 继续分包
-            session.next_state = cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
+            session.next_state = EapPeap.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
             session.certificate_fragment.go_next_fragment()
         return
 
@@ -196,7 +184,7 @@ class EapPeapFlow(Flow):
             libhostapd.free_alloc(tls_out)
 
         # judge next move
-        session.next_state = cls.PEAP_CHALLENGE_IDENTITY
+        session.next_state = EapPeap.PEAP_CHALLENGE_IDENTITY
         return
 
     @classmethod
@@ -216,7 +204,7 @@ class EapPeapFlow(Flow):
         session.reply = reply
 
         # judge next move
-        session.next_state = cls.PEAP_CHALLENGE_PASSWORD
+        session.next_state = EapPeap.PEAP_CHALLENGE_PASSWORD
         return
 
     @classmethod
@@ -258,7 +246,7 @@ class EapPeapFlow(Flow):
         session.reply = reply
 
         # judge next move
-        session.next_state = cls.PEAP_CHALLENGE_SUCCESS
+        session.next_state = EapPeap.PEAP_CHALLENGE_SUCCESS
         return
 
     @classmethod
@@ -278,7 +266,7 @@ class EapPeapFlow(Flow):
         session.reply = reply
 
         # judge next move
-        session.next_state = cls.PEAP_ACCESS_ACCEPT
+        session.next_state = EapPeap.PEAP_ACCESS_ACCEPT
         return
 
     @classmethod
