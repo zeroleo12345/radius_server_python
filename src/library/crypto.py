@@ -52,7 +52,8 @@ class EapCrypto(object):
         if pointer:
             self.lib.wpabuf_free(pointer)
 
-    def set_log_level(self, level: int):
+    def set_log_level(self, level: int = 0):
+        # MSG_EXCESSIVE = 0 , MSG_MSGDUMP =1 , MSG_DEBUG = 2, MSG_INFO = 3, MSG_WARNING = 4, MSG_ERROR = 5
         self.lib.set_log_level(level)
 
     def decrypt(self, tls_connection, tls_in_data):
@@ -137,7 +138,7 @@ if __name__ == "__main__":
         tls_ctx = libwpa.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                          private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
         assert tls_ctx
-        libwpa.set_log_level(1)
+        libwpa.set_log_level(3)
 
         # session init
         from pprint import pprint; import pdb; pdb.set_trace()
