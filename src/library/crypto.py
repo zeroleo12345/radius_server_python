@@ -1,5 +1,9 @@
 import os
 import ctypes
+"""
+    wpa_supplicant 数据结构定义:
+        https://w1.fi/wpa_supplicant/devel/structtls__connection.html
+"""
 
 
 class EapCryptoError(Exception):
