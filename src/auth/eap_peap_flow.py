@@ -47,7 +47,8 @@ class EapPeapFlow(Flow):
         if Eap.is_eap_peap(type=eap.type):
             peap = EapPeap(content=raw_eap_messages)
 
-        log.debug(f'{auth_user.outer_username}|{auth_user.mac_address}.[previd,recvid][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
+        log.debug(f'{auth_user.outer_username}|{auth_user.mac_address}.'
+                  f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
         # 4. 调用对应状态的处理函数
         is_go_next = cls.state_machine(request=request, eap=eap, peap=peap, session=session)
         if is_go_next:
