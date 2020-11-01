@@ -30,7 +30,6 @@ class EapPeapSession(object):
         self.tls_connection = None
 
     def __getstate__(self):
-        from pprint import pprint; import pdb; pdb.set_trace()
         state = self.__dict__.copy()
         # Don't pickle specific field
         for field_name in self.__exclude_pickle_field:
@@ -38,7 +37,6 @@ class EapPeapSession(object):
         return state
 
     def __setstate__(self, state):
-        from pprint import pprint; import pdb; pdb.set_trace()
         self.__dict__.update(state)
         # Add field back since it doesn't exist in the pickle
         for field_name in self.__exclude_pickle_field:
@@ -54,7 +52,7 @@ class RedisSession(object):
     def save(cls, session: EapPeapSession):
         redis = get_redis()
         text = pickle.dumps(session, 0)
-        return redis.set(cls.get_key(session_id=session.session_id), text)
+        return redis.set(cls.get_key(session_id=session.session_id), text, ex=300)
 
     @classmethod
     def load(cls, session_id: str) -> EapPeapSession:
