@@ -30,16 +30,20 @@ class EapCrypto(object):
         private_key_path_pointer = ctypes.create_string_buffer(private_key_path.encode())
         private_key_passwd_pointer = ctypes.create_string_buffer(private_key_passwd.encode())
         dh_file_path_pointer = ctypes.create_string_buffer(dh_file_path.encode())
-        # void* py_authsrv_init(char *ca_cert_path, char *client_cert_path, char *private_key_path, char *private_key_passwd, char *dh_file_path) {
+        # ./hostapd/test_main.c:94:void* py_authsrv_init(char *ca_cert_path, char *client_cert_path, char *private_key_path, char *private_key_passwd, char *dh_file_path) {
+        self.lib.py_authsrv_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         self.tls_ctx = self.lib.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                                 private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
         assert self.tls_ctx
 
     def tls_connection_init(self):
         # connection每个认证会话维持一个
+        # ./src/crypto/tls.h:225:struct tls_connection * tls_connection_init(void *tls_ctx);
+        # TODO
         return self.lib.tls_connection_init(self.tls_ctx)
 
     def tls_connection_prf(self, tls_connection, label_pointer, output_prf_pointer, output_prf_max_len):
+        # TODO
         return self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
 
     def tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
@@ -47,6 +51,7 @@ class EapCrypto(object):
         return self.lib.tls_connection_server_handshake(self.tls_ctx, tls_connection, input_tls_pointer, None)
 
     def py_wpabuf_alloc(self, p_tls_in_data, tls_in_data_len):
+        # TODO
         return self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
 
     def free_alloc(self, pointer):
