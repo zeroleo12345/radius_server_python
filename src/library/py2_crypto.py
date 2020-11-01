@@ -144,7 +144,6 @@ if __name__ == "__main__":
         libwpa.set_log_level(1)
 
         # session init
-        from pprint import pprint; import pdb; pdb.set_trace()
         conn = libwpa.tls_connection_init(tls_ctx)
         if conn is None:
             libwpa.tls_deinit(tls_ctx)

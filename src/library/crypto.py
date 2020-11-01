@@ -34,7 +34,7 @@ class EapCrypto(object):
         private_key_path_pointer = ctypes.create_string_buffer(private_key_path.encode())
         private_key_passwd_pointer = ctypes.create_string_buffer(private_key_passwd.encode())
         dh_file_path_pointer = ctypes.create_string_buffer(dh_file_path.encode())
-        # ./hostapd/test_main.c:94:void* py_authsrv_init(char *ca_cert_path, char *client_cert_path, char *private_key_path, char *private_key_passwd, char *dh_file_path) {
+        # ./hostapd/test_main.c:94:void* py_authsrv_init(char *ca_cert_path, char *client_cert_path,
         self.lib.py_authsrv_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         self.tls_ctx = self.lib.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                                 private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
@@ -43,11 +43,11 @@ class EapCrypto(object):
     def tls_connection_init(self):
         # connection每个认证会话维持一个
         # ./src/crypto/tls.h:225:struct tls_connection * tls_connection_init(void *tls_ctx);
-        # TODO
+        # FIXME
         return self.lib.tls_connection_init(self.tls_ctx)
 
     def tls_connection_prf(self, tls_connection, label_pointer, output_prf_pointer, output_prf_max_len):
-        # TODO
+        # FIXME
         return self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
 
     def tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
@@ -55,7 +55,7 @@ class EapCrypto(object):
         return self.lib.tls_connection_server_handshake(self.tls_ctx, tls_connection, input_tls_pointer, None)
 
     def py_wpabuf_alloc(self, p_tls_in_data, tls_in_data_len):
-        # TODO
+        # FIXME
         return self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
 
     def free_alloc(self, pointer):
@@ -146,6 +146,7 @@ if __name__ == "__main__":
         private_key_path_pointer = ctypes.create_string_buffer(PRIVATE_KEY.encode())
         private_key_passwd_pointer = ctypes.create_string_buffer(PRIVATE_KEY_PASSWORD.encode())
         dh_file_path_pointer = ctypes.create_string_buffer(DH_FILE.encode())
+
         libwpa.py_authsrv_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         tls_ctx = libwpa.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                          private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
@@ -153,7 +154,8 @@ if __name__ == "__main__":
         libwpa.set_log_level(0)
 
         # session init
-        # TODO
+        # ./src/crypto/tls.h:225:struct tls_connection * tls_connection_init(void *tls_ctx);
+        libwpa.tls_connection_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         conn = libwpa.tls_connection_init(tls_ctx)
         if conn is None:
             libwpa.tls_deinit(tls_ctx)
@@ -161,15 +163,18 @@ if __name__ == "__main__":
 
         # read packet from file
         tls_buff = sslstr_to_sslbin(client_hello_path=client_hello)
-        from pprint import pprint; import pdb; pdb.set_trace()
         p_tls_in_data = ctypes.create_string_buffer(tls_buff)    # u8 *  ==  uint8_t  *
         tls_in_data_len = ctypes.c_ulonglong(len(tls_buff))  # size_t  ==  uint64
 
         # handle packet
         response_len = ctypes.c_ulonglong(0)    # size_t  ==  uint64
         p_response_len = ctypes.addressof(response_len)    # size_t *
-        # TODO
+
+        # ./hostapd/test_main.c:19:struct wpabuf * py_wpabuf_alloc(u8 * data, size_t data_len){
+        libwpa.py_wpabuf_alloc.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         tls_in = libwpa.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+
+        # ./src/crypto/tls_openssl.c:3243:struct wpabuf * tls_connection_server_handshake(void *tls_ctx,
         libwpa.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
         tls_out = libwpa.tls_connection_server_handshake(tls_ctx, conn, tls_in, None)    # response = ctypes.c_void_p() -> void *
         if tls_out is None:
@@ -184,6 +189,7 @@ if __name__ == "__main__":
         libwpa.wpabuf_free(tls_out)
         libwpa.tls_connection_deinit(tls_ctx, conn)
         libwpa.tls_deinit(tls_ctx)
+        print('main end.')
 
     """
     class tls_global(ctypes.Structure):  # ctypes.Structure
@@ -192,10 +198,6 @@ if __name__ == "__main__":
             ('server_cred', ctypes.c_void_p),
             ('check_crl', c_int),
         ]
-        def pack(self):
-            packet = self._Pack()
-            #print 'EAP-PEAP packet:', packet.encode('hex')
-            return packet
 
         @staticmethod
         def random():
