@@ -13,16 +13,15 @@ class AuthRequest(AuthPacket):
         # 解析报文
         self.username = self['User-Name'][0]
         self.mac_address = self['Calling-Station-Id'][0]
-        self.raw_packet = packet
 
     def reply_to(self, reply: AuthPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
-    @staticmethod
-    def get_message_authenticator(secret, buff):
-        h = hmac.HMAC(key=secret)
-        h.update(buff)
-        return h.digest()
+    # @staticmethod
+    # def get_message_authenticator(secret, buff):
+    #     h = hmac.HMAC(key=secret)
+    #     h.update(buff)
+    #     return h.digest()
 
     def check_msg_authenticator(self):
         """
@@ -35,8 +34,7 @@ class AuthRequest(AuthPacket):
             message_authenticator = self['Message-Authenticator'][0]
         except KeyError:
             return False
-        buff = self.raw_packet.replace(message_authenticator, '\x00'*16)
-        expect_authenticator = self.get_message_authenticator(self.secret, buff)
+        expect_authenticator = self.get_message_authenticator()
         if expect_authenticator != message_authenticator:
             raise AuthenticatorError(f"Message-Authenticator mismatch. expect: {expect_authenticator.encode('hex')}, get: {message_authenticator}]")
 
