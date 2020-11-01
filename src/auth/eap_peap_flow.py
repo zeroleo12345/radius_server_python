@@ -18,7 +18,7 @@ class EapPeapFlow(Flow):
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         # 1. 获取报文
         if 'State' in request:
-            session_id = request['State'][0].encode()
+            session_id = request['State'][0].decode()
             # 2. 从redis获取会话
             session = RedisSession.load(session_id=session_id)  # 旧会话
             if not session:
