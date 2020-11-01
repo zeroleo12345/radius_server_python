@@ -51,4 +51,6 @@ class RedisSession(object):
     def load(cls, session_id: str) -> EapPeapSession:
         redis = get_redis()
         text = redis.get(cls.get_key(session_id=session_id))
+        if not text:
+            return None
         return pickle.loads(text)
