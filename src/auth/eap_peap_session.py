@@ -1,3 +1,4 @@
+import pickle
 # 第三方库
 from pyrad.packet import AuthPacket
 # 自己的库
@@ -36,15 +37,18 @@ class EapPeapSession(object):
 
 
 class RedisSession(object):
+    @classmethod
+    def get_key(cls, session_id: str):
+        return f'session_{session_id}'
 
-    @staticmethod
-    def load(session_id: str) -> EapPeapSession:
-        # TODO
+    @classmethod
+    def save(cls, session: EapPeapSession):
         redis = get_redis()
-        return EapPeapSession()
+        text = pickle.dumps(session, 0)
+        return redis.set(cls.get_key(session_id=session.session_id), text)
 
-    @staticmethod
-    def save(session: EapPeapSession):
-        # TODO
+    @classmethod
+    def load(cls, session_id: str) -> EapPeapSession:
         redis = get_redis()
-        return
+        text = redis.get(cls.get_key(session_id=session_id))
+        return pickle.loads(text)
