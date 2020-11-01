@@ -26,21 +26,19 @@ class EchoServer(DatagramServer):
     @classmethod
     def handle_signal(cls):
         if Signal.is_usr1:
-            log.flush()
             Signal.is_usr1 = False
             return
         if Signal.is_usr2:
-            log.flush()
             Signal.is_usr2 = False
             return
 
     def handle(self, data, address):
         try:
-            ip, port = address
-            log.debug(f'receive packet from {address}, data: {data}')
-
             # 处理信号
             self.handle_signal()
+
+            ip, port = address
+            log.debug(f'receive packet from {address}, data: {data}')
 
             # 解析报文
             request = AuthRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
