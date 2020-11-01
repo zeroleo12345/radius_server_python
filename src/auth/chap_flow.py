@@ -15,7 +15,7 @@ class ChapFlow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser) -> (bool, AuthUser):
         # 查找用户密码
-        password = auth_user.get_user_password()
+        password = auth_user.get_user_password(username=auth_user.outer_username)
         if not password:
             log.error(f'auth user({auth_user.outer_username}) not exist in db.')
             return Flow.access_reject(request=request, auth_user=auth_user)

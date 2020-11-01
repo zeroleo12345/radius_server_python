@@ -58,8 +58,16 @@ class EapCrypto(object):
 
     def py_wpabuf_alloc(self, p_tls_in_data, tls_in_data_len):
         # ./hostapd/test_main.c:19:struct wpabuf * py_wpabuf_alloc(u8 * data, size_t data_len){
-        self.py_wpabuf_alloc.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
+        self.lib.py_wpabuf_alloc.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         return self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+
+    def tls_connection_decrypt(self, tls_connection, input_tls_pointer):
+        self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
+        return self.lib.tls_connection_decrypt(self.tls_ctx, tls_connection, input_tls_pointer)
+
+    def tls_connection_encrypt(self, tls_connection, input_tls_pointer):
+        self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
+        return self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, input_tls_pointer)
 
     def free_alloc(self, pointer):
         if pointer:
@@ -75,8 +83,7 @@ class EapCrypto(object):
             p_tls_in_data = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             tls_in_pointer = self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-            self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
-            tls_out_pointer = self.lib.tls_connection_decrypt(self.tls_ctx, tls_connection, tls_in_pointer)
+            tls_out_pointer = self.tls_connection_decrypt(tls_connection, tls_in_pointer)
             if tls_out_pointer is None:
                 raise EapCryptoError('decrypt tls_out_pointer is None')
             tls_out_data_len = tls_out_pointer.contents.used
@@ -92,8 +99,7 @@ class EapCrypto(object):
             p_tls_in_data = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             tls_in_pointer = self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-            self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
-            tls_out_pointer = self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, tls_in_pointer)
+            tls_out_pointer = self.tls_connection_encrypt(tls_connection, tls_in_pointer)
             if tls_out_pointer is None:
                 raise EapCryptoError('encrypt tls_out_pointer is None')
             tls_out_data_len = tls_out_pointer.contents.used

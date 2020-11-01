@@ -25,6 +25,7 @@ class EapPeapSession(object):
         self.certificate_fragment: EapPeap = None
         self.tls_connection = None
 
+abc = None
 
 class RedisSession(object):
     @classmethod
@@ -33,14 +34,20 @@ class RedisSession(object):
 
     @classmethod
     def save(cls, session: EapPeapSession):
-        redis = get_redis()
-        text = pickle.dumps(session, 0)
-        return redis.set(cls.get_key(session_id=session.session_id), text, ex=120)
+        # redis = get_redis()
+        # text = pickle.dumps(session, 0)
+        # return redis.set(cls.get_key(session_id=session.session_id), text, ex=120)
+        # FIXME
+        global abc
+        abc = session
 
     @classmethod
     def load(cls, session_id: str) -> EapPeapSession:
-        redis = get_redis()
-        text = redis.get(cls.get_key(session_id=session_id))
-        if not text:
-            return None
-        return pickle.loads(text)
+        # redis = get_redis()
+        # text = redis.get(cls.get_key(session_id=session_id))
+        # if not text:
+        #     return None
+        # return pickle.loads(text)
+        # FIXME
+        global abc
+        return abc

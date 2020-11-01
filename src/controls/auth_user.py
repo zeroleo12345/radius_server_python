@@ -18,11 +18,12 @@ class AuthUser(object):
     def set_user_password(self, password):
         self.user_password = password
 
-    def get_user_password(self) -> str:
+    @classmethod
+    def get_user_password(cls, username) -> str:
         # 查找用户明文密码
         now = datetime.datetime.now()
         session = Session()
-        user = session.query(User).filter(User.username == self.outer_username, User.expired_at >= now).first()
+        user = session.query(User).filter(User.username == username, User.expired_at >= now).first()
         if not user:
             return ''
         return user.password

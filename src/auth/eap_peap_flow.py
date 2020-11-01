@@ -223,19 +223,19 @@ class EapPeapFlow(Flow):
             raise Exception('Decrypt Error!')
 
         eap_identity = Eap(content=tls_decrypt_data)
-        session.auth_user.inner_username = eap_identity.type_data
+        session.auth_user.inner_username = eap_identity.type_data.decode()
 
         # 查找用户密码
-        password = session.auth_user.get_user_password()
+        password = session.auth_user.get_user_password(username=session.auth_user.inner_username)
         if not password:
-            log.error(f'auth user({session.auth_user.outer_username}) not exist in db.')
+            log.error(f'auth user({session.auth_user.inner_username}) not exist in db.')
             return Flow.access_reject(request=request, auth_user=session.auth_user)
         else:
             # 保存用户密码
             session.auth_user.set_user_password(password)
 
         # 返回数据
-        response_data = "Password"
+        response_data = b'Password'
         type_data = struct.pack('!%ds' % len(response_data), response_data)
         eap_password = Eap(code=Eap.CODE_EAP_REQUEST, id=session.next_eap_id, type=Eap.TYPE_EAP_GTC, type_data=type_data)
         tls_plaintext = eap_password.pack()
@@ -296,9 +296,10 @@ class EapPeapFlow(Flow):
         reply['User-Name'] = request.username
         reply['Calling-Station-Id'] = request.mac_address
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
-        reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
-        reply['State'] = session.session_id
-        reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = AuthResponse.create_mppe_recv_key_send_key(session.msk, reply.secret, reply.authenticator)
+        reply['State'] = session.session_id.encode()
+        # FIXME
+        # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
+        # reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = AuthResponse.create_mppe_recv_key_send_key(session.msk, reply.secret, reply.authenticator)
         reply['EAP-Message'] = struct.pack('!2BH', Eap.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
         reply.add_message_authenticator()
         request.reply_to(reply)
