@@ -130,15 +130,15 @@ if __name__ == "__main__":
         PRIVATE_KEY_PASSWORD = '1234'
         DH_FILE = '/app/etc/simulator/certs/dh'
         libwpa = ctypes.CDLL(HOSTAPD_LIBRARY, mode=257)
-        ca_cert_path_pointer = ctypes.create_string_buffer(CA_CERT.encode("utf-8"))
-        client_cert_path_pointer = ctypes.create_string_buffer(CLIENT_CERT.encode("utf-8"))
-        private_key_path_pointer = ctypes.create_string_buffer(PRIVATE_KEY.encode("utf-8"))
-        private_key_passwd_pointer = ctypes.create_string_buffer(PRIVATE_KEY_PASSWORD.encode("utf-8"))
-        dh_file_path_pointer = ctypes.create_string_buffer(DH_FILE.encode("utf-8"))
+        ca_cert_path_pointer = ctypes.create_string_buffer(CA_CERT.encode())
+        client_cert_path_pointer = ctypes.create_string_buffer(CLIENT_CERT.encode())
+        private_key_path_pointer = ctypes.create_string_buffer(PRIVATE_KEY.encode())
+        private_key_passwd_pointer = ctypes.create_string_buffer(PRIVATE_KEY_PASSWORD.encode())
+        dh_file_path_pointer = ctypes.create_string_buffer(DH_FILE.encode())
         tls_ctx = libwpa.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                          private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
         assert tls_ctx
-        libwpa.set_log_level(3)
+        libwpa.set_log_level(0)
 
         # session init
         from pprint import pprint; import pdb; pdb.set_trace()

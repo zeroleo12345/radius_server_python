@@ -1,3 +1,4 @@
 [submodule "third_party/hostapd-2.5-ctm"]
 	path = third_party/hostapd-2.5-ctm
 	url = git@github.com:zeroleo12345/hostapd-2.5-ctm.git
+    ignore = all
