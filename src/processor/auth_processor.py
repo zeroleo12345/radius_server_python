@@ -51,12 +51,14 @@ def verify(request: AuthRequest):
     auth_user = AuthUser(request)
 
     # 根据报文内容, 选择认证方式
-    if 'CHAP-Password' in request:
-        return ChapFlow.authenticate(request=request, auth_user=auth_user)
-    elif 'EAP-Message' in request:
-        return EapPeapFlow.authenticate(request=request, auth_user=auth_user)
-
-    return Flow.access_reject(request=request, auth_user=auth_user)
+    try:
+        if 'CHAP-Password' in request:
+            return ChapFlow.authenticate(request=request, auth_user=auth_user)
+        elif 'EAP-Message' in request:
+            return EapPeapFlow.authenticate(request=request, auth_user=auth_user)
+        raise Exception('can not choose authenticate method')
+    except Exception:
+        return Flow.access_reject(request=request, auth_user=auth_user)
 
 
 def main():
