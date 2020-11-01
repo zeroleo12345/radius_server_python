@@ -17,8 +17,8 @@ services:
       - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
       - ./data:/data
       - /Users/zlx/github/hostapd-2.5-ctm:/app/hostapd-2.5-ctm
-    # entrypoint: sh      # 用于调试
-    entrypoint: /app/bin/auth.sh
+    entrypoint: sh      # 用于调试
+    # entrypoint: /app/bin/auth.sh
     tty: true
     restart: unless-stopped
     networks:
