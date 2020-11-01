@@ -57,8 +57,9 @@ def verify(request: AuthRequest):
         elif 'EAP-Message' in request:
             return EapPeapFlow.authenticate(request=request, auth_user=auth_user)
         raise Exception('can not choose authenticate method')
-    except Exception:
-        return Flow.access_reject(request=request, auth_user=auth_user)
+    except Exception as e:
+        Flow.access_reject(request=request, auth_user=auth_user)
+        raise e
 
 
 def main():
