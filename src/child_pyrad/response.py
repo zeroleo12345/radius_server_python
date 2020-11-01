@@ -22,9 +22,10 @@ class AuthResponse(Packet):
         reply.code = Packet.CODE_ACCESS_REJECT
         return reply
 
-    def create_peap_challenge(self, request: AuthRequest, peap: EapPeap, session_id: str) -> AuthPacket:
+    @classmethod
+    def create_peap_challenge(cls, request: AuthRequest, peap: EapPeap, session_id: str) -> AuthPacket:
         reply: AuthPacket = request.CreateReply()
-        reply.code = self.CODE_ACCESS_CHALLENGE
+        reply.code = Packet.CODE_ACCESS_CHALLENGE
         eap_message = peap.pack()
         eap_messages = Eap.split_eap_message(eap_message)
         if isinstance(eap_messages, list):
@@ -34,7 +35,7 @@ class AuthResponse(Packet):
             reply.AddAttribute('EAP-Message', eap_messages)
         reply['Message-Authenticator'] = struct.pack('!B', 0) * 16
         reply['Calling-Station-Id'] = request.mac_address
-        reply['State'] = session_id
+        reply['State'] = session_id.encode()    # ATTRIBUTE   State           24  octets
         return reply
 
     @classmethod

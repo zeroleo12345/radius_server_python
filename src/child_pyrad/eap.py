@@ -40,13 +40,13 @@ class Eap(Packet):
 
     def decode_packet(self, packet):
         try:
-            self.code, self.id, _length = struct.unpack("!2BH", packet[:4])
+            self.code, self.id, _length = struct.unpack("!2BH", packet[:4].encode())
         except struct.error:
             raise PacketError('EAP header is corrupt')
         if len(packet) != _length:
             raise PacketError('EAP has invalid length')
         if self.code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]:
-            self.type, = struct.unpack("!B", packet[4:5]) if _length > 4 else None
+            self.type, = struct.unpack("!B", packet[4:5].encode()) if _length > 4 else None
             self.type_data = packet[5:_length] if _length > 5 else ''
 
     def pack(self):

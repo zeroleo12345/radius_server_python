@@ -51,7 +51,7 @@ class EapPeap(Packet):
 
     def decode_packet(self, packet):
         try:
-            (self.code, self.id, length, self.type, flag) = struct.unpack('!2BH2B', packet[:6])
+            (self.code, self.id, length, self.type, flag) = struct.unpack('!2BH2B', packet[:6].encode())
         except struct.error:
             raise PacketError('Packet header is corrupt')
         if len(packet) != length:
@@ -62,7 +62,7 @@ class EapPeap(Packet):
         self.flag_version = flag & 0b111
         if length > 6:
             if self.flag_length:
-                self.tls_message_len = struct.unpack('!I', packet[6:10])
+                self.tls_message_len = struct.unpack('!I', packet[6:10].encode())
                 self.tls_data = packet[10:]
             else:
                 self.tls_data = packet[6:]
