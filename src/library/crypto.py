@@ -107,10 +107,10 @@ if __name__ == "__main__":
         from functools import reduce
         return reduce(lambda x, y: x + y, map(lambda x: binascii.a2b_hex(x), str.split()))
 
-    def sslstr_to_sslbin():
+    def sslstr_to_sslbin(client_hello_path):
         import sys
         # read
-        with open('/root/ctm-wifi-radius/build_ctm/hostapd-2.5/hostapd/py_client_hello1', 'r') as f:
+        with open(client_hello_path, 'r') as f:
             lines = f.readlines()   # 读取全部内容
             # 打印
             if len(lines) != 1:
@@ -129,6 +129,7 @@ if __name__ == "__main__":
         PRIVATE_KEY = '/app/etc/simulator/certs/server.key.pem'
         PRIVATE_KEY_PASSWORD = '1234'
         DH_FILE = '/app/etc/simulator/certs/dh'
+        client_hello = '/app/third_party/hostapd-2.5-ctm/hostapd/py_client_hello1'
         libwpa = ctypes.CDLL(HOSTAPD_LIBRARY, mode=257)
         ca_cert_path_pointer = ctypes.create_string_buffer(CA_CERT.encode())
         client_cert_path_pointer = ctypes.create_string_buffer(CLIENT_CERT.encode())
@@ -149,7 +150,7 @@ if __name__ == "__main__":
             raise Exception('tls_connection_init Error')
 
         # read packet from file
-        tls_buff = sslstr_to_sslbin()
+        tls_buff = sslstr_to_sslbin(client_hello_path=client_hello)
         p_tls_in_data = ctypes.create_string_buffer(tls_buff)    # u8 *  ==  uint8_t  *
         tls_in_data_len = ctypes.c_ulonglong(len(tls_buff))  # size_t  ==  uint64
 
