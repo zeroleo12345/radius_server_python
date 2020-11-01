@@ -43,19 +43,22 @@ class EapCrypto(object):
     def tls_connection_init(self):
         # connection每个认证会话维持一个
         # ./src/crypto/tls.h:225:struct tls_connection * tls_connection_init(void *tls_ctx);
-        # FIXME
+        self.lib.tls_connection_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_init(self.tls_ctx)
 
     def tls_connection_prf(self, tls_connection, label_pointer, output_prf_pointer, output_prf_max_len):
-        # FIXME
+        # ./src/crypto/tls_openssl.c:3064:int tls_connection_prf(void *tls_ctx, struct tls_connection *conn,
+        self.lib.tls_connection_init.restype = ctypes.POINTER(ctypes.c_int)    # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
 
     def tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
+        # ./src/crypto/tls_openssl.c:3243:struct wpabuf * tls_connection_server_handshake(void *tls_ctx,
         self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_server_handshake(self.tls_ctx, tls_connection, input_tls_pointer, None)
 
     def py_wpabuf_alloc(self, p_tls_in_data, tls_in_data_len):
-        # FIXME
+        # ./hostapd/test_main.c:19:struct wpabuf * py_wpabuf_alloc(u8 * data, size_t data_len){
+        self.py_wpabuf_alloc.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         return self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
 
     def free_alloc(self, pointer):
@@ -175,7 +178,7 @@ if __name__ == "__main__":
         tls_in = libwpa.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
 
         # ./src/crypto/tls_openssl.c:3243:struct wpabuf * tls_connection_server_handshake(void *tls_ctx,
-        libwpa.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
+        libwpa.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 重要! 不加会导致 Segmentation fault
         tls_out = libwpa.tls_connection_server_handshake(tls_ctx, conn, tls_in, None)    # response = ctypes.c_void_p() -> void *
         if tls_out is None:
             libwpa.tls_connection_deinit(tls_ctx, conn)
