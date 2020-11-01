@@ -1,5 +1,4 @@
 import traceback
-import datetime
 # 第三方库
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
@@ -11,8 +10,6 @@ from auth.chap_flow import ChapFlow
 from auth.eap_peap_flow import EapPeapFlow
 from settings import log, RADIUS_DICTIONARY_DIR, RADIUS_SECRET
 from controls.auth_user import AuthUser
-from models import Session
-from models.auth import User
 from utils.signal import Signal
 Signal.register()
 
@@ -52,17 +49,6 @@ class EchoServer(DatagramServer):
 
 def verify(request: AuthRequest):
     auth_user = AuthUser(request)
-
-    # 查找用户明文密码
-    now = datetime.datetime.now()
-    session = Session()
-    user = session.query(User).filter(User.username == auth_user.outer_username, User.expired_at >= now).first()
-    if not user:
-        log.error(f'auth user({auth_user.outer_username}) not exist in db.')
-        return Flow.access_reject(request=request, auth_user=auth_user)
-
-    # 保存用户密码
-    auth_user.set_user_password(user.password)
 
     # 根据报文内容, 选择认证方式
     if 'CHAP-Password' in request:

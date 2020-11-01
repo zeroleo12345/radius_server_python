@@ -1,3 +1,7 @@
+import datetime
+# 项目库
+from models import Session
+from models.auth import User
 from child_pyrad.request import AuthRequest
 
 
@@ -13,3 +17,12 @@ class AuthUser(object):
 
     def set_user_password(self, password):
         self.user_password = password
+
+    def get_user_password(self) -> str:
+        # 查找用户明文密码
+        now = datetime.datetime.now()
+        session = Session()
+        user = session.query(User).filter(User.username == self.outer_username, User.expired_at >= now).first()
+        if not user:
+            return ''
+        return user.password

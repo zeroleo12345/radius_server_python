@@ -218,21 +218,28 @@ class EapPeapFlow(Flow):
 
     @classmethod
     def peap_challenge_password(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
-        if peap.tls_data == '':
-            log.error('tls_data is None')
-            return False, '1003:tls data is None'
+        assert peap.tls_data
 
         # 解密
-        tls_decr_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
-        if tls_decr_data is None:
+        tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
+        if tls_decrypt_data is None:
             log.error('Decrypt Error!')
-            return False, '1003:system error'
-        eap_identity = Eap(content=tls_decr_data)
+            return False, '1003:system error'   # TODO
+        eap_identity = Eap(content=tls_decrypt_data)
         session.auth_user.inner_username = eap_identity.type_data
 
+        # 查找用户密码
+        password = session.auth_user.get_user_password()
+        if not password:
+            log.error(f'auth user({session.auth_user.outer_username}) not exist in db.')
+            return Flow.access_reject(request=request, auth_user=session.auth_user)
+        else:
+            # 保存用户密码
+            session.auth_user.set_user_password(password)
+
         # 返回数据
-        response = "Password"
-        type_data = struct.pack('!%ds' % len(response), response)
+        response_data = "Password"
+        type_data = struct.pack('!%ds' % len(response_data), response_data)
         eap_password = Eap(code=Eap.CODE_EAP_REQUEST, id=session.next_eap_id, type=Eap.TYPE_EAP_GTC, type_data=type_data)
         tls_plaintext = eap_password.pack()
 

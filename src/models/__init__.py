@@ -6,6 +6,6 @@ from settings import USER_SQLITE_DB
 
 
 engine = create_engine(f'sqlite:///{USER_SQLITE_DB}', echo=False)   # echo用于控制打印日志
-metadata = MetaData(bind = engine)
+metadata = MetaData(bind=engine)
 Base = declarative_base(bind=engine)
 Session = sessionmaker(bind=engine)

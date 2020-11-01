@@ -14,6 +14,15 @@ class ChapFlow(Flow):
 
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser) -> (bool, AuthUser):
+        # 查找用户密码
+        password = auth_user.get_user_password()
+        if not password:
+            log.error(f'auth user({auth_user.outer_username}) not exist in db.')
+            return Flow.access_reject(request=request, auth_user=auth_user)
+        else:
+            # 保存用户密码
+            auth_user.set_user_password(password)
+
         session = EapPeapSession(request=request, auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
         if Chap.is_correct_challenge_value(request=request, user_password=auth_user.user_password)\
                 and cls.is_unique_session(mac_address=session.auth_user.mac_address):
