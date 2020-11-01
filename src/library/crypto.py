@@ -122,17 +122,27 @@ if __name__ == "__main__":
         return buff
 
     def main():
-        # global init
-        libwpa = EapCrypto(hostapd_library_path='./libhostapd.so')
+        HOSTAPD_LIBRARY = '/app/lib/libhostapd.so'
+        CA_CERT = '/app/etc/simulator/certs/ca.cer.pem'
+        CLIENT_CERT = '/app/etc/simulator/certs/server.cer.pem'
+        PRIVATE_KEY = '/app/etc/simulator/certs/server.key.pem'
+        PRIVATE_KEY_PASSWORD = '1234'
+        DH_FILE = '/app/etc/simulator/certs/dh'
+        libwpa = ctypes.CDLL(HOSTAPD_LIBRARY, mode=257)
+        ca_cert_path_pointer = ctypes.create_string_buffer(CA_CERT.encode())
+        client_cert_path_pointer = ctypes.create_string_buffer(CLIENT_CERT.encode())
+        private_key_path_pointer = ctypes.create_string_buffer(PRIVATE_KEY.encode())
+        private_key_passwd_pointer = ctypes.create_string_buffer(PRIVATE_KEY_PASSWORD.encode())
+        dh_file_path_pointer = ctypes.create_string_buffer(DH_FILE.encode())
+        tls_ctx = libwpa.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
+                                         private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
+        from pprint import pprint; import pdb; pdb.set_trace()
         libwpa.set_log_level(1)
-        ssl_ctx = libwpa.lib.py_authsrv_init()
-        if ssl_ctx is None:
-            raise Exception('py_authsrv_init Error')
 
         # session init
-        conn = libwpa.lib.tls_connection_init(ssl_ctx)
+        conn = libwpa.lib.tls_connection_init(tls_ctx)
         if conn is None:
-            libwpa.lib.tls_deinit(ssl_ctx)
+            libwpa.lib.tls_deinit(tls_ctx)
             raise Exception('tls_connection_init Error')
 
         # read packet from file
@@ -145,10 +155,10 @@ if __name__ == "__main__":
         p_response_len = ctypes.addressof(response_len)    # size_t *
         tls_in = libwpa.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
         libwpa.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
-        tls_out = libwpa.lib.tls_connection_server_handshake(ssl_ctx, conn, tls_in, None)    # response = ctypes.c_void_p() -> void *
+        tls_out = libwpa.lib.tls_connection_server_handshake(tls_ctx, conn, tls_in, None)    # response = ctypes.c_void_p() -> void *
         if tls_out is None:
-            libwpa.lib.tls_connection_deinit(ssl_ctx, conn)
-            libwpa.lib.tls_deinit(ssl_ctx)
+            libwpa.lib.tls_connection_deinit(tls_ctx, conn)
+            libwpa.lib.tls_deinit(tls_ctx)
             raise Exception('tls_connection_server_handshake Error')
 
         tls_out_data_len = tls_out.contents.used
@@ -156,8 +166,8 @@ if __name__ == "__main__":
         print(tls_out_data.hex().upper())
         libwpa.lib.wpabuf_free(tls_in)
         libwpa.lib.wpabuf_free(tls_out)
-        libwpa.lib.tls_connection_deinit(ssl_ctx, conn)
-        libwpa.lib.tls_deinit(ssl_ctx)
+        libwpa.lib.tls_connection_deinit(tls_ctx, conn)
+        libwpa.lib.tls_deinit(tls_ctx)
 
     """
     class tls_global(ctypes.Structure):  # ctypes.Structure
@@ -178,3 +188,4 @@ if __name__ == "__main__":
             _random = os.urandom(28)
             return struct.pack('!I', gmt_unix_time) + _random
     """
+    main()
