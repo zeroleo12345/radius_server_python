@@ -135,6 +135,7 @@ if __name__ == "__main__":
         private_key_path_pointer = ctypes.create_string_buffer(PRIVATE_KEY.encode())
         private_key_passwd_pointer = ctypes.create_string_buffer(PRIVATE_KEY_PASSWORD.encode())
         dh_file_path_pointer = ctypes.create_string_buffer(DH_FILE.encode())
+        libwpa.py_authsrv_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要!
         tls_ctx = libwpa.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                          private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
         assert tls_ctx
