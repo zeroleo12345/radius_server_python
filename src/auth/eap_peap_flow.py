@@ -68,6 +68,7 @@ class EapPeapFlow(Flow):
             # 正常eap-peap流程
             session.next_eap_id = Eap.get_next_id(eap.id)
             session.next_id = Eap.get_next_id(session.request.id)
+            log.info(f'peap auth. session_id: {session.session_id}, next_state: {session.next_state}')
             if eap.type == Eap.TYPE_EAP_IDENTITY and session.next_state == EapPeap.PEAP_CHALLENGE_START:
                 return cls.peap_challenge_start(request, eap, peap, session)
             elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_SERVER_HELLO:
