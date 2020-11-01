@@ -139,9 +139,11 @@ if __name__ == "__main__":
         dh_file_path_pointer = ctypes.create_string_buffer(DH_FILE.encode())
         tls_ctx = libwpa.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                          private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
+        assert tls_ctx
         libwpa.set_log_level(1)
 
         # session init
+        from pprint import pprint; import pdb; pdb.set_trace()
         conn = libwpa.tls_connection_init(tls_ctx)
         if conn is None:
             libwpa.tls_deinit(tls_ctx)
