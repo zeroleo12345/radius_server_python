@@ -22,11 +22,7 @@ LOG_LEVEL = config('LOG_LEVEL')
 LOG_BUFFER_SIZE = config('LOG_BUFFER_SIZE', default=0, cast=int)
 # 初始化日志
 log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00')
-log.i = log.info
-log.d = log.debug
-log.e = log.error
-log.w = log.warning
-log.i(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_BUFFER_SIZE: {LOG_BUFFER_SIZE}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
+log.info(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_BUFFER_SIZE: {LOG_BUFFER_SIZE}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
 
 # Redis
 REDIS_HOST = config('REDIS_HOST')

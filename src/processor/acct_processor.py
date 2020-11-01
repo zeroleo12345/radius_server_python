@@ -70,14 +70,14 @@ class EchoServer(DatagramServer):
     def handle(self, data, address):
         try:
             ip, port = address
-            log.d(f'receive packet from {address}, data: {data}')
+            log.debug(f'receive packet from {address}, data: {data}')
 
             # 处理信号
             self.handle_signal()
 
             # 解析报文
             request = AcctPacket(dict=self.dictionary, secret=RADIUS_SECRET, packet=data)
-            # log.d('recv request: {}'.format(request))
+            # log.debug('recv request: {}'.format(request))
 
             # 验证用户
             is_ok, acct_user = verify(request)
@@ -97,7 +97,7 @@ class EchoServer(DatagramServer):
             reply = acct_res(request)
             self.socket.sendto(reply.ReplyPacket(), address)
         except Exception:
-            log.e(traceback.format_exc())
+            log.error(traceback.format_exc())
 
 
 def verify(request: AcctPacket):
@@ -108,7 +108,7 @@ def verify(request: AcctPacket):
     acct_user.acct_status_type = request["Acct-Status-Type"][0]
     acct_user.username = request['User-Name'][0]
     acct_user.mac_address = request['Calling-Station-Id'][0]
-    log.d('IN: {iut}|{username}|{mac_address}'.format(
+    log.debug('IN: {iut}|{username}|{mac_address}'.format(
         iut=acct_user.acct_status_type, username=acct_user.username, mac_address=acct_user.mac_address)
     )
 
@@ -122,14 +122,14 @@ def verify(request: AcctPacket):
 
 
 def disconnect(mac_address):
-    log.i(f'disconnect session. mac_address: {mac_address}')
+    log.info(f'disconnect session. mac_address: {mac_address}')
 
     command = f"ps -ef | grep -v grep | grep pppoe_sess | grep -i :{mac_address} | awk '{{print $2}}' | xargs kill"
     ret = subprocess.getoutput(command)
 
-    log.d(f'ret: {ret}, command: {command}')
+    log.debug(f'ret: {ret}, command: {command}')
     if ret.find('error') > -1:
-        log.e(f'session disconnect error! ret: {ret}')
+        log.error(f'session disconnect error! ret: {ret}')
 
 
 def acct_res(request: AcctPacket):

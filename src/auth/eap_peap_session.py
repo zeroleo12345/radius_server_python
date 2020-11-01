@@ -30,8 +30,8 @@ class EapPeapSession(object):
     def resend(self):
         self.reply.id = self.request.id
         self.reply['Proxy-State'] = self.request['Proxy-State'][0]
-        self.request.sendto(self.reply)
-        log.d(f'resend packet:{self.reply.id}')
+        self.request.reply_to(self.reply)
+        log.debug(f'resend packet:{self.reply.id}')
         return
 
 

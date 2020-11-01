@@ -37,7 +37,7 @@ class EchoServer(DatagramServer):
     def handle(self, data, address):
         try:
             ip, port = address
-            log.d(f'receive packet from {address}, data: {data}')
+            log.debug(f'receive packet from {address}, data: {data}')
 
             # 处理信号
             self.handle_signal()
@@ -48,7 +48,7 @@ class EchoServer(DatagramServer):
             # 验证用户
             verify(request)
         except Exception:
-            log.e(traceback.format_exc())
+            log.error(traceback.format_exc())
 
 
 def verify(request: AuthRequest):
@@ -59,8 +59,9 @@ def verify(request: AuthRequest):
     session = Session()
     user = session.query(User).filter(User.username == auth_user.outer_username, User.expired_at >= now).first()
     if not user:
-        log.e(f'user: {auth_user.outer_username} not exist')
-        return
+        log.error(f'auth user({auth_user.outer_username}) not exist in db.')
+        request.reply_to()
+        return   # TODO Access-Reject
 
     # 保存用户密码
     auth_user.set_user_password(user.password)
@@ -71,14 +72,14 @@ def verify(request: AuthRequest):
     elif 'EAP-Message' in request:
         return EapPeapFlow.authenticate(request=request, auth_user=auth_user)
 
-    raise Exception('can not choose auth method!')
+    return  # TODO Access-Reject
 
 
 def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
     listen_ip = '0.0.0.0'
     listen_port = 1812
-    log.d(f'listening on {listen_ip}:{listen_port}')
+    log.debug(f'listening on {listen_ip}:{listen_port}')
     server = EchoServer(dictionary, f'{listen_ip}:{listen_port}')
     server.serve_forever()
 

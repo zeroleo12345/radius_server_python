@@ -10,6 +10,16 @@ from .eap_peap import EapPeap
 
 class AuthResponse(Packet):
 
+    @classmethod
+    def create_access_accept(cls, request: AuthRequest) -> AuthPacket:
+        reply = request.CreateReply(code=Packet.CODE_ACCESS_ACCEPT)
+        return reply
+
+    @classmethod
+    def create_access_reject(cls, request: AuthRequest) -> AuthPacket:
+        reply = request.CreateReply(code=Packet.CODE_ACCESS_REJECT)
+        return reply
+
     def create_peap_challenge(self, request: AuthRequest, peap: EapPeap, session_id: str) -> AuthPacket:
         reply: AuthPacket = request.CreateReply()
         reply.code = self.CODE_ACCESS_CHALLENGE

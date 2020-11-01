@@ -7,7 +7,7 @@ from .exception import AuthenticatorError
 class AuthRequest(AuthPacket):
     def __init__(self, secret: str, packet: str, socket, address,
                  code=AccessRequest, id=None, authenticator=None, **attributes):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, attributes=attributes)
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
         self.socket = socket
         self.address = address  # (ip, port)
         # 解析报文
@@ -15,7 +15,7 @@ class AuthRequest(AuthPacket):
         self.mac_address = self['Calling-Station-Id'][0]
         self.raw_packet = packet
 
-    def sendto(self, reply: AuthPacket):
+    def reply_to(self, reply: AuthPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     @staticmethod

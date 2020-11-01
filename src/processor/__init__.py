@@ -32,12 +32,12 @@ class Task(ABC):
             # 消息循环
             while not self.term:
                 self.run()
-                log.d(f'sleep {self.interval} seconds')
+                log.debug(f'sleep {self.interval} seconds')
                 time.sleep(self.interval)    # 睡眠 X 秒
         except KeyboardInterrupt:
-            log.e('KeyboardInterrupt, break')
+            log.error('KeyboardInterrupt, break')
         except Exception:
-            log.e(traceback.format_exc())
+            log.error(traceback.format_exc())
         finally:
-            log.i(f'exit, term: {self.term}')
+            log.info(f'exit, term: {self.term}')
             log.close()

@@ -19,14 +19,14 @@ class TaskLoop(Task):
         try:
             response = requests.request(method='GET', url=f'{API_URL}/user/sync', timeout=timeout)
         except (requests.Timeout, requests.ConnectionError):
-            log.e(f'request {timeout} seconds timeout')
+            log.error(f'request {timeout} seconds timeout')
             return
 
         json_response = response.json()
-        # log.d(f'/user/sync response: {json_response}')
+        # log.debug(f'/user/sync response: {json_response}')
 
         if not response.ok:
-            log.e(f'response != 200')
+            log.error(f'response != 200')
             return
 
         data = json_response['data']
@@ -43,13 +43,13 @@ class TaskLoop(Task):
                 new_user = User(username=username, password=password, expired_at=expired_at_dt)
                 session.add(new_user)
                 session.commit()
-                log.i(f'insert user: {username}')
+                log.info(f'insert user: {username}')
             else:
                 if user.expired_at.strftime('%Y-%m-%d %H:%M:%S') != expired_at_str or user.password != password:
                     user.expired_at = expired_at_dt
                     user.password = password
                     session.commit()
-                    log.i(f'update user: {user.username}')
+                    log.info(f'update user: {user.username}')
         session.close()
 
 
