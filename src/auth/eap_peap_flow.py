@@ -3,6 +3,7 @@ import ctypes
 import struct
 # 第三方库
 # 自己的库
+from .flow import Flow
 from child_pyrad.request import AuthRequest
 from child_pyrad.response import AuthResponse
 from controls.auth_user import AuthUser
@@ -12,7 +13,7 @@ from auth.eap_peap_session import EapPeapSession, RedisSession
 from settings import log, libhostapd, ACCOUNTING_INTERVAL
 
 
-class EapPeapFlow(object):
+class EapPeapFlow(Flow):
     """
     认证流程参考文档: PEAPv1(EAP-GTC).vsd
     """
@@ -34,7 +35,7 @@ class EapPeapFlow(object):
             session = RedisSession.load(session_id=session_id)  # 旧会话
             if not session:
                 log.error(f'session_id: {session_id} not exist in redis')
-                return cls.access_reject(request=request, session=EapPeapSession(request=request, auth_user=auth_user, session_id=session_id))
+                return cls.access_reject(request=request, auth_user=auth_user)
         else:
             # 新会话
             session = EapPeapSession(request=request, auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
@@ -300,9 +301,3 @@ class EapPeapFlow(object):
         reply['Message-Authenticator'] = struct.pack('!B', 0) * 16
         request.reply_to(reply)
         session.reply = reply
-
-    @classmethod
-    def access_reject(cls, request: AuthRequest, session: EapPeapSession):
-        log.error(f'reject. user: {session.auth_user.outer_username}, mac: {session.auth_user.mac_address}')
-        reply = AuthResponse.create_access_reject(request=request)
-        return request.reply_to(reply)

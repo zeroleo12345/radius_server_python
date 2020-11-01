@@ -3,16 +3,14 @@ import uuid
 from child_pyrad.request import AuthRequest
 from child_pyrad.response import AuthResponse
 # 自己的库
+from .flow import Flow
 from settings import log
 from controls.auth_user import AuthUser
 from child_pyrad.chap import Chap
 from auth.eap_peap_session import EapPeapSession
 
 
-class ChapFlow(object):
-
-    def __init__(self):
-        pass
+class ChapFlow(Flow):
 
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser) -> (bool, AuthUser):
@@ -22,18 +20,12 @@ class ChapFlow(object):
             return cls.access_accept(request=request, session=session)
         else:
             log.error(f'user_password: {auth_user.user_password} not correct')
-            return cls.access_reject(request=request, session=session)
+            return cls.access_reject(request=request, auth_user=auth_user)
 
     @classmethod
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
         log.info(f'accept. user: {session.auth_user.outer_username}, mac: {session.auth_user.mac_address}')
         reply = AuthResponse.create_access_accept(request=request)
-        return request.reply_to(reply)
-
-    @classmethod
-    def access_reject(cls, request: AuthRequest, session: EapPeapSession):
-        log.error(f'reject. user: {session.auth_user.outer_username}, mac: {session.auth_user.mac_address}')
-        reply = AuthResponse.create_access_reject(request=request)
         return request.reply_to(reply)
 
     @classmethod

@@ -6,6 +6,7 @@ from pyrad.dictionary import Dictionary
 # 自己的库
 from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.request import AuthRequest
+from auth.flow import Flow
 from auth.chap_flow import ChapFlow
 from auth.eap_peap_flow import EapPeapFlow
 from settings import log, RADIUS_DICTIONARY_DIR, RADIUS_SECRET
@@ -58,8 +59,7 @@ def verify(request: AuthRequest):
     user = session.query(User).filter(User.username == auth_user.outer_username, User.expired_at >= now).first()
     if not user:
         log.error(f'auth user({auth_user.outer_username}) not exist in db.')
-        request.reply_to()
-        return   # TODO Access-Reject
+        return Flow.access_reject(request=request, auth_user=auth_user)
 
     # 保存用户密码
     auth_user.set_user_password(user.password)
@@ -70,7 +70,7 @@ def verify(request: AuthRequest):
     elif 'EAP-Message' in request:
         return EapPeapFlow.authenticate(request=request, auth_user=auth_user)
 
-    return  # TODO Access-Reject
+    return Flow.access_reject(request=request, auth_user=auth_user)
 
 
 def main():

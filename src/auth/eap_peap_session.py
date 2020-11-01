@@ -19,8 +19,8 @@ class EapPeapSession(object):
         self.prev_eap_id = -1
         self.next_eap_id = -1
         #
-        self.auth_user = auth_user
-        self.request = request
+        self.auth_user: AuthUser = auth_user
+        self.request: AuthRequest = request
         self.reply: AuthPacket = None
         #
         self.msk = ''
