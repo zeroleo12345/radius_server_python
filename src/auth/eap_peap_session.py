@@ -52,7 +52,7 @@ class RedisSession(object):
     def save(cls, session: EapPeapSession):
         redis = get_redis()
         text = pickle.dumps(session, 0)
-        return redis.set(cls.get_key(session_id=session.session_id), text, ex=300)
+        return redis.set(cls.get_key(session_id=session.session_id), text, ex=120)
 
     @classmethod
     def load(cls, session_id: str) -> EapPeapSession:
