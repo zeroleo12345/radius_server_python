@@ -110,16 +110,18 @@ class EapPeapFlow(Flow):
 
         # judge next move
         session.next_state = cls.PEAP_CHALLENGE_SERVER_HELLO
-        return True, ''
+        return
 
     @classmethod
     def peap_challenge_server_hello(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
         if session.tls_connection is None:
             session.tls_connection = libhostapd.tls_connection_init()
-        assert session.tls_connection
+        if session.tls_connection is None:
+            raise Exception('tls_connection_init Error')
+
         if peap.tls_data == '':
-            log.error('tls_data is None')
-            return False, "1003:tls data is None"
+            raise Exception('tls_data is None')
+
         p_tls_in_data = ctypes.create_string_buffer(peap.tls_data)
         tls_in_data_len = ctypes.c_ulonglong(len(peap.tls_data))
 
@@ -128,8 +130,8 @@ class EapPeapFlow(Flow):
             tls_in = libhostapd.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
             tls_out = libhostapd.tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
             if tls_out is None:
-                log.error('tls connection server handshake error!')
-                return False, "1003:system error"
+                raise Exception('tls connection server handshake error!')
+
             tls_out_data_len = tls_out.contents.used
             tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
             session.certificate_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
@@ -148,7 +150,7 @@ class EapPeapFlow(Flow):
             # 需要分包
             session.next_state = cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
             session.certificate_fragment.go_next_fragment()
-        return True, ''
+        return
 
     @classmethod
     def peap_challenge_server_hello_fragment(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
@@ -165,13 +167,13 @@ class EapPeapFlow(Flow):
             # 继续分包
             session.next_state = cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
             session.certificate_fragment.go_next_fragment()
-        return True, ''
+        return
 
     @classmethod
     def peap_challenge_change_cipher_spec(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
         if peap.tls_data == '':
-            log.error('tls_data is None')
-            return False, "1003:tls data is None"
+            raise Exception('tls_data is None')
+
         p_tls_in_data = ctypes.create_string_buffer(peap.tls_data)
         tls_in_data_len = ctypes.c_ulonglong(len(peap.tls_data))
 
@@ -180,8 +182,8 @@ class EapPeapFlow(Flow):
             tls_in = libhostapd.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
             tls_out = libhostapd.tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
             if tls_out is None:
-                log.error("tls connection server handshake error.")
-                return False, "1003:system error"
+                raise Exception('tls connection server handshake error.')
+
             tls_out_data_len = tls_out.contents.used
             tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
             peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
@@ -194,7 +196,7 @@ class EapPeapFlow(Flow):
 
         # judge next move
         session.next_state = cls.PEAP_CHALLENGE_IDENTITY
-        return True, ''
+        return
 
     @classmethod
     def peap_challenge_identity(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
@@ -205,8 +207,8 @@ class EapPeapFlow(Flow):
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         if tls_out_data is None:
-            log.error('Encrypt Error!')
-            return False, '1003:system error'
+            raise Exception('Encrypt Error!')
+
         peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
@@ -214,17 +216,18 @@ class EapPeapFlow(Flow):
 
         # judge next move
         session.next_state = cls.PEAP_CHALLENGE_PASSWORD
-        return True, ''
+        return
 
     @classmethod
     def peap_challenge_password(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
-        assert peap.tls_data
+        if peap.tls_data == '':
+            raise Exception('tls_data is None')
 
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         if tls_decrypt_data is None:
-            log.error('Decrypt Error!')
-            return False, '1003:system error'   # TODO
+            raise Exception('Decrypt Error!')
+
         eap_identity = Eap(content=tls_decrypt_data)
         session.auth_user.inner_username = eap_identity.type_data
 
@@ -246,8 +249,7 @@ class EapPeapFlow(Flow):
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         if tls_out_data is None:
-            log.error('Encrypt Error!')
-            return False, '1003:system error'
+            raise Exception('Encrypt Error!')
 
         peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
@@ -256,7 +258,7 @@ class EapPeapFlow(Flow):
 
         # judge next move
         session.next_state = cls.PEAP_CHALLENGE_SUCCESS
-        return True, ''
+        return
 
     @classmethod
     def peap_challenge_success(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
@@ -267,8 +269,7 @@ class EapPeapFlow(Flow):
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         if tls_out_data is None:
-            log.error('Encrypt Error!')
-            return False, '1003:system error'
+            raise Exception('Encrypt Error!')
 
         peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
@@ -277,7 +278,7 @@ class EapPeapFlow(Flow):
 
         # judge next move
         session.next_state = cls.PEAP_ACCESS_ACCEPT
-        return True, ''
+        return
 
     @classmethod
     def peap_access_accept(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
@@ -287,8 +288,8 @@ class EapPeapFlow(Flow):
         p_label = ctypes.create_string_buffer(b'client eap encryption')
         _ret = libhostapd.tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
         if _ret == -1:
-            log.error('tls_connection_prf Error!')
-            return False, '1003:system error'
+            raise Exception('tls_connection_prf Error!')
+
         session.msk = ctypes.string_at(p_out_data, max_out_len.value)
         return cls.access_accept(request=request, session=session)
 
