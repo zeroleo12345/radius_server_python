@@ -42,7 +42,7 @@ class EapCrypto(object):
         return self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
 
     def tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
-        self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)
+        self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_server_handshake(self.tls_ctx, tls_connection, input_tls_pointer, None)
 
     def py_wpabuf_alloc(self, p_tls_in_data, tls_in_data_len):
@@ -62,7 +62,7 @@ class EapCrypto(object):
             p_tls_in_data = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             tls_in_pointer = self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-            self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)
+            self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
             tls_out_pointer = self.lib.tls_connection_decrypt(self.tls_ctx, tls_connection, tls_in_pointer)
             if tls_out_pointer is None:
                 raise EapCryptoError('decrypt tls_out_pointer is None')
@@ -79,7 +79,7 @@ class EapCrypto(object):
             p_tls_in_data = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             tls_in_pointer = self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-            self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)
+            self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
             tls_out_pointer = self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, tls_in_pointer)
             if tls_out_pointer is None:
                 raise EapCryptoError('encrypt tls_out_pointer is None')
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             data_from_file = lines[0].split('\n')[0]
             print('sslstr_to_sslbin INPUT:\n', data_from_file)
             buff = hex_two_byte_to_buf(data_from_file)
-            print('sslstr_to_sslbin OUTPUT:\n', buff.encode('hex'))
+            print('sslstr_to_sslbin OUTPUT:\n', buff.hex())
         return buff
 
     def main():
@@ -136,14 +136,13 @@ if __name__ == "__main__":
         private_key_path_pointer = ctypes.create_string_buffer(PRIVATE_KEY.encode())
         private_key_passwd_pointer = ctypes.create_string_buffer(PRIVATE_KEY_PASSWORD.encode())
         dh_file_path_pointer = ctypes.create_string_buffer(DH_FILE.encode())
-        libwpa.py_authsrv_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要!
+        libwpa.py_authsrv_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         tls_ctx = libwpa.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                          private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
         assert tls_ctx
         libwpa.set_log_level(0)
 
         # session init
-        from pprint import pprint; import pdb; pdb.set_trace()
         conn = libwpa.tls_connection_init(tls_ctx)
         if conn is None:
             libwpa.tls_deinit(tls_ctx)
@@ -151,6 +150,7 @@ if __name__ == "__main__":
 
         # read packet from file
         tls_buff = sslstr_to_sslbin(client_hello_path=client_hello)
+        from pprint import pprint; import pdb; pdb.set_trace()
         p_tls_in_data = ctypes.create_string_buffer(tls_buff)    # u8 *  ==  uint8_t  *
         tls_in_data_len = ctypes.c_ulonglong(len(tls_buff))  # size_t  ==  uint64
 
