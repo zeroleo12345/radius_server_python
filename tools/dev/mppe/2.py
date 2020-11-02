@@ -19,9 +19,9 @@ def _create_plain_text(key):
 
 
 def _create_salt():
-    r = chr(128 + 100) + chr(100)
-    return r
-    #  return chr(128 + random.randrange(0, 128)) + chr(random.randrange(0, 256))
+    #  r = chr(128 + 100) + chr(100)
+    #  return r
+    return chr(128 + random.randrange(0, 128)) + chr(random.randrange(0, 256))
     
 
 def _create_send_salt_recv_salt():
@@ -39,7 +39,10 @@ def _xor(str1, str2):
 def _radius_encrypt_keys(plain_text, secret, request_authenticator, salt):
     i = int(len(plain_text) / 16)
     b = md5_constructor(secret + request_authenticator+ salt).digest()
+    print('1111111:', plain_text[:16])
+    print('2222222:', b)
     c = _xor(plain_text[:16], b)
+    print('3333333:', c)
     result = c
     for x in range(1, i):
         b = md5_constructor(secret + c).digest()
@@ -92,6 +95,15 @@ if __name__ == "__main__":
     def test_create_salt():
         recv_salt = _create_salt()
         print_b64(recv_salt=recv_salt)
+
+    def test_xor():
+        a = " \xbb'}!k\xa4\x98\xdf\xf7\xc1\xbc\x1e\xb9\xd3s"
+        b = 'z\x02\xb6\x161\xfa\xa8T\x10\xc0\xa46\xcb\xf6\xc1\x07'
+        c = 'Z\xb9\x91k\x10\x91\x0c\xcc\xcf7e\x8a\xd5O\x12t'
+        cc = _xor(a, b)
+        print_b64(c=c)
+        print_b64(cc=cc)
+
 
     def test_create_mppe_recv_key_send_key():
         recv_key, send_key = create_mppe_recv_key_send_key(msk=msk, secret=secret, authenticator=authenticator)
