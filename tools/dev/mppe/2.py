@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # coding:utf-8
 
-import base64
+from base64 import b64decode, b64encode
 import random
 try:
     import hashlib
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     def print_b64(**kwargs):
         for k, v in kwargs.items():
             print('repr({k}) = {v}'.format(k=k, v=repr(v)))
-            print('{k}: {v}'.format(k=k, v=base64.b64encode(v)))
+            print('{k}: {v}'.format(k=k, v=b64encode(v)))
             print('')
  
     def test_create_plain_text():
@@ -122,20 +122,20 @@ if __name__ == "__main__":
         request_authenticator = "ZwpwaJ00VYmnIPszZ21e2g=="
         salt = "nKc="
         result = "3P0eyyCATsKYOepydqkzqXvXZgQsq+NKL/khbjF01b8Uu9XDUo57c1m0iYEzqOTc"
-        assert base64.b64decode(plain_text) == " \xbb'}!k\xa4\x98\xdf\xf7\xc1\xbc\x1e\xb9\xd3s}\xcb\rT,\xf5\xad\xb0g\x85\x85\x10\x91s0\xc3\xc3\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        assert base64.b64decode(secret) == 'testing123'
-        assert base64.b64decode(request_authenticator) == 'g\nph\x9d4U\x89\xa7 \xfb3gm^\xda'
-        assert base64.b64decode(salt) == '\x9c\xa7'
-        assert base64.b64decode(result) == '\xdc\xfd\x1e\xcb \x80N\xc2\x989\xearv\xa93\xa9{\xd7f\x04,\xab\xe3J/\xf9!n1t\xd5\xbf\x14\xbb\xd5\xc3R\x8e{sY\xb4\x89\x813\xa8\xe4\xdc'
+        assert b64decode(plain_text) == " \xbb'}!k\xa4\x98\xdf\xf7\xc1\xbc\x1e\xb9\xd3s}\xcb\rT,\xf5\xad\xb0g\x85\x85\x10\x91s0\xc3\xc3\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        assert b64decode(secret) == 'testing123'
+        assert b64decode(request_authenticator) == 'g\nph\x9d4U\x89\xa7 \xfb3gm^\xda'
+        assert b64decode(salt) == '\x9c\xa7'
+        assert b64decode(result) == '\xdc\xfd\x1e\xcb \x80N\xc2\x989\xearv\xa93\xa9{\xd7f\x04,\xab\xe3J/\xf9!n1t\xd5\xbf\x14\xbb\xd5\xc3R\x8e{sY\xb4\x89\x813\xa8\xe4\xdc'
 
         ms_mppe_recv_key_call = _radius_encrypt_keys(
-            plain_text=base64.b64decode(plain_text),
-            secret=base64.b64decode(secret),
-            request_authenticator=base64.b64decode(request_authenticator),
-            salt=base64.b64decode(salt)
+            plain_text=b64decode(plain_text),
+            secret=b64decode(secret),
+            request_authenticator=b64decode(request_authenticator),
+            salt=b64decode(salt)
         )
 
-        print_b64(result=base64.b64decode(result))
+        print_b64(result=b64decode(result))
         print_b64(ms_mppe_recv_key_call=ms_mppe_recv_key_call)
 
 
