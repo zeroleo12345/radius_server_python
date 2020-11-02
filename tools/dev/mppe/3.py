@@ -72,14 +72,24 @@ if __name__ == "__main__":
         for k, v in kwargs.items():
             print('{k}: {v}'.format(k=k, v=base64.b64encode(v).decode()))
 
-    msk = b"\xbb'}!k\xa4\x98\xdf\xf7\xc1\xbc\x1e\xb9\xd3s}\xcb\rT,\xf5\xad\xb0g\x85\x85\x10\x91s0\xc3\xc3\xfa\xa3\x05\xcc\xd2\xa0\x1c!\x90\xc7E\xad\xc9\x163\x98\xbd\xe4\x15h\xe0\xf9\xc6x\xbb\x9d\xf6\xf79a\xa7\x04"
+    def test_all():
+        msk = b"\xbb'}!k\xa4\x98\xdf\xf7\xc1\xbc\x1e\xb9\xd3s}\xcb\rT,\xf5\xad\xb0g\x85\x85\x10\x91s0\xc3\xc3\xfa\xa3\x05\xcc\xd2\xa0\x1c!\x90\xc7E\xad\xc9\x163\x98\xbd\xe4\x15h\xe0\xf9\xc6x\xbb\x9d\xf6\xf79a\xa7\x04"
 
-    secret = b'testing123'
+        secret = b'testing123'
 
-    authenticator = b'g\nph\x9d4U\x89\xa7 \xfb3gm^\xda'
+        authenticator = b'g\nph\x9d4U\x89\xa7 \xfb3gm^\xda'
 
-    recv_key, send_key = create_mppe_recv_key_send_key(msk=msk, secret=secret, authenticator=authenticator)
+        recv_key, send_key = create_mppe_recv_key_send_key(msk=msk, secret=secret, authenticator=authenticator)
 
-    import base64
-    print_b64(recv_key=recv_key)
-    print_b64(send_key=send_key)
+        import base64
+        print_b64(recv_key=recv_key)
+        print_b64(send_key=send_key)
+
+    def test_create_salt():
+        recv_salt = _create_salt()
+        print_b64(recv_salt=recv_salt)
+
+    import sys
+    func_name = sys.argv[1]
+    eval(func_name)()
+
