@@ -36,11 +36,11 @@ def _xor(b1, b2) -> bytes:
 def _radius_encrypt_keys(plain_text, secret, request_authenticator, salt):
     i = int(len(plain_text) / 16)
     b = hashlib.md5(secret + request_authenticator + salt).digest()
-    c = _bxor(plain_text[:16], b)
+    c = _xor(plain_text[:16], b)
     result = c
     for x in range(1, i):
         b = hashlib.md5(secret+c).digest()
-        c = _bxor(plain_text[x * 16: (x + 1) * 16], b)
+        c = _xor(plain_text[x * 16: (x + 1) * 16], b)
         result += c
     return result
 
