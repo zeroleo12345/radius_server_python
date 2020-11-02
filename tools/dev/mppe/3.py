@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import operator
 import random
 import hashlib
 
@@ -26,7 +27,6 @@ def _create_send_salt_recv_salt():
 
 
 def _xor(b1, b2):
-    import operator
     return bytes(map(operator.xor, b1, b2))
 
 
