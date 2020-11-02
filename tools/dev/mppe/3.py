@@ -4,6 +4,8 @@ import operator
 import random
 import hashlib
 
+debug = 1
+
 
 def _create_plain_text(key) -> bytes:
     key_len = len(key)
@@ -13,9 +15,10 @@ def _create_plain_text(key) -> bytes:
 
 
 def _create_salt() -> bytes:
-    r = bytes([128 + 100]) + bytes([100])
-    return r
-    #  return bytes([128 + random.randrange(0, 128)]) + bytes([random.randrange(0, 256)])
+    if debug:
+        r = bytes([128 + 100]) + bytes([100])
+        return r
+    return bytes([128 + random.randrange(0, 128)]) + bytes([random.randrange(0, 256)])
 
 
 def _create_send_salt_recv_salt():
@@ -26,7 +29,7 @@ def _create_send_salt_recv_salt():
     return send_salt, recv_salt
 
 
-def _xor(b1, b2):
+def _xor(b1, b2) -> bytes:
     return bytes(map(operator.xor, b1, b2))
 
 
@@ -92,9 +95,11 @@ if __name__ == "__main__":
         a = b" \xbb'}!k\xa4\x98\xdf\xf7\xc1\xbc\x1e\xb9\xd3s"
         b = b'z\x02\xb6\x161\xfa\xa8T\x10\xc0\xa46\xcb\xf6\xc1\x07'
         c = b'Z\xb9\x91k\x10\x91\x0c\xcc\xcf7e\x8a\xd5O\x12t'
-        cc = _xor(a, b)
+
+        c_call = _xor(a, b)
+
         print_b64(c=c)
-        print_b64(cc=cc)
+        print_b64(c_call=c_call)
 
 
     def test_create_mppe_recv_key_send_key():
