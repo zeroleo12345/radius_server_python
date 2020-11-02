@@ -92,6 +92,15 @@ if __name__ == "__main__":
         recv_salt = _create_salt()
         print_b64(recv_salt=recv_salt)
 
+    def test_xor():
+        a = b" \xbb'}!k\xa4\x98\xdf\xf7\xc1\xbc\x1e\xb9\xd3s"
+        b = b'z\x02\xb6\x161\xfa\xa8T\x10\xc0\xa46\xcb\xf6\xc1\x07'
+        c = b'Z\xb9\x91k\x10\x91\x0c\xcc\xcf7e\x8a\xd5O\x12t'
+        cc = _xor(a, b)
+        print_b64(c=c)
+        print_b64(cc=cc)
+
+
     def test_create_mppe_recv_key_send_key():
         recv_key, send_key = create_mppe_recv_key_send_key(msk=msk, secret=secret, authenticator=authenticator)
         print_b64(recv_key=recv_key)
