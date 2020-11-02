@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # coding:utf-8
 
+import base64
 import random
 try:
     import hashlib
@@ -9,6 +10,8 @@ except ImportError:
     # BBB for python 2.4
     import md5
     md5_constructor = md5.new
+
+debug = 1
 
 
 def _create_plain_text(key):
@@ -19,12 +22,17 @@ def _create_plain_text(key):
 
 
 def _create_salt():
-    #  r = chr(128 + 100) + chr(100)
-    #  return r
+    if debug:
+        r = chr(128 + 100) + chr(100)
+        return r
     return chr(128 + random.randrange(0, 128)) + chr(random.randrange(0, 256))
     
 
 def _create_send_salt_recv_salt():
+    if debug:
+        send_salt = '\xa8\x7f'
+        recv_salt = '\x9c\xa7'
+        return send_salt, recv_salt
     send_salt = _create_salt()
     recv_salt = _create_salt()
     while send_salt == recv_salt:
@@ -38,16 +46,19 @@ def _xor(str1, str2):
 
 def _radius_encrypt_keys(plain_text, secret, request_authenticator, salt):
     i = int(len(plain_text) / 16)
-    b = md5_constructor(secret + request_authenticator+ salt).digest()
-    print('1111111:', plain_text[:16])
-    print('2222222:', b)
+    b = md5_constructor(secret + request_authenticator + salt).digest()
     c = _xor(plain_text[:16], b)
-    print('3333333:', c)
     result = c
     for x in range(1, i):
         b = md5_constructor(secret + c).digest()
         c = _xor(plain_text[x * 16: (x + 1) * 16], b)
         result += c
+    #
+    #  print_b64(plain_text=plain_text)
+    #  print_b64(secret=secret)
+    #  print_b64(request_authenticator=request_authenticator)
+    #  print_b64(salt=salt)
+    #  print_b64(result=result)
     return result
 
 
@@ -67,9 +78,9 @@ def create_mppe_recv_key_send_key(msk, secret, authenticator):
     (send_key, recv_key) = (msk[32:], msk[0:32])
     (send_text, recv_text) = map(_create_plain_text, (send_key, recv_key))
     (send_salt, recv_salt) = _create_send_salt_recv_salt()
-    MS_MPPE_Recv_Key = recv_salt + _radius_encrypt_keys(recv_text, secret, authenticator, recv_salt)
-    MS_MPPE_Send_Key = send_salt + _radius_encrypt_keys(send_text, secret, authenticator, send_salt)
-    return (MS_MPPE_Recv_Key, MS_MPPE_Send_Key)
+    ms_mppe_recv_key = recv_salt + _radius_encrypt_keys(recv_text, secret, authenticator, recv_salt)
+    ms_mppe_send_key = send_salt + _radius_encrypt_keys(send_text, secret, authenticator, send_salt)
+    return (ms_mppe_recv_key, ms_mppe_send_key)
 
 
 if __name__ == "__main__":
@@ -80,7 +91,6 @@ if __name__ == "__main__":
     authenticator = b'g\nph\x9d4U\x89\xa7 \xfb3gm^\xda'
 
     def print_b64(**kwargs):
-        import base64
         for k, v in kwargs.items():
             print('repr({k}) = {v}'.format(k=k, v=repr(v)))
             print('{k}: {v}'.format(k=k, v=base64.b64encode(v)))
@@ -100,9 +110,33 @@ if __name__ == "__main__":
         a = " \xbb'}!k\xa4\x98\xdf\xf7\xc1\xbc\x1e\xb9\xd3s"
         b = 'z\x02\xb6\x161\xfa\xa8T\x10\xc0\xa46\xcb\xf6\xc1\x07'
         c = 'Z\xb9\x91k\x10\x91\x0c\xcc\xcf7e\x8a\xd5O\x12t'
-        cc = _xor(a, b)
+
+        c_call = _xor(a, b)
+
         print_b64(c=c)
-        print_b64(cc=cc)
+        print_b64(c_call=c_call)
+
+    def test_radius_encrypt_keys():
+        plain_text = "ILsnfSFrpJjf98G8HrnTc33LDVQs9a2wZ4WFEJFzMMPDAAAAAAAAAAAAAAAAAAAA"
+        secret = "dGVzdGluZzEyMw=="
+        request_authenticator = "ZwpwaJ00VYmnIPszZ21e2g=="
+        salt = "nKc="
+        result = "3P0eyyCATsKYOepydqkzqXvXZgQsq+NKL/khbjF01b8Uu9XDUo57c1m0iYEzqOTc"
+        assert base64.b64decode(plain_text) == " \xbb'}!k\xa4\x98\xdf\xf7\xc1\xbc\x1e\xb9\xd3s}\xcb\rT,\xf5\xad\xb0g\x85\x85\x10\x91s0\xc3\xc3\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        assert base64.b64decode(secret) == 'testing123'
+        assert base64.b64decode(request_authenticator) == 'g\nph\x9d4U\x89\xa7 \xfb3gm^\xda'
+        assert base64.b64decode(salt) == '\x9c\xa7'
+        assert base64.b64decode(result) == '\xdc\xfd\x1e\xcb \x80N\xc2\x989\xearv\xa93\xa9{\xd7f\x04,\xab\xe3J/\xf9!n1t\xd5\xbf\x14\xbb\xd5\xc3R\x8e{sY\xb4\x89\x813\xa8\xe4\xdc'
+
+        ms_mppe_recv_key_call = _radius_encrypt_keys(
+            plain_text=base64.b64decode(plain_text),
+            secret=base64.b64decode(secret),
+            request_authenticator=base64.b64decode(request_authenticator),
+            salt=base64.b64decode(salt)
+        )
+
+        print_b64(result=base64.b64decode(result))
+        print_b64(ms_mppe_recv_key_call=ms_mppe_recv_key_call)
 
 
     def test_create_mppe_recv_key_send_key():
