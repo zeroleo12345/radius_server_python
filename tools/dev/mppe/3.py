@@ -25,10 +25,6 @@ def _create_send_salt_recv_salt():
     return send_salt, recv_salt
 
 
-#  def _xor(str1, str2):
-    #  return ''.join(map(lambda s1, s2: bytes([ord(s1) ^ ord(s2)]), str1, str2))
-
-
 def _xor(b1, b2):
     import operator
     return bytes(map(operator.xor, b1, b2))
