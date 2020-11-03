@@ -1,6 +1,5 @@
 # 第三方库
-from child_pyrad.request import AuthRequest
-from child_pyrad.response import AuthResponse
+from child_pyrad.packet import AuthRequest, AuthResponse
 # 自己的库
 from settings import log
 from controls.auth_user import AuthUser

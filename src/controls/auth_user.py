@@ -2,7 +2,7 @@ import datetime
 # 项目库
 from models import Session
 from models.auth import User
-from child_pyrad.request import AuthRequest
+from child_pyrad.packet import AuthRequest
 
 
 class AuthUser(object):

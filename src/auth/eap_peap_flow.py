@@ -4,11 +4,10 @@ import struct
 # 第三方库
 # 自己的库
 from .flow import Flow
-from child_pyrad.request import AuthRequest
-from child_pyrad.response import AuthResponse
+from child_pyrad.packet import AuthRequest, AuthResponse
 from controls.auth_user import AuthUser
-from child_pyrad.eap import Eap
-from child_pyrad.eap_peap import EapPeap
+from child_pyrad.eap_packet import EapPacket
+from child_pyrad.eap_peap_packet import EapPeap
 from auth.eap_peap_session import EapPeapSession, RedisSession
 from settings import log, libhostapd, ACCOUNTING_INTERVAL
 
@@ -30,10 +29,10 @@ class EapPeapFlow(Flow):
             session = EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
         # 3. 解析eap报文和eap_peap报文
-        raw_eap_messages = Eap.merge_eap_message(request['EAP-Message'])
-        eap = Eap(raw_eap_messages)
+        raw_eap_messages = EapPacket.merge_eap_message(request['EAP-Message'])
+        eap = EapPacket(raw_eap_messages)
         peap = None
-        if Eap.is_eap_peap(type=eap.type):
+        if EapPacket.is_eap_peap(type=eap.type):
             peap = EapPeap(content=raw_eap_messages)
 
         log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.mac_address}.'
@@ -47,7 +46,7 @@ class EapPeapFlow(Flow):
         RedisSession.save(session=session)
 
     @classmethod
-    def state_machine(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def state_machine(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
         """
         :param request:
         :param eap:
@@ -70,10 +69,10 @@ class EapPeapFlow(Flow):
                 return
         elif session.next_eap_id == -1 or session.next_eap_id == eap.id:
             # 正常eap-peap流程
-            session.next_eap_id = Eap.get_next_id(eap.id)
-            session.next_id = Eap.get_next_id(request.id)
+            session.next_eap_id = EapPacket.get_next_id(eap.id)
+            session.next_id = EapPacket.get_next_id(request.id)
             log.info(f'peap auth. session_id: {session.session_id}, next_state: {session.next_state}')
-            if eap.type == Eap.TYPE_EAP_IDENTITY and session.next_state == EapPeap.PEAP_CHALLENGE_START:
+            if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == EapPeap.PEAP_CHALLENGE_START:
                 return cls.peap_challenge_start(request, eap, peap, session)
             elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_SERVER_HELLO:
                 return cls.peap_challenge_server_hello(request, eap, peap, session)
@@ -96,7 +95,7 @@ class EapPeapFlow(Flow):
         return
 
     @classmethod
-    def peap_challenge_start(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
         out_peap = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1)
         reply = AuthResponse.create_peap_challenge(request=request, peap=out_peap, session_id=session.session_id)
         request.reply_to(reply)
@@ -107,7 +106,7 @@ class EapPeapFlow(Flow):
         return
 
     @classmethod
-    def peap_challenge_server_hello(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
         if session.tls_connection is None:
             session.tls_connection = libhostapd.tls_connection_init()
         if session.tls_connection is None:
@@ -147,7 +146,7 @@ class EapPeapFlow(Flow):
         return
 
     @classmethod
-    def peap_challenge_server_hello_fragment(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_server_hello_fragment(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
         session.certificate_fragment.id = session.next_eap_id
         reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
         request.reply_to(reply)
@@ -164,7 +163,7 @@ class EapPeapFlow(Flow):
         return
 
     @classmethod
-    def peap_challenge_change_cipher_spec(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_change_cipher_spec(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
         if peap.tls_data == '':
             raise Exception('tls_data is None')
 
@@ -193,9 +192,9 @@ class EapPeapFlow(Flow):
         return
 
     @classmethod
-    def peap_challenge_identity(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
         # 返回数据
-        eap_identity = Eap(code=Eap.CODE_EAP_REQUEST, id=session.next_eap_id, type=Eap.TYPE_EAP_IDENTITY)
+        eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, type=EapPacket.TYPE_EAP_IDENTITY)
         tls_plaintext = eap_identity.pack()
 
         # 加密
@@ -213,7 +212,7 @@ class EapPeapFlow(Flow):
         return
 
     @classmethod
-    def peap_challenge_password(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_password(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
         if peap.tls_data == '':
             raise Exception('tls_data is None')
 
@@ -222,7 +221,7 @@ class EapPeapFlow(Flow):
         if tls_decrypt_data is None:
             raise Exception('Decrypt Error!')
 
-        eap_identity = Eap(content=tls_decrypt_data)
+        eap_identity = EapPacket(content=tls_decrypt_data)
         session.auth_user.inner_username = eap_identity.type_data.decode()
 
         # 查找用户密码
@@ -237,7 +236,7 @@ class EapPeapFlow(Flow):
         # 返回数据
         response_data = b'Password'
         type_data = struct.pack('!%ds' % len(response_data), response_data)
-        eap_password = Eap(code=Eap.CODE_EAP_REQUEST, id=session.next_eap_id, type=Eap.TYPE_EAP_GTC, type_data=type_data)
+        eap_password = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, type=EapPacket.TYPE_EAP_GTC, type_data=type_data)
         tls_plaintext = eap_password.pack()
 
         # 加密
@@ -255,9 +254,9 @@ class EapPeapFlow(Flow):
         return
 
     @classmethod
-    def peap_challenge_success(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_success(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
         # 返回数据
-        eap_success = Eap(code=Eap.CODE_EAP_SUCCESS, id=session.next_eap_id)
+        eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id)
         tls_plaintext = eap_success.pack()
 
         # 加密
@@ -275,7 +274,7 @@ class EapPeapFlow(Flow):
         return
 
     @classmethod
-    def peap_access_accept(cls, request: AuthRequest, eap: Eap, peap: EapPeap, session: EapPeapSession):
+    def peap_access_accept(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
         max_out_len = 64
         p_out_data = ctypes.create_string_buffer(max_out_len)
         max_out_len = ctypes.c_ulonglong(max_out_len)
@@ -302,6 +301,6 @@ class EapPeapFlow(Flow):
         from child_pyrad.mppe import create_mppe_recv_key_send_key
         log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)
-        reply['EAP-Message'] = struct.pack('!2BH', Eap.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
+        reply['EAP-Message'] = struct.pack('!2BH', EapPacket.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
         request.reply_to(reply)
         session.reply = reply

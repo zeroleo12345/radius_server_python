@@ -10,14 +10,14 @@ import ctypes
 import os
 #
 from .exception import PacketError
-from .packet import Packet
+from .eap import Eap
 
 
 def get_wpa_server_lib():
     return ctypes.CDLL(os.path.join(os.path.dirname(__file__), 'libwpa_server.so'), mode=257)
 
 
-class EapPeap(Packet):
+class EapPeap(Eap):
     """
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |     Code      |   Identifier  |            Length             |

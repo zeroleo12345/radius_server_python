@@ -4,7 +4,7 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 # 自己的库
 from child_pyrad.dictionary import get_dictionaries
-from child_pyrad.request import AuthRequest
+from child_pyrad.packet import AuthRequest
 from auth.flow import Flow
 from auth.chap_flow import ChapFlow
 from auth.eap_peap_flow import EapPeapFlow

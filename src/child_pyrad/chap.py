@@ -5,8 +5,7 @@ reference:
 """
 import hashlib
 #
-from .request import AuthRequest
-from .packet import Packet
+from .packet import Packet, AuthRequest
 
 
 class Chap(Packet):
