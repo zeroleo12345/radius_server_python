@@ -50,7 +50,8 @@ def _radius_encrypt_keys(plain_text, secret, request_authenticator, salt):
 def create_mppe_recv_key_send_key(msk, secret, authenticator):
     """
     参考:
-        Microsoft Vendor-specific RADIUS Attributes:    https://tools.ietf.org/html/rfc2548
+        Microsoft Vendor-specific RADIUS Attributes:
+            https://tools.ietf.org/html/rfc2548
         https://github.com/talkincode/pymschap/blob/master/pymschap/mppe.py
 
     变量:
