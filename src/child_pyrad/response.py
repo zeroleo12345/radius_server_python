@@ -30,7 +30,6 @@ class AuthResponse(Packet):
                 reply.AddAttribute('EAP-Message', eap)
         else:
             reply.AddAttribute('EAP-Message', eap_messages)
-        reply.add_message_authenticator()
         reply['Calling-Station-Id'] = request.mac_address
         reply['State'] = session_id.encode()    # ATTRIBUTE   State           24  octets
         return reply
