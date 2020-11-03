@@ -16,7 +16,7 @@ from settings import log, libhostapd, ACCOUNTING_INTERVAL
 class EapPeapFlow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
-        log.debug(request)
+        log.debug('request: ', request)
         # 1. 获取报文
         if 'State' in request:
             session_id = request['State'][0].decode()
@@ -299,7 +299,8 @@ class EapPeapFlow(Flow):
         reply['State'] = session.session_id.encode()
         # FIXME
         # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
-        # reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = AuthResponse.create_mppe_recv_key_send_key(session.msk, reply.secret, reply.authenticator)
+        from child_pyrad.mppe import create_mppe_recv_key_send_key
+        reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, reply.authenticator)
         reply['EAP-Message'] = struct.pack('!2BH', Eap.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
         reply.add_message_authenticator()
         request.reply_to(reply)
