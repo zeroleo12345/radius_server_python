@@ -300,8 +300,8 @@ class EapPeapFlow(Flow):
         # FIXME
         # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
         from child_pyrad.mppe import create_mppe_recv_key_send_key
-        reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, reply.authenticator)
+        log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')
+        reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)
         reply['EAP-Message'] = struct.pack('!2BH', Eap.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
-        reply.add_message_authenticator()
         request.reply_to(reply)
         session.reply = reply
