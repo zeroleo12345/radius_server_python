@@ -17,6 +17,8 @@ class AuthRequest(AuthPacket):
 
     def reply_to(self, reply: AuthPacket):
         log.debug(f'reply: {reply}')
+        if 'EAP-Message' in reply:
+            reply.get_message_authenticator()   # 必须放在所有attribute设置好后, 发送前刷新 Message-Authenticator !!!
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     # @staticmethod
@@ -43,7 +45,7 @@ class AuthRequest(AuthPacket):
         return
 
     def __str__(self):
-        msg = 'AuthPacket:\n'
+        msg = f'AuthPacket: \nauthenticator: {self.authenticator}\n'
         for k in self.keys():
             msg += f'    {k}: {self[k]}\n'
         return msg
