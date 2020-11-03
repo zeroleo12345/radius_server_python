@@ -16,7 +16,7 @@ class AuthRequest(AuthPacket):
         self.mac_address = self['Calling-Station-Id'][0]
 
     def reply_to(self, reply: AuthPacket):
-        log.debug('reply: ', reply)
+        log.debug(f'reply: {reply}')
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     # @staticmethod
