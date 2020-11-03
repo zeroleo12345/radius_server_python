@@ -8,6 +8,7 @@ from child_pyrad.packet import AuthRequest, AuthResponse
 from controls.auth_user import AuthUser
 from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
+from child_pyrad.mppe import create_mppe_recv_key_send_key
 from auth.eap_peap_session import EapPeapSession, RedisSession
 from settings import log, libhostapd, ACCOUNTING_INTERVAL
 
@@ -278,7 +279,7 @@ class EapPeapFlow(Flow):
         max_out_len = 64
         p_out_data = ctypes.create_string_buffer(max_out_len)
         max_out_len = ctypes.c_ulonglong(max_out_len)
-        p_label = ctypes.create_string_buffer(b'client eap encryption')
+        p_label = ctypes.create_string_buffer(b'client EAP encryption')
         _ret = libhostapd.tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
         if _ret == -1:
             raise Exception('tls_connection_prf Error!')
@@ -296,9 +297,7 @@ class EapPeapFlow(Flow):
         reply['Calling-Station-Id'] = request.mac_address
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
         reply['State'] = session.session_id.encode()
-        # FIXME
         # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
-        from child_pyrad.mppe import create_mppe_recv_key_send_key
         log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)
         reply['EAP-Message'] = struct.pack('!2BH', EapPacket.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!

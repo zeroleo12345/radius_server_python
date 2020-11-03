@@ -21,7 +21,7 @@ class EapPeapSession(object):
         self.auth_user: AuthUser = auth_user
         self.reply: AuthPacket = None
         #
-        self.msk = ''       # master key
+        self.msk = ''       # Master Session Key
         self.certificate_fragment: EapPeapPacket = None
         self.tls_connection = None
 
