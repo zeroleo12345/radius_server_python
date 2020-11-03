@@ -1,4 +1,6 @@
 import os
+# 项目库
+from settings import log
 
 
 def get_dictionaries(directory):
@@ -10,4 +12,6 @@ def get_dictionaries(directory):
     for filename in files:
         if filename.startswith('dictionary.'):
             dictionaries.append(os.path.join(root, filename))
+        else:
+            log.warning(f'ignore dictionary: {filename}')
     return dictionaries
