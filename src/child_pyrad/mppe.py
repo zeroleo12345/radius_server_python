@@ -60,6 +60,11 @@ def create_mppe_recv_key_send_key(msk, secret, authenticator):
         A = Salt
         S = secret
         Salt = 0b 1xxx xxxx. 2 bit,xxx for random.
+
+    :param msk: master key
+    :param secret: 密钥
+    :param authenticator: the pseudo-random 128-bit Request Authenticator (from the corresponding Access-Request packet) R
+    :return:
     """
 
     mppe_send_key, mppe_recv_key = (msk[32:], msk[0:32])
