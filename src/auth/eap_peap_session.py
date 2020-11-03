@@ -2,7 +2,7 @@ import pickle
 # 第三方库
 from pyrad.packet import AuthPacket
 # 自己的库
-from child_pyrad.eap_peap_packet import EapPeap
+from child_pyrad.eap_peap_packet import EapPeapPacket
 from controls.auth_user import AuthUser
 from utils.redispool import get_redis
 
@@ -12,7 +12,7 @@ class EapPeapSession(object):
     def __init__(self, auth_user: AuthUser, session_id: str):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
         self.session_id = session_id
-        self.next_state = EapPeap.PEAP_CHALLENGE_START
+        self.next_state = EapPeapPacket.PEAP_CHALLENGE_START
         self.prev_id = -1
         self.next_id = -1
         self.prev_eap_id = -1
@@ -22,7 +22,7 @@ class EapPeapSession(object):
         self.reply: AuthPacket = None
         #
         self.msk = ''       # master key
-        self.certificate_fragment: EapPeap = None
+        self.certificate_fragment: EapPeapPacket = None
         self.tls_connection = None
 
 abc = None

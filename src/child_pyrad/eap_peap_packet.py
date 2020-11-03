@@ -17,7 +17,7 @@ def get_wpa_server_lib():
     return ctypes.CDLL(os.path.join(os.path.dirname(__file__), 'libwpa_server.so'), mode=257)
 
 
-class EapPeap(Eap):
+class EapPeapPacket(Eap):
     """
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |     Code      |   Identifier  |            Length             |

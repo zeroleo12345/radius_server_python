@@ -7,7 +7,7 @@ from .flow import Flow
 from child_pyrad.packet import AuthRequest, AuthResponse
 from controls.auth_user import AuthUser
 from child_pyrad.eap_packet import EapPacket
-from child_pyrad.eap_peap_packet import EapPeap
+from child_pyrad.eap_peap_packet import EapPeapPacket
 from auth.eap_peap_session import EapPeapSession, RedisSession
 from settings import log, libhostapd, ACCOUNTING_INTERVAL
 
@@ -33,7 +33,7 @@ class EapPeapFlow(Flow):
         eap = EapPacket(raw_eap_messages)
         peap = None
         if EapPacket.is_eap_peap(type=eap.type):
-            peap = EapPeap(content=raw_eap_messages)
+            peap = EapPeapPacket(content=raw_eap_messages)
 
         log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.mac_address}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
@@ -46,7 +46,7 @@ class EapPeapFlow(Flow):
         RedisSession.save(session=session)
 
     @classmethod
-    def state_machine(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
+    def state_machine(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         """
         :param request:
         :param eap:
@@ -72,21 +72,21 @@ class EapPeapFlow(Flow):
             session.next_eap_id = EapPacket.get_next_id(eap.id)
             session.next_id = EapPacket.get_next_id(request.id)
             log.info(f'peap auth. session_id: {session.session_id}, next_state: {session.next_state}')
-            if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == EapPeap.PEAP_CHALLENGE_START:
+            if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == EapPeapPacket.PEAP_CHALLENGE_START:
                 return cls.peap_challenge_start(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_SERVER_HELLO:
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO:
                 return cls.peap_challenge_server_hello(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_IDENTITY:
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_IDENTITY:
                 return cls.peap_challenge_identity(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_PASSWORD:
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_PASSWORD:
                 return cls.peap_challenge_password(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeap.PEAP_CHALLENGE_SUCCESS:
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_SUCCESS:
                 return cls.peap_challenge_success(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeap.PEAP_ACCESS_ACCEPT:
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_ACCESS_ACCEPT:
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
             else:
                 log.error('eap peap auth error. unknown eap packet type')
@@ -95,18 +95,18 @@ class EapPeapFlow(Flow):
         return
 
     @classmethod
-    def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
-        out_peap = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1)
+    def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+        out_peap = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1)
         reply = AuthResponse.create_peap_challenge(request=request, peap=out_peap, session_id=session.session_id)
         request.reply_to(reply)
         session.reply = reply
 
         # judge next move
-        session.next_state = EapPeap.PEAP_CHALLENGE_SERVER_HELLO
+        session.next_state = EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO
         return
 
     @classmethod
-    def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         if session.tls_connection is None:
             session.tls_connection = libhostapd.tls_connection_init()
         if session.tls_connection is None:
@@ -127,7 +127,7 @@ class EapPeapFlow(Flow):
 
             tls_out_data_len = tls_out.contents.used
             tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
-            session.certificate_fragment = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+            session.certificate_fragment = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
             reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
             request.reply_to(reply)
             session.reply = reply
@@ -138,15 +138,15 @@ class EapPeapFlow(Flow):
         # judge next move
         if session.certificate_fragment.is_last_fragment():
             # 不用分包
-            session.next_state = EapPeap.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
+            session.next_state = EapPeapPacket.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
         else:
             # 需要分包
-            session.next_state = EapPeap.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
+            session.next_state = EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
             session.certificate_fragment.go_next_fragment()
         return
 
     @classmethod
-    def peap_challenge_server_hello_fragment(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_server_hello_fragment(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         session.certificate_fragment.id = session.next_eap_id
         reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
         request.reply_to(reply)
@@ -155,15 +155,15 @@ class EapPeapFlow(Flow):
         # judge next move
         if session.certificate_fragment.is_last_fragment():
             # 分包结束
-            session.next_state = EapPeap.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
+            session.next_state = EapPeapPacket.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
         else:
             # 继续分包
-            session.next_state = EapPeap.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
+            session.next_state = EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
             session.certificate_fragment.go_next_fragment()
         return
 
     @classmethod
-    def peap_challenge_change_cipher_spec(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_change_cipher_spec(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         if peap.tls_data == '':
             raise Exception('tls_data is None')
 
@@ -179,7 +179,7 @@ class EapPeapFlow(Flow):
 
             tls_out_data_len = tls_out.contents.used
             tls_out_data = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
-            peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+            peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
             reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
             request.reply_to(reply)
             session.reply = reply
@@ -188,11 +188,11 @@ class EapPeapFlow(Flow):
             libhostapd.free_alloc(tls_out)
 
         # judge next move
-        session.next_state = EapPeap.PEAP_CHALLENGE_IDENTITY
+        session.next_state = EapPeapPacket.PEAP_CHALLENGE_IDENTITY
         return
 
     @classmethod
-    def peap_challenge_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
         eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, type=EapPacket.TYPE_EAP_IDENTITY)
         tls_plaintext = eap_identity.pack()
@@ -202,17 +202,17 @@ class EapPeapFlow(Flow):
         if tls_out_data is None:
             raise Exception('Encrypt Error!')
 
-        peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.reply = reply
 
         # judge next move
-        session.next_state = EapPeap.PEAP_CHALLENGE_PASSWORD
+        session.next_state = EapPeapPacket.PEAP_CHALLENGE_PASSWORD
         return
 
     @classmethod
-    def peap_challenge_password(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_password(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         if peap.tls_data == '':
             raise Exception('tls_data is None')
 
@@ -244,17 +244,17 @@ class EapPeapFlow(Flow):
         if tls_out_data is None:
             raise Exception('Encrypt Error!')
 
-        peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.reply = reply
 
         # judge next move
-        session.next_state = EapPeap.PEAP_CHALLENGE_SUCCESS
+        session.next_state = EapPeapPacket.PEAP_CHALLENGE_SUCCESS
         return
 
     @classmethod
-    def peap_challenge_success(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
+    def peap_challenge_success(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
         eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id)
         tls_plaintext = eap_success.pack()
@@ -264,17 +264,17 @@ class EapPeapFlow(Flow):
         if tls_out_data is None:
             raise Exception('Encrypt Error!')
 
-        peap_reply = EapPeap(code=EapPeap.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.reply = reply
 
         # judge next move
-        session.next_state = EapPeap.PEAP_ACCESS_ACCEPT
+        session.next_state = EapPeapPacket.PEAP_ACCESS_ACCEPT
         return
 
     @classmethod
-    def peap_access_accept(cls, request: AuthRequest, eap: EapPacket, peap: EapPeap, session: EapPeapSession):
+    def peap_access_accept(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         max_out_len = 64
         p_out_data = ctypes.create_string_buffer(max_out_len)
         max_out_len = ctypes.c_ulonglong(max_out_len)

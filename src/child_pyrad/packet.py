@@ -3,7 +3,7 @@ from pyrad.packet import AuthPacket, AccessRequest
 # 项目库
 from .exception import AuthenticatorError
 from .eap_packet import EapPacket
-from .eap_peap_packet import EapPeap
+from .eap_peap_packet import EapPeapPacket
 from settings import log
 
 
@@ -89,7 +89,7 @@ class AuthResponse(AuthPacket):
         return reply
 
     @classmethod
-    def create_peap_challenge(cls, request: AuthRequest, peap: EapPeap, session_id: str) -> AuthPacket:
+    def create_peap_challenge(cls, request: AuthRequest, peap: EapPeapPacket, session_id: str) -> AuthPacket:
         reply: AuthPacket = request.create_reply()
         reply.code = Packet.CODE_ACCESS_CHALLENGE
         eap_message = peap.pack()
