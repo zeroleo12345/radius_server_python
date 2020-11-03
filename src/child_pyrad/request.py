@@ -1,7 +1,7 @@
-import hmac
 # 第三方库
 from pyrad.packet import AuthPacket, AccessRequest
 from .exception import AuthenticatorError
+from settings import log
 
 
 class AuthRequest(AuthPacket):
@@ -16,6 +16,7 @@ class AuthRequest(AuthPacket):
         self.mac_address = self['Calling-Station-Id'][0]
 
     def reply_to(self, reply: AuthPacket):
+        log.debug('reply: ', reply)
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     # @staticmethod
