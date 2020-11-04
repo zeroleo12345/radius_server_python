@@ -28,6 +28,10 @@ class EapPeapSession(object):
 abc = None
 
 class RedisSession(object):
+    """
+    不能存到Redis的原因是tls_connection结构体含有大量指针, 不能使用memcpy
+    """
+
     @classmethod
     def get_key(cls, session_id: str):
         return f'session_{session_id}'
