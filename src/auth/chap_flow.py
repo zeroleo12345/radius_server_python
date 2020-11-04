@@ -4,7 +4,7 @@ from child_pyrad.packet import AuthRequest, AuthResponse
 # 自己的库
 from .flow import Flow
 from settings import log
-from controls.auth_user import AuthUser
+from controls.user import AuthUser
 from child_pyrad.chap import Chap
 from auth.eap_peap_session import EapPeapSession
 
@@ -12,15 +12,15 @@ from auth.eap_peap_session import EapPeapSession
 class ChapFlow(Flow):
 
     @classmethod
-    def authenticate(cls, request: AuthRequest, auth_user: AuthUser) -> (bool, AuthUser):
+    def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         # 查找用户密码
-        password = auth_user.get_user_password(username=auth_user.outer_username)
-        if not password:
+        user = auth_user.get_user(username=auth_user.outer_username)
+        if not user:
             log.error(f'auth user({auth_user.outer_username}) not exist in db.')
             return Flow.access_reject(request=request, auth_user=auth_user)
         else:
             # 保存用户密码
-            auth_user.set_user_password(password)
+            auth_user.set_user_password(user.password)
 
         session = EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
         if Chap.is_correct_challenge_value(request=request, user_password=auth_user.user_password)\

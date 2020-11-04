@@ -9,7 +9,7 @@ from auth.flow import Flow
 from auth.chap_flow import ChapFlow
 from auth.eap_peap_flow import EapPeapFlow
 from settings import log, RADIUS_DICTIONARY_DIR, RADIUS_SECRET
-from controls.auth_user import AuthUser
+from controls.user import AuthUser
 from utils.signal import Signal
 Signal.register()
 
@@ -48,7 +48,7 @@ class EchoServer(DatagramServer):
 
 
 def verify(request: AuthRequest):
-    auth_user = AuthUser(request)
+    auth_user = AuthUser(request=request)
 
     # 根据报文内容, 选择认证方式
     try:

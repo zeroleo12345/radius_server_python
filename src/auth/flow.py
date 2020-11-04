@@ -2,7 +2,7 @@
 from child_pyrad.packet import AuthRequest, AuthResponse
 # 自己的库
 from settings import log
-from controls.auth_user import AuthUser
+from controls.user import AuthUser
 
 
 class Flow(object):

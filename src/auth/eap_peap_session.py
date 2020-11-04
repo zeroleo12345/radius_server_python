@@ -3,7 +3,7 @@ import pickle
 from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.eap_peap_packet import EapPeapPacket
-from controls.auth_user import AuthUser
+from controls.user import AuthUser
 from utils.redispool import get_redis
 
 

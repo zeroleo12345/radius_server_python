@@ -5,7 +5,7 @@ import struct
 # 自己的库
 from .flow import Flow
 from child_pyrad.packet import AuthRequest, AuthResponse
-from controls.auth_user import AuthUser
+from controls.user import AuthUser
 from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from child_pyrad.mppe import create_mppe_recv_key_send_key
@@ -226,7 +226,7 @@ class EapPeapFlow(Flow):
         session.auth_user.inner_username = eap_identity.type_data.decode()
 
         # 查找用户密码
-        password = session.auth_user.get_user_password(username=session.auth_user.inner_username)
+        password = session.auth_user.get_user(username=session.auth_user.inner_username)
         if not password:
             log.error(f'auth user({session.auth_user.inner_username}) not exist in db.')
             return Flow.access_reject(request=request, auth_user=session.auth_user)

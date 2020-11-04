@@ -1,5 +1,5 @@
 # 第三方库
-from pyrad.packet import AuthPacket, AccessRequest
+from pyrad.packet import AuthPacket, AccessRequest, AcctPacket
 # 项目库
 from .exception import AuthenticatorError
 from .eap_packet import EapPacket
@@ -62,10 +62,12 @@ class AuthRequest(AuthPacket):
 
         return
 
-    def create_reply(self, **attributes) -> 'AuthResponse':
-        return AuthResponse(Packet.CODE_ACCESS_ACCEPT, self.id,
-                            self.secret, self.authenticator, dict=self.dict,
-                            **attributes)
+    def create_reply(self, code, **attributes) -> 'AuthResponse':
+        response = AuthResponse(Packet.CODE_ACCESS_ACCEPT, self.id,
+                                self.secret, self.authenticator, dict=self.dict,
+                                **attributes)
+        response.code = code
+        return response
 
     def __str__(self):
         msg = f'AuthRequest: \nauthenticator: {self.authenticator}\n'
@@ -78,20 +80,17 @@ class AuthResponse(AuthPacket):
 
     @classmethod
     def create_access_accept(cls, request: AuthRequest) -> AuthPacket:
-        reply: AuthPacket = request.create_reply()
-        reply.code = Packet.CODE_ACCESS_ACCEPT
+        reply = request.create_reply(code=Packet.CODE_ACCESS_ACCEPT)
         return reply
 
     @classmethod
     def create_access_reject(cls, request: AuthRequest) -> AuthPacket:
-        reply: AuthPacket = request.create_reply()
-        reply.code = Packet.CODE_ACCESS_REJECT
+        reply = request.create_reply(code=Packet.CODE_ACCESS_REJECT)
         return reply
 
     @classmethod
     def create_peap_challenge(cls, request: AuthRequest, peap: EapPeapPacket, session_id: str) -> AuthPacket:
-        reply: AuthPacket = request.create_reply()
-        reply.code = Packet.CODE_ACCESS_CHALLENGE
+        reply = request.create_reply(code=Packet.CODE_ACCESS_CHALLENGE)
         eap_message = peap.pack()
         eap_messages = EapPacket.split_eap_message(eap_message)
         if isinstance(eap_messages, list):
@@ -105,6 +104,50 @@ class AuthResponse(AuthPacket):
 
     def __str__(self):
         msg = f'AuthResponse: \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
+
+
+class AcctRequest(AcctPacket):
+
+    def __init__(self, dict, secret: str, packet: str, socket, address,
+                 code=AccessRequest, id=None, authenticator=None, **attributes):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, dict=dict, **attributes)
+        self.socket = socket
+        self.address = address  # (ip, port)
+        # 解析报文
+        self.username = self['User-Name'][0]
+        self.mac_address = self['Calling-Station-Id'][0]
+        self.acct_status_type = self["Acct-Status-Type"][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
+
+    def reply_to(self, reply: AcctPacket):
+        log.debug(f'reply: {reply}')
+        self.socket.sendto(reply.ReplyPacket(), self.address)
+
+    def create_reply(self, code, **attributes) -> 'AcctResponse':
+        response = AcctResponse(Packet.CODE_ACCOUNT_RESPONSE, self.id,
+                                self.secret, self.authenticator, dict=self.dict,
+                                **attributes)
+        response.code = code
+        return response
+
+    def __str__(self):
+        msg = f'AcctRequest: \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
+
+
+class AcctResponse(AcctPacket):
+
+    @classmethod
+    def create_account_response(cls, request: AcctRequest) -> 'AcctResponse':
+        reply = request.create_reply(code=Packet.CODE_ACCOUNT_RESPONSE)
+        return reply
+
+    def __str__(self):
+        msg = f'AcctResponse: \nauthenticator: {self.authenticator}\n'
         for k in self.keys():
             msg += f'    {k}: {self[k]}\n'
         return msg
