@@ -20,6 +20,7 @@ RUN pip3 install --upgrade pip --trusted-host mirrors.aliyun.com --index-url htt
 WORKDIR /app/src/
 ADD src /app/src/
 ADD bin /app/bin/
+ENV PATH="${PATH}:/app/bin"
 
 # docker-compose.yml 会覆盖 entrypoint
 #ENTRYPOINT ["/app/bin/web.sh"]
