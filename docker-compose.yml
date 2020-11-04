@@ -8,7 +8,7 @@ services:
        dockerfile: ./docker/radius/Dockerfile
     ports:      # 外部端口:docker内部端口
       - "1812:1812/udp"
-      # - "1813:1813/udp"
+      - "1813:1813/udp"
     environment:
       DEBUG: "${DEBUG}"
       ENVIRONMENT: "${ENVIRONMENT}"

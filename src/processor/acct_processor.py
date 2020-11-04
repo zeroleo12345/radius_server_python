@@ -52,7 +52,7 @@ def verify(request: AcctRequest):
     try:
         AccountingFlow.accounting(request=request, acct_user=acct_user)
     finally:
-        reply = AcctResponse.create_account_response()
+        reply = AcctResponse.create_account_response(request=request)
         request.reply_to(reply)
 
 
