@@ -6,3 +6,7 @@
 	path = third_party/wpa_supplicant-2.5-ctm
 	url = git@github.com:zeroleo12345/wpa_supplicant-2.5-ctm.git
     ignore = all
+[submodule "third_party/freeradius-3.0.21-ctm"]
+	path = third_party/freeradius-3.0.21-ctm
+	url = git@github.com:zeroleo12345/freeradius-3.0.21-ctm.git
+    ignore = all
