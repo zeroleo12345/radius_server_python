@@ -14,4 +14,4 @@ brew install freeradius-server
 ### 模拟器 radclient
 - 用法 (不建议使用)
 `radtest  user passwd  adius-server[:port] nas-port-number secret`
-> radtest  test  test  192.168.1.97  0  testing123
+> radtest  test  test  127.0.0.1  0  testing123
