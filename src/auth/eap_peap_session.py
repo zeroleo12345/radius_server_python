@@ -1,10 +1,8 @@
-import pickle
 # 第三方库
 from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from controls.user import AuthUser
-from utils.redispool import get_redis
 
 
 class EapPeapSession(object):
@@ -25,33 +23,17 @@ class EapPeapSession(object):
         self.certificate_fragment: EapPeapPacket = None
         self.tls_connection = None
 
-abc = None
 
-class RedisSession(object):
+class SessionCache(object):
+    _sessions = {}
     """
     不能存到Redis的原因是tls_connection结构体含有大量指针, 不能使用memcpy
     """
 
     @classmethod
-    def get_key(cls, session_id: str):
-        return f'session_{session_id}'
-
-    @classmethod
     def save(cls, session: EapPeapSession):
-        # redis = get_redis()
-        # text = pickle.dumps(session, 0)
-        # return redis.set(cls.get_key(session_id=session.session_id), text, ex=120)
-        # FIXME
-        global abc
-        abc = session
+        cls._sessions[session.session_id] = session
 
     @classmethod
     def load(cls, session_id: str) -> EapPeapSession:
-        # redis = get_redis()
-        # text = redis.get(cls.get_key(session_id=session_id))
-        # if not text:
-        #     return None
-        # return pickle.loads(text)
-        # FIXME
-        global abc
-        return abc
+        return cls._sessions.get(session_id, None)

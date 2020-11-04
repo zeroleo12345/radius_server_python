@@ -9,7 +9,7 @@ from controls.user import AuthUser
 from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from child_pyrad.mppe import create_mppe_recv_key_send_key
-from auth.eap_peap_session import EapPeapSession, RedisSession
+from auth.eap_peap_session import EapPeapSession, SessionCache
 from settings import log, libhostapd, ACCOUNTING_INTERVAL
 
 
@@ -21,7 +21,7 @@ class EapPeapFlow(Flow):
         if 'State' in request:
             session_id = request['State'][0].decode()
             # 2. 从redis获取会话
-            session = RedisSession.load(session_id=session_id)  # 旧会话
+            session = SessionCache.load(session_id=session_id)  # 旧会话
             if not session:
                 log.error(f'session_id: {session_id} not exist in redis')
                 return cls.access_reject(request=request, auth_user=auth_user)
@@ -44,7 +44,7 @@ class EapPeapFlow(Flow):
             session.prev_id = request.id
             session.prev_eap_id = eap.id
         # 每次处理回复后, 保存session到Redis
-        RedisSession.save(session=session)
+        SessionCache.save(session=session)
 
     @classmethod
     def state_machine(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
