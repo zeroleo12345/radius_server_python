@@ -12,8 +12,8 @@ services:
     environment:
       DEBUG: "${DEBUG}"
       ENVIRONMENT: "${ENVIRONMENT}"
-    env_file:
-      - .env
+    # env_file:
+      # - .env
     volumes:    # 挂载盘: - 主机路径:docker内部路径
       - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
       - ./data:/data
