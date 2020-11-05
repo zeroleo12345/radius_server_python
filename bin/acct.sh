@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 
-cd $(dirname "$0")/
+cd $(dirname "$0")/..
 project_root=$(pwd)     # /root/radius_server
-echo "当前工作目录: $project_root"
+echo "当前项目目录: $project_root"
 
 export PYTHONPATH=$project_root/src:$PYTHONPATH
 # 环境变量
