@@ -4,7 +4,7 @@ from dynaconf import Dynaconf
 class Config(object):
     _settings = Dynaconf(
         envvar_prefix='',
-        dotenv_path='/data/etc/.env',
+        dotenv_path='/app/.env',
     )
 
     def __call__(self, key, default=None, cast=None, fresh=False, dotted_lookup=True, parent=None):
