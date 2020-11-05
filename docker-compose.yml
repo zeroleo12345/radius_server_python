@@ -9,11 +9,9 @@ services:
     ports:      # 外部端口:docker内部端口
       - "1812:1812/udp"
       - "1813:1813/udp"
-    environment:
-      DEBUG: "${DEBUG}"
-      ENVIRONMENT: "${ENVIRONMENT}"
-    # env_file:
-      # - .env
+    # environment:
+      # DEBUG: "${DEBUG}"
+      # ENVIRONMENT: "${ENVIRONMENT}"
     volumes:    # 挂载盘: - 主机路径:docker内部路径
       - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
       - ./data:/data
@@ -33,15 +31,10 @@ services:
     ports:      # 外部端口:docker内部端口
       # - "1812:1812/udp"
       - "1813:1813/udp"
-    environment:
-      DEBUG: "${DEBUG}"
-      ENVIRONMENT: "${ENVIRONMENT}"
-    env_file:
-      - .env
     volumes:    # 挂载盘: - 主机路径:docker内部路径
-      - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
+      - .:/app
       - ./data:/data
-    # entrypoint: sh      # 用于调试
+    # entrypoint: sh
     entrypoint: /app/bin/acct.sh
     tty: true
     restart: unless-stopped
@@ -57,12 +50,10 @@ services:
     environment:
       DEBUG: "${DEBUG}"
       ENVIRONMENT: "${ENVIRONMENT}"
-    env_file:
-      - .env
     volumes:    # 挂载盘: - 主机路径:docker内部路径
-      - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
+      - .:/app
       - ./data:/data
-    # entrypoint: sh      # 用于调试
+    # entrypoint: sh
     entrypoint: /app/bin/user.sh
     tty: true
     restart: unless-stopped
@@ -78,12 +69,10 @@ services:
     environment:
       DEBUG: "${DEBUG}"
       ENVIRONMENT: "${ENVIRONMENT}"
-    env_file:
-      - .env
     volumes:    # 挂载盘: - 主机路径:docker内部路径
-      - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
+      - .:/app
       - ./data:/data
-    # entrypoint: sh      # 用于调试
+    # entrypoint: sh
     entrypoint: /app/bin/monitor.sh
     tty: true
     restart: unless-stopped
