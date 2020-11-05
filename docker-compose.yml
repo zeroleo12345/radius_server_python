@@ -90,6 +90,28 @@ services:
       # - pppoe_system
 
 
+  # mysql:
+    # container_name: restful_server_mysql
+    # image: mysql:5.7
+    # environment:
+      # MYSQL_ROOT_PASSWORD: 'root'
+      # MYSQL_DATABASE: 'trade'
+    # ports:
+      # - "33333:3306"
+    # #user: mysql
+    # #privileged: true   # 拥有主机的root权限
+    # volumes:
+      # - ./data/etc/mysql/my.cnf:/etc/mysql/my.cnf
+    # restart: unless-stopped
+    # command:
+      # - --character-set-server=utf8mb4
+      # - --collation-server=utf8mb4_unicode_ci
+      # - --skip-character-set-client-handshake
+      # - --default-time-zone=+08:00
+    # networks:
+      # - pppoe_system
+
+
 networks:
   pppoe_system:
     name: pppoe_system_network_name
