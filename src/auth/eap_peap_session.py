@@ -1,3 +1,4 @@
+import datetime
 # 第三方库
 from pyrad.packet import AuthPacket
 # 自己的库
@@ -18,6 +19,7 @@ class EapPeapSession(object):
         #
         self.auth_user: AuthUser = auth_user
         self.reply: AuthPacket = None
+        self.create_time = datetime.datetime.now()
         #
         self.msk = ''       # Master Session Key
         self.certificate_fragment: EapPeapPacket = None
@@ -36,4 +38,12 @@ class SessionCache(object):
 
     @classmethod
     def load(cls, session_id: str) -> EapPeapSession:
+        for s in cls._sessions.values():    # type: EapPeapSession
+            if s.create_time:
+                # FIXME 按照时间清理
+                break
         return cls._sessions.get(session_id, None)
+
+    @classmethod
+    def clean(cls, session_id: str):
+        cls._sessions.pop(session_id, None)
