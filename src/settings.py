@@ -10,7 +10,7 @@ from loguru import logger as log
 SENTRY_DSN = config('SENTRY_DSN')
 sentry_sdk.init(SENTRY_DSN)
 
-USER_SQLITE_DB = config('USER_SQLITE_DB')
+USER_DB_URI = config('USER_DB_URI')     # sqlite:////app/data/db/users.db; mysql://username:password@localhost/test?charset=utf8mb4
 RADIUS_DICTIONARY_DIR = config('RADIUS_DICTIONARY_DIR')
 RADIUS_SECRET = str.encode(config('RADIUS_SECRET'))
 ACCOUNTING_INTERVAL = config('ACCOUNTING_INTERVAL', default=60, cast='@int')
