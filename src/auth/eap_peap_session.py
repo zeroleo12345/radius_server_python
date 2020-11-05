@@ -25,6 +25,10 @@ class EapPeapSession(object):
         self.certificate_fragment: EapPeapPacket = None
         self.tls_connection = None
 
+    def set_reply(self, reply):
+        self.reply = reply
+        self.update_time = datetime.datetime.now()
+
 
 class SessionCache(object):
     _sessions = {}

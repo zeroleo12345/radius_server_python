@@ -24,6 +24,7 @@ class EapPeapFlow(Flow):
             session = SessionCache.load(session_id=session_id)  # 旧会话
             if not session:
                 log.error(f'session_id: {session_id} not exist in redis')
+                SessionCache.clean(session_id=session.session_id)
                 return cls.access_reject(request=request, auth_user=auth_user)
         else:
             # 新会话
@@ -100,7 +101,7 @@ class EapPeapFlow(Flow):
         out_peap = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1)
         reply = AuthResponse.create_peap_challenge(request=request, peap=out_peap, session_id=session.session_id)
         request.reply_to(reply)
-        session.reply = reply
+        session.set_reply(reply)
 
         # judge next move
         session.next_state = EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO
@@ -131,7 +132,7 @@ class EapPeapFlow(Flow):
             session.certificate_fragment = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
             reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
             request.reply_to(reply)
-            session.reply = reply
+            session.set_reply(reply)
         finally:
             libhostapd.free_alloc(tls_in)
             libhostapd.free_alloc(tls_out)
@@ -151,7 +152,7 @@ class EapPeapFlow(Flow):
         session.certificate_fragment.id = session.next_eap_id
         reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
         request.reply_to(reply)
-        session.reply = reply
+        session.set_reply(reply)
 
         # judge next move
         if session.certificate_fragment.is_last_fragment():
@@ -183,7 +184,7 @@ class EapPeapFlow(Flow):
             peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
             reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
             request.reply_to(reply)
-            session.reply = reply
+            session.set_reply(reply)
         finally:
             libhostapd.free_alloc(tls_in)
             libhostapd.free_alloc(tls_out)
@@ -206,7 +207,7 @@ class EapPeapFlow(Flow):
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
-        session.reply = reply
+        session.set_reply(reply)
 
         # judge next move
         session.next_state = EapPeapPacket.PEAP_CHALLENGE_PASSWORD
@@ -229,6 +230,7 @@ class EapPeapFlow(Flow):
         password = session.auth_user.get_user(username=session.auth_user.inner_username)
         if not password:
             log.error(f'auth user({session.auth_user.inner_username}) not exist in db.')
+            SessionCache.clean(session_id=session.session_id)
             return Flow.access_reject(request=request, auth_user=session.auth_user)
         else:
             # 保存用户密码
@@ -248,7 +250,7 @@ class EapPeapFlow(Flow):
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
-        session.reply = reply
+        session.set_reply(reply)
 
         # judge next move
         session.next_state = EapPeapPacket.PEAP_CHALLENGE_SUCCESS
@@ -268,7 +270,7 @@ class EapPeapFlow(Flow):
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
-        session.reply = reply
+        session.set_reply(reply)
 
         # judge next move
         session.next_state = EapPeapPacket.PEAP_ACCESS_ACCEPT
@@ -302,4 +304,5 @@ class EapPeapFlow(Flow):
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)
         reply['EAP-Message'] = struct.pack('!2BH', EapPacket.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
         request.reply_to(reply)
-        session.reply = reply
+        session.set_reply(reply)
+        SessionCache.clean(session_id=session.session_id)
