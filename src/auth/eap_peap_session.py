@@ -19,7 +19,7 @@ class EapPeapSession(object):
         #
         self.auth_user: AuthUser = auth_user
         self.reply: AuthPacket = None
-        self.create_time = datetime.datetime.now()
+        self.update_time = datetime.datetime.now()
         #
         self.msk = ''       # Master Session Key
         self.certificate_fragment: EapPeapPacket = None
@@ -39,8 +39,10 @@ class SessionCache(object):
     @classmethod
     def load(cls, session_id: str) -> EapPeapSession:
         for s in cls._sessions.values():    # type: EapPeapSession
-            if s.create_time:
-                # FIXME 按照时间清理
+            now = datetime.datetime.now()
+            if now - s.update_time >= datetime.timedelta(seconds=120):
+                cls.clean(session_id=s.session_id)
+            else:
                 break
         return cls._sessions.get(session_id, None)
 
