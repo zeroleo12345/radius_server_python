@@ -3,4 +3,4 @@ sqlite3 users.db '.tables'
 
 echo ''
 echo '[users表记录:]'
-sqlite3 users.db 'select * from user;'
+sqlite3 users.db 'select * from broadband_user;'
