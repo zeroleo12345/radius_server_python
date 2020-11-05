@@ -115,28 +115,3 @@ class EapPeapPacket(Eap):
 
         header = struct.pack('!2BH2B', self.code, self.id, (6 + len(attr)), self.type, _flag)
         return header + attr
-
-    def __str__(self):
-        attr_len = 0
-        attr = 'Attribute:\n'
-        for key, value in self.items():     # FIXME
-            if isinstance(value, str):
-                attr += '\n        '
-                attr += value.encode('hex')
-                attr_len += len(value)
-            else:
-                raise PacketError('UnSupport Type[%s]' % type(value))
-            attr += '\n'
-        _flag = self.flag_length << 7 | self.flag_more << 6 | self.flag_start << 5 | self.flag_version
-        header = 'EAP-PEAP Dump:\n%s' % self.items()    # [(key, value), (key2, value2)]
-        header += '\n    Header:' + struct.pack("!2BH2B", self.code, self.id, (6+attr_len), self.type, _flag).hex()
-        header += '\n    Code:' + str(self.code)
-        header += '\n    id:' + str(self.id)
-        header += '\n    length:' + str(6 + attr_len)
-        header += '\n    type:' + str(self.type)
-        header += '\n    flag_length:' + str(self.flag_length)
-        header += '\n    flag_more:' + str(self.flag_more)
-        header += '\n    flag_start:' + str(self.flag_start)
-        header += '\n    flag_version:' + str(self.flag_version)
-        header += '\n'
-        return header + attr
