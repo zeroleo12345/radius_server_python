@@ -7,7 +7,7 @@ from library.crypto import EapCrypto
 from loguru import logger as log
 
 
-SENTRY_DSN = config('SENTRY_DSN')
+SENTRY_DSN = config('SENTRY_DSN', mandatory=False)
 sentry_sdk.init(SENTRY_DSN)
 
 USER_DB_URI = config('USER_DB_URI')     # sqlite:////app/data/db/users.db; mysql://username:password@localhost/test?charset=utf8mb4
