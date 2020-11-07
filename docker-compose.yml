@@ -42,42 +42,42 @@ services:
       - pppoe_system
 
 
-  user:
-    container_name: radius_user
-    build:
-       context: .
-       dockerfile: ./docker/radius/Dockerfile
-    environment:
-      DEBUG: "${DEBUG}"
-      ENVIRONMENT: "${ENVIRONMENT}"
-    volumes:    # 挂载盘: - 主机路径:docker内部路径
-      - .:/app
-      - ./data:/data
-    # entrypoint: sh
-    entrypoint: /app/bin/user.sh
-    tty: true
-    restart: unless-stopped
-    networks:
-      - pppoe_system
+  # user:
+    # container_name: radius_user
+    # build:
+       # context: .
+       # dockerfile: ./docker/radius/Dockerfile
+    # environment:
+      # DEBUG: "${DEBUG}"
+      # ENVIRONMENT: "${ENVIRONMENT}"
+    # volumes:    # 挂载盘: - 主机路径:docker内部路径
+      # - .:/app
+      # - ./data:/data
+    # # entrypoint: sh
+    # entrypoint: /app/bin/user.sh
+    # tty: true
+    # restart: unless-stopped
+    # networks:
+      # - pppoe_system
 
 
-  monitor:
-    container_name: radius_monitor
-    build:
-       context: .
-       dockerfile: ./docker/radius/Dockerfile
-    environment:
-      DEBUG: "${DEBUG}"
-      ENVIRONMENT: "${ENVIRONMENT}"
-    volumes:    # 挂载盘: - 主机路径:docker内部路径
-      - .:/app
-      - ./data:/data
-    # entrypoint: sh
-    entrypoint: /app/bin/monitor.sh
-    tty: true
-    restart: unless-stopped
-    networks:
-      - pppoe_system
+  # monitor:
+    # container_name: radius_monitor
+    # build:
+       # context: .
+       # dockerfile: ./docker/radius/Dockerfile
+    # environment:
+      # DEBUG: "${DEBUG}"
+      # ENVIRONMENT: "${ENVIRONMENT}"
+    # volumes:    # 挂载盘: - 主机路径:docker内部路径
+      # - .:/app
+      # - ./data:/data
+    # # entrypoint: sh
+    # entrypoint: /app/bin/monitor.sh
+    # tty: true
+    # restart: unless-stopped
+    # networks:
+      # - pppoe_system
 
 
   # redis:
