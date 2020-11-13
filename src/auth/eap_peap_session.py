@@ -42,12 +42,15 @@ class SessionCache(object):
 
     @classmethod
     def load(cls, session_id: str) -> EapPeapSession:
+        clean_session_ids = []
         for s in cls._sessions.values():    # type: EapPeapSession
             now = datetime.datetime.now()
             if now - s.update_time >= datetime.timedelta(seconds=120):
-                cls.clean(session_id=s.session_id)
+                clean_session_ids.append(s.session_id)
             else:
                 break
+        for session_id in clean_session_ids:
+            cls.clean(session_id=session_id)
         return cls._sessions.get(session_id, None)
 
     @classmethod
