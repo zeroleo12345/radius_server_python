@@ -227,14 +227,14 @@ class EapPeapFlow(Flow):
         session.auth_user.inner_username = eap_identity.type_data.decode()
 
         # 查找用户密码
-        password = session.auth_user.get_user(username=session.auth_user.inner_username)
-        if not password:
+        user = session.auth_user.get_user(username=session.auth_user.inner_username)
+        if not user:
             log.error(f'auth user({session.auth_user.inner_username}) not exist in db.')
             SessionCache.clean(session_id=session.session_id)
             return Flow.access_reject(request=request, auth_user=session.auth_user)
         else:
             # 保存用户密码
-            session.auth_user.set_user_password(password)
+            session.auth_user.set_user_password(user.password)
 
         # 返回数据
         response_data = b'Password'
