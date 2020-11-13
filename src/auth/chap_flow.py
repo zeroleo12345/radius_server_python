@@ -14,9 +14,10 @@ class ChapFlow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         # 查找用户密码
-        user = auth_user.get_user(username=auth_user.outer_username)
+        account_name = auth_user.outer_username
+        user = auth_user.get_user(username=account_name)
         if not user:
-            log.error(f'auth user({auth_user.outer_username}) not exist in db.')
+            log.error(f'auth user({account_name}) not exist in db.')
             return Flow.access_reject(request=request, auth_user=auth_user)
         else:
             # 保存用户密码

@@ -224,12 +224,13 @@ class EapPeapFlow(Flow):
             raise Exception('Decrypt Error!')
 
         eap_identity = EapPacket(content=tls_decrypt_data)
-        session.auth_user.inner_username = eap_identity.type_data.decode()
+        account_name = eap_identity.type_data.decode()
+        session.auth_user.inner_username = account_name
 
         # 查找用户密码
-        user = session.auth_user.get_user(username=session.auth_user.inner_username)
+        user = session.auth_user.get_user(username=account_name)
         if not user:
-            log.error(f'auth user({session.auth_user.inner_username}) not exist in db.')
+            log.error(f'auth user({account_name}) not exist in db.')
             SessionCache.clean(session_id=session.session_id)
             return Flow.access_reject(request=request, auth_user=session.auth_user)
         else:
