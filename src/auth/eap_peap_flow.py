@@ -24,7 +24,7 @@ class EapPeapFlow(Flow):
             session = SessionCache.load(session_id=session_id)  # 旧会话
             if not session:
                 log.error(f'session_id: {session_id} not exist in redis')
-                SessionCache.clean(session_id=session.session_id)
+                SessionCache.clean(session_id=session_id)
                 return cls.access_reject(request=request, auth_user=auth_user)
         else:
             # 新会话
