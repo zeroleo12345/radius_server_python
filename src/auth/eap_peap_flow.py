@@ -230,7 +230,6 @@ class EapPeapFlow(Flow):
         # 查找用户密码
         user = session.auth_user.get_user(username=account_name)
         if not user:
-            log.error(f'auth user({account_name}) not exist in db.')
             SessionCache.clean(session_id=session.session_id)
             return Flow.access_reject(request=request, auth_user=session.auth_user)
         else:

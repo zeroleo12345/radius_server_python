@@ -3,6 +3,7 @@ import datetime
 from models import Session
 from models.auth import User
 from child_pyrad.packet import AuthRequest, AcctRequest
+from settings import log
 
 
 class AuthUser(object):
@@ -20,11 +21,14 @@ class AuthUser(object):
     @classmethod
     def get_user(cls, username):
         # 查找用户明文密码
-        now = datetime.datetime.now()
         session = Session()
-        user = session.query(User).filter(User.username == username, User.expired_at >= now).first()
+        user = session.query(User).filter(User.username == username).first()
         if not user:
-            return ''
+            log.error(f'get_user({username}) not exist in db.')
+            return None
+        if user.expired_at <= datetime.datetime.now():
+            log.error(f'get_user({username}) exist but expired.')
+            return None
         return user
 
 

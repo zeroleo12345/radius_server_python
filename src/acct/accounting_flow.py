@@ -19,7 +19,6 @@ class AccountingFlow(object):
         # 查找用户密码
         user = acct_user.get_user(username=account_name)
         if not user:
-            log.error(f'acct user({account_name}) not exist in db.')
             return
 
         # 每隔x秒清理会话

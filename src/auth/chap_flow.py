@@ -17,7 +17,6 @@ class ChapFlow(Flow):
         account_name = auth_user.outer_username
         user = auth_user.get_user(username=account_name)
         if not user:
-            log.error(f'auth user({account_name}) not exist in db.')
             return Flow.access_reject(request=request, auth_user=auth_user)
         else:
             # 保存用户密码
