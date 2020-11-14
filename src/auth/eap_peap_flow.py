@@ -258,6 +258,21 @@ class EapPeapFlow(Flow):
 
     @classmethod
     def peap_challenge_success(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+        # 解密
+        tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
+        if tls_decrypt_data is None:
+            raise Exception('Decrypt Error!')
+
+        eap_password = EapPacket(content=tls_decrypt_data)
+        auth_password = eap_password.type_data.decode()
+        log.debug(f'PEAP account: {session.auth_user.inner_username}, packet_password: {auth_password}')
+
+        def is_correct_password() -> bool:
+            return session.auth_user.user_password == auth_password
+
+        if not is_correct_password():
+            log.error(f'user_password: {session.auth_user.user_password} not correct')
+
         # 返回数据
         eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id)
         tls_plaintext = eap_success.pack()
@@ -291,7 +306,7 @@ class EapPeapFlow(Flow):
 
     @classmethod
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
-        log.info(f'OUT:accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.mac_address}')
+        log.info(f'OUT: accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.mac_address}')
         reply = AuthResponse.create_access_accept(request=request)
         # reply['Session-Timeout'] = 600
         # reply['Idle-Timeout'] = 600

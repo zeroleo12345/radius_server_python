@@ -23,8 +23,11 @@ class ChapFlow(Flow):
             auth_user.set_user_password(user.password)
 
         session = EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
-        if Chap.is_correct_challenge_value(request=request, user_password=auth_user.user_password)\
-                and cls.is_unique_session(mac_address=session.auth_user.mac_address):
+
+        def is_correct_password() -> bool:
+            return Chap.is_correct_challenge_value(request=request, user_password=auth_user.user_password)
+
+        if is_correct_password() and cls.is_unique_session(mac_address=session.auth_user.mac_address):
             return cls.access_accept(request=request, session=session)
         else:
             log.error(f'user_password: {auth_user.user_password} not correct')
