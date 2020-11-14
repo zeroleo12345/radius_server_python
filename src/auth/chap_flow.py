@@ -4,7 +4,7 @@ from child_pyrad.packet import AuthRequest, AuthResponse
 # 自己的库
 from .flow import Flow
 from settings import log
-from controls.user import AuthUser
+from controls.user import AuthUser, DbUser
 from child_pyrad.chap import Chap
 from auth.eap_peap_session import EapPeapSession
 
@@ -15,7 +15,7 @@ class ChapFlow(Flow):
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         # 查找用户密码
         account_name = auth_user.outer_username
-        user = auth_user.get_user(username=account_name)
+        user = DbUser.get_user(username=account_name)
         if not user:
             return Flow.access_reject(request=request, auth_user=auth_user)
         else:

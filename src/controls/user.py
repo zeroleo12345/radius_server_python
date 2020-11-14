@@ -18,8 +18,23 @@ class AuthUser(object):
     def set_user_password(self, password):
         self.user_password = password
 
+
+class AcctUser(object):
+
+    def __init__(self, request: AcctRequest):
+        self.outer_username = request.username
+        self.mac_address = request.mac_address      # mac地址
+
+
+class DbUser(object):
+    def __init__(self, user):
+        self.id = user.id
+        self.username = user.username
+        self.password = user.password
+        self.expired_at = user.expired_at
+
     @classmethod
-    def get_user(cls, username):
+    def get_user(cls, username) -> 'DbUser':
         # 查找用户明文密码
         session = Session()
         user = session.query(User).filter(User.username == username).first()
@@ -29,21 +44,4 @@ class AuthUser(object):
         if user.expired_at <= datetime.datetime.now():
             log.error(f'get_user({username}) exist but expired.')
             return None
-        return user
-
-
-class AcctUser(object):
-
-    def __init__(self, request: AcctRequest):
-        self.outer_username = request.username
-        self.mac_address = request.mac_address      # mac地址
-
-    @classmethod
-    def get_user(cls, username):
-        # 查找用户明文密码
-        now = datetime.datetime.now()
-        session = Session()
-        user = session.query(User).filter(User.username == username, User.expired_at >= now).first()
-        if not user:
-            return ''
-        return user
+        return DbUser(user)

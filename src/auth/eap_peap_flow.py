@@ -5,7 +5,7 @@ import struct
 # 自己的库
 from .flow import Flow
 from child_pyrad.packet import AuthRequest, AuthResponse
-from controls.user import AuthUser
+from controls.user import AuthUser, DbUser
 from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from child_pyrad.mppe import create_mppe_recv_key_send_key
@@ -228,7 +228,7 @@ class EapPeapFlow(Flow):
         session.auth_user.inner_username = account_name
 
         # 查找用户密码
-        user = session.auth_user.get_user(username=account_name)
+        user = DbUser.get_user(username=account_name)
         if not user:
             SessionCache.clean(session_id=session.session_id)
             return Flow.access_reject(request=request, auth_user=session.auth_user)
