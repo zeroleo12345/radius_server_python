@@ -1,3 +1,7 @@
+rm -rf ./newcerts/
+rm -rf ./*.old
+rm -rf ./*.attr
+
 # 修改openssl配置
 vim /usr/local/ssl/openssl.cnf
     [ CA_default ]
