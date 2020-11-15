@@ -2,7 +2,7 @@ import uuid
 # 第三方库
 from child_pyrad.packet import AuthRequest, AuthResponse
 # 自己的库
-from .flow import Flow
+from .flow import Flow, AccessReject
 from settings import log
 from controls.user import AuthUser, DbUser
 from child_pyrad.chap import Chap
@@ -17,7 +17,7 @@ class ChapFlow(Flow):
         account_name = auth_user.outer_username
         user = DbUser.get_user(username=account_name)
         if not user:
-            return Flow.access_reject(request=request, auth_user=auth_user)
+            raise AccessReject()
         else:
             # 保存用户密码
             auth_user.set_user_password(user.password)
@@ -31,7 +31,7 @@ class ChapFlow(Flow):
             return cls.access_accept(request=request, session=session)
         else:
             log.error(f'user_password: {auth_user.user_password} not correct')
-            return cls.access_reject(request=request, auth_user=auth_user)
+            raise AccessReject()
 
     @classmethod
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):

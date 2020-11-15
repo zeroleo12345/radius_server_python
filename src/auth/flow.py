@@ -5,6 +5,10 @@ from settings import log
 from controls.user import AuthUser
 
 
+class AccessReject(Exception):
+    pass
+
+
 class Flow(object):
 
     @classmethod

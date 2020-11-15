@@ -3,7 +3,7 @@ import ctypes
 import struct
 # 第三方库
 # 自己的库
-from .flow import Flow
+from .flow import Flow, AccessReject
 from child_pyrad.packet import AuthRequest, AuthResponse
 from controls.user import AuthUser, DbUser
 from child_pyrad.eap_packet import EapPacket
@@ -25,7 +25,7 @@ class EapPeapFlow(Flow):
             if not session:
                 log.error(f'session_id: {session_id} not exist in redis')
                 SessionCache.clean(session_id=session_id)
-                return cls.access_reject(request=request, auth_user=auth_user)
+                raise AccessReject()
         else:
             # 新会话
             session = EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
@@ -232,7 +232,7 @@ class EapPeapFlow(Flow):
         user = DbUser.get_user(username=account_name)
         if not user:
             SessionCache.clean(session_id=session.session_id)
-            return Flow.access_reject(request=request, auth_user=auth_user)
+            raise AccessReject()
         else:
             # 保存用户密码
             session.auth_user.set_user_password(user.password)
