@@ -4,6 +4,7 @@ from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from controls.user import AuthUser
+from settings import log
 
 
 class EapPeapSession(object):
@@ -33,7 +34,7 @@ class EapPeapSession(object):
 class SessionCache(object):
     _sessions = {}
     """
-    不能存到Redis的原因是tls_connection结构体含有大量指针, 不能使用memcpy
+    不能存到Redis的原因是tls_connection结构体含有大量指针, 不能使用 memcpy
     """
 
     @classmethod
@@ -55,4 +56,5 @@ class SessionCache(object):
 
     @classmethod
     def clean(cls, session_id: str):
+        log.debug(f'clean session: {session_id}')
         cls._sessions.pop(session_id, None)
