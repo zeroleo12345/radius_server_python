@@ -39,6 +39,7 @@ class SessionCache(object):
 
     @classmethod
     def save(cls, session: EapPeapSession):
+        log.debug(f'save session: {session.session_id}')
         cls._sessions[session.session_id] = session
 
     @classmethod
