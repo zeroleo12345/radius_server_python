@@ -32,26 +32,36 @@ Run the docker container
 similiar with authenticate, but reaplce `auth` with `acct`
 
 
-## Debug with simulator
+## Send authenticate and accounting request with simulator
 - authenticate by CHAP
 
-enter into container: `docker-compose exec auth bash`
+enter into authenticate container: `docker-compose exec auth bash`
 
 run simulator in container:
 
 ```bash
 $ cd tools/simulator/radius_test/auth/
-$ sh run.sh
+$ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/chap.conf
 ```
 
 - authenticate by EAP-GTC
 
-enter into container: `docker-compose exec auth bash`
+enter into authenticate container: `docker-compose exec auth bash`
 
 run simulator in container:
 
 ```bash
 $ cd tools/simulator/eap_test/
-$ sh run.sh
+$ eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peap_v1_gtc -a 127.0.0.1 -p 1812 -s testing123 -r 0
 ```
 
+- accounnting
+
+enter into accounting container: `docker-compose exec acct bash`
+
+run simulator in container:
+
+```bash
+$ cd tools/simulator/radius_test/acct/
+$ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/i.conf
+```
