@@ -39,7 +39,7 @@ class SessionCache(object):
 
     @classmethod
     def save(cls, session: EapPeapSession):
-        log.debug(f'save session: {session.session_id}')
+        log.trace(f'save session: {session.session_id}')
         cls._sessions[session.session_id] = session
 
     @classmethod
@@ -57,5 +57,5 @@ class SessionCache(object):
 
     @classmethod
     def clean(cls, session_id: str):
-        log.debug(f'clean session: {session_id}')
+        log.trace(f'clean session: {session_id}')
         cls._sessions.pop(session_id, None)
