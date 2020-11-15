@@ -7,7 +7,7 @@ Support authenticate method:
 
 - [x] [PEAPv1: EAP-GTC](https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05)
 
-- [] TODO [PEAPv0: EAP-MSCHAPv2](https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00)
+- [ ] TODO [PEAPv0: EAP-MSCHAPv2](https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00)
 
 
 ## Installation and Usage
