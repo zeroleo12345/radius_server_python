@@ -1,6 +1,6 @@
 """
 reference:
-    PEAPv0 EAP-MSCHAPV2 - Microsoft's PEAP version 0 (Implementation in Windows XP SP1):
+    PEAPv0 EAP-MSCHAPv2 - Microsoft's PEAP version 0 (Implementation in Windows XP SP1):
         https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00
     PEAPv1 EAP-GTC - Protected EAP Protocol (PEAP)
         https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
