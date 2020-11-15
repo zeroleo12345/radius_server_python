@@ -3,11 +3,11 @@ Raidus Server is the system use to Authentication, Authorization, Accounting for
 
 Support authenticate method:
 
-    - [x] [CHAP](https://tools.ietf.org/search/rfc1994)
+- [x] [CHAP](https://tools.ietf.org/search/rfc1994)
 
-    - [x] [PEAPv1: EAP-GTC](https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05)
+- [x] [PEAPv1: EAP-GTC](https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05)
 
-    - [] TODO [PEAPv0: EAP-MSCHAPv2](https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00)
+- [] TODO [PEAPv0: EAP-MSCHAPv2](https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00)
 
 
 ## Installation and Usage
