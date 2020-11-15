@@ -36,12 +36,12 @@ class DbUser(object):
     @classmethod
     def get_user(cls, username) -> 'DbUser':
         # 查找用户明文密码
-        session = Session()
-        user = session.query(BroadbandUser).filter(BroadbandUser.username == username).first()
-        if not user:
-            log.error(f'get_user({username}) not exist in db.')
-            return None
-        if user.expired_at <= datetime.datetime.now():
-            log.error(f'get_user({username}) exist but expired.')
-            return None
-        return DbUser(user)
+        with Session() as session:
+            user = session.query(BroadbandUser).filter(BroadbandUser.username == username).first()
+            if not user:
+                log.error(f'get_user({username}) not exist in db.')
+                return None
+            if user.expired_at <= datetime.datetime.now():
+                log.error(f'get_user({username}) exist but expired.')
+                return None
+            return DbUser(user)
