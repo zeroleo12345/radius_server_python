@@ -9,3 +9,15 @@ engine = create_engine(USER_DB_URI, echo=False)   # echo用于控制打印日志
 metadata = MetaData(bind=engine)
 Base = declarative_base(bind=engine)
 Session = sessionmaker(bind=engine)
+
+
+class Transaction(object):
+
+    def __init__(self):
+        self.session = Session()
+
+    def __enter__(self):
+        return self.session
+
+    def __exit__(self, type, value, trace):
+        self.session.close()

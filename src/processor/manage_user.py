@@ -5,7 +5,7 @@ from dateutil.parser import parse
 # 自己的库
 from processor import Task
 from settings import API_URL, log
-from models import Session
+from models import Transaction
 from models.auth import BroadbandUser
 
 LOCAL_TZ = datetime.timezone(datetime.timedelta(hours=8))
@@ -30,7 +30,7 @@ class TaskLoop(Task):
             return
 
         data = json_response['data']
-        with Session() as session:
+        with Transaction() as session:
             for item in data:
                 username = item['username']
                 password = item['password']
