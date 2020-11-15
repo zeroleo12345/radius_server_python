@@ -1,4 +1,4 @@
-CREATE DATABASE `trade`;
+CREATE DATABASE `trade` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `broadband_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
