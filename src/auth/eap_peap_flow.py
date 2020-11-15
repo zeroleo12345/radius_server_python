@@ -18,6 +18,7 @@ class EapPeapFlow(Flow):
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         log.debug(f'request: {request}')
         # 1. 获取报文
+        # FIXME
         if 'State' in request:
             session_id = request['State'][0].decode()
             # 2. 从redis获取会话
@@ -40,10 +41,9 @@ class EapPeapFlow(Flow):
         log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.mac_address}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
         # 4. 调用对应状态的处理函数
-        is_go_next = cls.state_machine(request=request, eap=eap, peap=peap, session=session)
-        if is_go_next:
-            session.prev_id = request.id
-            session.prev_eap_id = eap.id
+        cls.state_machine(request=request, eap=eap, peap=peap, session=session)
+        session.prev_id = request.id
+        session.prev_eap_id = eap.id
         # 每次处理回复后, 保存session到Redis
         SessionCache.save(session=session)
 
