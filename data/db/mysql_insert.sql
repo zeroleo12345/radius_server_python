@@ -1,3 +1,4 @@
+CREATE DATABASE `trade`;
 
 CREATE TABLE `broadband_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
