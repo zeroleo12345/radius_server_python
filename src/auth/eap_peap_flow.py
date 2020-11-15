@@ -62,12 +62,12 @@ class EapPeapFlow(Flow):
                 # 会话已经处理过
                 reply = session.reply
                 request.reply_to(reply)
-                log.info(f'duplicate packet, resend. id: {reply.id}, username: {request.username},'
-                         f'mac: {request.mac_address}, next_state: {session.next_state}')
+                log.warning(f'duplicate packet, resend. id: {reply.id}, username: {request.username},'
+                            f'mac: {request.mac_address}, next_state: {session.next_state}')
                 return
             else:
                 # 会话正在处理中
-                log.info(f'processor handling. username: {request.username}, mac: {request.mac_address}, next_state: {session.next_state}')
+                log.warning(f'processor handling. username: {request.username}, mac: {request.mac_address}, next_state: {session.next_state}')
                 return
         elif session.next_eap_id == -1 or session.next_eap_id == eap.id:
             # 正常eap-peap流程
@@ -98,6 +98,7 @@ class EapPeapFlow(Flow):
 
     @classmethod
     def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+        # FIXME
         out_peap = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1)
         reply = AuthResponse.create_peap_challenge(request=request, peap=out_peap, session_id=session.session_id)
         request.reply_to(reply)
@@ -231,7 +232,7 @@ class EapPeapFlow(Flow):
         user = DbUser.get_user(username=account_name)
         if not user:
             SessionCache.clean(session_id=session.session_id)
-            return Flow.access_reject(request=request, auth_user=session.auth_user)
+            return Flow.access_reject(request=request, auth_user=auth_user)
         else:
             # 保存用户密码
             session.auth_user.set_user_password(user.password)
