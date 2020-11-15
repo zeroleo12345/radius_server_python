@@ -34,7 +34,7 @@ class AuthRequest(AuthPacket):
         self.mac_address = self['Calling-Station-Id'][0]
 
     def reply_to(self, reply: AuthPacket):
-        log.debug(f'reply: {reply}')
+        log.trace(f'reply: {reply}')
         if 'EAP-Message' in reply:
             reply.get_message_authenticator()   # 必须放在所有attribute设置好后, 发送前刷新 Message-Authenticator !!!
         self.socket.sendto(reply.ReplyPacket(), self.address)
@@ -122,7 +122,7 @@ class AcctRequest(AcctPacket):
         self.acct_status_type = self["Acct-Status-Type"][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
 
     def reply_to(self, reply: AcctPacket):
-        log.debug(f'reply: {reply}')
+        log.trace(f'reply: {reply}')
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code, **attributes) -> 'AcctResponse':

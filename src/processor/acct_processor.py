@@ -35,7 +35,8 @@ class EchoServer(DatagramServer):
             self.handle_signal()
 
             ip, port = address
-            log.debug(f'receive packet from {address}, data: {data}')
+            log.debug(f'receive packet from {address}')
+            log.trace(f'data: {data}')
 
             # 解析报文
             request = AcctRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
