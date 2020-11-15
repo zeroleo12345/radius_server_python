@@ -1,3 +1,4 @@
+import sys
 import os
 # 第三方库
 import sentry_sdk
@@ -20,10 +21,10 @@ API_URL = config('API_URL')
 LOG_HEADER = config('LOG_HEADER')
 LOG_DIR = config('LOG_DIR')
 LOG_LEVEL = config('LOG_LEVEL')
-LOG_BUFFER_SIZE = config('LOG_BUFFER_SIZE', default=0, cast='@int')
 # 初始化日志
-log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00')
-log.info(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_BUFFER_SIZE: {LOG_BUFFER_SIZE}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
+log.add(sys.stderr, filter="my_module", level=LOG_LEVEL)
+log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00', level=LOG_LEVEL)
+log.info(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
 
 # Redis
 REDIS_HOST = config('REDIS_HOST')
