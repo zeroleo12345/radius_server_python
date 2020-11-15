@@ -12,33 +12,44 @@ Support authenticate method:
 
 ## Installation and Usage
 - Setup mysql
+
 save [docker-compose.yml](https://github.com/zeroleo12345/restful_server/blob/master/docker-compose.yml) to another directory and start it.
+
 `docker-compose -f docker-compose.yml up mysql`
 
 - For authenticate
+
 Build the docker image
+
 `docker-compose build auth`
 
 Run the docker container
+
 `docker-compose up auth`
 
 - For accouting
-similiar with authenticate, but reaplce `auth` with `acct`
 
+similiar with authenticate, but reaplce `auth` with `acct`
 
 
 ## Debug with simulator
 - authenticate by CHAP
+
 enter into container: `docker-compose exec auth bash`
+
 run simulator in container:
+
 ```bash
 $ cd tools/simulator/radius_test/auth/
 $ sh run.sh
 ```
 
 - authenticate by EAP-GTC
+
 enter into container: `docker-compose exec auth bash`
+
 run simulator in container:
+
 ```bash
 $ cd tools/simulator/eap_test/
 $ sh run.sh
