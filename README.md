@@ -17,7 +17,7 @@ save [docker-compose.yml](https://github.com/zeroleo12345/restful_server/blob/ma
 
 `docker-compose -f docker-compose.yml up mysql`
 
-init mysql table and row data with [mysql_insert.sql](https://github.com/zeroleo12345/radius_server/blob/feature/add_docker/data/db/mysql_insert.sql)
+init mysql database and table data with [mysql_insert.sql](https://github.com/zeroleo12345/radius_server/blob/feature/add_docker/data/db/mysql_insert.sql)
 
 - For authenticate
 
