@@ -1,5 +1,5 @@
 ## Radius Server
-Raidus Server is the system use to Authentication, Authorization, Accounting for WLAN user or PPPoE user.
+Raidus Server is writtten by Python, and use to Authentication, Authorization, Accounting for WLAN user or PPPoE user.
 
 Support authenticate method:
 
