@@ -53,8 +53,8 @@ class SessionCache(object):
                 clean_session_ids.append(s.session_id)
             else:
                 break
-        for session_id in clean_session_ids:
-            cls.clean(session_id=session_id)
+        for _session_id in clean_session_ids:
+            cls.clean(session_id=_session_id)
         return cls._sessions.get(session_id, None)
 
     @classmethod
