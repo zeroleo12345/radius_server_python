@@ -5,6 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
+!lib/*.so
 
 # Distribution / packaging
 .Python
@@ -14,8 +15,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -72,9 +71,6 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
-.envrc
-
 # celery beat schedule file
 celerybeat-schedule
 
@@ -106,10 +102,17 @@ venv.bak/
 # IDEA
 .idea/
 
+# MacOS
+.DS_Store
+
 # Self Define
+*.tar
+.direnv/
 run/data/
 *.tmp
 *.swp
 run/backup/*
 !run/backup/.gitkeep
 nohup.out
+1812.pcapng
+1813.pcapng

@@ -1,26 +1,153 @@
-import hashlib
-
-CODE_INVALID = 0
-CODE_ACCESS_REQUEST = 1
-CODE_ACCESS_ACCEPT = 2
-CODE_ACCESS_REJECT = 3
-CODE_ACCOUNT_REQUEST = 4
-CODE_ACCOUNT_RESPONSE = 5
-CODE_ACCESS_CHALLENGE = 11
-CODE_DISCONNECT_REQUEST = 40
-CODE_DISCONNECT_ACK = 41
-CODE_DISCONNECT_NAK = 42
-CODE_COA_REQUEST = 43
-CODE_COA_ACK = 44
-CODE_COA_NAK = 45
+# 第三方库
+from pyrad.packet import AuthPacket, AccessRequest, AcctPacket
+# 项目库
+from .exception import AuthenticatorError
+from .eap_packet import EapPacket
+from .eap_peap_packet import EapPeapPacket
+from settings import log
 
 
-def get_chap_rsp(chap_id, user_password, challenge):
-    """
-    chap_id: Byte
-    user_password: Str  用户密码 (明文)
-    challenge: Byte
-    """
-    byte_str = b''.join([chap_id, user_password.encode(), challenge])
-    chap_rsp = hashlib.md5(byte_str).digest()
-    return chap_rsp
+class Packet(object):
+    CODE_ACCESS_REQUEST = 1
+    CODE_ACCESS_ACCEPT = 2
+    CODE_ACCESS_REJECT = 3
+    CODE_ACCOUNT_REQUEST = 4
+    CODE_ACCOUNT_RESPONSE = 5
+    CODE_ACCESS_CHALLENGE = 11
+    CODE_DISCONNECT_REQUEST = 40
+    CODE_DISCONNECT_ACK = 41
+    CODE_DISCONNECT_NAK = 42
+    CODE_COA_REQUEST = 43
+    CODE_COA_ACK = 44
+    CODE_COA_NAK = 45
+
+
+class AuthRequest(AuthPacket):
+
+    def __init__(self, secret: str, packet: str, socket, address,
+                 code=AccessRequest, id=None, authenticator=None, **attributes):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+        self.socket = socket
+        self.address = address  # (ip, port)
+        # 解析报文
+        self.username = self['User-Name'][0]
+        self.mac_address = self['Calling-Station-Id'][0]
+
+    def reply_to(self, reply: AuthPacket):
+        log.trace(f'reply: {reply}')
+        if 'EAP-Message' in reply:
+            reply.get_message_authenticator()   # 必须放在所有attribute设置好后, 发送前刷新 Message-Authenticator !!!
+        self.socket.sendto(reply.ReplyPacket(), self.address)
+
+    # @staticmethod
+    # def get_message_authenticator(secret, buff):
+    #     h = hmac.HMAC(key=secret)
+    #     h.update(buff)
+    #     return h.digest()
+
+    def check_msg_authenticator(self):
+        """
+        报文内有Message-Authenticator, 则校验
+        报文内没有Message-Authenticator:
+            如果规则需要检验, 则返回False;
+            如果规则不需要检验, 返回True. (使用secret对报文计算)
+        """
+        try:
+            message_authenticator = self['Message-Authenticator'][0]
+        except KeyError:
+            return False
+        expect_authenticator = self.get_message_authenticator()
+        if expect_authenticator != message_authenticator:
+            raise AuthenticatorError(f"Message-Authenticator mismatch. expect: {expect_authenticator.encode('hex')}, get: {message_authenticator}]")
+
+        return
+
+    def create_reply(self, code, **attributes) -> 'AuthResponse':
+        response = AuthResponse(Packet.CODE_ACCESS_ACCEPT, self.id,
+                                self.secret, self.authenticator, dict=self.dict,
+                                **attributes)
+        response.code = code
+        return response
+
+    def __str__(self):
+        msg = f'AuthRequest: \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
+
+
+class AuthResponse(AuthPacket):
+
+    @classmethod
+    def create_access_accept(cls, request: AuthRequest) -> AuthPacket:
+        reply = request.create_reply(code=Packet.CODE_ACCESS_ACCEPT)
+        return reply
+
+    @classmethod
+    def create_access_reject(cls, request: AuthRequest) -> AuthPacket:
+        reply = request.create_reply(code=Packet.CODE_ACCESS_REJECT)
+        return reply
+
+    @classmethod
+    def create_peap_challenge(cls, request: AuthRequest, peap: EapPeapPacket, session_id: str) -> AuthPacket:
+        reply = request.create_reply(code=Packet.CODE_ACCESS_CHALLENGE)
+        eap_message = peap.pack()
+        eap_messages = EapPacket.split_eap_message(eap_message)
+        if isinstance(eap_messages, list):
+            for eap in eap_messages:
+                reply.AddAttribute('EAP-Message', eap)
+        else:
+            reply.AddAttribute('EAP-Message', eap_messages)
+        reply['Calling-Station-Id'] = request.mac_address
+        reply['State'] = session_id.encode()    # ATTRIBUTE   State           24  octets
+        return reply
+
+    def __str__(self):
+        msg = f'AuthResponse: \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
+
+
+class AcctRequest(AcctPacket):
+
+    def __init__(self, dict, secret: str, packet: str, socket, address,
+                 code=AccessRequest, id=None, authenticator=None, **attributes):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, dict=dict, **attributes)
+        self.socket = socket
+        self.address = address  # (ip, port)
+        # 解析报文
+        self.username = self['User-Name'][0]
+        self.mac_address = self['Calling-Station-Id'][0]
+        self.acct_status_type = self["Acct-Status-Type"][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
+
+    def reply_to(self, reply: AcctPacket):
+        log.trace(f'reply: {reply}')
+        self.socket.sendto(reply.ReplyPacket(), self.address)
+
+    def create_reply(self, code, **attributes) -> 'AcctResponse':
+        response = AcctResponse(Packet.CODE_ACCOUNT_RESPONSE, self.id,
+                                self.secret, self.authenticator, dict=self.dict,
+                                **attributes)
+        response.code = code
+        return response
+
+    def __str__(self):
+        msg = f'AcctRequest: \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
+
+
+class AcctResponse(AcctPacket):
+
+    @classmethod
+    def create_account_response(cls, request: AcctRequest) -> 'AcctResponse':
+        reply = request.create_reply(code=Packet.CODE_ACCOUNT_RESPONSE)
+        return reply
+
+    def __str__(self):
+        msg = f'AcctResponse: \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg

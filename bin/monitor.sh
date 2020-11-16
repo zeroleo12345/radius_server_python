@@ -1,7 +1,9 @@
 #!/usr/bin/env sh
 
-project_root=$(cd "$(dirname "$0")/.."; pwd)    # /root/radius_server
+cd $(dirname "$0")/..
+project_root=$(pwd)     # /root/radius_server
+echo "当前项目目录: $project_root"
 
 export LOG_HEADER="monitor"
 source $project_root/.env
-exec python3 $project_root/src/task/process_monitor.py
+exec python3 $project_root/src/processor/process_monitor.py

@@ -1,0 +1,2 @@
+*           TLS,PEAP,TTLS
+"testuser"    MSCHAPV2,GTC,TTLS-CHAP,TTLS-MSCHAP,MD5,TTLS-MSCHAPV2 "password" [2]

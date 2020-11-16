@@ -3,8 +3,8 @@ from . import Base
 from sqlalchemy import Column, Integer, String, DateTime
 
 
-class User(Base):
-    __tablename__ = 'user'
+class BroadbandUser(Base):
+    __tablename__ = 'broadband_user'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(255), unique=True, nullable=True)

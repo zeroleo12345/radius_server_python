@@ -1,61 +1,76 @@
-## 系统简介
-pppoe 用户鉴权计费
+## Radius Server
+Raidus Server is the system use to Authentication, Authorization, Accounting for WLAN user or PPPoE user.
+
+Support authenticate method:
+
+- [x] [CHAP](https://tools.ietf.org/search/rfc1994)
+
+- [x] [PEAPv1: EAP-GTC](https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05)
+
+- [ ] [PEAPv0: EAP-MSCHAPv2](https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00) TODO
 
 
-## [Pycharm pyenv 环境设置](https://stackoverflow.com/questions/41129504/pycharm-with-pyenv)
-```
-settings -> Project Interpreter -> Add... -> Virtualenv Environment -> Existing environment -> /Users/zlx/.pyenv/versions/3.6.5/bin/python
-```
+## Installation and Usage
+- Setup mysql
+
+save [docker-compose.yml](https://github.com/zeroleo12345/restful_server/blob/master/docker-compose.yml) to another directory and start it.
+
+`docker-compose -f docker-compose.yml up mysql`
+
+init mysql database and table data with [mysql_insert.sql](https://github.com/zeroleo12345/radius_server/blob/feature/add_docker/data/db/mysql_insert.sql)
+
+- For authenticate
+
+Build the docker image
+
+`docker-compose build auth`
+
+Run the docker container
+
+`docker-compose up auth`
+
+- For accouting
+
+similiar with authenticate, but reaplce `auth` with `acct`
 
 
-## 初始化
+## Send authenticate and accounting request with simulator
+- authenticate by CHAP
 
-- 安装依赖库
-``` bash
-#
-pip3 install -r requirements/requirements.txt  --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple
+enter into authenticate container: `docker-compose exec auth bash`
 
-# 安装supervisor
-pip2 install git+https://gitee.com/zeroleo12345/supervisor-3.3.2.git
-```
+run simulator in container:
 
-- 环境变量
-```
-decrypt .env.x
+```bash
+$ cd tools/simulator/radius_test/auth/
 
-# 初始化sqlite3数据库
-cd run/data/ && rm users.db; sh init_database.sh
-```
-
-
-## 生产运行
-- 启动 Supervisord Demon 程序
-``` bash
-# 启动所有进程
-sh bin/all_start.sh    # supervisord  -c /root/radius_server/etc/supervisord.ini
-
-# 重启指定进程
-supervisorctl -c /root/radius_server/etc/supervisord.ini restart auth
-```
-
-
-- 查看状态
-``` bash
-sh bin/status.sh       # supervisorctl  -c /root/radius_server/etc/supervisord.ini status
-```
-
-
-## 开发调试运行
-详情查看目录: `tools`
-
-
-## 检查步骤
-``` bash
-1.1 /var/log/pppd.log 是否存在日志, 存在表示pppoe-server正常运行, 且有用户拨号.
-1.2 /var/log/pppd.log 确认日志内容是否正常.
-
-2. 检查交换机指示灯是否绿色. (绿色表示正常)
-
-3. 检查 ~/radius_server/run/log/auth* 日志是否正常, 日志缓存已设为0 buffer, 可及时看到日志.
+$ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/chap.conf
 ```
 
+- authenticate by EAP-GTC
+
+enter into authenticate container: `docker-compose exec auth bash`
+
+run simulator in container:
+
+```bash
+$ cd tools/simulator/eap_test/
+
+$ eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peap_v1_gtc -a 127.0.0.1 -p 1812 -s testing123 -r 0
+```
+
+- accounnting
+
+enter into accounting container: `docker-compose exec acct bash`
+
+run simulator in container:
+
+```bash
+$ cd tools/simulator/radius_test/acct/
+
+$ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/i.conf
+
+$ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/u.conf
+
+$ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/t.conf
+```

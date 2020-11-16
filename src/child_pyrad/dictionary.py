@@ -1,4 +1,6 @@
 import os
+# 项目库
+from settings import log
 
 
 def get_dictionaries(directory):
@@ -6,5 +8,10 @@ def get_dictionaries(directory):
         raise Exception('directory:{} not exist'.format(directory))
     # 遍历目录一次
     root, dirs, files = next(os.walk(directory))
-    dictionaries = [os.path.join(root, f) for f in files]
+    dictionaries = []
+    for filename in files:
+        if filename.startswith('dictionary.'):
+            dictionaries.append(os.path.join(root, filename))
+        else:
+            log.warning(f'ignore dictionary: {filename}')
     return dictionaries
