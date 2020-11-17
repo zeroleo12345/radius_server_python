@@ -18,7 +18,6 @@ class EapPeapFlow(Flow):
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         log.trace(f'request: {request}')
         # 1. 获取报文
-        # FIXME
         if 'State' in request:
             session_id = request['State'][0].decode()
             # 2. 从redis获取会话
@@ -54,7 +53,6 @@ class EapPeapFlow(Flow):
         :param eap:
         :param peap:
         :param session:
-        :return:  成功(进入下一步骤) - True; 重发报文(停留当前步骤) - False;
         """
         if session.prev_id == request.id or session.prev_eap_id == eap.id:
             # 重复请求
@@ -98,7 +96,6 @@ class EapPeapFlow(Flow):
 
     @classmethod
     def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        # FIXME
         out_peap = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1)
         reply = AuthResponse.create_peap_challenge(request=request, peap=out_peap, session_id=session.session_id)
         request.reply_to(reply)
