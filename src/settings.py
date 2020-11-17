@@ -19,11 +19,15 @@ API_URL = config('API_URL')
 
 # Log
 LOG_HEADER = config('LOG_HEADER')
-LOG_DIR = config('LOG_DIR')
+LOG_DIR = config('LOG_DIR', default='')
 LOG_LEVEL = config('LOG_LEVEL')
 # 初始化日志
 log.add(sys.stderr, filter="my_module", level=LOG_LEVEL)
-log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00', level=LOG_LEVEL)
+if LOG_DIR:
+    log.info('start log to file')
+    log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00', level=LOG_LEVEL)
+else:
+    log.info('close log to file')
 log.info(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
 
 # Redis
