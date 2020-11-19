@@ -41,6 +41,14 @@ class EapPeapPacket(Eap):
     PEAP_ACCESS_ACCEPT = 'peap_access_accept'
 
     def __init__(self, content=None, code=0, id=0, flag_start=0b0, flag_version=0b001, tls_data=''):
+        """
+        :param content:
+        :param code:
+        :param id:
+        :param flag_start: 0 或 1. 表示 EAP-TLS Start 标记位
+        :param flag_version: 0 - PEAPv0(EAP-MSCHAPv2); 1 - PEAPv1(EAP-GTC)
+        :param tls_data:
+        """
         super(self.__class__, self).__init__()
         self.tls_data = tls_data
         self.fragments = []
