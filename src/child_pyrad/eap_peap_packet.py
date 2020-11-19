@@ -26,7 +26,9 @@ class EapPeapPacket(Eap):
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |     TLS Message Length        |       TLS Data...
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    认证流程参考文档: PEAPv1(EAP-GTC).vsd
+    认证流程参考文档:
+        PEAPv1(EAP-GTC).vsd
+        https://sites.google.com/site/amitsciscozone/home/switching/peap---protected-eap-protocol
     """
 
     PEAP_CHALLENGE_START = 'peap_challenge_start'
