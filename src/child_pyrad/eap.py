@@ -5,7 +5,7 @@ class Eap(object):
     CODE_EAP_SUCCESS = 3
     CODE_EAP_FAILURE = 4
 
-    # EAP Type
+    # phase2 EAP Type
     TYPE_EAP_IDENTITY = 1
     TYPE_EAP_NOTIFICATION = 2
     TYPE_EAP_NAK = 3
