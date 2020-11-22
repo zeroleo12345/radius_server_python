@@ -67,7 +67,8 @@ class EapPeapPacket(Eap):
         else:
             # write mode
             _stop = len(self.tls_data)
-            _step = 1014
+            # hostpad定义: fragment_size = 1398, tcpdump = 1403. (包头占用了10字节. 包头后接着 EAP-TLS Fragments)
+            _step = 1393
             self.fragments = [self.tls_data[pos:pos+_step] for pos in range(0, _stop, _step)]
 
     def decode_packet(self, packet: bytes):

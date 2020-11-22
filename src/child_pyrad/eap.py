@@ -26,8 +26,7 @@ class Eap(object):
         return identifier + 1
 
     @staticmethod
-    def split_eap_message(eap_messages) -> list:
-        # FIXME 是否可以返回 list len = 1 的数组? 待测试
+    def split_eap_message(eap_messages: bytes) -> list:
         """
         split EAP-Message field to multiple
         each max len = 255 - 2 (header byte)
@@ -36,7 +35,7 @@ class Eap(object):
         :return: EAP-Message[]. each contain binary string.
         """
         if len(eap_messages) < 253:
-            return eap_messages
+            return [eap_messages]
         _stop = len(eap_messages)
         _step = 253
         return [eap_messages[pos:pos+_step] for pos in range(0, _stop, _step)]
