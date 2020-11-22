@@ -26,7 +26,8 @@ class Eap(object):
         return identifier + 1
 
     @staticmethod
-    def split_eap_message(eap_messages):
+    def split_eap_message(eap_messages) -> list:
+        # FIXME 是否可以返回 list len = 1 的数组? 待测试
         """
         split EAP-Message field to multiple
         each max len = 255 - 2 (header byte)
