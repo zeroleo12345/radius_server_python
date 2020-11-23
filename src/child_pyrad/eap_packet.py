@@ -23,14 +23,18 @@ class EapPacket(Eap):
     |     Code      |  Identifier   |            Length             |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     """
-    def __init__(self, content=None, code=0, id=0, type=None, type_data=b''):
+    def __init__(self, content: bytes = None, code: int = 0, id: int = 0, type: int = None, type_data: bytes = b''):
         assert isinstance(type_data, bytes)
 
         self.code = code            # int 1-byte
         self.id = id                # int 1-byte
         # self.length = 0           # int 2-byte
-        self.type = type            # int 1-byte
-        self.type_data = type_data  # binary
+        if self.code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]:
+            self.type = type            # int 1-byte
+            self.type_data = type_data  # binary
+        else:
+            self.type = None            # int 1-byte
+            self.type_data = b''       # binary
         if content is not None:
             self.decode_packet(content)
         else:

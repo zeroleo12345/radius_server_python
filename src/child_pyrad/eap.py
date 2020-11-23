@@ -5,7 +5,7 @@ class Eap(object):
     CODE_EAP_SUCCESS = 3
     CODE_EAP_FAILURE = 4
 
-    # EAP Type
+    # phase2 EAP Type
     TYPE_EAP_IDENTITY = 1
     TYPE_EAP_NOTIFICATION = 2
     TYPE_EAP_NAK = 3
@@ -26,16 +26,16 @@ class Eap(object):
         return identifier + 1
 
     @staticmethod
-    def split_eap_message(eap_messages):
+    def split_eap_message(eap_messages: bytes) -> list:
         """
-        split Eap-Message field to multiple
+        split EAP-Message field to multiple
         each max len = 255 - 2 (header byte)
 
-        :input: Eap-Message binary string
-        :return: Eap-Message[]. each contain binary string.
+        :input: EAP-Message binary string
+        :return: EAP-Message[]. each contain binary string.
         """
         if len(eap_messages) < 253:
-            return eap_messages
+            return [eap_messages]
         _stop = len(eap_messages)
         _step = 253
         return [eap_messages[pos:pos+_step] for pos in range(0, _stop, _step)]
@@ -43,13 +43,13 @@ class Eap(object):
     @staticmethod
     def merge_eap_message(eap_messages) -> bytes:
         """
-        concatenation multiple Eap-Message field.
+        concatenation multiple EAP-Message field.
         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         |     Type      |    Length     |     String...
         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-        :input: Eap-Message[]. each contain binary string (without type | length)
-        :return: Eap-Message binary string
+        :input: EAP-Message[]. each contain binary string (without type | length)
+        :return: EAP-Message binary string
         """
         assert isinstance(eap_messages, list)
         result = b''

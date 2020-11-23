@@ -93,11 +93,8 @@ class AuthResponse(AuthPacket):
         reply = request.create_reply(code=Packet.CODE_ACCESS_CHALLENGE)
         eap_message = peap.pack()
         eap_messages = EapPacket.split_eap_message(eap_message)
-        if isinstance(eap_messages, list):
-            for eap in eap_messages:
-                reply.AddAttribute('EAP-Message', eap)
-        else:
-            reply.AddAttribute('EAP-Message', eap_messages)
+        for eap in eap_messages:
+            reply.AddAttribute('EAP-Message', eap)
         reply['Calling-Station-Id'] = request.mac_address
         reply['State'] = session_id.encode()    # ATTRIBUTE   State           24  octets
         return reply

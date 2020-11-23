@@ -5,6 +5,6 @@ key_mgmt=IEEE8021X
 identity="testuser"
 password="password"
 ca_cert="/app/tools/simulator/etc/certs/ca.cer.pem"
-phase2="auth=gtc"
+phase2="auth=GTC"
 anonymous_identity="anonymous"
 }

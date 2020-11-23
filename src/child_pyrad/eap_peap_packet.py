@@ -1,6 +1,6 @@
 """
 reference:
-    PEAPv0 EAP-MSCHAPv2 - Microsoft's PEAP version 0 (Implementation in Windows XP SP1):
+    PEAPv0 EAP-MSCHAPv2 - Microsoft's PEAP version 0 (Implementation in Windows XP SP1): (search Appendix A)
         https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00
     PEAPv1 EAP-GTC - Protected EAP Protocol (PEAP)
         https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
@@ -26,7 +26,9 @@ class EapPeapPacket(Eap):
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |     TLS Message Length        |       TLS Data...
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    认证流程参考文档: PEAPv1(EAP-GTC).vsd
+    认证流程参考文档:
+        PEAPv1(EAP-GTC).vsd
+        https://sites.google.com/site/amitsciscozone/home/switching/peap---protected-eap-protocol
     """
 
     PEAP_CHALLENGE_START = 'peap_challenge_start'
@@ -39,6 +41,14 @@ class EapPeapPacket(Eap):
     PEAP_ACCESS_ACCEPT = 'peap_access_accept'
 
     def __init__(self, content=None, code=0, id=0, flag_start=0b0, flag_version=0b001, tls_data=''):
+        """
+        :param content:
+        :param code:
+        :param id:
+        :param flag_start: 0 或 1. 表示 EAP-TLS Start 标记位
+        :param flag_version: 0 - PEAPv0(EAP-MSCHAPv2); 1 - PEAPv1(EAP-GTC)
+        :param tls_data:
+        """
         super(self.__class__, self).__init__()
         self.tls_data = tls_data
         self.fragments = []
@@ -57,7 +67,8 @@ class EapPeapPacket(Eap):
         else:
             # write mode
             _stop = len(self.tls_data)
-            _step = 1014
+            # hostpad定义: fragment_size = 1398, tcpdump = 1403. (包头占用了10字节. 包头后接着 EAP-TLS Fragments)
+            _step = 1393
             self.fragments = [self.tls_data[pos:pos+_step] for pos in range(0, _stop, _step)]
 
     def decode_packet(self, packet: bytes):
