@@ -8,4 +8,9 @@ export PYTHONPATH=$project_root/src:$PYTHONPATH
 # 环境变量
 export LOG_HEADER="auth"
 
-exec python3 $project_root/src/processor/auth_processor.py
+if [ -n "$ENTRYPOINT" ]; then
+    echo "eval $ENTRYPOINT"
+    eval $ENTRYPOINT
+else
+    exec python3 $project_root/src/processor/auth_processor.py
+fi
