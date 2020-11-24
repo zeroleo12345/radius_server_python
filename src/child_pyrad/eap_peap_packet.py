@@ -4,6 +4,10 @@ reference:
         https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00
     PEAPv1 EAP-GTC - Protected EAP Protocol (PEAP)
         https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
+
+    认证流程参考文档:
+        PEAPv1(EAP-GTC).vsd
+        https://sites.google.com/site/amitsciscozone/home/switching/peap---protected-eap-protocol
 """
 import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_into
 import ctypes
@@ -26,9 +30,6 @@ class EapPeapPacket(Eap):
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     |     TLS Message Length        |       TLS Data...
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    认证流程参考文档:
-        PEAPv1(EAP-GTC).vsd
-        https://sites.google.com/site/amitsciscozone/home/switching/peap---protected-eap-protocol
     """
 
     PEAP_CHALLENGE_START = 'peap_challenge_start'
