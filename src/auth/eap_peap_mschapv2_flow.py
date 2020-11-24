@@ -80,10 +80,12 @@ class EapPeapMschapv2Flow(Flow):
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
             elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_GTC_IDENTITY:
-                return cls.peap_challenge_gtc_identity(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_GTC_PASSWORD:
-                return cls.peap_challenge_gtc_password(request, eap, peap, session)
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_RANDOM:
+                return cls.peap_challenge_mschapv2_random(request, eap, peap, session)
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_NT:
+                return cls.peap_challenge_mschapv2_nt(request, eap, peap, session)
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_SUCCESS:
+                return cls.peap_challenge_mschapv2_success(request, eap, peap, session)
             elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_SUCCESS:
                 return cls.peap_challenge_success(request, eap, peap, session)
             elif peap is not None and session.next_state == EapPeapPacket.PEAP_ACCESS_ACCEPT:
@@ -188,11 +190,11 @@ class EapPeapMschapv2Flow(Flow):
             libhostapd.free_alloc(tls_out)
 
         # judge next move
-        session.next_state = EapPeapPacket.PEAP_CHALLENGE_GTC_IDENTITY
+        session.next_state = EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_RANDOM
         return
 
     @classmethod
-    def peap_challenge_gtc_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+    def peap_challenge_mschapv2_random(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
         eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, type=EapPacket.TYPE_EAP_IDENTITY)
         tls_plaintext = eap_identity.pack()
@@ -208,11 +210,54 @@ class EapPeapMschapv2Flow(Flow):
         session.set_reply(reply)
 
         # judge next move
-        session.next_state = EapPeapPacket.PEAP_CHALLENGE_GTC_PASSWORD
+        session.next_state = EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_NT
         return
 
     @classmethod
-    def peap_challenge_gtc_password(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+    def peap_challenge_mschapv2_nt(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+        if peap.tls_data == '':
+            raise Exception('tls_data is None')
+
+        # 解密
+        tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
+        if tls_decrypt_data is None:
+            raise Exception('Decrypt Error!')
+
+        eap_identity = EapPacket(content=tls_decrypt_data)
+        account_name = eap_identity.type_data.decode()
+        session.auth_user.inner_username = account_name
+
+        # 查找用户密码
+        user = DbUser.get_user(username=account_name)
+        if not user:
+            SessionCache.clean(session_id=session.session_id)
+            raise AccessReject()
+        else:
+            # 保存用户密码
+            session.auth_user.set_user_password(user.password)
+
+        # 返回数据
+        response_data = b'Password'
+        type_data = struct.pack('!%ds' % len(response_data), response_data)
+        eap_password = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, type=EapPacket.TYPE_EAP_GTC, type_data=type_data)
+        tls_plaintext = eap_password.pack()
+
+        # 加密
+        tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
+        if tls_out_data is None:
+            raise Exception('Encrypt Error!')
+
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
+        request.reply_to(reply)
+        session.set_reply(reply)
+
+        # judge next move
+        session.next_state = EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_SUCCESS
+        return
+
+    @classmethod
+    def peap_challenge_mschapv2_success(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         if peap.tls_data == '':
             raise Exception('tls_data is None')
 
