@@ -35,7 +35,7 @@ class EapPeapMschapv2Flow(Flow):
         eap = EapPacket.parse(packet=raw_eap_messages)
         peap = None
         if EapPacket.is_eap_peap(type=eap.type):
-            peap = EapPeapPacket(content=raw_eap_messages)
+            peap = EapPeapPacket.parse(packet=raw_eap_messages)
 
         log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.mac_address}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')

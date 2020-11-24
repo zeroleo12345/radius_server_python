@@ -14,6 +14,9 @@ import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_i
 from .exception import PacketError
 from .eap import Eap
 
+# hostpad定义: fragment_size = 1398, tcpdump = 1403. (包头占用了10字节. 包头后接着 EAP-TLS Fragments)
+MTU_SIZE = 1403 - 10    # 1393
+
 
 class EapPeapPacket(Eap):
     """
@@ -39,7 +42,8 @@ class EapPeapPacket(Eap):
     PEAP_CHALLENGE_SUCCESS = 'peap_challenge_success'
     PEAP_ACCESS_ACCEPT = 'peap_access_accept'
 
-    def __init__(self, content=None, code=0, id=0, flag_start=0b0, flag_version=0b001, tls_data=''):
+    def __init__(self, code: int = 0, id: int = 0, type: int = Eap.TYPE_EAP_PEAP,
+                 flag_length: int = 0b0, flag_more: int = 0b0, flag_start: int = 0b0, flag_version: int = 0b001, tls_data: bytes = b''):
         """
         :param content:
         :param code:
@@ -52,43 +56,41 @@ class EapPeapPacket(Eap):
         self.tls_data = tls_data
         self.fragments = []
         self.fpos = 1
-        self.code = code    # int  1-byte
-        self.id = id        # int  1-byte
-        # self.length = 0     # int  2-byte
-        self.type = 25      # int  1-byte
-        self.flag_length = 0b0
-        self.flag_more = 0b0
+        self.code = code        # int  1-byte
+        self.id = id            # int  1-byte
+        # self.length = 0       # int  2-byte
+        self.type = type        # int  1-byte
+        self.flag_length = flag_length
+        self.flag_more = flag_more
         self.flag_start = flag_start
         self.flag_version = flag_version    # AllFlag total: int  1-byte
-        self.tls_message_len = 0
-        if content is not None:
-            self.decode_packet(content)
-        else:
-            # write mode
+        # write mode
+        if self.tls_data:
             _stop = len(self.tls_data)
-            # hostpad定义: fragment_size = 1398, tcpdump = 1403. (包头占用了10字节. 包头后接着 EAP-TLS Fragments)
-            _step = 1393
-            self.fragments = [self.tls_data[pos:pos+_step] for pos in range(0, _stop, _step)]
+            _step = MTU_SIZE
+            self.fragments = [self.tls_data[pos:pos + _step] for pos in range(0, _stop, _step)]
 
-    def decode_packet(self, packet: bytes):
+    @classmethod
+    def parse(cls, packet: bytes) -> 'EapPeapPacket':
         try:
-            (self.code, self.id, length, self.type, flag) = struct.unpack('!2BH2B', packet[:6])
+            code, id, length, type, flag = struct.unpack('!2BH2B', packet[:6])
         except struct.error:
             raise PacketError('Packet header is corrupt')
         if len(packet) != length:
             raise PacketError('Packet has invalid length')
-        self.flag_length = flag >> 7
-        self.flag_more = (flag << 1) >> 7
-        self.flag_start = (flag << 2) >> 7
-        self.flag_version = flag & 0b111
+        flag_length = flag >> 7
+        flag_more = (flag << 1) >> 7
+        flag_start = (flag << 2) >> 7
+        flag_version = flag & 0b111
+        tls_data = ''
         if length > 6:
-            if self.flag_length:
-                self.tls_message_len = struct.unpack('!I', packet[6:10])
-                self.tls_data = packet[10:]
+            if flag_length:
+                # tls_message_len = struct.unpack('!I', packet[6:10])
+                tls_data = packet[6+4:]
             else:
-                self.tls_data = packet[6:]
-        else:
-            self.tls_data = ''
+                tls_data = packet[6:]
+        return EapPeapPacket(code=code, id=id, type=type,
+                             flag_length=flag_length, flag_more=flag_more, flag_start=flag_start, flag_version=flag_version, tls_data=tls_data)
 
     def go_next_fragment(self):
         self.fpos += 1
@@ -99,8 +101,8 @@ class EapPeapPacket(Eap):
     def pack(self):
         attr = b''
         if self.tls_data != '':
-            # eap-tls length present when self.flag_length = 1 , it is 4 bytes
-            # max length = 1014 payload + 10 byte header
+            # eap-tls length present when flag_length = 1, which is 4 bytes
+            # max length = MTU_SIZE payload + 10 byte header
             if self.fpos == 1:  # first fragments
                 if len(self.fragments) > 1:
                     self.flag_length = 1
