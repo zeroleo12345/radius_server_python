@@ -7,7 +7,7 @@ from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.packet import AuthRequest
 from auth.flow import Flow, AccessReject
 from auth.chap_flow import ChapFlow
-from auth.eap_peap_flow import EapPeapFlow
+from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from settings import log, RADIUS_DICTIONARY_DIR, RADIUS_SECRET
 from controls.user import AuthUser
 from utils.signal import Signal
@@ -56,7 +56,7 @@ def verify(request: AuthRequest):
         if 'CHAP-Password' in request:
             return ChapFlow.authenticate(request=request, auth_user=auth_user)
         elif 'EAP-Message' in request:
-            return EapPeapFlow.authenticate(request=request, auth_user=auth_user)
+            return EapPeapGtcFlow.authenticate(request=request, auth_user=auth_user)
         raise Exception('can not choose authenticate method')
     except AccessReject:
         Flow.access_reject(request=request, auth_user=auth_user)

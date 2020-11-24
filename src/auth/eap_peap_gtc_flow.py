@@ -13,7 +13,7 @@ from auth.eap_peap_session import EapPeapSession, SessionCache
 from settings import log, libhostapd, ACCOUNTING_INTERVAL
 
 
-class EapPeapFlow(Flow):
+class EapPeapGtcFlow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         log.trace(f'request: {request}')
