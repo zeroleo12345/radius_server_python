@@ -10,10 +10,10 @@ class Eap(object):
     TYPE_EAP_NOTIFICATION = 2
     TYPE_EAP_NAK = 3
     TYPE_EAP_GTC = 6
-    TYPE_EAP_SIM = 18
-    TYPE_EAP_AKA = 23
-    TYPE_EAP_PEAP = 25
-    TYPE_EAP_MSCHAPV2 = 26
+    TYPE_EAP_SIM = 18           # 0x12
+    TYPE_EAP_AKA = 23           # 0x17
+    TYPE_EAP_PEAP = 25          # 0x19
+    TYPE_EAP_MSCHAPV2 = 26      # 0x1a
 
     @staticmethod
     def get_next_id(identifier):
