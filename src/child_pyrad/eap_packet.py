@@ -37,7 +37,7 @@ class EapPacket(Eap):
             self.type_data = b''       # binary
 
     @classmethod
-    def decode_packet(cls, packet: bytes) -> 'EapPacket':
+    def parse(cls, packet: bytes) -> 'EapPacket':
         try:
             code, id, _length = struct.unpack("!2BH", packet[:4])
         except struct.error:

@@ -32,7 +32,7 @@ class EapPeapMschapv2Flow(Flow):
 
         # 3. 解析eap报文和eap_peap报文
         raw_eap_messages = EapPacket.merge_eap_message(request['EAP-Message'])
-        eap = EapPacket.decode_packet(packet=raw_eap_messages)
+        eap = EapPacket.parse(packet=raw_eap_messages)
         peap = None
         if EapPacket.is_eap_peap(type=eap.type):
             peap = EapPeapPacket(content=raw_eap_messages)
@@ -223,7 +223,7 @@ class EapPeapMschapv2Flow(Flow):
         if tls_decrypt_data is None:
             raise Exception('Decrypt Error!')
 
-        eap_identity = EapPacket.decode_packet(packet=tls_decrypt_data)
+        eap_identity = EapPacket.parse(packet=tls_decrypt_data)
         account_name = eap_identity.type_data.decode()
         session.auth_user.inner_username = account_name
 
@@ -266,7 +266,7 @@ class EapPeapMschapv2Flow(Flow):
         if tls_decrypt_data is None:
             raise Exception('Decrypt Error!')
 
-        eap_identity = EapPacket.decode_packet(packet=tls_decrypt_data)
+        eap_identity = EapPacket.parse(packet=tls_decrypt_data)
         account_name = eap_identity.type_data.decode()
         session.auth_user.inner_username = account_name
 
@@ -306,7 +306,7 @@ class EapPeapMschapv2Flow(Flow):
         if tls_decrypt_data is None:
             raise Exception('Decrypt Error!')
 
-        eap_password = EapPacket.decode_packet(packet=tls_decrypt_data)
+        eap_password = EapPacket.parse(packet=tls_decrypt_data)
         auth_password = eap_password.type_data.decode()
         log.debug(f'PEAP account: {session.auth_user.inner_username}, packet_password: {auth_password}')
 
