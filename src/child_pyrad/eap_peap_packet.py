@@ -32,6 +32,7 @@ class EapPeapPacket(Eap):
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     """
 
+    # TODO 移到 flow.py
     PEAP_CHALLENGE_START = 'peap_challenge_start'
     PEAP_CHALLENGE_SERVER_HELLO = 'peap_challenge_server_hello'
     PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT = 'peap_challenge_server_hello_fragment'
