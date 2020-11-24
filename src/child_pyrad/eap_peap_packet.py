@@ -35,8 +35,8 @@ class EapPeapPacket(Eap):
     PEAP_CHALLENGE_SERVER_HELLO = 'peap_challenge_server_hello'
     PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT = 'peap_challenge_server_hello_fragment'
     PEAP_CHALLENGE_CHANGE_CIPHER_SPEC = 'peap_challenge_change_cipher_spec'
-    PEAP_CHALLENGE_IDENTITY = 'peap_challenge_identity'
-    PEAP_CHALLENGE_PASSWORD = 'peap_challenge_password'
+    PEAP_CHALLENGE_GTC_IDENTITY = 'peap_challenge_gtc_identity'
+    PEAP_CHALLENGE_GTC_PASSWORD = 'peap_challenge_gtc_password'
     PEAP_CHALLENGE_SUCCESS = 'peap_challenge_success'
     PEAP_ACCESS_ACCEPT = 'peap_access_accept'
 

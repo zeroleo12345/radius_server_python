@@ -80,10 +80,10 @@ class EapPeapGtcFlow(Flow):
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
             elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_IDENTITY:
-                return cls.peap_challenge_identity(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_PASSWORD:
-                return cls.peap_challenge_password(request, eap, peap, session)
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_GTC_IDENTITY:
+                return cls.peap_challenge_gtc_identity(request, eap, peap, session)
+            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_GTC_PASSWORD:
+                return cls.peap_challenge_gtc_password(request, eap, peap, session)
             elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_SUCCESS:
                 return cls.peap_challenge_success(request, eap, peap, session)
             elif peap is not None and session.next_state == EapPeapPacket.PEAP_ACCESS_ACCEPT:
@@ -188,11 +188,11 @@ class EapPeapGtcFlow(Flow):
             libhostapd.free_alloc(tls_out)
 
         # judge next move
-        session.next_state = EapPeapPacket.PEAP_CHALLENGE_IDENTITY
+        session.next_state = EapPeapPacket.PEAP_CHALLENGE_GTC_IDENTITY
         return
 
     @classmethod
-    def peap_challenge_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+    def peap_challenge_gtc_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
         eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, type=EapPacket.TYPE_EAP_IDENTITY)
         tls_plaintext = eap_identity.pack()
@@ -208,11 +208,11 @@ class EapPeapGtcFlow(Flow):
         session.set_reply(reply)
 
         # judge next move
-        session.next_state = EapPeapPacket.PEAP_CHALLENGE_PASSWORD
+        session.next_state = EapPeapPacket.PEAP_CHALLENGE_GTC_PASSWORD
         return
 
     @classmethod
-    def peap_challenge_password(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+    def peap_challenge_gtc_password(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         if peap.tls_data == '':
             raise Exception('tls_data is None')
 
