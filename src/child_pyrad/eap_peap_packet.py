@@ -109,8 +109,7 @@ class EapPeapPacket(Eap):
                 if len(self.fragments) > 1:
                     self.flag_length = 1
                     self.flag_more = 1
-                    tls_message_length = len(self.tls_data)
-                    attr = struct.pack('!I', tls_message_length)
+                    attr = struct.pack('!I', len(self.tls_data))
                 else:
                     self.flag_length = 0
                     self.flag_more = 0
