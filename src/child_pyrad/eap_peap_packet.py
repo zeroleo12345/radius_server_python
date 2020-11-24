@@ -10,15 +10,9 @@ reference:
         https://sites.google.com/site/amitsciscozone/home/switching/peap---protected-eap-protocol
 """
 import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_into
-import ctypes
-import os
 #
 from .exception import PacketError
 from .eap import Eap
-
-
-def get_wpa_server_lib():
-    return ctypes.CDLL(os.path.join(os.path.dirname(__file__), 'libwpa_server.so'), mode=257)
 
 
 class EapPeapPacket(Eap):
