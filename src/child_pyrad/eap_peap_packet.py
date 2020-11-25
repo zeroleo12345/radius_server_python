@@ -100,7 +100,7 @@ class EapPeapPacket(Eap):
 
     def pack(self):
         attr = b''
-        if self.tls_data != '':
+        if self.fragments:
             # eap-tls length present when flag_length = 1, which is 4 bytes
             # max length = MTU_SIZE payload + 10 byte header
             if self.fpos == 1:  # first fragments
