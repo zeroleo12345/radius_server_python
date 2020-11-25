@@ -121,5 +121,5 @@ class EapPeapPacket(Eap):
         return header + attr
 
     @classmethod
-    def random_string(cls, length):
-        os.urandom(length)
+    def random_string(cls, length) -> bytes:
+        return os.urandom(length)

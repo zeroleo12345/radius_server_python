@@ -197,7 +197,7 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_mschapv2_random(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
         # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + mschap报文长度(00 1c) + 随机数长度固定值(10) + 16位随机chanllenge + service_id(68 6f 73 74 61 70 64)
-        service_id = 'hostapd'
+        service_id = b'hostapd'
         service_id_len = len(service_id)
         random_string_len = 16
         random_string = EapPeapPacket.random_string(length=random_string_len)
