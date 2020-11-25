@@ -87,7 +87,7 @@ class EapCrypto(object):
         # MSG_EXCESSIVE = 0 , MSG_MSGDUMP =1 , MSG_DEBUG = 2, MSG_INFO = 3, MSG_WARNING = 4, MSG_ERROR = 5
         self.lib.set_log_level(level)
 
-    def decrypt(self, tls_connection, tls_in_data):
+    def decrypt(self, tls_connection, tls_in_data) -> bytes:
         tls_in_pointer, tls_out_pointer = None, None
         try:
             p_tls_in_data = ctypes.create_string_buffer(tls_in_data)
@@ -103,7 +103,7 @@ class EapCrypto(object):
             self.free_alloc(tls_in_pointer)
             self.free_alloc(tls_out_pointer)
 
-    def encrypt(self, tls_connection, tls_in_data):
+    def encrypt(self, tls_connection, tls_in_data) -> bytes:
         tls_in_pointer, tls_out_pointer = None, None
         try:
             p_tls_in_data = ctypes.create_string_buffer(tls_in_data)
