@@ -229,7 +229,8 @@ class EapPeapMschapv2Flow(Flow):
 
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
-        log.d()
+        log.trace(f'tls decrypt data: {tls_decrypt_data}')
+        log.trace(f'hex: {tls_decrypt_data.hex()}')
         if tls_decrypt_data is None:
             raise Exception('Decrypt Error!')
 
