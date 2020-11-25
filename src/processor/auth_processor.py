@@ -18,10 +18,10 @@ Signal.register()
 
 if os.getenv('GTC') is None:
     log.info('## MSCHAPV2 ##')
-    USE_GTC = True
+    USE_GTC = False
 else:
     log.info('## GTC ##')
-    USE_GTC = False
+    USE_GTC = True
 
 
 class EchoServer(DatagramServer):
