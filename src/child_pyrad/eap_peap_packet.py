@@ -92,11 +92,11 @@ class EapPeapPacket(Eap):
         flag_version = (flag & 0b00000011)
         tls_data = b''
         if length > 6:
+            tls_data_start_pos = 6
             if flag_length:
+                tls_data_start_pos += 4
                 # tls_message_len = struct.unpack('!I', packet[6:10])
-                tls_data = packet[6+4:]
-            else:
-                tls_data = packet[6:]
+            tls_data = packet[tls_data_start_pos:]
         return EapPeapPacket(code=code, id=id, type=type,
                              flag_length=flag_length, flag_more=flag_more, flag_start=flag_start, flag_version=flag_version, tls_data=tls_data)
 
