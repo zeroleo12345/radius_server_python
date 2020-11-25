@@ -237,7 +237,7 @@ class EapPeapGtcFlow(Flow):
 
         # 返回数据
         response_data = b'Password'
-        type_data = struct.pack('!%ds' % len(response_data), response_data)
+        type_data = struct.pack(f'!{len(response_data)}s', response_data)
         eap_password = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                  type_dict={'type': EapPacket.TYPE_EAP_GTC, 'type_data': type_data})
         tls_plaintext = eap_password.pack()
@@ -317,7 +317,7 @@ class EapPeapGtcFlow(Flow):
         # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
         log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)
-        reply['EAP-Message'] = struct.pack('!2BH', EapPacket.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
+        reply['EAP-Message'] = struct.pack('!2B H', EapPacket.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
         request.reply_to(reply)
         session.set_reply(reply)
         SessionCache.clean(session_id=session.session_id)
