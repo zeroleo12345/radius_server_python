@@ -10,6 +10,7 @@ reference:
         https://sites.google.com/site/amitsciscozone/home/switching/peap---protected-eap-protocol
 """
 import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_into
+import os
 #
 from .exception import PacketError
 from .eap import Eap
@@ -118,3 +119,7 @@ class EapPeapPacket(Eap):
 
         header = struct.pack('!2BH2B', self.code, self.id, (6 + len(attr)), self.type, _flag)
         return header + attr
+
+    @classmethod
+    def random_string(cls, length):
+        os.urandom(length)
