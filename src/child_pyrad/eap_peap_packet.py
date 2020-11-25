@@ -74,7 +74,7 @@ class EapPeapPacket(Eap):
         if self.tls_data:
             _stop = len(self.tls_data)
             _step = MTU_SIZE
-            self.fragments = [self.tls_data[pos:pos + _step] for pos in range(0, _stop, _step)]
+            self.fragments = [self.tls_data[_pos: _pos + _step] for _pos in range(0, _stop, _step)]
 
     @classmethod
     def parse(cls, packet: bytes) -> 'EapPeapPacket':
