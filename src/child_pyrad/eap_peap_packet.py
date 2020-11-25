@@ -109,8 +109,6 @@ class EapPeapPacket(Eap):
     def pack(self):
         attr = b''
         if self.fragments:
-            # eap-tls length present when flag_length = 1, which is 4 bytes
-            # max length = MTU_SIZE payload + 10 byte header
             if self.fpos == 1:  # first fragments
                 if len(self.fragments) > 1:
                     flag_length = 1    # 需要分包, 且在第1个包置为1
@@ -118,18 +116,18 @@ class EapPeapPacket(Eap):
                 else:
                     flag_length = 0
                     flag_more = 0
-                if flag_length:
-                    attr += struct.pack('!I', len(self.tls_data))    # 需要分包, 且首个分包, 需带上tls_data_length字段
                 attr += self.fragments[0]
             else:
                 flag_length = 0
                 flag_more = 1 if self.fpos < len(self.fragments) else 0
                 attr = self.fragments[self.fpos-1]
         else:
-            # eap peap start
             flag_length = 0
             flag_more = 0
-            attr = b''
+        #
+        if flag_length:
+            # eap-tls length present when length flag is set. tls_data length is 4 bytes.
+            attr = struct.pack('!I', len(self.tls_data)) + attr
 
         _flag = flag_length << 7 | flag_more << 6 | self.flag_start << 5 | self.flag_version
 
