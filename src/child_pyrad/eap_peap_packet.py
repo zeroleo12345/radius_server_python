@@ -107,9 +107,9 @@ class EapPeapPacket(Eap):
         return self.fpos >= len(self.fragments)
 
     def pack(self):
-        attr = self.fragments[self.fpos-1] if self.fragments else b''
-        flag_length = 1 if self.fpos == 1 and len(self.fragments) > 1 else 0  # 需要分包, 且在第1个包置为1
-        flag_more = 1 if self.fpos < len(self.fragments) else 0
+        attr = self.fragments[self.fpos-1] if self.fragments else b''           # 有包, 则取包内容. 否则为空
+        flag_length = 1 if self.fpos == 1 and len(self.fragments) > 1 else 0    # 需要分包且当前在第1个包, 置为1
+        flag_more = 1 if self.fpos < len(self.fragments) else 0                 # 分包未结束, 置为1
         if flag_length:
             # tls_data length is present when length flag is set. and tls_data length is 4 bytes.
             attr = struct.pack('!I', len(self.tls_data)) + attr
