@@ -124,7 +124,7 @@ class EapPeapPacket(Eap):
         else:
             flag_length = 0
             flag_more = 0
-        # eap-tls length present when length flag is set. tls_data length is 4 bytes.
+        # tls_data length is present when length flag is set. and tls_data length is 4 bytes.
         if flag_length:
             attr = struct.pack('!I', len(self.tls_data)) + attr
 
