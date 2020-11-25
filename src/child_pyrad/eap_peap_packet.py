@@ -45,7 +45,6 @@ class EapPeapPacket(Eap):
     def __init__(self, code: int = 0, id: int = 0, type: int = Eap.TYPE_EAP_PEAP,
                  flag_length: int = 0b0, flag_more: int = 0b0, flag_start: int = 0b0, flag_version: int = 0b001, tls_data: bytes = b''):
         """
-        :param content:
         :param code:
         :param id:
         :param flag_start: 0 或 1. 表示 EAP-TLS Start 标记位
@@ -81,7 +80,7 @@ class EapPeapPacket(Eap):
         flag_length = flag >> 7
         flag_more = (flag << 1) >> 7
         flag_start = (flag << 2) >> 7
-        flag_version = flag & 0b111
+        flag_version = flag & 0b111     # FIXME
         tls_data = b''
         if length > 6:
             if flag_length:
