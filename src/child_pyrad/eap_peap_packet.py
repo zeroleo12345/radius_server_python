@@ -107,25 +107,11 @@ class EapPeapPacket(Eap):
         return self.fpos >= len(self.fragments)
 
     def pack(self):
-        attr = b''
-        if self.fragments:
-            if self.fpos == 1:  # first fragments
-                if len(self.fragments) > 1:
-                    flag_length = 1    # 需要分包, 且在第1个包置为1
-                    flag_more = 1      # 需要分包, 且分包未完, 置为1
-                else:
-                    flag_length = 0
-                    flag_more = 0
-                attr += self.fragments[0]
-            else:
-                flag_length = 0
-                flag_more = 1 if self.fpos < len(self.fragments) else 0
-                attr = self.fragments[self.fpos-1]
-        else:
-            flag_length = 0
-            flag_more = 0
-        # tls_data length is present when length flag is set. and tls_data length is 4 bytes.
+        attr = self.fragments[self.fpos-1] if self.fragments else b''
+        flag_length = 1 if self.fpos == 1 and len(self.fragments) > 1 else 0  # 需要分包, 且在第1个包置为1
+        flag_more = 1 if self.fpos < len(self.fragments) else 0
         if flag_length:
+            # tls_data length is present when length flag is set. and tls_data length is 4 bytes.
             attr = struct.pack('!I', len(self.tls_data)) + attr
 
         _flag = flag_length << 7 | flag_more << 6 | self.flag_start << 5 | self.flag_version
