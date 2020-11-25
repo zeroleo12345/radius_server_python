@@ -77,6 +77,7 @@ class EapPeapPacket(Eap):
             raise PacketError('Packet header is corrupt')
         if len(packet) != length:
             raise PacketError('Packet has invalid length')
+        # flag: 一字节, 8bit
         flag_length = flag >> 7
         flag_more = (flag << 1) >> 7
         flag_start = (flag << 2) >> 7
