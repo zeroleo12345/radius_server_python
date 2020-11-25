@@ -194,7 +194,8 @@ class EapPeapGtcFlow(Flow):
     @classmethod
     def peap_challenge_gtc_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
-        eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, type=EapPacket.TYPE_EAP_IDENTITY)
+        eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
+                                 type_dict={'type': EapPacket.TYPE_EAP_IDENTITY, 'type_data': b''})
         tls_plaintext = eap_identity.pack()
 
         # 加密
@@ -237,7 +238,8 @@ class EapPeapGtcFlow(Flow):
         # 返回数据
         response_data = b'Password'
         type_data = struct.pack('!%ds' % len(response_data), response_data)
-        eap_password = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, type=EapPacket.TYPE_EAP_GTC, type_data=type_data)
+        eap_password = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
+                                 type_dict={'type': EapPacket.TYPE_EAP_GTC, 'type_data': type_data})
         tls_plaintext = eap_password.pack()
 
         # 加密

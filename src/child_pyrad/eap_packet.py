@@ -9,7 +9,6 @@ from .eap import Eap
 
 
 class EapPacket(Eap):
-
     """
     Request/Response:
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -23,15 +22,18 @@ class EapPacket(Eap):
     |     Code      |  Identifier   |            Length             |
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     """
-    def __init__(self, code: int = 0, id: int = 0, type: int = None, type_data: bytes = b''):
-        assert isinstance(type_data, bytes)
-
+    def __init__(self, code: int = 0, id: int = 0, type_dict: dict = None):
+        """
+        :param code:
+        :param id:
+        :param type_dict: {type: int, type_data: bytes}
+        """
         self.code = code            # int 1-byte
         self.id = id                # int 1-byte
         # self.length = 0           # int 2-byte
         if self.code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]:
-            self.type = type            # int 1-byte
-            self.type_data = type_data  # binary
+            self.type = type_dict['type']            # int 1-byte
+            self.type_data = type_dict['type_data']  # binary
         else:
             self.type = None            # int 1-byte
             self.type_data = b''       # binary
@@ -47,7 +49,7 @@ class EapPacket(Eap):
         assert code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]
         type, = struct.unpack("!B", packet[4:5]) if _length > 4 else None
         type_data = packet[5:_length] if _length > 5 else ''
-        return EapPacket(code=code, id=id, type=type, type_data=type_data)
+        return EapPacket(code=code, id=id, type_dict={'type': type, 'type_data': type_data})
 
     def pack(self):
         if self.code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]:
