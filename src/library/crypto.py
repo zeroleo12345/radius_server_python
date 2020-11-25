@@ -75,6 +75,14 @@ class EapCrypto(object):
         if pointer:
             self.lib.wpabuf_free(pointer)
 
+    def tls_connection_deinit(self, tls_connection):
+        # TODO 待调用
+        self.lib.tls_connection_deinit(self.tls_ctx, tls_connection)
+
+    def tls_deinit(self):
+        # TODO 待调用
+        self.lib.tls_deinit(self.tls_ctx)
+
     def set_log_level(self, level: int = 0):
         # MSG_EXCESSIVE = 0 , MSG_MSGDUMP =1 , MSG_DEBUG = 2, MSG_INFO = 3, MSG_WARNING = 4, MSG_ERROR = 5
         self.lib.set_log_level(level)
