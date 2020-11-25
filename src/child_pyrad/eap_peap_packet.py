@@ -113,24 +113,25 @@ class EapPeapPacket(Eap):
             # max length = MTU_SIZE payload + 10 byte header
             if self.fpos == 1:  # first fragments
                 if len(self.fragments) > 1:
-                    self.flag_length = 1
-                    self.flag_more = 1
-                    attr = struct.pack('!I', len(self.tls_data))
+                    flag_length = 1    # 需要分包, 且在第1个包置为1
+                    flag_more = 1      # 需要分包, 且分包未完, 置为1
                 else:
-                    self.flag_length = 0
-                    self.flag_more = 0
+                    flag_length = 0
+                    flag_more = 0
+                if flag_length:
+                    attr += struct.pack('!I', len(self.tls_data))    # 需要分包, 且首个分包, 需带上tls_data_length字段
                 attr += self.fragments[0]
             else:
-                self.flag_length = 0
-                self.flag_more = 1 if self.fpos < len(self.fragments) else 0
+                flag_length = 0
+                flag_more = 1 if self.fpos < len(self.fragments) else 0
                 attr = self.fragments[self.fpos-1]
         else:
             # eap peap start
-            self.flag_length = 0
-            self.flag_more = 0
+            flag_length = 0
+            flag_more = 0
             attr = b''
 
-        _flag = self.flag_length << 7 | self.flag_more << 6 | self.flag_start << 5 | self.flag_version
+        _flag = flag_length << 7 | flag_more << 6 | self.flag_start << 5 | self.flag_version
 
         header = struct.pack('!2BH2B', self.code, self.id, (6 + len(attr)), self.type, _flag)
         return header + attr
