@@ -196,7 +196,8 @@ class EapPeapMschapv2Flow(Flow):
     @classmethod
     def peap_challenge_mschapv2_random(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
-        # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + mschap报文长度(00 1c) + 随机数长度固定值(10) + 16位随机chanllenge + service_id(68 6f 73 74 61 70 64)
+        # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + mschapv2报文长度(00 1c) +
+        # 随机数长度固定值(10) + 16位随机数(2d ae 52 bf 07 d0 de 7b 28 c4 d8 d9 8f 87 da 6a) + service_id(68 6f 73 74 61 70 64)
         service_id = b'hostapd'
         service_id_len = len(service_id)
         server_random_len = 16
@@ -232,11 +233,11 @@ class EapPeapMschapv2Flow(Flow):
         if tls_decrypt_data is None:
             raise Exception('Decrypt Error!')
 
-        # MSCHAPV2_OP_RESPONSE(02) + 与EAP_id相同(07) + mschap报文长度(00 3e) + 随机数长度(31) +
+        # MSCHAPV2_OP_RESPONSE(02) + 与EAP_id相同(07) + mschapv2报文长度(00 3e) + 随机数长度(31) +
         # 24位随机数内含8位0(16 79 ba 65 ad 16 7f 92 5c 74 c9 80 53 d6 fc 4c + 00 00 00 00 00 00 00 00) +
         # 24位NT-Response(72 0e 3d a8 8d bd f8 a9 e8 bd 1a 95 d9 5f 08 03 7e 10 db 9f 01 d4 a5 fc) +
         # Flags(00) +
-        # 用户名testuser(74 65 73 74 75 73 65 72)
+        # 用户名(74 65 73 74 75 73 65 72)
         eap_random = EapPacket.parse(packet=tls_decrypt_data)
         mschapv2_type, eap_id, mschapv2_length, fix_length = struct.unpack('!B B H B', eap_random.type_data[:5])
         assert fix_length == 0x31 == 49
