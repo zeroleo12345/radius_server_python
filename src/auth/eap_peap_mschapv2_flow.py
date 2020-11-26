@@ -198,14 +198,15 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_mschapv2_random(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
         # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + mschapv2报文长度(00 1c) +
-        # 随机数长度固定值(10) + 16位随机数(2d ae 52 bf 07 d0 de 7b 28 c4 d8 d9 8f 87 da 6a) + service_id(68 6f 73 74 61 70 64)
-        service_id = b'hostapd'
-        service_id_len = len(service_id)
+        # 随机数长度固定值(10) + 16位随机数(2d ae 52 bf 07 d0 de 7b 28 c4 d8 d9 8f 87 da 6a) + server_id(68 6f 73 74 61 70 64)
+        size_of_hdr = 4
+        server_id = b'hostapd'
+        server_id_len = len(server_id)
         server_random_len = 16
         server_random = EapPeapPacket.random_string(length=server_random_len)
-        type_data_length = 1 + 1 + 2 + 1 + 16 + service_id_len
-        type_data = struct.pack(f'!B B H B 16s {service_id_len}s',
-                                EapPacket.CODE_MSCHAPV2_CHALLENGE, session.next_eap_id, type_data_length, server_random_len, server_random, service_id)
+        type_data_length = size_of_hdr + 1 + server_random_len + server_id_len
+        type_data = struct.pack(f'!B B H B 16s {server_id_len}s',
+                                EapPacket.CODE_MSCHAPV2_CHALLENGE, session.next_eap_id, type_data_length, server_random_len, server_random, server_id)
         eap_random = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
         tls_plaintext = eap_random.pack()
