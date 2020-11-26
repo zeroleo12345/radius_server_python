@@ -242,9 +242,10 @@ class EapPeapMschapv2Flow(Flow):
         eap_random = EapPacket.parse(packet=tls_decrypt_data)
         mschapv2_type, eap_id, mschapv2_length, fix_length = struct.unpack('!B B H B', eap_random.type_data[:5])
         assert fix_length == 0x31 == 49
-        username_len = mschapv2_length - 4 - fix_length
-        peer_random, zero, nt_response, flag, account_name = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
+        username_len = mschapv2_length - 5 - fix_length
+        peer_random, nt_response, flag, account_name = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
         peer_random = peer_random[:16]
+        account_name = account_name.decode()
         from pprint import pprint; import pdb; pdb.set_trace()
 
         # 查找用户密码
