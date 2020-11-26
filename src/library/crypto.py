@@ -1,6 +1,6 @@
 import os
 import ctypes
-from settings import log
+from loguru import logger as log
 """
     wpa_supplicant 数据结构定义:
         https://w1.fi/wpa_supplicant/devel/structtls__connection.html

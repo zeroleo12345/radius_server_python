@@ -10,7 +10,8 @@ from auth.flow import Flow, AccessReject
 from auth.chap_flow import ChapFlow
 from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
-from settings import log, RADIUS_DICTIONARY_DIR, RADIUS_SECRET
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET
+from loguru import logger as log
 from controls.user import AuthUser
 from utils.signal import Signal
 Signal.register()

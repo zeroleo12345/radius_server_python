@@ -3,7 +3,7 @@ import uuid
 from child_pyrad.packet import AuthRequest, AuthResponse
 # 自己的库
 from .flow import Flow, AccessReject
-from settings import log
+from loguru import logger as log
 from controls.user import AuthUser, DbUser
 from child_pyrad.chap import Chap
 from auth.eap_peap_session import EapPeapSession

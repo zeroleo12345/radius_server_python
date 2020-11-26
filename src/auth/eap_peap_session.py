@@ -4,7 +4,7 @@ from pyrad.packet import AuthPacket
 # 自己的库
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from controls.user import AuthUser
-from settings import log
+from loguru import logger as log
 
 
 class EapPeapSession(object):

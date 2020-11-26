@@ -1,6 +1,6 @@
 import os
 # 项目库
-from settings import log
+from loguru import logger as log
 
 
 def get_dictionaries(directory):

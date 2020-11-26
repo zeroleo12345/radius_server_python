@@ -4,7 +4,7 @@ import traceback
 from abc import ABC, abstractmethod
 # 第三方库
 # 自己的库
-from settings import log
+from loguru import logger as log
 
 
 class Task(ABC):

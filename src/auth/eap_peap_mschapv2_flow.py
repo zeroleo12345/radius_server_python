@@ -10,7 +10,8 @@ from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from child_pyrad.mppe import create_mppe_recv_key_send_key
 from auth.eap_peap_session import EapPeapSession, SessionCache
-from settings import log, libhostapd, ACCOUNTING_INTERVAL
+from settings import libhostapd, ACCOUNTING_INTERVAL
+from loguru import logger as log
 
 
 class EapPeapMschapv2Flow(Flow):
@@ -244,6 +245,7 @@ class EapPeapMschapv2Flow(Flow):
         username_len = mschapv2_length - 4 - fix_length
         peer_random, zero, nt_response, flag, account_name = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
         peer_random = peer_random[:16]
+        from pprint import pprint; import pdb; pdb.set_trace()
 
         # 查找用户密码
         user = DbUser.get_user(username=account_name)

@@ -2,7 +2,8 @@ import subprocess
 # 第三方库
 import psutil
 # 自己的库
-from settings import log, sentry_sdk
+from settings import sentry_sdk
+from loguru import logger as log
 from processor import Task
 
 

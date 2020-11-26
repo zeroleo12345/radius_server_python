@@ -10,7 +10,8 @@ from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from child_pyrad.mppe import create_mppe_recv_key_send_key
 from auth.eap_peap_session import EapPeapSession, SessionCache
-from settings import log, libhostapd, ACCOUNTING_INTERVAL
+from settings import libhostapd, ACCOUNTING_INTERVAL
+from loguru import logger as log
 
 
 class EapPeapGtcFlow(Flow):

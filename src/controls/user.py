@@ -3,7 +3,7 @@ import datetime
 from models import Transaction
 from models.auth import BroadbandUser
 from child_pyrad.packet import AuthRequest, AcctRequest
-from settings import log
+from loguru import logger as log
 
 
 class AuthUser(object):
