@@ -246,7 +246,6 @@ class EapPeapMschapv2Flow(Flow):
         peer_random, nt_response, flag, account_name = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
         peer_random = peer_random[:16]
         account_name = account_name.decode()
-        from pprint import pprint; import pdb; pdb.set_trace()
 
         # 查找用户密码
         user = DbUser.get_user(username=account_name)
@@ -258,7 +257,8 @@ class EapPeapMschapv2Flow(Flow):
             session.auth_user.set_user_password(user.password)
 
         # 返回数据
-        response_data = b'Password'
+        from pprint import pprint; import pdb; pdb.set_trace()
+        response_data = b'OK'
         type_data = struct.pack('!%ds' % len(response_data), response_data)
         eap_password = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                  type_dict={'type': EapPacket.TYPE_EAP_GTC, 'type_data': type_data})
