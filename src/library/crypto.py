@@ -1,5 +1,6 @@
 import os
 import ctypes
+from settings import log
 """
     wpa_supplicant 数据结构定义:
         https://w1.fi/wpa_supplicant/devel/structtls__connection.html
@@ -98,6 +99,8 @@ class EapCrypto(object):
                 raise EapCryptoError('decrypt tls_out_pointer is None')
             tls_out_data_len = tls_out_pointer.contents.used
             tls_out_data = ctypes.string_at(tls_out_pointer.contents.buf, tls_out_data_len)
+            log.trace(f'tls decrypt data: {tls_out_data}')
+            log.trace(f'hex: {tls_out_data.hex()}')
             return tls_out_data
         finally:
             self.free_alloc(tls_in_pointer)
