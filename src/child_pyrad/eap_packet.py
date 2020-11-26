@@ -41,7 +41,7 @@ class EapPacket(Eap):
     @classmethod
     def parse(cls, packet: bytes) -> 'EapPacket':
         try:
-            code, id, _length = struct.unpack("!2BH", packet[:4])
+            code, id, _length = struct.unpack("!B B H", packet[:4])
         except struct.error:
             raise PacketError('EAP header is corrupt')
         if len(packet) != _length:
@@ -53,16 +53,16 @@ class EapPacket(Eap):
 
     def pack(self):
         if self.code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]:
-            header = struct.pack('!2BHB', self.code, self.id, (5 + len(self.type_data)), self.type)
+            header = struct.pack('!B B H B', self.code, self.id, (5 + len(self.type_data)), self.type)
         else:
-            header = struct.pack('!2BH', self.code, self.id, 4)
+            header = struct.pack('!B B H', self.code, self.id, 4)
         return header + self.type_data
 
     def __str__(self):
         attr = 'Attribute:'
         attr += '\n        ' + self.type_data.hex()
         header = 'EAP Dump:'
-        header += '\n    Header:' + struct.pack("!2BHB", self.code, self.id, (5+len(self.type_data)), self.type).hex()
+        header += '\n    Header:' + struct.pack("!B B H B", self.code, self.id, (5+len(self.type_data)), self.type).hex()
         header += '\n    Code:' + str(self.code)
         header += '\n    id:' + str(self.id)
         header += '\n    length:' + str(5+len(self.type_data))

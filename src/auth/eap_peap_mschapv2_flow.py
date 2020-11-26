@@ -232,6 +232,7 @@ class EapPeapMschapv2Flow(Flow):
         if tls_decrypt_data is None:
             raise Exception('Decrypt Error!')
 
+        #
         eap_identity = EapPacket.parse(packet=tls_decrypt_data)
         account_name = eap_identity.type_data.decode()
         session.auth_user.inner_username = account_name
