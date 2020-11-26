@@ -260,9 +260,9 @@ class EapPeapMschapv2Flow(Flow):
         from pprint import pprint; import pdb; pdb.set_trace()
         response_data = b'OK'
         type_data = struct.pack('!%ds' % len(response_data), response_data)
-        eap_password = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
-                                 type_dict={'type': EapPacket.TYPE_EAP_GTC, 'type_data': type_data})
-        tls_plaintext = eap_password.pack()
+        eap_ok = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
+                           type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
+        tls_plaintext = eap_ok.pack()
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
