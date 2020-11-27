@@ -283,6 +283,7 @@ class EapPeapMschapv2Flow(Flow):
             username_pointer=p_username, username_len=username_len, nt_response_pointer=p_nt_response, output_auth_response_pointer=p_out_auth_response
         )
         auth_response = ctypes.string_at(p_out_auth_response, max_out_len)
+        auth_response = auth_response.hex().upper()
         # 返回数据
         # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + MSCHAPV2_OP 到结束的长度(00 33) +
         # S=(53 3d) +
@@ -296,9 +297,8 @@ class EapPeapMschapv2Flow(Flow):
         size_of_mschapv2_hdr = 4
         message = ''
         type_data_length = size_of_mschapv2_hdr + 2 + (2 * size_of_auth_response) + 1 + 2 + response_msg_len
-        # FIXME
-        type_data = struct.pack(f'!B B H B 16s {2 * size_of_auth_response}s',
-                                EapPacket.CODE_MSCHAPV2_SUCCESS, session.next_eap_id-1, type_data_length, message)
+        type_data = struct.pack(f'!B B H 2s {2 * size_of_auth_response}s 3s {response_msg_len}s',
+                                EapPacket.CODE_MSCHAPV2_SUCCESS, session.next_eap_id-1, type_data_length, 'S=', auth_response, ' M=', response_msg)
         eap_ok = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                            type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
         tls_plaintext = eap_ok.pack()
