@@ -98,6 +98,14 @@ class EapCrypto(object):
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('generate_authenticator_response_pwhash fail')
 
+    def call_nt_password_hash(self, password_pointer, password_len, output_password_hash_pointer):
+        # int nt_password_hash(const u8 *password, size_t password_len,
+        #         u8 *password_hash)
+        self.lib.nt_password_hash.restype = ctypes.POINTER(ctypes.c_int)    # 重要! 不加会导致 Segmentation fault
+        ret = self.lib.nt_password_hash(password_pointer, password_len, output_password_hash_pointer)
+        if ret < 0:     # 0 和 -1
+            raise EapCryptoError('nt_password_hash fail')
+
     def call_free_alloc(self, pointer):
         if pointer:
             self.lib.wpabuf_free(pointer)
