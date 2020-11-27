@@ -208,6 +208,8 @@ class EapPeapMschapv2Flow(Flow):
         eap_random = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
         tls_plaintext = eap_random.pack()
+        # 保存服务端随机数
+        session.auth_user.set_server_challenge(server_challenge)
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
@@ -218,7 +220,6 @@ class EapPeapMschapv2Flow(Flow):
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
-        session.server
 
         # judge next move
         session.next_state = EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_NT
