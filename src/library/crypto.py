@@ -85,14 +85,15 @@ class EapCrypto(object):
         self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, input_tls_pointer)
 
-    def generate_authenticator_response_pwhash(self, p_password_md4, p_peer_challenge, p_server_challenge, p_username, username_len,
-                                               p_nt_response, output_auth_response):
+    def generate_authenticator_response_pwhash(self, password_md4_pointer, peer_challenge_pointer, server_challenge_pointer,
+                                               username_pointer, username_len, nt_response_pointer, output_auth_response_pointer):
         # int generate_authenticator_response_pwhash(
         #     const u8 *password_hash,
         #     const u8 *peer_challenge, const u8 *auth_challenge,
         #     const u8 *username, size_t username_len,
         #     const u8 *nt_response, u8 *response)
-        ret = self.lib.generate_authenticator_response_pwhash(password_md4, peer_challenge, server_challenge, username, len(username), nt_response, output_auth_response)
+        ret = self.lib.generate_authenticator_response_pwhash(password_md4_pointer, peer_challenge_pointer, server_challenge_pointer,
+                                                              username_pointer, username_len, nt_response_pointer, output_auth_response_pointer)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('generate_authenticator_response_pwhash fail')
 
