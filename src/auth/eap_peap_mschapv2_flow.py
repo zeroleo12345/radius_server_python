@@ -298,7 +298,7 @@ class EapPeapMschapv2Flow(Flow):
         message = ''
         type_data_length = size_of_mschapv2_hdr + 2 + (2 * size_of_auth_response) + 1 + 2 + response_msg_len
         type_data = struct.pack(f'!B B H 2s {2 * size_of_auth_response}s 3s {response_msg_len}s',
-                                EapPacket.CODE_MSCHAPV2_SUCCESS, session.next_eap_id-1, type_data_length, 'S=', auth_response, ' M=', response_msg)
+                                EapPacket.CODE_MSCHAPV2_SUCCESS, session.next_eap_id-1, type_data_length, b'S=', auth_response, b' M=', response_msg)
         eap_ok = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                            type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
         tls_plaintext = eap_ok.pack()
