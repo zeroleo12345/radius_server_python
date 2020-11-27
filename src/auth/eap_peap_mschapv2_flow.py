@@ -200,11 +200,11 @@ class EapPeapMschapv2Flow(Flow):
         size_of_hdr = 4
         server_id = b'hostapd'
         server_id_len = len(server_id)
-        server_random_len = 16
-        server_random = EapPeapPacket.random_string(length=server_random_len)
-        type_data_length = size_of_hdr + 1 + server_random_len + server_id_len
+        server_challenge_len = 16
+        server_challenge = EapPeapPacket.random_string(length=server_challenge_len)
+        type_data_length = size_of_hdr + 1 + server_challenge_len + server_id_len
         type_data = struct.pack(f'!B B H B 16s {server_id_len}s',
-                                EapPacket.CODE_MSCHAPV2_CHALLENGE, session.next_eap_id, type_data_length, server_random_len, server_random, server_id)
+                                EapPacket.CODE_MSCHAPV2_CHALLENGE, session.next_eap_id, type_data_length, server_challenge_len, server_challenge, server_id)
         eap_random = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
         tls_plaintext = eap_random.pack()
@@ -242,8 +242,8 @@ class EapPeapMschapv2Flow(Flow):
         mschapv2_type, eap_id, mschapv2_length, fix_length = struct.unpack('!B B H B', eap_random.type_data[:5])
         assert fix_length == 0x31 == 49
         username_len = mschapv2_length - 5 - fix_length
-        peer_random, nt_response, flag, account_name = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
-        peer_random = peer_random[:16]
+        peer_challenge, nt_response, flag, account_name = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
+        peer_challenge: bytes = peer_challenge[:16]
         account_name = account_name.decode()
 
         # 查找用户密码
@@ -257,8 +257,9 @@ class EapPeapMschapv2Flow(Flow):
 
         # TODO 计算密码是否正确: generate_nt_response_pwhash
         p_auth_response = ctypes.create_string_buffer(20)
+        p_peer_challenge = ctypes.create_string_buffer(peer_challenge)
         libhostapd.call_generate_authenticator_response_pwhash(
-            password_md4_pointer=, peer_challenge_pointer=, server_challenge_pointer=,
+            password_md4_pointer=, peer_challenge_pointer=p_peer_challenge, server_challenge_pointer=,
             username_pointer=, username_len=, nt_response_pointer=, output_auth_response_pointer=p_auth_response
         )
         # 返回数据
