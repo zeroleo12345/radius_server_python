@@ -261,8 +261,12 @@ class EapPeapMschapv2Flow(Flow):
             # 保存用户密码
             session.auth_user.set_user_password(user.password)
 
+        # password md4值
+        p_password_md4 = ctypes.create_string_buffer(16)
+        p_password = ctypes.create_string_buffer(session.auth_user.user_password.encode())
+        password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
+        libhostapd.call_nt_password_hash(password_pointer=p_password, password_len=password_len, output_password_hash_pointer=p_password_md4)
         # TODO 计算密码是否正确: generate_nt_response_pwhash
-        p_password_md4 = ''
         p_out_auth_response = ctypes.create_string_buffer(20)
         p_peer_challenge = ctypes.create_string_buffer(session.auth_user.peer_challenge)
         p_server_challenge = ctypes.create_string_buffer(session.auth_user.server_challenge)
