@@ -218,7 +218,7 @@ if __name__ == "__main__":
 
         # handle packet
         response_len = ctypes.c_ulonglong(0)    # size_t  ==  uint64
-        p_response_len = ctypes.addressof(response_len)    # size_t *
+        response_len_pointer = ctypes.addressof(response_len)    # size_t *
 
         # ./hostapd/test_main.c:19:struct wpabuf * py_wpabuf_alloc(u8 * data, size_t data_len){
         libwpa.py_wpabuf_alloc.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
