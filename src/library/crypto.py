@@ -54,7 +54,7 @@ class EapCrypto(object):
         #         int skip_keyblock, u8 *out, size_t out_len)
         self.lib.tls_connection_init.restype = ctypes.POINTER(ctypes.c_int)    # 重要! 不加会导致 Segmentation fault
         ret = self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
-        if ret == -1:
+        if ret < 0:     # -1
             raise EapCryptoError('tls_connection_prf Error!')
         return
 
@@ -93,7 +93,7 @@ class EapCrypto(object):
         #     const u8 *username, size_t username_len,
         #     const u8 *nt_response, u8 *response)
         ret = self.lib.generate_authenticator_response_pwhash(password_md4, peer_challenge, server_challenge, username, len(username), nt_response, auth_response)
-        if ret < 0:
+        if ret < 0:     # -1
             raise EapCryptoError('generate_authenticator_response_pwhash fail')
         return auth_response
 
