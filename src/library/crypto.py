@@ -92,6 +92,7 @@ class EapCrypto(object):
         #     const u8 *peer_challenge, const u8 *auth_challenge,
         #     const u8 *username, size_t username_len,
         #     const u8 *nt_response, u8 *response)
+        self.lib.generate_authenticator_response_pwhash.restype = ctypes.POINTER(ctypes.c_int)    # 重要! 不加会导致 Segmentation fault
         ret = self.lib.generate_authenticator_response_pwhash(password_md4_pointer, peer_challenge_pointer, server_challenge_pointer,
                                                               username_pointer, username_len, nt_response_pointer, output_auth_response_pointer)
         if ret < 0:     # 0 和 -1
