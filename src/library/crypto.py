@@ -36,6 +36,7 @@ class EapCrypto(object):
         private_key_passwd_pointer = ctypes.create_string_buffer(private_key_passwd.encode())
         dh_file_path_pointer = ctypes.create_string_buffer(dh_file_path.encode())
         # ./hostapd/test_main.c:94:void* py_authsrv_init(char *ca_cert_path, char *client_cert_path,
+        #         char *private_key_path, char *private_key_passwd, char *dh_file_path) {
         self.lib.py_authsrv_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         self.tls_ctx = self.lib.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
                                                 private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
@@ -49,11 +50,16 @@ class EapCrypto(object):
 
     def tls_connection_prf(self, tls_connection, label_pointer, output_prf_pointer, output_prf_max_len):
         # ./src/crypto/tls_openssl.c:3064:int tls_connection_prf(void *tls_ctx, struct tls_connection *conn,
+        #         const char *label, int server_random_first,
+        #         int skip_keyblock, u8 *out, size_t out_len)
         self.lib.tls_connection_init.restype = ctypes.POINTER(ctypes.c_int)    # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
 
     def tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
         # ./src/crypto/tls_openssl.c:3243:struct wpabuf * tls_connection_server_handshake(void *tls_ctx,
+        #         struct tls_connection *conn,
+        #         const struct wpabuf *in_data,
+        #         struct wpabuf **appl_data)
         self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_server_handshake(self.tls_ctx, tls_connection, input_tls_pointer, None)
 
@@ -64,11 +70,15 @@ class EapCrypto(object):
 
     def tls_connection_decrypt(self, tls_connection, input_tls_pointer):
         # ./src/crypto/tls_openssl.c:3292:struct wpabuf * tls_connection_decrypt(void *tls_ctx,
+        #         struct tls_connection *conn,
+        #         const struct wpabuf *in_data)
         self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_decrypt(self.tls_ctx, tls_connection, input_tls_pointer)
 
     def tls_connection_encrypt(self, tls_connection, input_tls_pointer):
         # ./src/crypto/tls_openssl.c:3252:struct wpabuf * tls_connection_encrypt(void *tls_ctx,
+        #         struct tls_connection *conn,
+        #         const struct wpabuf *in_data)
         self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, input_tls_pointer)
 
