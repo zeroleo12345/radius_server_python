@@ -256,8 +256,11 @@ class EapPeapMschapv2Flow(Flow):
             session.auth_user.set_user_password(user.password)
 
         # TODO 计算密码是否正确: generate_nt_response_pwhash
-        p_out_data = ctypes.create_string_buffer(max_out_len)
-        libhostapd.call_generate_authenticator_response_pwhash(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
+        p_auth_response = ctypes.create_string_buffer(20)
+        libhostapd.call_generate_authenticator_response_pwhash(
+            password_md4_pointer=, peer_challenge_pointer=, server_challenge_pointer=,
+            username_pointer=, username_len=, nt_response_pointer=, output_auth_response_pointer=p_auth_response
+        )
         # 返回数据
         from pprint import pprint; import pdb; pdb.set_trace()
         # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + mschapv2报文长度(00 33) + 算法值(53 3d 37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33 20 4d 3d 4f 4b)
