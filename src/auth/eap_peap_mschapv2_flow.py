@@ -261,8 +261,9 @@ class EapPeapMschapv2Flow(Flow):
             # 保存用户密码
             session.auth_user.set_user_password(user.password)
         # TODO 计算密码是否正确: generate_nt_response_pwhash
-
+        pass
         # 计算 md4(password)
+        from pprint import pprint; import pdb; pdb.set_trace()
         p_password_md4 = ctypes.create_string_buffer(16)
         p_password = ctypes.create_string_buffer(session.auth_user.user_password.encode())
         password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
@@ -279,7 +280,6 @@ class EapPeapMschapv2Flow(Flow):
             username_pointer=p_username, username_len=username_len, nt_response_pointer=p_nt_response, output_auth_response_pointer=p_out_auth_response
         )
         # 返回数据
-        from pprint import pprint; import pdb; pdb.set_trace()
         # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + mschapv2报文长度(00 33) + 算法值(53 3d 37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33 20 4d 3d 4f 4b)
         response_msg = b'OK'
         response_msg_len = len(response_msg)
