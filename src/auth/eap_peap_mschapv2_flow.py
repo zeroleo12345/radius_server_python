@@ -282,8 +282,8 @@ class EapPeapMschapv2Flow(Flow):
             password_md4_pointer=p_password_md4, peer_challenge_pointer=p_peer_challenge, server_challenge_pointer=p_server_challenge,
             username_pointer=p_username, username_len=username_len, nt_response_pointer=p_nt_response, output_auth_response_pointer=p_out_auth_response
         )
-        auth_response = ctypes.string_at(p_out_auth_response, max_out_len)
-        auth_response = auth_response.hex().upper()
+        auth_response: bytes = ctypes.string_at(p_out_auth_response, max_out_len)
+        auth_response: bytes = auth_response.hex().upper().encode()
         # 返回数据
         # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + MSCHAPV2_OP 到结束的长度(00 33) +
         # S=(53 3d) +
