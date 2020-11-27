@@ -84,6 +84,11 @@ class EapCrypto(object):
 
     def generate_authenticator_response_pwhash(self, password_md4, peer_challenge, server_challenge, username, nt_response):
         auth_response = ''
+        # int generate_authenticator_response_pwhash(
+        #     const u8 *password_hash,
+        #     const u8 *peer_challenge, const u8 *auth_challenge,
+        #     const u8 *username, size_t username_len,
+        #     const u8 *nt_response, u8 *response)
         ret = self.lib.generate_authenticator_response_pwhash(password_md4, peer_challenge, server_challenge, username, len(username), nt_response, auth_response)
         if ret < 0:
             raise EapCryptoError('generate_authenticator_response_pwhash fail')
