@@ -225,7 +225,7 @@ class EapPeapGtcFlow(Flow):
 
         eap_identity = EapPacket.parse(packet=tls_decrypt_data)
         account_name = eap_identity.type_data.decode()
-        session.auth_user.inner_username = account_name
+        session.auth_user.set_inner_username(account_name)
 
         # 查找用户密码
         user = DbUser.get_user(username=account_name)

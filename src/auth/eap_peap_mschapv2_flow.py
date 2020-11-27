@@ -201,7 +201,7 @@ class EapPeapMschapv2Flow(Flow):
         server_id = b'hostapd'
         server_id_len = len(server_id)
         server_challenge_len = 16
-        server_challenge = EapPeapPacket.random_string(length=server_challenge_len)
+        server_challenge: bytes = EapPeapPacket.random_string(length=server_challenge_len)
         type_data_length = size_of_hdr + 1 + server_challenge_len + server_id_len
         type_data = struct.pack(f'!B B H B 16s {server_id_len}s',
                                 EapPacket.CODE_MSCHAPV2_CHALLENGE, session.next_eap_id, type_data_length, server_challenge_len, server_challenge, server_id)
@@ -218,6 +218,7 @@ class EapPeapMschapv2Flow(Flow):
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
+        session.server
 
         # judge next move
         session.next_state = EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_NT
