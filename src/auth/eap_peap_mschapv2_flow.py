@@ -109,7 +109,7 @@ class EapPeapMschapv2Flow(Flow):
     @classmethod
     def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         if session.tls_connection is None:
-            session.tls_connection = libhostapd.tls_connection_init()
+            session.tls_connection = libhostapd.call_tls_connection_init()
         if session.tls_connection is None:
             raise Exception('tls_connection_init Error')
 
@@ -256,6 +256,8 @@ class EapPeapMschapv2Flow(Flow):
             session.auth_user.set_user_password(user.password)
 
         # TODO 计算密码是否正确: generate_nt_response_pwhash
+        p_out_data = ctypes.create_string_buffer(max_out_len)
+        libhostapd.call_tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
         # 返回数据
         from pprint import pprint; import pdb; pdb.set_trace()
         # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + mschapv2报文长度(00 33) + 算法值(53 3d 37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33 20 4d 3d 4f 4b)
@@ -326,7 +328,7 @@ class EapPeapMschapv2Flow(Flow):
         p_out_data = ctypes.create_string_buffer(max_out_len)
         max_out_len = ctypes.c_ulonglong(max_out_len)
         p_label = ctypes.create_string_buffer(b'client EAP encryption')
-        libhostapd.tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
+        libhostapd.call_tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
 
         session.msk = ctypes.string_at(p_out_data, max_out_len.value)
         return cls.access_accept(request=request, session=session)

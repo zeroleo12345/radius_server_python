@@ -42,17 +42,17 @@ class EapCrypto(object):
                                                 private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
         assert self.tls_ctx
 
-    def tls_connection_init(self):
+    def call_tls_connection_init(self):
         # connection每个认证会话维持一个
         # ./src/crypto/tls.h:225:struct tls_connection * tls_connection_init(void *tls_ctx);
         self.lib.tls_connection_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_init(self.tls_ctx)
 
-    def tls_connection_prf(self, tls_connection, label_pointer, output_prf_pointer, output_prf_max_len):
+    def call_tls_connection_prf(self, tls_connection, label_pointer, output_prf_pointer, output_prf_max_len):
         # ./src/crypto/tls_openssl.c:3064:int tls_connection_prf(void *tls_ctx, struct tls_connection *conn,
         #         const char *label, int server_random_first,
         #         int skip_keyblock, u8 *out, size_t out_len)
-        self.lib.tls_connection_init.restype = ctypes.POINTER(ctypes.c_int)    # 重要! 不加会导致 Segmentation fault
+        self.lib.tls_connection_prf.restype = ctypes.POINTER(ctypes.c_int)    # 重要! 不加会导致 Segmentation fault
         ret = self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('tls_connection_prf Error!')
