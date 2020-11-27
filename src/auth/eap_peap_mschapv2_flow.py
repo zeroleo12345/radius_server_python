@@ -247,6 +247,8 @@ class EapPeapMschapv2Flow(Flow):
         peer_challenge, nt_response, flag, account_name = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
         peer_challenge: bytes = peer_challenge[:16]
         account_name = account_name.decode()
+        # 保存客户端随机数
+        session.auth_user.set_peer_challenge(peer_challenge)
 
         # 查找用户密码
         user = DbUser.get_user(username=account_name)
