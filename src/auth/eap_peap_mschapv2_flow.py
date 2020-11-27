@@ -326,9 +326,7 @@ class EapPeapMschapv2Flow(Flow):
         p_out_data = ctypes.create_string_buffer(max_out_len)
         max_out_len = ctypes.c_ulonglong(max_out_len)
         p_label = ctypes.create_string_buffer(b'client EAP encryption')
-        _ret = libhostapd.tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
-        if _ret == -1:
-            raise Exception('tls_connection_prf Error!')
+        libhostapd.tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
 
         session.msk = ctypes.string_at(p_out_data, max_out_len.value)
         return cls.access_accept(request=request, session=session)

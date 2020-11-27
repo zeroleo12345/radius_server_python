@@ -53,7 +53,10 @@ class EapCrypto(object):
         #         const char *label, int server_random_first,
         #         int skip_keyblock, u8 *out, size_t out_len)
         self.lib.tls_connection_init.restype = ctypes.POINTER(ctypes.c_int)    # 重要! 不加会导致 Segmentation fault
-        return self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
+        ret = self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
+        if ret == -1:
+            raise EapCryptoError('tls_connection_prf Error!')
+        return
 
     def tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
         # ./src/crypto/tls_openssl.c:3243:struct wpabuf * tls_connection_server_handshake(void *tls_ctx,
@@ -97,18 +100,22 @@ class EapCrypto(object):
     def free_alloc(self, pointer):
         if pointer:
             self.lib.wpabuf_free(pointer)
+        return
 
     def tls_connection_deinit(self, tls_connection):
         # TODO 待调用
         self.lib.tls_connection_deinit(self.tls_ctx, tls_connection)
+        return
 
     def tls_deinit(self):
         # TODO 待调用
         self.lib.tls_deinit(self.tls_ctx)
+        return
 
     def set_log_level(self, level: int = 0):
         # MSG_EXCESSIVE = 0 , MSG_MSGDUMP =1 , MSG_DEBUG = 2, MSG_INFO = 3, MSG_WARNING = 4, MSG_ERROR = 5
         self.lib.set_log_level(level)
+        return
 
     def decrypt(self, tls_connection, tls_in_data) -> bytes:
         tls_in_pointer, tls_out_pointer = None, None
