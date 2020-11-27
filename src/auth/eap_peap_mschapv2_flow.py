@@ -121,8 +121,8 @@ class EapPeapMschapv2Flow(Flow):
 
         tls_in, tls_out = None, None
         try:
-            tls_in = libhostapd.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-            tls_out = libhostapd.tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
+            tls_in = libhostapd.call_py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+            tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
             if tls_out is None:
                 raise Exception('tls connection server handshake error!')
 
@@ -133,8 +133,8 @@ class EapPeapMschapv2Flow(Flow):
             request.reply_to(reply)
             session.set_reply(reply)
         finally:
-            libhostapd.free_alloc(tls_in)
-            libhostapd.free_alloc(tls_out)
+            libhostapd.call_free_alloc(tls_in)
+            libhostapd.call_free_alloc(tls_out)
 
         # judge next move
         if session.certificate_fragment.is_last_fragment():
@@ -173,8 +173,8 @@ class EapPeapMschapv2Flow(Flow):
 
         tls_in, tls_out = None, None
         try:
-            tls_in = libhostapd.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-            tls_out = libhostapd.tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
+            tls_in = libhostapd.call_py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+            tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
             if tls_out is None:
                 raise Exception('tls connection server handshake error.')
 
@@ -185,8 +185,8 @@ class EapPeapMschapv2Flow(Flow):
             request.reply_to(reply)
             session.set_reply(reply)
         finally:
-            libhostapd.free_alloc(tls_in)
-            libhostapd.free_alloc(tls_out)
+            libhostapd.call_free_alloc(tls_in)
+            libhostapd.call_free_alloc(tls_out)
 
         # judge next move
         session.next_state = EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_RANDOM
@@ -257,7 +257,7 @@ class EapPeapMschapv2Flow(Flow):
 
         # TODO 计算密码是否正确: generate_nt_response_pwhash
         p_out_data = ctypes.create_string_buffer(max_out_len)
-        libhostapd.call_tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
+        libhostapd.call_generate_authenticator_response_pwhash(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
         # 返回数据
         from pprint import pprint; import pdb; pdb.set_trace()
         # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + mschapv2报文长度(00 33) + 算法值(53 3d 37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33 20 4d 3d 4f 4b)

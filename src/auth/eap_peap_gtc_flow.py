@@ -121,8 +121,8 @@ class EapPeapGtcFlow(Flow):
 
         tls_in, tls_out = None, None
         try:
-            tls_in = libhostapd.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-            tls_out = libhostapd.tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
+            tls_in = libhostapd.call_py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+            tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
             if tls_out is None:
                 raise Exception('tls connection server handshake error!')
 
@@ -133,8 +133,8 @@ class EapPeapGtcFlow(Flow):
             request.reply_to(reply)
             session.set_reply(reply)
         finally:
-            libhostapd.free_alloc(tls_in)
-            libhostapd.free_alloc(tls_out)
+            libhostapd.call_free_alloc(tls_in)
+            libhostapd.call_free_alloc(tls_out)
 
         # judge next move
         if session.certificate_fragment.is_last_fragment():
@@ -173,8 +173,8 @@ class EapPeapGtcFlow(Flow):
 
         tls_in, tls_out = None, None
         try:
-            tls_in = libhostapd.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
-            tls_out = libhostapd.tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
+            tls_in = libhostapd.call_py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+            tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
             if tls_out is None:
                 raise Exception('tls connection server handshake error.')
 
@@ -185,8 +185,8 @@ class EapPeapGtcFlow(Flow):
             request.reply_to(reply)
             session.set_reply(reply)
         finally:
-            libhostapd.free_alloc(tls_in)
-            libhostapd.free_alloc(tls_out)
+            libhostapd.call_free_alloc(tls_in)
+            libhostapd.call_free_alloc(tls_out)
 
         # judge next move
         session.next_state = EapPeapPacket.PEAP_CHALLENGE_GTC_IDENTITY

@@ -58,7 +58,7 @@ class EapCrypto(object):
             raise EapCryptoError('tls_connection_prf Error!')
         return
 
-    def tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
+    def call_tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
         # ./src/crypto/tls_openssl.c:3243:struct wpabuf * tls_connection_server_handshake(void *tls_ctx,
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data,
@@ -66,26 +66,26 @@ class EapCrypto(object):
         self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_server_handshake(self.tls_ctx, tls_connection, input_tls_pointer, None)
 
-    def py_wpabuf_alloc(self, tls_in_data_pointer, tls_in_data_len):
+    def call_py_wpabuf_alloc(self, tls_in_data_pointer, tls_in_data_len):
         # ./hostapd/test_main.c:19:struct wpabuf * py_wpabuf_alloc(u8 * data, size_t data_len){
         self.lib.py_wpabuf_alloc.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
         return self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
 
-    def tls_connection_decrypt(self, tls_connection, input_tls_pointer):
+    def call_tls_connection_decrypt(self, tls_connection, input_tls_pointer):
         # ./src/crypto/tls_openssl.c:3292:struct wpabuf * tls_connection_decrypt(void *tls_ctx,
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data)
         self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_decrypt(self.tls_ctx, tls_connection, input_tls_pointer)
 
-    def tls_connection_encrypt(self, tls_connection, input_tls_pointer):
+    def call_tls_connection_encrypt(self, tls_connection, input_tls_pointer):
         # ./src/crypto/tls_openssl.c:3252:struct wpabuf * tls_connection_encrypt(void *tls_ctx,
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data)
         self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, input_tls_pointer)
 
-    def generate_authenticator_response_pwhash(self, password_md4_pointer, peer_challenge_pointer, server_challenge_pointer,
+    def call_generate_authenticator_response_pwhash(self, password_md4_pointer, peer_challenge_pointer, server_challenge_pointer,
                                                username_pointer, username_len, nt_response_pointer, output_auth_response_pointer):
         # int generate_authenticator_response_pwhash(
         #     const u8 *password_hash,
@@ -97,22 +97,22 @@ class EapCrypto(object):
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('generate_authenticator_response_pwhash fail')
 
-    def free_alloc(self, pointer):
+    def call_free_alloc(self, pointer):
         if pointer:
             self.lib.wpabuf_free(pointer)
         return
 
-    def tls_connection_deinit(self, tls_connection):
+    def call_tls_connection_deinit(self, tls_connection):
         # TODO 待调用
         self.lib.tls_connection_deinit(self.tls_ctx, tls_connection)
         return
 
-    def tls_deinit(self):
+    def call_tls_deinit(self):
         # TODO 待调用
         self.lib.tls_deinit(self.tls_ctx)
         return
 
-    def set_log_level(self, level: int = 0):
+    def call_set_log_level(self, level: int = 0):
         # MSG_EXCESSIVE = 0 , MSG_MSGDUMP =1 , MSG_DEBUG = 2, MSG_INFO = 3, MSG_WARNING = 4, MSG_ERROR = 5
         self.lib.set_log_level(level)
         return
@@ -123,7 +123,7 @@ class EapCrypto(object):
             tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             tls_in_pointer = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
-            tls_out_pointer = self.tls_connection_decrypt(tls_connection, tls_in_pointer)
+            tls_out_pointer = self.call_tls_connection_decrypt(tls_connection, tls_in_pointer)
             if tls_out_pointer is None:
                 raise EapCryptoError('decrypt tls_out_pointer is None')
             tls_out_data_len = tls_out_pointer.contents.used
@@ -132,8 +132,8 @@ class EapCrypto(object):
             log.trace(f'hex: {tls_out_data.hex()}')
             return tls_out_data
         finally:
-            self.free_alloc(tls_in_pointer)
-            self.free_alloc(tls_out_pointer)
+            self.call_free_alloc(tls_in_pointer)
+            self.call_free_alloc(tls_out_pointer)
 
     def encrypt(self, tls_connection, tls_in_data) -> bytes:
         tls_in_pointer, tls_out_pointer = None, None
@@ -141,15 +141,15 @@ class EapCrypto(object):
             tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             tls_in_pointer = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
-            tls_out_pointer = self.tls_connection_encrypt(tls_connection, tls_in_pointer)
+            tls_out_pointer = self.call_tls_connection_encrypt(tls_connection, tls_in_pointer)
             if tls_out_pointer is None:
                 raise EapCryptoError('encrypt tls_out_pointer is None')
             tls_out_data_len = tls_out_pointer.contents.used
             tls_out_data = ctypes.string_at(tls_out_pointer.contents.buf, tls_out_data_len)
             return tls_out_data
         finally:
-            self.free_alloc(tls_in_pointer)
-            self.free_alloc(tls_out_pointer)
+            self.call_free_alloc(tls_in_pointer)
+            self.call_free_alloc(tls_out_pointer)
 
 
 if __name__ == "__main__":
