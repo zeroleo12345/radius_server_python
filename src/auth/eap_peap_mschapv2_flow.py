@@ -265,7 +265,6 @@ class EapPeapMschapv2Flow(Flow):
         # TODO 计算密码是否正确: generate_nt_response_pwhash
         pass
         # 计算 md4(password)
-        from pprint import pprint; import pdb; pdb.set_trace()
         p_password_md4 = ctypes.create_string_buffer(16)
         p_password = ctypes.create_string_buffer(session.auth_user.user_password.encode())
         password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
