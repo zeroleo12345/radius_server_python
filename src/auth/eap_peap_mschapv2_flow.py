@@ -196,13 +196,14 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_mschapv2_random(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
         # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 1c) +
-        # 随机数长度固定值(10) + 16位随机数(2d ae 52 bf 07 d0 de 7b 28 c4 d8 d9 8f 87 da 6a) + server_id(68 6f 73 74 61 70 64)
-        size_of_hdr = 4
+        # 随机数长度固定值(10) +
+        # 16位随机数(2d ae 52 bf 07 d0 de 7b 28 c4 d8 d9 8f 87 da 6a) + server_id(68 6f 73 74 61 70 64)
+        size_of_mschapv2_hdr = 4
         server_id = b'hostapd'
         server_id_len = len(server_id)
         server_challenge_len = 16
         server_challenge: bytes = EapPeapPacket.random_string(length=server_challenge_len)
-        type_data_length = size_of_hdr + 1 + server_challenge_len + server_id_len
+        type_data_length = size_of_mschapv2_hdr + 1 + server_challenge_len + server_id_len
         type_data = struct.pack(f'!B B H B 16s {server_id_len}s',
                                 EapPacket.CODE_MSCHAPV2_CHALLENGE, session.next_eap_id, type_data_length, server_challenge_len, server_challenge, server_id)
         eap_random = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
@@ -235,7 +236,8 @@ class EapPeapMschapv2Flow(Flow):
         if tls_decrypt_data is None:
             raise Exception('Decrypt Error!')
 
-        # header + MSCHAPV2_OP_RESPONSE(02) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 3e) + 随机数长度(31) +
+        # MSCHAPV2_OP_RESPONSE(02) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 3e) +
+        # 随机数长度(31) +
         # 24位随机数内含8位0(16 79 ba 65 ad 16 7f 92 5c 74 c9 80 53 d6 fc 4c + 00 00 00 00 00 00 00 00) +
         # 24位NT-Response(72 0e 3d a8 8d bd f8 a9 e8 bd 1a 95 d9 5f 08 03 7e 10 db 9f 01 d4 a5 fc) +
         # Flags(00) +
@@ -282,15 +284,18 @@ class EapPeapMschapv2Flow(Flow):
         )
         auth_response = ctypes.string_at(p_out_auth_response, max_out_len)
         # 返回数据
-        # header + MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + MSCHAPV2_OP 到结束的长度(00 33) +
-        # S=(53 3d) + 40个字符:generate_authenticator_response_pwhash计算出来的哈希值再换成hex大写(37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33)
-        # + 空格(20) + M=OK(4d 3d 4f 4b)
+        # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + MSCHAPV2_OP 到结束的长度(00 33) +
+        # S=(53 3d) +
+        # 40个字符:generate_authenticator_response_pwhash计算出来的哈希值再换成hex大写(37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33)
+        # + 空格(20) +
+        # M=(4d 3d) +
+        # OK(4f 4b)
         response_msg = b'OK'
         response_msg_len = len(response_msg)
         size_of_auth_response = 20
-        size_of_hdr = 4
+        size_of_mschapv2_hdr = 4
         message = ''
-        type_data_length = size_of_hdr + 2 + 2 * size_of_auth_response + 1 + 2 + response_msg_len
+        type_data_length = size_of_mschapv2_hdr + 2 + (2 * size_of_auth_response) + 1 + 2 + response_msg_len
         # FIXME
         type_data = struct.pack(f'!B B H B 16s {2 * size_of_auth_response}s',
                                 EapPacket.CODE_MSCHAPV2_SUCCESS, session.next_eap_id-1, type_data_length, message)
