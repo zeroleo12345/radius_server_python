@@ -47,7 +47,7 @@ def _radius_encrypt_keys(plain_text, secret, request_authenticator, salt):
     return result
 
 
-def create_mppe_recv_key_send_key(msk, secret, authenticator):
+def create_mppe_recv_key_send_key(msk: bytes, secret, authenticator):
     """
     参考:
         Microsoft Vendor-specific RADIUS Attributes:

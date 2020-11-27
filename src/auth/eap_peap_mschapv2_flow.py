@@ -235,7 +235,7 @@ class EapPeapMschapv2Flow(Flow):
         if tls_decrypt_data is None:
             raise Exception('Decrypt Error!')
 
-        # MSCHAPV2_OP_RESPONSE(02) + 与EAP_id相同(07) + mschapv2报文长度(00 3e) + 随机数长度(31) +
+        # header + MSCHAPV2_OP_RESPONSE(02) + 与EAP_id相同(07) + mschapv2报文长度(00 3e) + 随机数长度(31) +
         # 24位随机数内含8位0(16 79 ba 65 ad 16 7f 92 5c 74 c9 80 53 d6 fc 4c + 00 00 00 00 00 00 00 00) +
         # 24位NT-Response(72 0e 3d a8 8d bd f8 a9 e8 bd 1a 95 d9 5f 08 03 7e 10 db 9f 01 d4 a5 fc) +
         # Flags(00) +
@@ -269,7 +269,8 @@ class EapPeapMschapv2Flow(Flow):
         password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
         libhostapd.call_nt_password_hash(password_pointer=p_password, password_len=password_len, output_password_hash_pointer=p_password_md4)
         # 计算返回报文中的 auth_response
-        p_out_auth_response = ctypes.create_string_buffer(20)
+        max_out_len = 20
+        p_out_auth_response = ctypes.create_string_buffer(max_out_len)
         p_peer_challenge = ctypes.create_string_buffer(session.auth_user.peer_challenge)
         p_server_challenge = ctypes.create_string_buffer(session.auth_user.server_challenge)
         p_nt_response = ctypes.create_string_buffer(nt_response)
@@ -279,14 +280,16 @@ class EapPeapMschapv2Flow(Flow):
             password_md4_pointer=p_password_md4, peer_challenge_pointer=p_peer_challenge, server_challenge_pointer=p_server_challenge,
             username_pointer=p_username, username_len=username_len, nt_response_pointer=p_nt_response, output_auth_response_pointer=p_out_auth_response
         )
+        auth_response = ctypes.string_at(p_out_auth_response, max_out_len)
         # 返回数据
-        # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + mschapv2报文长度(00 33) + 算法值(53 3d 37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33 20 4d 3d 4f 4b)
+        # header + MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + mschapv2报文长度(00 33) + 算法值(53 3d 37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33 20 4d 3d 4f 4b)
         response_msg = b'OK'
         response_msg_len = len(response_msg)
         size_of_auth_response = 20
         size_of_hdr = 4
         message = ''
         type_data_length = size_of_hdr + 2 + 2 * size_of_auth_response + 1 + 2 + response_msg_len
+        # FIXME
         type_data = struct.pack(f'!B B H B 16s {server_id_len}s',
                                 EapPacket.CODE_MSCHAPV2_SUCCESS, session.next_eap_id-1, type_data_length, message)
         eap_ok = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
