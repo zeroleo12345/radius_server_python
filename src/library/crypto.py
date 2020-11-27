@@ -66,10 +66,10 @@ class EapCrypto(object):
         self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_server_handshake(self.tls_ctx, tls_connection, input_tls_pointer, None)
 
-    def py_wpabuf_alloc(self, p_tls_in_data, tls_in_data_len):
+    def py_wpabuf_alloc(self, tls_in_data_pointer, tls_in_data_len):
         # ./hostapd/test_main.c:19:struct wpabuf * py_wpabuf_alloc(u8 * data, size_t data_len){
         self.lib.py_wpabuf_alloc.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
-        return self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+        return self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
 
     def tls_connection_decrypt(self, tls_connection, input_tls_pointer):
         # ./src/crypto/tls_openssl.c:3292:struct wpabuf * tls_connection_decrypt(void *tls_ctx,
@@ -85,17 +85,16 @@ class EapCrypto(object):
         self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, input_tls_pointer)
 
-    def generate_authenticator_response_pwhash(self, password_md4, peer_challenge, server_challenge, username, nt_response):
-        auth_response = ''
+    def generate_authenticator_response_pwhash(self, p_password_md4, p_peer_challenge, p_server_challenge, p_username, username_len,
+                                               p_nt_response, output_auth_response):
         # int generate_authenticator_response_pwhash(
         #     const u8 *password_hash,
         #     const u8 *peer_challenge, const u8 *auth_challenge,
         #     const u8 *username, size_t username_len,
         #     const u8 *nt_response, u8 *response)
-        ret = self.lib.generate_authenticator_response_pwhash(password_md4, peer_challenge, server_challenge, username, len(username), nt_response, auth_response)
+        ret = self.lib.generate_authenticator_response_pwhash(password_md4, peer_challenge, server_challenge, username, len(username), nt_response, output_auth_response)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('generate_authenticator_response_pwhash fail')
-        return auth_response
 
     def free_alloc(self, pointer):
         if pointer:
@@ -120,9 +119,9 @@ class EapCrypto(object):
     def decrypt(self, tls_connection, tls_in_data) -> bytes:
         tls_in_pointer, tls_out_pointer = None, None
         try:
-            p_tls_in_data = ctypes.create_string_buffer(tls_in_data)
+            tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
-            tls_in_pointer = self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+            tls_in_pointer = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
             tls_out_pointer = self.tls_connection_decrypt(tls_connection, tls_in_pointer)
             if tls_out_pointer is None:
                 raise EapCryptoError('decrypt tls_out_pointer is None')
@@ -138,9 +137,9 @@ class EapCrypto(object):
     def encrypt(self, tls_connection, tls_in_data) -> bytes:
         tls_in_pointer, tls_out_pointer = None, None
         try:
-            p_tls_in_data = ctypes.create_string_buffer(tls_in_data)
+            tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
-            tls_in_pointer = self.lib.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+            tls_in_pointer = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
             tls_out_pointer = self.tls_connection_encrypt(tls_connection, tls_in_pointer)
             if tls_out_pointer is None:
                 raise EapCryptoError('encrypt tls_out_pointer is None')
@@ -214,7 +213,7 @@ if __name__ == "__main__":
 
         # read packet from file
         tls_buff = sslstr_to_sslbin(client_hello_path=client_hello)
-        p_tls_in_data = ctypes.create_string_buffer(tls_buff)    # u8 *  ==  uint8_t  *
+        tls_in_data_pointer = ctypes.create_string_buffer(tls_buff)    # u8 *  ==  uint8_t  *
         tls_in_data_len = ctypes.c_ulonglong(len(tls_buff))  # size_t  ==  uint64
 
         # handle packet
@@ -223,7 +222,7 @@ if __name__ == "__main__":
 
         # ./hostapd/test_main.c:19:struct wpabuf * py_wpabuf_alloc(u8 * data, size_t data_len){
         libwpa.py_wpabuf_alloc.restype = ctypes.POINTER(ctypes.c_void_p)    # 重要! 不加会导致 Segmentation fault
-        tls_in = libwpa.py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
+        tls_in = libwpa.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
 
         # ./src/crypto/tls_openssl.c:3243:struct wpabuf * tls_connection_server_handshake(void *tls_ctx,
         libwpa.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 重要! 不加会导致 Segmentation fault
