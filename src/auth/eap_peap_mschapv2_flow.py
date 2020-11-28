@@ -272,7 +272,7 @@ class EapPeapMschapv2Flow(Flow):
         l_password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
         # 计算密码是否正确
         p_expect = libhostapd.call_generate_nt_response(
-            p_server_challenge=session.auth_user.server_challenge, peer_challenge=session.auth_user.peer_challenge,
+            p_server_challenge=session.auth_user.server_challenge, p_peer_challenge=session.auth_user.peer_challenge,
             p_username=p_username, l_username_len=l_username_len, p_password=p_password, l_password_len=l_password_len,
         )
         expect: bytes = ctypes.string_at(p_expect, len(p_expect))
