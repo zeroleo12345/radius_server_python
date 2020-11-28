@@ -110,11 +110,12 @@ class EapPeapMschapv2Flow(Flow):
 
     @classmethod
     def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+        # 客户端 PEAP 版本
+        log.debug(f'eap header, peap version: {peap.flag_version}')
+        # 初始化 tls_connection
         if session.tls_connection is None:
             session.tls_connection = libhostapd.call_tls_connection_init()
-
         assert peap.tls_data
-
         p_tls_in_data = ctypes.create_string_buffer(peap.tls_data)
         tls_in_data_len = ctypes.c_ulonglong(len(peap.tls_data))
 
