@@ -112,6 +112,7 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 客户端 PEAP 版本
         log.debug(f'eap header, peap version: {peap.flag_version}')
+        session.set_peap_version(peap.flag_version)
         # 初始化 tls_connection
         if session.tls_connection is None:
             session.tls_connection = libhostapd.call_tls_connection_init()
