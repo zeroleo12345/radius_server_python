@@ -246,9 +246,13 @@ class EapPeapMschapv2Flow(Flow):
         mschapv2_type, eap_id, mschapv2_length, fix_length = struct.unpack('!B B H B', eap_random.type_data[:5])
         assert fix_length == 0x31 == 49
         username_len = mschapv2_length - 5 - fix_length
-        peer_challenge, nt_response, flag, account_name = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
-        peer_challenge: bytes = peer_challenge[:16]
-        account_name = account_name.decode()
+        peer_challenge: bytes
+        nt_response: bytes
+        flag: bytes
+        identity: bytes
+        peer_challenge, nt_response, flag, identity = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
+        peer_challenge = peer_challenge[:16]
+        account_name: str = identity.decode()
         # 保存用户名
         session.auth_user.set_inner_username(account_name)
         # 保存客户端随机数
@@ -271,12 +275,13 @@ class EapPeapMschapv2Flow(Flow):
             p_server_challenge=session.auth_user.server_challenge, peer_challenge=session.auth_user.peer_challenge,
             p_username=p_username, l_username_len=l_username_len, p_password=p_password, l_password_len=l_password_len,
         )
-        expect: bytes = ctypes.string_at()
+        expect: bytes = ctypes.string_at(p_expect, len(p_expect))
+        log.debug(f'nt_response: {nt_response}')
+        log.debug(f'expect: {expect}')
         # 计算 md4(password)
         p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
         # 计算返回报文中的 auth_response
-        max_out_len = 20
-        p_out_auth_response = ctypes.create_string_buffer(max_out_len)
+        p_out_auth_response = ctypes.create_string_buffer(20)
         p_peer_challenge = ctypes.create_string_buffer(session.auth_user.peer_challenge)
         p_server_challenge = ctypes.create_string_buffer(session.auth_user.server_challenge)
         p_nt_response = ctypes.create_string_buffer(nt_response)
@@ -284,7 +289,7 @@ class EapPeapMschapv2Flow(Flow):
             p_password_md4=p_password_md4, p_peer_challenge=p_peer_challenge, p_server_challenge=p_server_challenge,
             p_username=p_username, l_username_len=l_username_len, p_nt_response=p_nt_response, p_out_auth_response=p_out_auth_response
         )
-        auth_response: bytes = ctypes.string_at(p_out_auth_response, max_out_len)
+        auth_response: bytes = ctypes.string_at(p_out_auth_response, len(p_out_auth_response))
         auth_response: bytes = auth_response.hex().upper().encode()
         # 返回数据
         # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + MSCHAPV2_OP 到结束的长度(00 33) +
