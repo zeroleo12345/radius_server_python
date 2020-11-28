@@ -212,6 +212,13 @@ class EapPeapMschapv2Flow(Flow):
         account_name = eap_identity.type_data.decode()
         # 保存用户名
         session.auth_user.set_inner_username(account_name)
+        # 查找用户密码
+        user = DbUser.get_user(username=account_name)
+        if not user:
+            raise AccessReject()
+        else:
+            # 保存用户密码
+            session.auth_user.set_user_password(user.password)
 
         # 返回数据
         # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 1c) +
@@ -264,22 +271,12 @@ class EapPeapMschapv2Flow(Flow):
         identity: bytes
         peer_challenge, nt_response, flag, identity = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
         peer_challenge = peer_challenge[:16]
-        account_name: str = identity.decode()
-        # 保存用户名
-        session.auth_user.set_inner_username(account_name)
         # 保存客户端随机数
         session.auth_user.set_peer_challenge(peer_challenge)
 
-        # 查找用户密码
-        user = DbUser.get_user(username=account_name)
-        if not user:
-            raise AccessReject()
-        else:
-            # 保存用户密码
-            session.auth_user.set_user_password(user.password)
-
+        assert identity.decode() == session.auth_user.inner_username
         # 计算期望密码哈希值
-        p_username = ctypes.create_string_buffer(account_name.encode())
+        p_username = ctypes.create_string_buffer(identity)
         l_username_len = ctypes.c_ulonglong(username_len)
         p_password = ctypes.create_string_buffer(session.auth_user.user_password.encode())
         l_password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
