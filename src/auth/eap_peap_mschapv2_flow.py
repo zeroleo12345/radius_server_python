@@ -7,6 +7,7 @@ from .flow import Flow, AccessReject
 from child_pyrad.packet import AuthRequest, AuthResponse
 from controls.user import AuthUser, DbUser
 from child_pyrad.eap_packet import EapPacket
+from child_pyrad.eap_mschapv2_packet import EapMschapv2Packet
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from child_pyrad.mppe import create_mppe_recv_key_send_key
 from auth.eap_peap_session import EapPeapSession, SessionCache
@@ -213,7 +214,10 @@ class EapPeapMschapv2Flow(Flow):
         assert peap.tls_data
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
-        eap_identity = EapPacket.parse(packet=tls_decrypt_data)
+        if session.peap_version == 0:
+            eap_identity = EapMschapv2Packet.parse(packet=tls_decrypt_data)
+        else:
+            eap_identity = EapPacket.parse(packet=tls_decrypt_data)
         account_name = eap_identity.type_data.decode()
         # 保存用户名
         session.auth_user.set_inner_username(account_name)
@@ -266,7 +270,10 @@ class EapPeapMschapv2Flow(Flow):
         # 24位NT-Response(72 0e 3d a8 8d bd f8 a9 e8 bd 1a 95 d9 5f 08 03 7e 10 db 9f 01 d4 a5 fc) +
         # Flags(00) +
         # 用户名(74 65 73 74 75 73 65 72)
-        eap_random = EapPacket.parse(packet=tls_decrypt_data)
+        if session.peap_version == 0:
+            eap_random = EapMschapv2Packet.parse(packet=tls_decrypt_data)
+        else:
+            eap_random = EapPacket.parse(packet=tls_decrypt_data)
         mschapv2_type, eap_id, mschapv2_length, fix_length = struct.unpack('!B B H B', eap_random.type_data[:5])
         assert fix_length == 0x31 == 49
         username_len = mschapv2_length - 5 - fix_length
