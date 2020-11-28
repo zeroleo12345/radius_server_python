@@ -46,9 +46,6 @@ class EapPeapMschapv2Flow(Flow):
         session.prev_eap_id = eap.id
         # 每次处理回复后, 保存session到Redis
         SessionCache.save(session=session)
-        if session.state:
-            if session.tls_connection:
-                libhostapd.call_tls_connection_deinit(session.tls_connection)
 
     @classmethod
     def state_machine(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):

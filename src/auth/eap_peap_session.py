@@ -5,6 +5,7 @@ from pyrad.packet import AuthPacket
 from auth.flow import Flow
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from controls.user import AuthUser
+from settings import libhostapd
 from loguru import logger as log
 
 
@@ -62,4 +63,7 @@ class SessionCache(object):
     @classmethod
     def clean(cls, session_id: str):
         log.trace(f'clean session: {session_id}.')
-        cls._sessions.pop(session_id, None)
+        session = cls._sessions.pop(session_id, None)
+        if session and session.tls_connection:
+            log.trace(f'call_tls_connection_deinit: {session_id}')
+            libhostapd.call_tls_connection_deinit(session.tls_connection)
