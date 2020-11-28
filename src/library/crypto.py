@@ -158,9 +158,11 @@ class EapCrypto(object):
         return
 
     def call_tls_deinit(self):
-        # TODO 待调用
         self.lib.tls_deinit(self.tls_ctx)
         return
+
+    def __del__(self):
+        self.call_tls_deinit()
 
     def call_set_log_level(self, level: int = 0):
         # MSG_EXCESSIVE = 0 , MSG_MSGDUMP =1 , MSG_DEBUG = 2, MSG_INFO = 3, MSG_WARNING = 4, MSG_ERROR = 5
