@@ -1,0 +1,11 @@
+network={
+eap=PEAP
+eapol_flags=0
+key_mgmt=IEEE8021X
+identity="testuser"
+password="password"
+ca_cert="/app/tools/simulator/etc/certs/ca.cer.pem"
+phase1="peapver=1"
+phase2="auth=MSCHAPV2"
+anonymous_identity="anonymous"
+}
