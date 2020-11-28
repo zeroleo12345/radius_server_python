@@ -174,8 +174,8 @@ class EapCrypto(object):
             p_tls_out = self.call_tls_connection_decrypt(tls_connection, p_tls_in)
             if p_tls_out is None:
                 raise EapCryptoError('decrypt p_tls_out is None')
-            tls_out_data_len = p_tls_out.contents.used
-            out_data = ctypes.string_at(p_tls_out.contents.buf, tls_out_data_len)     # TODO
+            out_data_len = p_tls_out.contents.used
+            out_data = ctypes.string_at(p_tls_out.contents.buf, out_data_len)
             log.trace(f'tls decrypt data: {out_data}')
             log.trace(f'hex: {out_data.hex()}')
             if out_data is None:
@@ -195,7 +195,7 @@ class EapCrypto(object):
             if p_tls_out is None:
                 raise EapCryptoError('encrypt p_tls_out is None')
             out_data_len = p_tls_out.contents.used
-            out_data = ctypes.string_at(p_tls_out.contents.buf, out_data_len)   # TODO
+            out_data = ctypes.string_at(p_tls_out.contents.buf, out_data_len)
             if out_data is None:
                 raise EapCryptoError('encrypt error')
             return out_data
