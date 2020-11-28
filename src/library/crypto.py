@@ -71,10 +71,13 @@ class EapCrypto(object):
         #         const struct wpabuf *in_data,
         #         struct wpabuf **appl_data)
         self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 不加会导致 Segmentation fault
-        return self.lib.tls_connection_server_handshake(self.tls_ctx,
+        tls_out = self.lib.tls_connection_server_handshake(self.tls_ctx,
                                                         tls_connection,
                                                         input_tls_pointer,
                                                         None)
+        if tls_out is None:
+            raise EapCryptoError('tls connection server handshake error!')
+        return tls_out
 
     def call_py_wpabuf_alloc(self, tls_in_data_pointer, tls_in_data_len):
         # ./hostapd/test_main.c:19:struct wpabuf * py_wpabuf_alloc(u8 * data, size_t data_len){
@@ -188,6 +191,8 @@ class EapCrypto(object):
                 raise EapCryptoError('encrypt p_tls_out is None')
             out_data_len = p_tls_out.contents.used
             out_data = ctypes.string_at(p_tls_out.contents.buf, out_data_len)   # TODO
+            if out_data is None:
+                raise EapCryptoError('encrypt error')
             return out_data
         finally:
             self.call_free_alloc(p_tls_in)

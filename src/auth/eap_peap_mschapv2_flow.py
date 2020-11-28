@@ -46,6 +46,8 @@ class EapPeapMschapv2Flow(Flow):
         session.prev_eap_id = eap.id
         # 每次处理回复后, 保存session到Redis
         SessionCache.save(session=session)
+        if session.state:
+            pass
 
     @classmethod
     def state_machine(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
@@ -123,9 +125,6 @@ class EapPeapMschapv2Flow(Flow):
         try:
             tls_in = libhostapd.call_py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
             tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
-            if tls_out is None:
-                raise Exception('tls connection server handshake error!')
-
             tls_out_data_len = tls_out.contents.used
             tls_out_data: bytes = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)     # TODO 验证len(p_out_data)
             session.certificate_fragment = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
@@ -175,9 +174,6 @@ class EapPeapMschapv2Flow(Flow):
         try:
             tls_in = libhostapd.call_py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
             tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
-            if tls_out is None:
-                raise Exception('tls connection server handshake error.')
-
             tls_out_data_len = tls_out.contents.used
             tls_out_data: bytes = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)     # TODO 验证len(p_out_data)
             peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
@@ -214,9 +210,7 @@ class EapPeapMschapv2Flow(Flow):
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
-        if tls_out_data is None:
-            raise Exception('Encrypt Error!')
-
+        #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
@@ -324,9 +318,7 @@ class EapPeapMschapv2Flow(Flow):
             tls_plaintext = eap_ok.pack()
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
-        if tls_out_data is None:
-            raise Exception('Encrypt Error!')
-
+        #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
@@ -349,9 +341,7 @@ class EapPeapMschapv2Flow(Flow):
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
-        if tls_out_data is None:
-            raise Exception('Encrypt Error!')
-
+        #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
