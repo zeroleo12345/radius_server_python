@@ -1,2 +1,4 @@
 # 启动 server
-hostapd ./hostapd-difoss.conf -dd
+hostapd ./hostapd-gtc.conf -dd
+
+hostapd ./hostapd-mschapv2.conf -dd
