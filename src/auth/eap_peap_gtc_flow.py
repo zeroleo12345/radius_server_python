@@ -110,8 +110,6 @@ class EapPeapGtcFlow(Flow):
     def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         if session.tls_connection is None:
             session.tls_connection = libhostapd.call_tls_connection_init()
-        if session.tls_connection is None:
-            raise Exception('tls_connection_init Error')
 
         if peap.tls_data == '':
             raise Exception('tls_data is None')

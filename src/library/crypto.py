@@ -46,7 +46,10 @@ class EapCrypto(object):
         # connection每个认证会话维持一个
         # ./src/crypto/tls.h:225:struct tls_connection * tls_connection_init(void *tls_ctx);
         self.lib.tls_connection_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 不加会导致 Segmentation fault
-        return self.lib.tls_connection_init(self.tls_ctx)
+        connection = self.lib.tls_connection_init(self.tls_ctx)
+        if connection is None:
+            raise EapCryptoError('tls_connection_init error')
+        return connection
 
     def call_tls_connection_deinit(self, tls_connection):
         self.lib.tls_connection_deinit(self.tls_ctx, tls_connection)
@@ -62,7 +65,7 @@ class EapCrypto(object):
                                           label_pointer, 0,
                                           0, output_prf_pointer, output_prf_max_len)
         if ret < 0:     # 0 和 -1
-            raise EapCryptoError('tls_connection_prf Error!')
+            raise EapCryptoError('tls_connection_prf error!')
         return
 
     def call_tls_connection_server_handshake(self, tls_connection, input_tls_pointer):
