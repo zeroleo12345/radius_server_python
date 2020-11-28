@@ -53,7 +53,9 @@ class EapCrypto(object):
         #         const char *label, int server_random_first,
         #         int skip_keyblock, u8 *out, size_t out_len)
         self.lib.tls_connection_prf.restype = ctypes.c_int    # 不加会导致 Segmentation fault
-        ret = self.lib.tls_connection_prf(self.tls_ctx, tls_connection, label_pointer, 0, 0, output_prf_pointer, output_prf_max_len)
+        ret = self.lib.tls_connection_prf(self.tls_ctx, tls_connection,
+                                          label_pointer, 0,
+                                          0, output_prf_pointer, output_prf_max_len)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('tls_connection_prf Error!')
         return
@@ -64,7 +66,10 @@ class EapCrypto(object):
         #         const struct wpabuf *in_data,
         #         struct wpabuf **appl_data)
         self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 不加会导致 Segmentation fault
-        return self.lib.tls_connection_server_handshake(self.tls_ctx, tls_connection, input_tls_pointer, None)
+        return self.lib.tls_connection_server_handshake(self.tls_ctx,
+                                                        tls_connection,
+                                                        input_tls_pointer,
+                                                        None)
 
     def call_py_wpabuf_alloc(self, tls_in_data_pointer, tls_in_data_len):
         # ./hostapd/test_main.c:19:struct wpabuf * py_wpabuf_alloc(u8 * data, size_t data_len){
@@ -76,17 +81,23 @@ class EapCrypto(object):
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data)
         self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)     # 不加会导致 Segmentation fault
-        return self.lib.tls_connection_decrypt(self.tls_ctx, tls_connection, input_tls_pointer)
+        return self.lib.tls_connection_decrypt(self.tls_ctx,
+                                               tls_connection,
+                                               input_tls_pointer)
 
     def call_tls_connection_encrypt(self, tls_connection, input_tls_pointer):
         # ./src/crypto/tls_openssl.c:3252:struct wpabuf * tls_connection_encrypt(void *tls_ctx,
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data)
         self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 不加会导致 Segmentation fault
-        return self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, input_tls_pointer)
+        return self.lib.tls_connection_encrypt(self.tls_ctx,
+                                               tls_connection,
+                                               input_tls_pointer)
 
-    def call_generate_authenticator_response_pwhash(self, p_password_md4, p_peer_challenge, p_server_challenge,
-                                               p_username, l_username_len, p_nt_response, p_out_auth_response):
+    def call_generate_authenticator_response_pwhash(self, p_password_md4,
+                                                    p_peer_challenge, p_server_challenge,
+                                                    p_username, l_username_len,
+                                                    p_nt_response, p_out_auth_response):
         # int generate_authenticator_response_pwhash(
         #     const u8 *password_hash,
         #     const u8 *peer_challenge, const u8 *auth_challenge,
@@ -99,17 +110,21 @@ class EapCrypto(object):
             raise EapCryptoError('generate_authenticator_response_pwhash fail')
         return
 
-    def call_nt_password_hash(self, p_password, l_password_len, p_out_password_md4):
+    def call_nt_password_hash(self, p_password, l_password_len,
+                              p_out_password_md4):
         # int nt_password_hash(const u8 *password, size_t password_len,
         #         u8 *password_hash)
         self.lib.nt_password_hash.restype = ctypes.c_int    # 不加会导致 Segmentation fault
-        ret = self.lib.nt_password_hash(p_password, l_password_len,  p_out_password_md4)
+        ret = self.lib.nt_password_hash(p_password, l_password_len,
+                                        p_out_password_md4)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('nt_password_hash fail')
         return
 
-    def call_generate_nt_response(self, p_server_challenge, p_peer_challenge, p_username, l_username_len,
-                                  p_password, l_password_len, p_out_response):
+    def call_generate_nt_response(self, p_server_challenge, p_peer_challenge,
+                                  p_username, l_username_len,
+                                  p_password, l_password_len,
+                                  p_out_response):
         # int generate_nt_response(const u8 *auth_challenge, const u8 *peer_challenge,
         #         const u8 *username, size_t username_len,
         #         const u8 *password, size_t password_len,
@@ -143,7 +158,7 @@ class EapCrypto(object):
         self.lib.set_log_level(level)
         return
 
-    def decrypt(self, tls_connection, tls_in_data) -> bytes:
+    def decrypt(self, tls_connection, tls_in_data: bytes) -> bytes:
         tls_in_pointer, tls_out_pointer = None, None
         try:
             tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)
@@ -161,7 +176,7 @@ class EapCrypto(object):
             self.call_free_alloc(tls_in_pointer)
             self.call_free_alloc(tls_out_pointer)
 
-    def encrypt(self, tls_connection, tls_in_data) -> bytes:
+    def encrypt(self, tls_connection, tls_in_data: bytes) -> bytes:
         tls_in_pointer, tls_out_pointer = None, None
         try:
             tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)

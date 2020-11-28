@@ -51,7 +51,7 @@ class EapPacket(Eap):
         type_data = packet[5:_length] if _length > 5 else b''
         return EapPacket(code=code, id=id, type_dict={'type': type, 'type_data': type_data})
 
-    def pack(self):
+    def pack(self) -> bytes:
         if self.code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]:
             header = struct.pack('!B B H B', self.code, self.id, (5 + len(self.type_data)), self.type)
         else:

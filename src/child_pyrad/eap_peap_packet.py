@@ -106,10 +106,10 @@ class EapPeapPacket(Eap):
     def go_next_fragment(self):
         self.fpos += 1
 
-    def is_last_fragment(self):
+    def is_last_fragment(self) -> bool:
         return self.fpos >= len(self.fragments)
 
-    def pack(self):
+    def pack(self) -> bytes:
         attr = self.fragments[self.fpos-1] if self.fragments else b''           # 有包, 则取包内容. 否则为空
         flag_length = 1 if self.fpos == 1 and len(self.fragments) > 1 else 0    # 需要分包且当前在第1个包, 置为1
         flag_more = 1 if self.fpos < len(self.fragments) else 0                 # 分包未结束, 置为1
