@@ -22,10 +22,9 @@ class EapPeapMschapv2Flow(Flow):
         if 'State' in request:
             session_id = request['State'][0].decode()
             # 2. 从redis获取会话
-            session = SessionCache.load(session_id=session_id)  # 旧会话
+            session = SessionCache.load_and_housekeeping(session_id=session_id)  # 旧会话
             if not session:
                 log.error(f'session_id: {session_id} not exist in memory')
-                SessionCache.clean(session_id=session_id)
                 raise AccessReject()
         else:
             # 新会话
@@ -245,7 +244,6 @@ class EapPeapMschapv2Flow(Flow):
         # 查找用户密码
         user = DbUser.get_user(username=account_name)
         if not user:
-            SessionCache.clean(session_id=session.session_id)
             raise AccessReject()
         else:
             # 保存用户密码
@@ -362,4 +360,4 @@ class EapPeapMschapv2Flow(Flow):
         reply['EAP-Message'] = struct.pack('!B B H', EapPacket.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
         request.reply_to(reply)
         session.set_reply(reply)
-        SessionCache.clean(session_id=session.session_id)
+        # SessionCache.clean(session_id=session.session_id)

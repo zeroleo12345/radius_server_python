@@ -48,17 +48,23 @@ class SessionCache(object):
         assert session and session.session_id in cls._sessions
 
     @classmethod
-    def load(cls, session_id: str) -> EapPeapSession:
+    def load_and_housekeeping(cls, session_id: str) -> EapPeapSession:
         clean_session_ids = []
+        # 整理过期会话
         for s in cls._sessions.values():    # type: EapPeapSession
             now = datetime.datetime.now()
             if now - s.update_time >= datetime.timedelta(seconds=120):
                 clean_session_ids.append(s.session_id)
             else:
                 break
+        session = cls._sessions.get(session_id, None)
+        # 清理过期会话
         for _session_id in clean_session_ids:
+            if _session_id == session_id and session:
+                # 如果session还存在, 且需要清理, 则跳过
+                continue
             cls.clean(session_id=_session_id)
-        return cls._sessions.get(session_id, None)
+        return session
 
     @classmethod
     def clean(cls, session_id: str):
