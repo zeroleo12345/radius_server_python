@@ -123,7 +123,7 @@ class EapPeapMschapv2Flow(Flow):
             tls_in = libhostapd.call_py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
             tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
             tls_out_data_len = tls_out.contents.used
-            tls_out_data: bytes = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)     # TODO 验证len(p_out_data)
+            tls_out_data: bytes = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
             session.certificate_fragment = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
             reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
             request.reply_to(reply)
@@ -171,7 +171,7 @@ class EapPeapMschapv2Flow(Flow):
             tls_in = libhostapd.call_py_wpabuf_alloc(p_tls_in_data, tls_in_data_len)
             tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, input_tls_pointer=tls_in)
             tls_out_data_len = tls_out.contents.used
-            tls_out_data: bytes = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)     # TODO 验证len(p_out_data)
+            tls_out_data: bytes = ctypes.string_at(tls_out.contents.buf, tls_out_data_len)
             peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
             reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
             request.reply_to(reply)
@@ -342,13 +342,12 @@ class EapPeapMschapv2Flow(Flow):
 
     @classmethod
     def peap_access_accept(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        max_out_len = 64
-        p_out_data = ctypes.create_string_buffer(max_out_len)
-        max_out_len = ctypes.c_ulonglong(max_out_len)
+        p_out_data = ctypes.create_string_buffer(64)
+        l_out_len = ctypes.c_ulonglong(len(p_out_data))
         p_label = ctypes.create_string_buffer(b'client EAP encryption')
-        libhostapd.call_tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
+        libhostapd.call_tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_len=l_out_len)
 
-        master_key: bytes = ctypes.string_at(p_out_data, max_out_len.value)     # TODO 验证len(p_out_data)
+        master_key: bytes = ctypes.string_at(p_out_data, len(p_out_data))
         session.msk = master_key
         return cls.access_accept(request=request, session=session)
 

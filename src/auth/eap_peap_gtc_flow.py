@@ -275,13 +275,12 @@ class EapPeapGtcFlow(Flow):
 
     @classmethod
     def peap_access_accept(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        max_out_len = 64
-        p_out_data = ctypes.create_string_buffer(max_out_len)
-        max_out_len = ctypes.c_ulonglong(max_out_len)
+        p_out_data = ctypes.create_string_buffer(64)
+        l_out_len = ctypes.c_ulonglong(len(p_out_data))
         p_label = ctypes.create_string_buffer(b'client EAP encryption')
-        libhostapd.call_tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_max_len=max_out_len)
+        libhostapd.call_tls_connection_prf(tls_connection=session.tls_connection, label_pointer=p_label, output_prf_pointer=p_out_data, output_prf_len=l_out_len)
 
-        session.msk = ctypes.string_at(p_out_data, max_out_len.value)
+        session.msk = ctypes.string_at(p_out_data, len(p_out_data))
         return cls.access_accept(request=request, session=session)
 
     @classmethod

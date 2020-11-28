@@ -55,7 +55,7 @@ class EapCrypto(object):
         self.lib.tls_connection_deinit(self.tls_ctx, tls_connection)
         return
 
-    def call_tls_connection_prf(self, tls_connection, label_pointer, output_prf_pointer, output_prf_max_len):
+    def call_tls_connection_prf(self, tls_connection, label_pointer, output_prf_pointer, output_prf_len):
         # TODO return
         # ./src/crypto/tls_openssl.c:3064:int tls_connection_prf(void *tls_ctx, struct tls_connection *conn,
         #         const char *label, int server_random_first,
@@ -63,7 +63,7 @@ class EapCrypto(object):
         self.lib.tls_connection_prf.restype = ctypes.c_int    # 不加会导致 Segmentation fault
         ret = self.lib.tls_connection_prf(self.tls_ctx, tls_connection,
                                           label_pointer, 0,
-                                          0, output_prf_pointer, output_prf_max_len)
+                                          0, output_prf_pointer, output_prf_len)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('tls_connection_prf error!')
         return
