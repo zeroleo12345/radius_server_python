@@ -49,11 +49,11 @@ class EapCrypto(object):
         return self.lib.tls_connection_init(self.tls_ctx)
 
     def call_tls_connection_deinit(self, tls_connection):
-        # TODO 待调用
         self.lib.tls_connection_deinit(self.tls_ctx, tls_connection)
         return
 
     def call_tls_connection_prf(self, tls_connection, label_pointer, output_prf_pointer, output_prf_max_len):
+        # TODO return
         # ./src/crypto/tls_openssl.c:3064:int tls_connection_prf(void *tls_ctx, struct tls_connection *conn,
         #         const char *label, int server_random_first,
         #         int skip_keyblock, u8 *out, size_t out_len)
@@ -103,6 +103,7 @@ class EapCrypto(object):
                                                     p_peer_challenge, p_server_challenge,
                                                     p_username, l_username_len,
                                                     p_nt_response, p_out_auth_response):
+        # TODO return
         # int generate_authenticator_response_pwhash(
         #     const u8 *password_hash,
         #     const u8 *peer_challenge, const u8 *auth_challenge,
@@ -159,35 +160,35 @@ class EapCrypto(object):
         return
 
     def decrypt(self, tls_connection, tls_in_data: bytes) -> bytes:
-        tls_in_pointer, tls_out_pointer = None, None
+        p_tls_in, p_tls_out = None, None
         try:
             tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
-            tls_in_pointer = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
-            tls_out_pointer = self.call_tls_connection_decrypt(tls_connection, tls_in_pointer)
-            if tls_out_pointer is None:
-                raise EapCryptoError('decrypt tls_out_pointer is None')
-            tls_out_data_len = tls_out_pointer.contents.used
-            tls_out_data = ctypes.string_at(tls_out_pointer.contents.buf, tls_out_data_len)
-            log.trace(f'tls decrypt data: {tls_out_data}')
-            log.trace(f'hex: {tls_out_data.hex()}')
-            return tls_out_data
+            p_tls_in = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
+            p_tls_out = self.call_tls_connection_decrypt(tls_connection, p_tls_in)
+            if p_tls_out is None:
+                raise EapCryptoError('decrypt p_tls_out is None')
+            tls_out_data_len = p_tls_out.contents.used
+            out_data = ctypes.string_at(p_tls_out.contents.buf, tls_out_data_len)     # TODO
+            log.trace(f'tls decrypt data: {out_data}')
+            log.trace(f'hex: {out_data.hex()}')
+            return out_data
         finally:
-            self.call_free_alloc(tls_in_pointer)
-            self.call_free_alloc(tls_out_pointer)
+            self.call_free_alloc(p_tls_in)
+            self.call_free_alloc(p_tls_out)
 
     def encrypt(self, tls_connection, tls_in_data: bytes) -> bytes:
-        tls_in_pointer, tls_out_pointer = None, None
+        p_tls_in, p_tls_out = None, None
         try:
             tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
-            tls_in_pointer = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
-            tls_out_pointer = self.call_tls_connection_encrypt(tls_connection, tls_in_pointer)
-            if tls_out_pointer is None:
-                raise EapCryptoError('encrypt tls_out_pointer is None')
-            tls_out_data_len = tls_out_pointer.contents.used
-            tls_out_data = ctypes.string_at(tls_out_pointer.contents.buf, tls_out_data_len)
-            return tls_out_data
+            p_tls_in = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
+            p_tls_out = self.call_tls_connection_encrypt(tls_connection, p_tls_in)
+            if p_tls_out is None:
+                raise EapCryptoError('encrypt p_tls_out is None')
+            out_data_len = p_tls_out.contents.used
+            out_data = ctypes.string_at(p_tls_out.contents.buf, out_data_len)   # TODO
+            return out_data
         finally:
-            self.call_free_alloc(tls_in_pointer)
-            self.call_free_alloc(tls_out_pointer)
+            self.call_free_alloc(p_tls_in)
+            self.call_free_alloc(p_tls_out)
