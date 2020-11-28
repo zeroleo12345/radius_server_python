@@ -280,13 +280,12 @@ class EapPeapMschapv2Flow(Flow):
             # 计算 md4(password)
             p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
             # 计算返回报文中的 auth_response
-            p_out_auth_response = ctypes.create_string_buffer(20)
             p_peer_challenge = ctypes.create_string_buffer(session.auth_user.peer_challenge)
             p_server_challenge = ctypes.create_string_buffer(session.auth_user.server_challenge)
             p_nt_response = ctypes.create_string_buffer(nt_response)
-            libhostapd.call_generate_authenticator_response_pwhash(
+            p_out_auth_response = libhostapd.call_generate_authenticator_response_pwhash(
                 p_password_md4=p_password_md4, p_peer_challenge=p_peer_challenge, p_server_challenge=p_server_challenge,
-                p_username=p_username, l_username_len=l_username_len, p_nt_response=p_nt_response, p_out_auth_response=p_out_auth_response
+                p_username=p_username, l_username_len=l_username_len, p_nt_response=p_nt_response,
             )
             auth_response: bytes = ctypes.string_at(p_out_auth_response, len(p_out_auth_response))
             auth_response: bytes = auth_response.hex().upper().encode()
