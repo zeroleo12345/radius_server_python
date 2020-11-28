@@ -5,15 +5,21 @@ class Eap(object):
     CODE_EAP_SUCCESS = 3
     CODE_EAP_FAILURE = 4
 
+    #
+    CODE_MSCHAPV2_CHALLENGE = 1
+    CODE_MSCHAPV2_RESPONSE = 2
+    CODE_MSCHAPV2_SUCCESS = 3
+    CODE_MSCHAPV2_FAILURE = 4
+
     # phase2 EAP Type
     TYPE_EAP_IDENTITY = 1
     TYPE_EAP_NOTIFICATION = 2
     TYPE_EAP_NAK = 3
     TYPE_EAP_GTC = 6
-    TYPE_EAP_SIM = 18
-    TYPE_EAP_AKA = 23
-    TYPE_EAP_PEAP = 25
-    TYPE_EAP_MSCHAPV2 = 26
+    TYPE_EAP_SIM = 18           # 0x12
+    TYPE_EAP_AKA = 23           # 0x17
+    TYPE_EAP_PEAP = 25          # 0x19
+    TYPE_EAP_MSCHAPV2 = 26      # 0x1a
 
     @staticmethod
     def get_next_id(identifier):

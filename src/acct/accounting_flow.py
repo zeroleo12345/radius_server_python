@@ -2,7 +2,8 @@
 from child_pyrad.packet import AcctRequest
 # 自己的库
 from .accounting_session import AccountingSession
-from settings import log, sentry_sdk, ACCOUNTING_INTERVAL
+from settings import sentry_sdk, ACCOUNTING_INTERVAL
+from loguru import logger as log
 from controls.user import AcctUser, DbUser
 
 

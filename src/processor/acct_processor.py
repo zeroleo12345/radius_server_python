@@ -6,7 +6,8 @@ from pyrad.dictionary import Dictionary
 # 自己的库
 from acct.accounting_flow import AccountingFlow
 from child_pyrad.dictionary import get_dictionaries
-from settings import log, RADIUS_DICTIONARY_DIR, RADIUS_SECRET
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET
+from loguru import logger as log
 from child_pyrad.packet import AcctRequest, AcctResponse
 from controls.user import AcctUser
 from utils.signal import Signal

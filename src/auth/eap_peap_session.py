@@ -2,9 +2,11 @@ import datetime
 # 第三方库
 from pyrad.packet import AuthPacket
 # 自己的库
+from auth.flow import Flow
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from controls.user import AuthUser
-from settings import log
+from settings import libhostapd
+from loguru import logger as log
 
 
 class EapPeapSession(object):
@@ -13,7 +15,7 @@ class EapPeapSession(object):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
         assert isinstance(session_id, str)
         self.session_id = session_id
-        self.next_state = EapPeapPacket.PEAP_CHALLENGE_START
+        self.next_state = Flow.PEAP_CHALLENGE_START
         self.prev_id = -1
         self.next_id = -1
         self.prev_eap_id = -1
@@ -22,8 +24,9 @@ class EapPeapSession(object):
         self.auth_user: AuthUser = auth_user
         self.reply: AuthPacket = None
         self.update_time = datetime.datetime.now()
+        self.state = None
         #
-        self.msk = ''       # Master Session Key
+        self.msk: bytes = b''       # Master Session Key
         self.certificate_fragment: EapPeapPacket = None
         self.tls_connection = None
 
@@ -45,19 +48,28 @@ class SessionCache(object):
         assert session and session.session_id in cls._sessions
 
     @classmethod
-    def load(cls, session_id: str) -> EapPeapSession:
+    def load_and_housekeeping(cls, session_id: str) -> EapPeapSession:
         clean_session_ids = []
+        # 整理过期会话
         for s in cls._sessions.values():    # type: EapPeapSession
             now = datetime.datetime.now()
             if now - s.update_time >= datetime.timedelta(seconds=120):
                 clean_session_ids.append(s.session_id)
             else:
                 break
+        session = cls._sessions.get(session_id, None)
+        # 清理过期会话
         for _session_id in clean_session_ids:
+            if _session_id == session_id and session:
+                # 如果session还存在, 且需要清理, 则跳过
+                continue
             cls.clean(session_id=_session_id)
-        return cls._sessions.get(session_id, None)
+        return session
 
     @classmethod
     def clean(cls, session_id: str):
         log.trace(f'clean session: {session_id}.')
-        cls._sessions.pop(session_id, None)
+        session = cls._sessions.pop(session_id, None)
+        if session and session.tls_connection:
+            log.trace(f'call_tls_connection_deinit: {session_id}')
+            libhostapd.call_tls_connection_deinit(session.tls_connection)

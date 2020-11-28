@@ -4,7 +4,7 @@ from pyrad.packet import AuthPacket, AccessRequest, AcctPacket
 from .exception import AuthenticatorError
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
-from settings import log
+from loguru import logger as log
 
 
 class Packet(object):

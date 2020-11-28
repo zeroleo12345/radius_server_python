@@ -7,7 +7,7 @@ Raidus Server is writtten by Python, and use to Authentication, Authorization, A
 
 - [x] [PEAPv1: EAP-GTC](https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05)
 
-- [ ] [PEAPv0: EAP-MSCHAPv2](https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00) TODO
+- [x] [PEAPv0: EAP-MSCHAPv2](https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00)
 
 
 ## Installation and Usage
