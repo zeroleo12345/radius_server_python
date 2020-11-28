@@ -23,6 +23,7 @@ class EapPeapSession(object):
         self.auth_user: AuthUser = auth_user
         self.reply: AuthPacket = None
         self.update_time = datetime.datetime.now()
+        self.state = None
         #
         self.msk: bytes = b''       # Master Session Key
         self.certificate_fragment: EapPeapPacket = None
