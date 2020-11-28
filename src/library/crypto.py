@@ -180,8 +180,8 @@ class EapCrypto(object):
                 raise EapCryptoError('decrypt p_tls_out is None')
             out_data_len = p_tls_out.contents.used
             out_data = ctypes.string_at(p_tls_out.contents.buf, out_data_len)
-            log.trace(f'tls decrypt data: {out_data}')
-            log.trace(f'hex: {out_data.hex()}')
+            log.trace(f'Decrypted Phase 2 EAP: {out_data}')
+            log.trace(f'hexdump: {out_data.hex()}')
             if out_data is None:
                 raise EapCryptoError('decrypt error')
             return out_data
@@ -192,6 +192,8 @@ class EapCrypto(object):
     def encrypt(self, tls_connection, tls_in_data: bytes) -> bytes:
         p_tls_in, p_tls_out = None, None
         try:
+            log.trace(f'Encrypting Phase 2 data: {tls_in_data}')
+            log.trace(f'hexdump: {tls_in_data.hex()}')
             tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             p_tls_in = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)

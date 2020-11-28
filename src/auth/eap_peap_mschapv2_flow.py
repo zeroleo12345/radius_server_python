@@ -190,7 +190,6 @@ class EapPeapMschapv2Flow(Flow):
 
     @classmethod
     def peap_challenge_phase2_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        # FIXME v0: b'\x01testuser'; v1: b'\x02\x05\x00\r\x01testuser';
         # 返回数据
         eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                  type_dict={'type': EapPacket.TYPE_EAP_IDENTITY, 'type_data': b''})
@@ -210,6 +209,7 @@ class EapPeapMschapv2Flow(Flow):
 
     @classmethod
     def peap_challenge_mschapv2_random(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+        # FIXME v0: b'\x01testuser'; v1: b'\x02\x05\x00\r\x01testuser';
         assert peap.tls_data
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
