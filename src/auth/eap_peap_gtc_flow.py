@@ -96,7 +96,8 @@ class EapPeapGtcFlow(Flow):
 
     @classmethod
     def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        eap_start = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1, flag_version=1)
+        support_peap_version = 1
+        eap_start = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1, flag_version=support_peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=eap_start, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
@@ -107,11 +108,15 @@ class EapPeapGtcFlow(Flow):
 
     @classmethod
     def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+        # 客户端 PEAP 版本
+        log.debug(f'eap header, peap version: {peap.flag_version}')
+        session.set_peap_version(peap.flag_version)
+
+        # 初始化 tls_connection
         if session.tls_connection is None:
             session.tls_connection = libhostapd.call_tls_connection_init()
 
         assert peap.tls_data
-
         p_tls_in_data = ctypes.create_string_buffer(peap.tls_data)
         tls_in_data_len = ctypes.c_ulonglong(len(peap.tls_data))
 

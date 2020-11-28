@@ -99,7 +99,8 @@ class EapPeapMschapv2Flow(Flow):
 
     @classmethod
     def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        eap_start = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1, flag_version=1)
+        support_peap_version = 1
+        eap_start = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1, flag_version=support_peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=eap_start, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
@@ -113,6 +114,7 @@ class EapPeapMschapv2Flow(Flow):
         # 客户端 PEAP 版本
         log.debug(f'eap header, peap version: {peap.flag_version}')
         session.set_peap_version(peap.flag_version)
+
         # 初始化 tls_connection
         if session.tls_connection is None:
             session.tls_connection = libhostapd.call_tls_connection_init()
@@ -126,7 +128,7 @@ class EapPeapMschapv2Flow(Flow):
             p_tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, p_tls_in=p_tls_in)
             tls_out_data_len = p_tls_out.contents.used
             tls_out_data: bytes = ctypes.string_at(p_tls_out.contents.buf, tls_out_data_len)
-            session.certificate_fragment = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+            session.certificate_fragment = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
             reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
             request.reply_to(reply)
             session.set_reply(reply)
@@ -174,7 +176,7 @@ class EapPeapMschapv2Flow(Flow):
             p_tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, p_tls_in=p_tls_in)
             tls_out_data_len = p_tls_out.contents.used
             tls_out_data: bytes = ctypes.string_at(p_tls_out.contents.buf, tls_out_data_len)
-            peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+            peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
             reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
             request.reply_to(reply)
             session.set_reply(reply)
@@ -196,7 +198,7 @@ class EapPeapMschapv2Flow(Flow):
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
-        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
@@ -243,7 +245,7 @@ class EapPeapMschapv2Flow(Flow):
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
-        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
@@ -334,7 +336,7 @@ class EapPeapMschapv2Flow(Flow):
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
-        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
@@ -354,7 +356,7 @@ class EapPeapMschapv2Flow(Flow):
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
-        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
