@@ -81,6 +81,8 @@ class EapPeapMschapv2Flow(Flow):
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
+            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_PHASE2_IDENTITY:
+                return cls.peap_challenge_phase2_identity(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_MSCHAPV2_RANDOM:
                 return cls.peap_challenge_mschapv2_random(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_MSCHAPV2_NT:
@@ -177,6 +179,25 @@ class EapPeapMschapv2Flow(Flow):
         finally:
             libhostapd.call_free_alloc(p_tls_in)
             libhostapd.call_free_alloc(p_tls_out)
+
+        # judge next move
+        session.next_state = cls.PEAP_CHALLENGE_PHASE2_IDENTITY
+        return
+
+    @classmethod
+    def peap_challenge_phase2_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+        # 返回数据
+        eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
+                                 type_dict={'type': EapPacket.TYPE_EAP_IDENTITY, 'type_data': b''})
+        tls_plaintext = eap_identity.pack()
+
+        # 加密
+        tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
+        #
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
+        request.reply_to(reply)
+        session.set_reply(reply)
 
         # judge next move
         session.next_state = cls.PEAP_CHALLENGE_MSCHAPV2_RANDOM

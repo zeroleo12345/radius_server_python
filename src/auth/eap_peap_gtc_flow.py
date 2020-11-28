@@ -80,8 +80,8 @@ class EapPeapGtcFlow(Flow):
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_GTC_IDENTITY:
-                return cls.peap_challenge_gtc_identity(request, eap, peap, session)
+            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_PHASE2_IDENTITY:
+                return cls.peap_challenge_phase2_identity(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_GTC_PASSWORD:
                 return cls.peap_challenge_gtc_password(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SUCCESS:
@@ -178,11 +178,11 @@ class EapPeapGtcFlow(Flow):
             libhostapd.call_free_alloc(p_tls_out)
 
         # judge next move
-        session.next_state = cls.PEAP_CHALLENGE_GTC_IDENTITY
+        session.next_state = cls.PEAP_CHALLENGE_PHASE2_IDENTITY
         return
 
     @classmethod
-    def peap_challenge_gtc_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+    def peap_challenge_phase2_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
         eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                  type_dict={'type': EapPacket.TYPE_EAP_IDENTITY, 'type_data': b''})
