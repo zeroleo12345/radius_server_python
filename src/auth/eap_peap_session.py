@@ -2,6 +2,7 @@ import datetime
 # 第三方库
 from pyrad.packet import AuthPacket
 # 自己的库
+from auth.flow import Flow
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from controls.user import AuthUser
 from loguru import logger as log
@@ -13,7 +14,7 @@ class EapPeapSession(object):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
         assert isinstance(session_id, str)
         self.session_id = session_id
-        self.next_state = EapPeapPacket.PEAP_CHALLENGE_START
+        self.next_state = Flow.PEAP_CHALLENGE_START
         self.prev_id = -1
         self.next_id = -1
         self.prev_eap_id = -1

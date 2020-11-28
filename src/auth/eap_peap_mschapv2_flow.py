@@ -73,21 +73,21 @@ class EapPeapMschapv2Flow(Flow):
             session.next_eap_id = EapPacket.get_next_id(eap.id)
             session.next_id = EapPacket.get_next_id(request.id)
             log.info(f'peap auth. session_id: {session.session_id}, next_state: {session.next_state}')
-            if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == EapPeapPacket.PEAP_CHALLENGE_START:
+            if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == cls.PEAP_CHALLENGE_START:
                 return cls.peap_challenge_start(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO:
+            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO:
                 return cls.peap_challenge_server_hello(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
+            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
+            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_RANDOM:
+            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_MSCHAPV2_RANDOM:
                 return cls.peap_challenge_mschapv2_random(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_NT:
+            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_MSCHAPV2_NT:
                 return cls.peap_challenge_mschapv2_nt(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_CHALLENGE_SUCCESS:
+            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SUCCESS:
                 return cls.peap_challenge_success(request, eap, peap, session)
-            elif peap is not None and session.next_state == EapPeapPacket.PEAP_ACCESS_ACCEPT:
+            elif peap is not None and session.next_state == cls.PEAP_ACCESS_ACCEPT:
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
             else:
                 log.error('eap peap auth error. unknown eap packet type')
@@ -103,7 +103,7 @@ class EapPeapMschapv2Flow(Flow):
         session.set_reply(reply)
 
         # judge next move
-        session.next_state = EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO
+        session.next_state = cls.PEAP_CHALLENGE_SERVER_HELLO
         return
 
     @classmethod
@@ -139,10 +139,10 @@ class EapPeapMschapv2Flow(Flow):
         # judge next move
         if session.certificate_fragment.is_last_fragment():
             # 不用分包
-            session.next_state = EapPeapPacket.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
+            session.next_state = cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
         else:
             # 需要分包
-            session.next_state = EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
+            session.next_state = cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
             session.certificate_fragment.go_next_fragment()
         return
 
@@ -156,10 +156,10 @@ class EapPeapMschapv2Flow(Flow):
         # judge next move
         if session.certificate_fragment.is_last_fragment():
             # 分包结束
-            session.next_state = EapPeapPacket.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
+            session.next_state = cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC
         else:
             # 继续分包
-            session.next_state = EapPeapPacket.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
+            session.next_state = cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT
             session.certificate_fragment.go_next_fragment()
         return
 
@@ -189,7 +189,7 @@ class EapPeapMschapv2Flow(Flow):
             libhostapd.call_free_alloc(tls_out)
 
         # judge next move
-        session.next_state = EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_RANDOM
+        session.next_state = cls.PEAP_CHALLENGE_MSCHAPV2_RANDOM
         return
 
     @classmethod
@@ -223,7 +223,7 @@ class EapPeapMschapv2Flow(Flow):
         session.set_reply(reply)
 
         # judge next move
-        session.next_state = EapPeapPacket.PEAP_CHALLENGE_MSCHAPV2_NT
+        session.next_state = cls.PEAP_CHALLENGE_MSCHAPV2_NT
         return
 
     @classmethod
@@ -333,7 +333,7 @@ class EapPeapMschapv2Flow(Flow):
         session.set_reply(reply)
 
         # judge next move
-        session.next_state = EapPeapPacket.PEAP_CHALLENGE_SUCCESS
+        session.next_state = cls.PEAP_CHALLENGE_SUCCESS
         return
 
     @classmethod
@@ -358,7 +358,7 @@ class EapPeapMschapv2Flow(Flow):
         session.set_reply(reply)
 
         # judge next move
-        session.next_state = EapPeapPacket.PEAP_ACCESS_ACCEPT
+        session.next_state = cls.PEAP_ACCESS_ACCEPT
         return
 
     @classmethod
