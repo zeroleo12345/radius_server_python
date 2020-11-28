@@ -342,17 +342,7 @@ class EapPeapMschapv2Flow(Flow):
         if tls_decrypt_data is None:
             raise Exception('Decrypt Error!')
 
-        eap_password = EapPacket.parse(packet=tls_decrypt_data)
-        auth_password = eap_password.type_data.decode()
-        log.debug(f'PEAP account: {session.auth_user.inner_username}, packet_password: {auth_password}')
-
-        def is_correct_password() -> bool:
-            return session.auth_user.user_password == auth_password
-
-        if not is_correct_password():
-            log.error(f'user_password: {session.auth_user.user_password} not correct')
-
-        # 返回数据
+        # 返回数据 eap_success
         eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id)
         tls_plaintext = eap_success.pack()
 
