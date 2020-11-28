@@ -287,40 +287,41 @@ class EapPeapMschapv2Flow(Flow):
         if not is_correct_password():
             # 密码整错
             log.error(f'user_password not correct')
-            pass
-
-        # 计算 md4(password)
-        p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
-        # 计算返回报文中的 auth_response
-        p_out_auth_response = ctypes.create_string_buffer(20)
-        p_peer_challenge = ctypes.create_string_buffer(session.auth_user.peer_challenge)
-        p_server_challenge = ctypes.create_string_buffer(session.auth_user.server_challenge)
-        p_nt_response = ctypes.create_string_buffer(nt_response)
-        libhostapd.call_generate_authenticator_response_pwhash(
-            p_password_md4=p_password_md4, p_peer_challenge=p_peer_challenge, p_server_challenge=p_server_challenge,
-            p_username=p_username, l_username_len=l_username_len, p_nt_response=p_nt_response, p_out_auth_response=p_out_auth_response
-        )
-        auth_response: bytes = ctypes.string_at(p_out_auth_response, len(p_out_auth_response))
-        auth_response: bytes = auth_response.hex().upper().encode()
-        # 返回数据
-        # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + MSCHAPV2_OP 到结束的长度(00 33) +
-        # S=(53 3d) +
-        # 40个字符:generate_authenticator_response_pwhash计算出来的哈希值再换成hex大写(37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33)
-        # + 空格(20) +
-        # M=(4d 3d) +
-        # OK(4f 4b)
-        response_msg = b'OK'
-        response_msg_len = len(response_msg)
-        size_of_auth_response = 20
-        size_of_mschapv2_hdr = 4
-        message = ''
-        type_data_length = size_of_mschapv2_hdr + 2 + (2 * size_of_auth_response) + 1 + 2 + response_msg_len
-        type_data = struct.pack(f'!B B H 2s {2 * size_of_auth_response}s 3s {response_msg_len}s',
-                                EapPacket.CODE_MSCHAPV2_SUCCESS, session.next_eap_id-1, type_data_length, b'S=', auth_response, b' M=', response_msg)
-        eap_ok = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
-                           type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
-        tls_plaintext = eap_ok.pack()
-
+            # 返回数据 eap_failure
+            eap_success = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.next_eap_id)
+            tls_plaintext = eap_success.pack()
+        else:
+            # 计算 md4(password)
+            p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
+            # 计算返回报文中的 auth_response
+            p_out_auth_response = ctypes.create_string_buffer(20)
+            p_peer_challenge = ctypes.create_string_buffer(session.auth_user.peer_challenge)
+            p_server_challenge = ctypes.create_string_buffer(session.auth_user.server_challenge)
+            p_nt_response = ctypes.create_string_buffer(nt_response)
+            libhostapd.call_generate_authenticator_response_pwhash(
+                p_password_md4=p_password_md4, p_peer_challenge=p_peer_challenge, p_server_challenge=p_server_challenge,
+                p_username=p_username, l_username_len=l_username_len, p_nt_response=p_nt_response, p_out_auth_response=p_out_auth_response
+            )
+            auth_response: bytes = ctypes.string_at(p_out_auth_response, len(p_out_auth_response))
+            auth_response: bytes = auth_response.hex().upper().encode()
+            # 返回数据
+            # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + MSCHAPV2_OP 到结束的长度(00 33) +
+            # S=(53 3d) +
+            # 40个字符:generate_authenticator_response_pwhash计算出来的哈希值再换成hex大写(37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33)
+            # + 空格(20) +
+            # M=(4d 3d) +
+            # OK(4f 4b)
+            response_msg = b'OK'
+            response_msg_len = len(response_msg)
+            size_of_auth_response = 20
+            size_of_mschapv2_hdr = 4
+            message = ''
+            type_data_length = size_of_mschapv2_hdr + 2 + (2 * size_of_auth_response) + 1 + 2 + response_msg_len
+            type_data = struct.pack(f'!B B H 2s {2 * size_of_auth_response}s 3s {response_msg_len}s',
+                                    EapPacket.CODE_MSCHAPV2_SUCCESS, session.next_eap_id-1, type_data_length, b'S=', auth_response, b' M=', response_msg)
+            eap_ok = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
+                               type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
+            tls_plaintext = eap_ok.pack()
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         if tls_out_data is None:
