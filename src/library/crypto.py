@@ -85,28 +85,39 @@ class EapCrypto(object):
         self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 重要! 不加会导致 Segmentation fault
         return self.lib.tls_connection_encrypt(self.tls_ctx, tls_connection, input_tls_pointer)
 
-    def call_generate_authenticator_response_pwhash(self, password_md4_pointer, peer_challenge_pointer, server_challenge_pointer,
-                                               username_pointer, username_len, nt_response_pointer, output_auth_response_pointer):
+    def call_generate_authenticator_response_pwhash(self, p_password_md4, p_peer_challenge, p_server_challenge,
+                                               p_username, l_username_len, p_nt_response, p_out_auth_response):
         # int generate_authenticator_response_pwhash(
         #     const u8 *password_hash,
         #     const u8 *peer_challenge, const u8 *auth_challenge,
         #     const u8 *username, size_t username_len,
         #     const u8 *nt_response, u8 *response)
         self.lib.generate_authenticator_response_pwhash.restype = ctypes.c_int    # 重要! 不加会导致 Segmentation fault
-        ret = self.lib.generate_authenticator_response_pwhash(password_md4_pointer, peer_challenge_pointer, server_challenge_pointer,
-                                                              username_pointer, username_len, nt_response_pointer, output_auth_response_pointer)
+        ret = self.lib.generate_authenticator_response_pwhash(p_password_md4, p_peer_challenge, p_server_challenge,
+                                                              p_username, l_username_len, p_nt_response, p_out_auth_response)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('generate_authenticator_response_pwhash fail')
         return
 
-    def call_nt_password_hash(self, password_pointer, password_len, output_password_hash_pointer):
+    def call_nt_password_hash(self, p_password, l_password_len, p_out_password_md4):
         # int nt_password_hash(const u8 *password, size_t password_len,
         #         u8 *password_hash)
         self.lib.nt_password_hash.restype = ctypes.c_int    # 重要! 不加会导致 Segmentation fault
-        ret = self.lib.nt_password_hash(password_pointer, password_len, output_password_hash_pointer)
+        ret = self.lib.nt_password_hash(p_password, l_password_len,  p_out_password_md4)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('nt_password_hash fail')
         return
+
+    def call_generate_nt_response(self):
+        # int generate_nt_response(const u8 *auth_challenge, const u8 *peer_challenge,
+        #         const u8 *username, size_t username_len,
+        #         const u8 *password, size_t password_len,
+        #         u8 *response)
+        self.lib.nt_password_hash.restype = ctypes.c_int    # 重要! 不加会导致 Segmentation fault
+        ret = self.lib.generate_nt_response(p_password, l_password_len, out_password_hash_pointer)
+        if ret < 0:     # 0 和 -1
+            raise EapCryptoError('nt_password_hash fail')
+
 
     def call_free_alloc(self, pointer):
         if pointer:

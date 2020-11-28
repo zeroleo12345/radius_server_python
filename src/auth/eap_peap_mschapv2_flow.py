@@ -262,13 +262,13 @@ class EapPeapMschapv2Flow(Flow):
         else:
             # 保存用户密码
             session.auth_user.set_user_password(user.password)
-        # TODO 计算密码是否正确: generate_nt_response_pwhash
+        # TODO 计算密码是否正确: generate_nt_response
         pass
         # 计算 md4(password)
         p_password_md4 = ctypes.create_string_buffer(16)
         p_password = ctypes.create_string_buffer(session.auth_user.user_password.encode())
         password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
-        libhostapd.call_nt_password_hash(password_pointer=p_password, password_len=password_len, output_password_hash_pointer=p_password_md4)
+        libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=password_len, p_out_password_md4=p_password_md4)
         # 计算返回报文中的 auth_response
         max_out_len = 20
         p_out_auth_response = ctypes.create_string_buffer(max_out_len)
@@ -278,8 +278,8 @@ class EapPeapMschapv2Flow(Flow):
         p_username = ctypes.create_string_buffer(account_name.encode())
         username_len = ctypes.c_ulonglong(username_len)
         libhostapd.call_generate_authenticator_response_pwhash(
-            password_md4_pointer=p_password_md4, peer_challenge_pointer=p_peer_challenge, server_challenge_pointer=p_server_challenge,
-            username_pointer=p_username, username_len=username_len, nt_response_pointer=p_nt_response, output_auth_response_pointer=p_out_auth_response
+            p_password_md4=p_password_md4, p_peer_challenge=p_peer_challenge, p_server_challenge=p_server_challenge,
+            p_username=p_username, l_username_len=username_len, p_nt_response=p_nt_response, p_out_auth_response=p_out_auth_response
         )
         auth_response: bytes = ctypes.string_at(p_out_auth_response, max_out_len)
         auth_response: bytes = auth_response.hex().upper().encode()
