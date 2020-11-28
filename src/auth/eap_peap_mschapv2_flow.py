@@ -72,7 +72,7 @@ class EapPeapMschapv2Flow(Flow):
             # 正常eap-peap流程
             session.next_eap_id = EapPacket.get_next_id(eap.id)
             session.next_id = EapPacket.get_next_id(request.id)
-            log.info(f'peap auth. session_id: {session.session_id}, next_state: {session.next_state}')
+            log.info(f'peap auth. session_id: {session.session_id}, call next_state: {session.next_state}')
             if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == cls.PEAP_CHALLENGE_START:
                 return cls.peap_challenge_start(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO:
