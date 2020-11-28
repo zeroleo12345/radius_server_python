@@ -30,16 +30,16 @@ class EapCrypto(object):
     def __init__(self, hostapd_library_path: str, ca_cert_path, client_cert_path, private_key_path, private_key_passwd: str, dh_file_path):
         assert os.path.exists(hostapd_library_path)
         self.lib = ctypes.CDLL(hostapd_library_path, mode=257)
-        ca_cert_path_pointer = ctypes.create_string_buffer(ca_cert_path.encode())
-        client_cert_path_pointer = ctypes.create_string_buffer(client_cert_path.encode())
-        private_key_path_pointer = ctypes.create_string_buffer(private_key_path.encode())
-        private_key_passwd_pointer = ctypes.create_string_buffer(private_key_passwd.encode())
-        dh_file_path_pointer = ctypes.create_string_buffer(dh_file_path.encode())
+        p_ca_cert_path = ctypes.create_string_buffer(ca_cert_path.encode())
+        p_client_cert_path = ctypes.create_string_buffer(client_cert_path.encode())
+        p_private_key_path = ctypes.create_string_buffer(private_key_path.encode())
+        p_private_key_passwd = ctypes.create_string_buffer(private_key_passwd.encode())
+        p_dh_file_path = ctypes.create_string_buffer(dh_file_path.encode())
         # ./hostapd/test_main.c:94:void* py_authsrv_init(char *ca_cert_path, char *client_cert_path,
         #         char *private_key_path, char *private_key_passwd, char *dh_file_path) {
         self.lib.py_authsrv_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 不加会导致 Segmentation fault
-        self.tls_ctx = self.lib.py_authsrv_init(ca_cert_path_pointer, client_cert_path_pointer,
-                                                private_key_path_pointer, private_key_passwd_pointer, dh_file_path_pointer)
+        self.tls_ctx = self.lib.py_authsrv_init(p_ca_cert_path, p_client_cert_path,
+                                                p_private_key_path, p_private_key_passwd, p_dh_file_path)
         assert self.tls_ctx
 
     def call_tls_connection_init(self):
@@ -110,33 +110,33 @@ class EapCrypto(object):
             raise EapCryptoError('generate_authenticator_response_pwhash fail')
         return
 
-    def call_nt_password_hash(self, p_password, l_password_len,
-                              p_out_password_md4):
+    def call_nt_password_hash(self, p_password, l_password_len):
         # int nt_password_hash(const u8 *password, size_t password_len,
         #         u8 *password_hash)
+        p_password_md4 = ctypes.create_string_buffer(16)
         self.lib.nt_password_hash.restype = ctypes.c_int    # 不加会导致 Segmentation fault
         ret = self.lib.nt_password_hash(p_password, l_password_len,
-                                        p_out_password_md4)
+                                        p_password_md4)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('nt_password_hash fail')
-        return
+        return p_password_md4
 
     def call_generate_nt_response(self, p_server_challenge, p_peer_challenge,
                                   p_username, l_username_len,
-                                  p_password, l_password_len,
-                                  p_out_response):
+                                  p_password, l_password_len):
         # int generate_nt_response(const u8 *auth_challenge, const u8 *peer_challenge,
         #         const u8 *username, size_t username_len,
         #         const u8 *password, size_t password_len,
         #         u8 *response)
+        p_expect = ctypes.create_string_buffer(24)
         self.lib.nt_password_hash.restype = ctypes.c_int    # 不加会导致 Segmentation fault
         ret = self.lib.generate_nt_response(p_server_challenge, p_peer_challenge,
                                             p_username, l_username_len,
                                             p_password, l_password_len,
-                                            p_out_response)
+                                            p_expect)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('generate_nt_response fail')
-        return
+        return p_expect
 
     def call_free_alloc(self, pointer):
         if pointer:

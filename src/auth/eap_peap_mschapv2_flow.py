@@ -262,31 +262,27 @@ class EapPeapMschapv2Flow(Flow):
         else:
             # 保存用户密码
             session.auth_user.set_user_password(user.password)
-        # TODO 计算密码是否正确: generate_nt_response
-        p_password_md4 = ctypes.create_string_buffer(16)
+        p_username = ctypes.create_string_buffer(account_name.encode())
+        l_username_len = ctypes.c_ulonglong(username_len)
         p_password = ctypes.create_string_buffer(session.auth_user.user_password.encode())
-        password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
-        libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=password_len, p_out_password_md4=p_password_md4)
-        libhostapd.call_generate_nt_response(
+        l_password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
+        # 计算密码是否正确
+        p_expect = libhostapd.call_generate_nt_response(
             p_server_challenge=session.auth_user.server_challenge, peer_challenge=session.auth_user.peer_challenge,
+            p_username=p_username, l_username_len=l_username_len, p_password=p_password, l_password_len=l_password_len,
         )
-        pass
+        expect: bytes = ctypes.string_at()
         # 计算 md4(password)
-        p_password_md4 = ctypes.create_string_buffer(16)
-        p_password = ctypes.create_string_buffer(session.auth_user.user_password.encode())
-        password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
-        libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=password_len, p_out_password_md4=p_password_md4)
+        p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
         # 计算返回报文中的 auth_response
         max_out_len = 20
         p_out_auth_response = ctypes.create_string_buffer(max_out_len)
         p_peer_challenge = ctypes.create_string_buffer(session.auth_user.peer_challenge)
         p_server_challenge = ctypes.create_string_buffer(session.auth_user.server_challenge)
         p_nt_response = ctypes.create_string_buffer(nt_response)
-        p_username = ctypes.create_string_buffer(account_name.encode())
-        username_len = ctypes.c_ulonglong(username_len)
         libhostapd.call_generate_authenticator_response_pwhash(
             p_password_md4=p_password_md4, p_peer_challenge=p_peer_challenge, p_server_challenge=p_server_challenge,
-            p_username=p_username, l_username_len=username_len, p_nt_response=p_nt_response, p_out_auth_response=p_out_auth_response
+            p_username=p_username, l_username_len=l_username_len, p_nt_response=p_nt_response, p_out_auth_response=p_out_auth_response
         )
         auth_response: bytes = ctypes.string_at(p_out_auth_response, max_out_len)
         auth_response: bytes = auth_response.hex().upper().encode()
