@@ -205,6 +205,14 @@ class EapPeapMschapv2Flow(Flow):
 
     @classmethod
     def peap_challenge_mschapv2_random(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+        assert peap.tls_data
+        # 解密
+        tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
+        eap_identity = EapPacket.parse(packet=tls_decrypt_data)
+        account_name = eap_identity.type_data.decode()
+        # 保存用户名
+        session.auth_user.set_inner_username(account_name)
+
         # 返回数据
         # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 1c) +
         # 随机数长度固定值(10) +
@@ -238,7 +246,6 @@ class EapPeapMschapv2Flow(Flow):
     @classmethod
     def peap_challenge_mschapv2_nt(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         assert peap.tls_data
-
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         # MSCHAPV2_OP_RESPONSE(02) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 3e) +
