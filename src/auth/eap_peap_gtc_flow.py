@@ -111,8 +111,7 @@ class EapPeapGtcFlow(Flow):
         if session.tls_connection is None:
             session.tls_connection = libhostapd.call_tls_connection_init()
 
-        if peap.tls_data == '':
-            raise Exception('tls_data is None')
+        assert peap.tls_data
 
         p_tls_in_data = ctypes.create_string_buffer(peap.tls_data)
         tls_in_data_len = ctypes.c_ulonglong(len(peap.tls_data))
@@ -160,8 +159,7 @@ class EapPeapGtcFlow(Flow):
 
     @classmethod
     def peap_challenge_change_cipher_spec(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        if peap.tls_data == '':
-            raise Exception('tls_data is None')
+        assert peap.tls_data
 
         p_tls_in_data = ctypes.create_string_buffer(peap.tls_data)
         tls_in_data_len = ctypes.c_ulonglong(len(peap.tls_data))
@@ -205,8 +203,7 @@ class EapPeapGtcFlow(Flow):
 
     @classmethod
     def peap_challenge_gtc_password(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        if peap.tls_data == '':
-            raise Exception('tls_data is None')
+        assert peap.tls_data
 
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
