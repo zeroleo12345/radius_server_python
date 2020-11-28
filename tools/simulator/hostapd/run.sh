@@ -1,4 +1,4 @@
 # 启动 server
-hostapd -dd ./hostapd.conf
+hostapd -dd ./hostapd-all.conf
 
 hostapd -dd ./hostapd-mschapv2.conf
