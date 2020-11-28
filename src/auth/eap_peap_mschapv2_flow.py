@@ -54,6 +54,7 @@ class EapPeapMschapv2Flow(Flow):
         :param peap:
         :param session:
         """
+        # TODO 处理 Nak 报文
         if session.prev_id == request.id or session.prev_eap_id == eap.id:
             # 重复请求
             if session.reply:
