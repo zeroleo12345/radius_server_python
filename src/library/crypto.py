@@ -26,6 +26,7 @@ class TlsBuffer(ctypes.Structure):
 
 
 class EapCrypto(object):
+    tls_ctx = None
 
     def __init__(self, hostapd_library_path: str, ca_cert_path, client_cert_path, private_key_path, private_key_passwd: str, dh_file_path):
         assert os.path.exists(hostapd_library_path)
