@@ -1,4 +1,4 @@
 # 启动 server
-hostapd ./hostapd-gtc.conf -dd
+hostapd -dd ./hostapd.conf
 
-hostapd ./hostapd-mschapv2.conf -dd
+hostapd -dd ./hostapd-mschapv2.conf
