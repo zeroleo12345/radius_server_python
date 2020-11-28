@@ -175,6 +175,8 @@ class EapCrypto(object):
             out_data = ctypes.string_at(p_tls_out.contents.buf, tls_out_data_len)     # TODO
             log.trace(f'tls decrypt data: {out_data}')
             log.trace(f'hex: {out_data.hex()}')
+            if out_data is None:
+                raise EapCryptoError('decrypt error')
             return out_data
         finally:
             self.call_free_alloc(p_tls_in)

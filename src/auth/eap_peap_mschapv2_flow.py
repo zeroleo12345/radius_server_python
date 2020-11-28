@@ -227,9 +227,6 @@ class EapPeapMschapv2Flow(Flow):
 
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
-        if tls_decrypt_data is None:
-            raise Exception('Decrypt Error!')
-
         # MSCHAPV2_OP_RESPONSE(02) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 3e) +
         # 随机数长度(31) +
         # 24位随机数内含8位0(16 79 ba 65 ad 16 7f 92 5c 74 c9 80 53 d6 fc 4c + 00 00 00 00 00 00 00 00) +
@@ -332,9 +329,6 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_success(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
-        if tls_decrypt_data is None:
-            raise Exception('Decrypt Error!')
-
         # 返回数据 eap_success
         eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id)
         tls_plaintext = eap_success.pack()

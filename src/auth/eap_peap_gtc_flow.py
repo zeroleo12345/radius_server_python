@@ -212,9 +212,6 @@ class EapPeapGtcFlow(Flow):
 
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
-        if tls_decrypt_data is None:
-            raise Exception('Decrypt Error!')
-
         eap_identity = EapPacket.parse(packet=tls_decrypt_data)
         account_name = eap_identity.type_data.decode()
         # 保存用户名
@@ -252,9 +249,6 @@ class EapPeapGtcFlow(Flow):
     def peap_challenge_success(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
-        if tls_decrypt_data is None:
-            raise Exception('Decrypt Error!')
-
         eap_password = EapPacket.parse(packet=tls_decrypt_data)
         auth_password = eap_password.type_data.decode()
         log.debug(f'PEAP account: {session.auth_user.inner_username}, packet_password: {auth_password}')
