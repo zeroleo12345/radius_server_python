@@ -11,7 +11,7 @@ class EapCryptoError(Exception):
     pass
 
 
-class TlsBuffer(ctypes.Structure):
+class WpaBuffer(ctypes.Structure):
     """
     ctypes.CFUNCTYPE(restype, *argtypes, use_errno=False, use_last_error=False)
     int         =>  c_int
@@ -81,7 +81,7 @@ class EapCrypto(object):
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data,
         #         struct wpabuf **appl_data)
-        self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 不加会导致 Segmentation fault
+        self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(WpaBuffer)    # 不加会导致 Segmentation fault
         tls_out = self.lib.tls_connection_server_handshake(self.tls_ctx,
                                                            tls_connection,
                                                            p_tls_in,
@@ -99,7 +99,7 @@ class EapCrypto(object):
         # ./src/crypto/tls_openssl.c:3292:struct wpabuf * tls_connection_decrypt(void *tls_ctx,
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data)
-        self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)     # 不加会导致 Segmentation fault
+        self.lib.tls_connection_decrypt.restype = ctypes.POINTER(WpaBuffer)     # 不加会导致 Segmentation fault
         return self.lib.tls_connection_decrypt(self.tls_ctx,
                                                tls_connection,
                                                input_tls_pointer)
@@ -108,7 +108,7 @@ class EapCrypto(object):
         # ./src/crypto/tls_openssl.c:3252:struct wpabuf * tls_connection_encrypt(void *tls_ctx,
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data)
-        self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 不加会导致 Segmentation fault
+        self.lib.tls_connection_encrypt.restype = ctypes.POINTER(WpaBuffer)     # 不加会导致 Segmentation fault
         return self.lib.tls_connection_encrypt(self.tls_ctx,
                                                tls_connection,
                                                input_tls_pointer)

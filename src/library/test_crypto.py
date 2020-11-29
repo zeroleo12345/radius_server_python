@@ -74,7 +74,7 @@ if __name__ == "__main__":
         tls_in = libwpa.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
 
         # ./src/crypto/tls_openssl.c:3243:struct wpabuf * tls_connection_server_handshake(void *tls_ctx,
-        libwpa.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 重要! 不加会导致 Segmentation fault
+        libwpa.tls_connection_server_handshake.restype = ctypes.POINTER(WPABuffer)    # 重要! 不加会导致 Segmentation fault
         tls_out = libwpa.tls_connection_server_handshake(tls_ctx, conn, tls_in, None)    # response = ctypes.c_void_p() -> void *
         if tls_out is None:
             libwpa.tls_connection_deinit(tls_ctx, conn)
