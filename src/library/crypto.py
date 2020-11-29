@@ -18,11 +18,10 @@ class TlsBuffer(ctypes.Structure):
     int *       =>  POINTER(c_int)
     """
     # struct wpabuf {
-    # 	size_t size; /* total size of the allocated buffer */
-    # 	size_t used; /* length of data in the buffer */
-    # 	u8 *buf; /* pointer to the head of the buffer */
-    # 	unsigned int flags;
-    # 	/* optionally followed by the allocated buffer */
+    # 	size_t size;            /* total size of the allocated buffer */
+    # 	size_t used;            /* length of data in the buffer */
+    # 	u8 *buf;                /* pointer to the head of the buffer */
+    # 	unsigned int flags;     /* optionally followed by the allocated buffer */
     # };
     _fields_ = [
         ('size', ctypes.c_ulonglong),
