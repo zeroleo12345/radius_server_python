@@ -72,6 +72,7 @@ class EapPeapMschapv2Flow(Flow):
                 # 会话正在处理中
                 log.warning(f'processor handling. username: {request.username}, mac: {request.mac_address}, next_state: {session.next_state}')
                 return
+        # 第一个报文 OR 符合服务端预期的 response
         elif session.next_eap_id == -1 or session.next_eap_id == eap.id:
             # 正常eap-peap流程
             session.next_eap_id = EapPacket.get_next_id(eap.id)

@@ -35,7 +35,7 @@ class EapPeapGtcFlow(Flow):
             if not session:
                 # 携带 State 字段表示之前已经认证成功, 现在再申请连入网络
                 # 必须是 PEAP-Start 前的 identity 报文, 例如: EAP-Message: ['\x02\x01\x00\r\x01testuser']
-                assert eap.id == 1
+                assert eap.type == EapPacket.TYPE_EAP_IDENTITY
         session = session or EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
         log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.mac_address}.'
@@ -70,6 +70,7 @@ class EapPeapGtcFlow(Flow):
                 # 会话正在处理中
                 log.warning(f'processor handling. username: {request.username}, mac: {request.mac_address}, next_state: {session.next_state}')
                 return
+        # 第一个报文 OR 符合服务端预期的 response
         elif session.next_eap_id == -1 or session.next_eap_id == eap.id:
             # 正常eap-peap流程
             session.next_eap_id = EapPacket.get_next_id(eap.id)
