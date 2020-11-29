@@ -1,5 +1,5 @@
 # 支持全协议
-hostapd -dd ./hostapd-all.conf
+hostapd -dd /app/tools/simulator/hostapd/hostapd-all.conf
 
 # 限制只支持mschapv2
-hostapd -dd ./hostapd-mschapv2.conf
+hostapd -dd /app/tools/simulator/hostapd/hostapd-mschapv2.conf
