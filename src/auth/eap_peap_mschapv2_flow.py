@@ -19,31 +19,34 @@ class EapPeapMschapv2Flow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         log.trace(f'request: {request}')
-        # 1. 获取报文
-        if 'State' in request:
-            session_id = request['State'][0].decode()
-            # 2. 从redis获取会话
-            session = SessionCache.load_and_housekeeping(session_id=session_id)  # 旧会话
-            if not session:
-                log.error(f'session_id: {session_id} not exist in memory')
-                raise AccessReject()
-        else:
-            # 新会话
-            session = EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
-        # 3. 解析eap报文和eap_peap报文
+        # 解析eap报文和eap_peap报文
         raw_eap_messages = EapPacket.merge_eap_message(request['EAP-Message'])
         eap = EapPacket.parse(packet=raw_eap_messages)
         peap = None
         if EapPacket.is_eap_peap(type=eap.type):
             peap = EapPeapPacket.parse(packet=raw_eap_messages)
 
+        # 判断新旧会话
+        session = None
+        if 'State' in request:
+            session_id = request['State'][0].decode()
+            # 2. 从redis获取会话
+            session = SessionCache.load_and_housekeeping(session_id=session_id)  # 旧会话
+            if not session:
+                # 携带 State 字段表示之前已经认证成功, 现在再申请连入网络
+                # 必须是 PEAP-Start 前的 identity 报文, 例如: EAP-Message: ['\x02\x01\x00\r\x01testuser']
+                assert eap.id == 1
+        session = session or EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
+
         log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.mac_address}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
-        # 4. 调用对应状态的处理函数
+
+        # 调用对应状态的处理函数
         cls.state_machine(request=request, eap=eap, peap=peap, session=session)
         session.prev_id = request.id
         session.prev_eap_id = eap.id
+
         # 每次处理回复后, 保存session到Redis
         SessionCache.save(session=session)
 
