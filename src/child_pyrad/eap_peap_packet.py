@@ -12,6 +12,7 @@ reference:
 
 
     PEAPv1 EAP-GTC - Protected EAP Protocol (PEAP)
+        https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-07
         https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
 
 
