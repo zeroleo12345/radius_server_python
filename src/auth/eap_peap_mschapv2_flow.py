@@ -394,8 +394,7 @@ class EapPeapMschapv2Flow(Flow):
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
         log.info(f'OUT: accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.mac_address}')
         reply = AuthResponse.create_access_accept(request=request)
-        # reply['Session-Timeout'] = 600
-        # reply['Idle-Timeout'] = 600
+        reply['Idle-Timeout'] = 86400       # 用户的闲置切断时间
         reply['User-Name'] = request.username
         reply['Calling-Station-Id'] = request.mac_address
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
