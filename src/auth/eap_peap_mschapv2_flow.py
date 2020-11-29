@@ -197,7 +197,7 @@ class EapPeapMschapv2Flow(Flow):
         tls_plaintext: bytes = eap_identity.pack()
 
         # 加密
-        tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
+        tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext, peap_version=session.peap_version)
         #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
@@ -244,13 +244,11 @@ class EapPeapMschapv2Flow(Flow):
         eap_random = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
         tls_plaintext: bytes = eap_random.pack()
-        if session.peap_version == 0:
-            tls_plaintext = tls_plaintext[4:]
         # 保存服务端随机数
         session.auth_user.set_server_challenge(server_challenge)
 
         # 加密
-        tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
+        tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext, peap_version=session.peap_version)
         #
         # FIXME v0: b'\x01testuser'; v1: b'\x02\x05\x00\r\x01testuser';
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
@@ -345,7 +343,7 @@ class EapPeapMschapv2Flow(Flow):
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
             tls_plaintext: bytes = eap_ok.pack()
         # 加密
-        tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
+        tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext, peap_version=session.peap_version)
         #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
@@ -365,7 +363,7 @@ class EapPeapMschapv2Flow(Flow):
         tls_plaintext: bytes = eap_success.pack()
 
         # 加密
-        tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
+        tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext, peap_version=session.peap_version)
         #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)

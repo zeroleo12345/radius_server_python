@@ -195,11 +195,14 @@ class EapCrypto(object):
             self.call_free_alloc(p_tls_in)
             self.call_free_alloc(p_tls_out)
 
-    def encrypt(self, tls_connection, tls_in_data: bytes) -> bytes:
+    def encrypt(self, tls_connection, tls_in_data: bytes, peap_version: int = 1) -> bytes:
         p_tls_in, p_tls_out = None, None
         try:
             log.trace(f'Encrypting Phase 2 data - hexdump(len={len(tls_in_data)}): {tls_in_data}')
             log.trace(f'hex: {tls_in_data.hex()}')
+            if peap_version == 0:
+                log.trace(f'Drop 4 byte PEAPv0 EAP header')
+                tls_in_data = tls_in_data[4:]
             tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             p_tls_in = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
