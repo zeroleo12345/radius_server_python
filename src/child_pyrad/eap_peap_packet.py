@@ -2,13 +2,17 @@
 reference:
 
     PEAPv0 EAP-MSCHAPv2:
-        Microsoft's PEAP version 0 (Implementation in Windows XP SP1): (search Appendix A)
+        Microsoft's PEAP version 0 (Implementation in Windows XP SP1): (search Appendix A). 且文中列出了 PEAPv0 和 PEAPv1 的不同地方
             https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00
         Microsoft PPP CHAP Extensions, Version 2
             https://tools.ietf.org/html/rfc2759
+        Microsoft Vendor-specific RADIUS Attributes:
+            https://tools.ietf.org/html/rfc2548
+
 
     PEAPv1 EAP-GTC - Protected EAP Protocol (PEAP)
         https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
+
 
     认证流程参考文档:
         PEAPv1(EAP-GTC).vsd
