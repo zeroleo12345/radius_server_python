@@ -22,6 +22,11 @@ class Eap(object):
     TYPE_EAP_MSCHAPV2 = 26      # 0x1a
     TYPE_EAP_TLV = 33           # 0x21
 
+    # EAP-TLV类型
+    TYPE_RESULT_TLV_SUCCESS = 1
+    TYPE_RESULT_TLV_FAILURE = 2
+    TYPE_RESULT_TLV = 3
+
     @staticmethod
     def get_next_id(identifier):
         if identifier == 0:
