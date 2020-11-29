@@ -89,8 +89,10 @@ class EapPeapGtcFlow(Flow):
             elif peap is not None and session.next_state == cls.PEAP_ACCESS_ACCEPT:
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
             else:
-                raise AccessReject('eap peap auth error. unknown eap packet type')
-        raise AccessReject(f'id error. [prev, recv][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
+                log.error('eap peap auth error. unknown eap packet type')
+                raise AccessReject()
+        log.error(f'id error. [prev, recv][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
+        raise AccessReject()
 
     @classmethod
     def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
