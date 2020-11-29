@@ -1,14 +1,6 @@
 """
     wpa_supplicant 数据结构定义:
         https://w1.fi/wpa_supplicant/devel/structtls__connection.html
-
-    struct wpabuf {
-        size_t size; /* total size of the allocated buffer */
-        size_t used; /* length of data in the buffer */
-        u8 *buf; /* pointer to the head of the buffer */
-        unsigned int flags;
-        /* optionally followed by the allocated buffer */
-    };
 """
 import os
 import ctypes
@@ -25,6 +17,13 @@ class TlsBuffer(ctypes.Structure):
     int         =>  c_int
     int *       =>  POINTER(c_int)
     """
+    # struct wpabuf {
+    # 	size_t size; /* total size of the allocated buffer */
+    # 	size_t used; /* length of data in the buffer */
+    # 	u8 *buf; /* pointer to the head of the buffer */
+    # 	unsigned int flags;
+    # 	/* optionally followed by the allocated buffer */
+    # };
     _fields_ = [
         ('size', ctypes.c_ulonglong),
         ('used', ctypes.c_ulonglong),
