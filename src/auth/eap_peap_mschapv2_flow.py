@@ -194,7 +194,7 @@ class EapPeapMschapv2Flow(Flow):
         # 返回数据
         eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                  type_dict={'type': EapPacket.TYPE_EAP_IDENTITY, 'type_data': b''})
-        tls_plaintext = eap_identity.pack()
+        tls_plaintext: bytes = eap_identity.pack()
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
@@ -243,7 +243,9 @@ class EapPeapMschapv2Flow(Flow):
                                 EapPacket.CODE_MSCHAPV2_CHALLENGE, session.next_eap_id, type_data_length, server_challenge_len, server_challenge, server_id)
         eap_random = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
-        tls_plaintext = eap_random.pack()
+        tls_plaintext: bytes = eap_random.pack()
+        if session.peap_version == 0:
+            tls_plaintext = tls_plaintext[4:]
         # 保存服务端随机数
         session.auth_user.set_server_challenge(server_challenge)
 
@@ -310,7 +312,7 @@ class EapPeapMschapv2Flow(Flow):
             log.error(f'user_password not correct')
             # 返回数据 eap_failure
             eap_success = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.next_eap_id)
-            tls_plaintext = eap_success.pack()
+            tls_plaintext: bytes = eap_success.pack()
         else:
             # 计算 md4(password)
             p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
@@ -341,7 +343,7 @@ class EapPeapMschapv2Flow(Flow):
                                     EapPacket.CODE_MSCHAPV2_SUCCESS, session.next_eap_id-1, type_data_length, b'S=', auth_response, b' M=', response_msg)
             eap_ok = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
-            tls_plaintext = eap_ok.pack()
+            tls_plaintext: bytes = eap_ok.pack()
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
@@ -360,7 +362,7 @@ class EapPeapMschapv2Flow(Flow):
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         # 返回数据 eap_success
         eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id)
-        tls_plaintext = eap_success.pack()
+        tls_plaintext: bytes = eap_success.pack()
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
