@@ -2,7 +2,8 @@
 reference:
 
     PEAPv0 EAP-MSCHAPv2:
-        Microsoft's PEAP version 0 (Implementation in Windows XP SP1): (search Appendix A). 且文中列出了 PEAPv0 和 PEAPv1 的不同地方
+        Microsoft's PEAP version 0 (Implementation in Windows XP SP1): (search Appendix A).
+        the Windows XP SP1 implementation of PEAP does not include an EAP header on packets sent within the TLS channel
             https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00
         Microsoft PPP CHAP Extensions, Version 2
             https://tools.ietf.org/html/rfc2759
