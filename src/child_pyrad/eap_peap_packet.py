@@ -12,10 +12,10 @@ reference:
 
 
     PEAPv1 EAP-GTC:
-        - Protected EAP Protocol (PEAP) Version 2:
-            https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-07
         - Protected EAP Protocol (PEAP):
             https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
+        - Protected EAP Protocol (PEAP) Version 2:
+            https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-07
 
 
     认证流程参考文档:
