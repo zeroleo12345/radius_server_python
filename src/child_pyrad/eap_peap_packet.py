@@ -67,7 +67,7 @@ class EapPeapPacket(Eap):
     @classmethod
     def parse(cls, packet: bytes) -> 'EapPeapPacket':
         try:
-            code, id, length, type, flag = struct.unpack('!2BH2B', packet[:6])
+            code, id, length, type, flag = struct.unpack('!B B H B B', packet[:6])
         except struct.error:
             raise PacketError('Packet header is corrupt')
         if len(packet) != length:
@@ -104,7 +104,7 @@ class EapPeapPacket(Eap):
 
         _flag = flag_length << 7 | flag_more << 6 | self.flag_start << 5 | self.flag_version
 
-        header = struct.pack('!2BH2B', self.code, self.id, (6 + len(attr)), self.type, _flag)
+        header = struct.pack('!B B H B B', self.code, self.id, (6 + len(attr)), self.type, _flag)
         return header + attr
 
     @classmethod
