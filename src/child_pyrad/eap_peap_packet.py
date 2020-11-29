@@ -92,7 +92,7 @@ class EapPeapPacket(Eap):
         if length > 6:
             tls_data_start_pos = 6
             if flag_length:
-                tls_data_start_pos += 4
+                tls_data_start_pos += 4     # 头部多携带一个4字节字段: tls length
                 # tls_message_len = struct.unpack('!I', packet[6:10])
             tls_data = packet[tls_data_start_pos:]
         return EapPeapPacket(code=code, id=id, type=type,
