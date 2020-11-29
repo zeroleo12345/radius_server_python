@@ -29,7 +29,7 @@ class EapPeapGtcFlow(Flow):
         # 判断新旧会话
         session = None
         if 'State' in request:
-            session_id = request['State'][0].decode()
+            session_id: str = request['State'][0].decode()
             # 2. 从redis获取会话
             session = SessionCache.load_and_housekeeping(session_id=session_id)  # 旧会话
             if not session:
