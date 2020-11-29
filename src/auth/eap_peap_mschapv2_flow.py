@@ -358,9 +358,10 @@ class EapPeapMschapv2Flow(Flow):
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
 
-        # 返回数据 eap_success
-        eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id)
-        tls_plaintext: bytes = eap_success.pack()
+        # 返回数据 eap_tlv_success
+        eap_tlv_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id,
+                                    type_dict={'type': EapPacket.TYPE_EAP_TLV, 'type_data': b''})
+        tls_plaintext: bytes = eap_tlv_success.pack()
 
         # 加密
         tls_out_data: bytes = libhostapd.encrypt(session.tls_connection, tls_plaintext, peap_version=session.peap_version)

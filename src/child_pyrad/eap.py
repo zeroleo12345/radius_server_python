@@ -20,6 +20,7 @@ class Eap(object):
     TYPE_EAP_AKA = 23           # 0x17
     TYPE_EAP_PEAP = 25          # 0x19
     TYPE_EAP_MSCHAPV2 = 26      # 0x1a
+    TYPE_EAP_TLV = 33           # 0x21
 
     @staticmethod
     def get_next_id(identifier):
