@@ -210,12 +210,12 @@ class EapPeapMschapv2Flow(Flow):
 
     @classmethod
     def peap_challenge_mschapv2_random(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        # FIXME v0: b'\x01testuser'; v1: b'\x02\x05\x00\r\x01testuser';
         assert peap.tls_data
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         if session.peap_version == 0:
-            eap_identity = EapMschapv2Packet.parse(packet=tls_decrypt_data)
+            # v0: b'\x01testuser'; v1: b'\x02\x05\x00\r\x01testuser';
+            eap_identity = EapMschapv2Packet.parse(packet=tls_decrypt_data)      # TODO 整合到一起
         else:
             eap_identity = EapPacket.parse(packet=tls_decrypt_data)
         account_name = eap_identity.type_data.decode()
@@ -250,7 +250,6 @@ class EapPeapMschapv2Flow(Flow):
         # 加密
         tls_out_data: bytes = libhostapd.encrypt(session.tls_connection, tls_plaintext, peap_version=session.peap_version)
         #
-        # FIXME v0: b'\x01testuser'; v1: b'\x02\x05\x00\r\x01testuser';
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
@@ -358,6 +357,7 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_success(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
+
         # 返回数据 eap_success
         eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id)
         tls_plaintext: bytes = eap_success.pack()
