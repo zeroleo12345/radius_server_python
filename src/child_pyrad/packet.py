@@ -70,13 +70,14 @@ class AuthRequest(AuthPacket):
         return response
 
     def __str__(self):
-        msg = f'AuthRequest: \nauthenticator: {self.authenticator}\n'
+        msg = f'AuthRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
         for k in self.keys():
             msg += f'    {k}: {self[k]}\n'
         return msg
 
 
 class AuthResponse(AuthPacket):
+    # 使用父类初始化自己
 
     @classmethod
     def create_access_accept(cls, request: AuthRequest) -> AuthPacket:
@@ -100,7 +101,7 @@ class AuthResponse(AuthPacket):
         return reply
 
     def __str__(self):
-        msg = f'AuthResponse: \nauthenticator: {self.authenticator}\n'
+        msg = f'AuthResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
         for k in self.keys():
             msg += f'    {k}: {self[k]}\n'
         return msg
@@ -130,7 +131,7 @@ class AcctRequest(AcctPacket):
         return response
 
     def __str__(self):
-        msg = f'AcctRequest: \nauthenticator: {self.authenticator}\n'
+        msg = f'AcctRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
         for k in self.keys():
             msg += f'    {k}: {self[k]}\n'
         return msg
@@ -144,7 +145,7 @@ class AcctResponse(AcctPacket):
         return reply
 
     def __str__(self):
-        msg = f'AcctResponse: \nauthenticator: {self.authenticator}\n'
+        msg = f'AcctResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
         for k in self.keys():
             msg += f'    {k}: {self[k]}\n'
         return msg
