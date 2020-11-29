@@ -2,18 +2,20 @@
 reference:
 
     PEAPv0 EAP-MSCHAPv2:
-        Microsoft's PEAP version 0 (Implementation in Windows XP SP1): (search Appendix A).
+        - Microsoft's PEAP version 0 (Implementation in Windows XP SP1): (search Appendix A)
         the Windows XP SP1 implementation of PEAP does not include an EAP header on packets sent within the TLS channel
             https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00
-        Microsoft PPP CHAP Extensions, Version 2
+        - Microsoft PPP CHAP Extensions, Version 2:
             https://tools.ietf.org/html/rfc2759
-        Microsoft Vendor-specific RADIUS Attributes:
+        - Microsoft Vendor-specific RADIUS Attributes:
             https://tools.ietf.org/html/rfc2548
 
 
-    PEAPv1 EAP-GTC - Protected EAP Protocol (PEAP)
-        https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-07
-        https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
+    PEAPv1 EAP-GTC:
+        - Protected EAP Protocol (PEAP) Version 2:
+            https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-07
+        - Protected EAP Protocol (PEAP):
+            https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
 
 
     认证流程参考文档:
