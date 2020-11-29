@@ -20,6 +20,7 @@ class EapMschapv2Packet(Eap):
 
     @classmethod
     def parse(cls, packet: bytes, peap_version: int) -> 'EapMschapv2Packet':
+        # v0: b'\x01testuser'; v1: b'\x02\x05\x00\r\x01testuser';
         if peap_version == 0:
             type, = struct.unpack("!B", packet[0:1])
             type_data = packet[1:]

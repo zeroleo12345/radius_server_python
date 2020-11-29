@@ -216,7 +216,6 @@ class EapPeapMschapv2Flow(Flow):
         assert peap.tls_data
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
-        # v0: b'\x01testuser'; v1: b'\x02\x05\x00\r\x01testuser';
         mschapv2_identity = EapMschapv2Packet.parse(packet=tls_decrypt_data, peap_version=session.peap_version)
         account_name = mschapv2_identity.type_data.decode()
         # 保存用户名
