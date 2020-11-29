@@ -104,7 +104,8 @@ class EapPeapPacket(Eap):
 
         _flag = flag_length << 7 | flag_more << 6 | self.flag_start << 5 | self.flag_version
 
-        header = struct.pack('!B B H B B', self.code, self.id, (6 + len(attr)), self.type, _flag)
+        packet_length = 6 + len(attr)
+        header = struct.pack('!B B H B B', self.code, self.id, packet_length, self.type, _flag)
         return header + attr
 
     @classmethod
