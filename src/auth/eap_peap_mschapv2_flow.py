@@ -216,12 +216,9 @@ class EapPeapMschapv2Flow(Flow):
         assert peap.tls_data
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
-        if session.peap_version == 0:
-            # v0: b'\x01testuser'; v1: b'\x02\x05\x00\r\x01testuser';
-            eap_identity = EapMschapv2Packet.parse(packet=tls_decrypt_data)      # TODO 整合到一起
-        else:
-            eap_identity = EapPacket.parse(packet=tls_decrypt_data)
-        account_name = eap_identity.type_data.decode()
+        # v0: b'\x01testuser'; v1: b'\x02\x05\x00\r\x01testuser';
+        mschapv2_identity = EapMschapv2Packet.parse(packet=tls_decrypt_data, peap_version=session.peap_version)
+        account_name = mschapv2_identity.type_data.decode()
         # 保存用户名
         session.auth_user.set_inner_username(account_name)
         # 查找用户密码
@@ -273,18 +270,15 @@ class EapPeapMschapv2Flow(Flow):
         # 24位NT-Response(72 0e 3d a8 8d bd f8 a9 e8 bd 1a 95 d9 5f 08 03 7e 10 db 9f 01 d4 a5 fc) +
         # Flags(00) +
         # 用户名(74 65 73 74 75 73 65 72)
-        if session.peap_version == 0:
-            eap_random = EapMschapv2Packet.parse(packet=tls_decrypt_data)
-        else:
-            eap_random = EapPacket.parse(packet=tls_decrypt_data)
-        mschapv2_type, eap_id, mschapv2_length, fix_length = struct.unpack('!B B H B', eap_random.type_data[:5])
+        mschapv2_random = EapMschapv2Packet.parse(packet=tls_decrypt_data, peap_version=session.peap_version)
+        mschapv2_type, eap_id, mschapv2_length, fix_length = struct.unpack('!B B H B', mschapv2_random.type_data[:5])
         assert fix_length == 0x31 == 49
         username_len = mschapv2_length - 5 - fix_length
         peer_challenge: bytes
         nt_response: bytes
         flag: bytes
         identity: bytes
-        peer_challenge, nt_response, flag, identity = struct.unpack(f'!24s 24s B {username_len}s', eap_random.type_data[5:])
+        peer_challenge, nt_response, flag, identity = struct.unpack(f'!24s 24s B {username_len}s', mschapv2_random.type_data[5:])
         peer_challenge = peer_challenge[:16]
         # 保存客户端随机数
         session.auth_user.set_peer_challenge(peer_challenge)
