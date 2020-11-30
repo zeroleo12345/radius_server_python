@@ -163,10 +163,8 @@ class EapCrypto(object):
             self.lib.wpabuf_free(pointer)
         return
 
-    def __del__(self):
-        def call_tls_deinit():
-            self.lib.tls_deinit(self.tls_ctx)
-        call_tls_deinit()
+    def call_tls_deinit(self):
+        self.lib.tls_deinit(self.tls_ctx)
 
     def call_set_log_level(self, level: int = 0):
         # MSG_EXCESSIVE = 0 , MSG_MSGDUMP =1 , MSG_DEBUG = 2, MSG_INFO = 3, MSG_WARNING = 4, MSG_ERROR = 5
