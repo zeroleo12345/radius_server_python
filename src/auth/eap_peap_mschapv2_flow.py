@@ -377,7 +377,7 @@ class EapPeapMschapv2Flow(Flow):
     @classmethod
     def peap_access_accept(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 解密
-        tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
+        # tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
 
         # 返回数据
         p_label = ctypes.create_string_buffer(b'client EAP encryption')
