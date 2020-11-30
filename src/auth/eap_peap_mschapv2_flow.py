@@ -311,8 +311,8 @@ class EapPeapMschapv2Flow(Flow):
             # 密码整错
             log.error(f'user_password not correct')
             # 返回数据 eap_failure
-            eap_success = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.next_eap_id)
-            tls_plaintext: bytes = eap_success.pack()
+            eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.next_eap_id)
+            tls_plaintext: bytes = eap_failure.pack()
         else:
             # 计算 md4(password)
             p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)

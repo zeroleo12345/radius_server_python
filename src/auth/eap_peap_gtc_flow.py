@@ -265,8 +265,8 @@ class EapPeapGtcFlow(Flow):
         if not is_correct_password():
             log.error(f'user_password: {session.auth_user.user_password} not correct')
             # 返回数据 eap_failure
-            eap_success = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.next_eap_id)
-            tls_plaintext = eap_success.pack()
+            eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.next_eap_id)
+            tls_plaintext = eap_failure.pack()
         else:
             # 返回数据 eap_success
             eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id)
