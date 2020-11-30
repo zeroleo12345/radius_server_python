@@ -411,6 +411,7 @@ class EapPeapMschapv2Flow(Flow):
         #
         master_key: bytes = ctypes.string_at(p_out_prf, len(p_out_prf))
         session.msk = master_key
+        session.next_state = None
         return cls.access_accept(request=request, session=session)
 
     @classmethod

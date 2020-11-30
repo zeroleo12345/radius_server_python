@@ -46,6 +46,9 @@ class SessionCache(object):
 
     @classmethod
     def save(cls, session: EapPeapSession):
+        if not session.next_state:
+            log.trace(f'not save session: {session.session_id}.')
+            return
         log.trace(f'save session: {session.session_id}.')
         cls._sessions[session.session_id] = session
         assert session and session.session_id in cls._sessions
