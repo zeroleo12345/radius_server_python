@@ -106,7 +106,7 @@ class EapPeapGtcFlow(Flow):
     def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # EAP-Message: b'\x02\x01\x00\r\x01testuser'
         assert eap.type == EapPacket.TYPE_EAP_IDENTITY
-        identity = eap.type_data.encode()
+        identity = eap.type_data.decode()
         log.debug(f'before PEAP Start, identity: {identity}')
 
         # 返回
