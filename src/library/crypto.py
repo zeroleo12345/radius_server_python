@@ -33,6 +33,12 @@ class WpaBuf(ctypes.Structure):
 
 class EapCrypto(object):
     tls_ctx = None
+    MSG_EXCESSIVE = 0
+    MSG_MSGDUMP = 1
+    MSG_DEBUG = 2
+    MSG_INFO = 3
+    MSG_WARNING = 4
+    MSG_ERROR = 5
 
     def __init__(self, hostapd_library_path: str, ca_cert_path, client_cert_path, private_key_path, private_key_passwd: str, dh_file_path):
         assert os.path.exists(hostapd_library_path)
@@ -167,7 +173,6 @@ class EapCrypto(object):
         self.lib.tls_deinit(self.tls_ctx)
 
     def call_set_log_level(self, level: int = 0):
-        # MSG_EXCESSIVE = 0 , MSG_MSGDUMP =1 , MSG_DEBUG = 2, MSG_INFO = 3, MSG_WARNING = 4, MSG_ERROR = 5
         self.lib.set_log_level(level)
         return
 
