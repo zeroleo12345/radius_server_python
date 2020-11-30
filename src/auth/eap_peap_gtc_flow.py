@@ -79,18 +79,22 @@ class EapPeapGtcFlow(Flow):
             if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == cls.PEAP_CHALLENGE_START:
                 return cls.peap_challenge_start(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO:
+                # peap: client hello
                 return cls.peap_challenge_server_hello(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
+                # peap:
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
+                # peap: Client Key Exchange; Change Cipher Spec; Encrypted Handshake Message;
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_PHASE2_IDENTITY:
+                # peap: identity
                 return cls.peap_challenge_phase2_identity(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_GTC_PASSWORD:
                 return cls.peap_challenge_gtc_password(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SUCCESS:
                 return cls.peap_challenge_success(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_ACCESS_ACCEPT:
+            elif session.next_state == cls.PEAP_ACCESS_ACCEPT:
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
             else:
                 log.error('eap peap auth error. unknown eap packet type')
