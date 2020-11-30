@@ -1,5 +1,7 @@
+import struct
 # 第三方库
 from child_pyrad.packet import AuthRequest, AuthResponse
+from child_pyrad.eap_packet import EapPacket
 # 自己的库
 from loguru import logger as log
 from controls.user import AuthUser
@@ -28,7 +30,8 @@ class Flow(object):
 
     @classmethod
     def access_reject(cls, request: AuthRequest, auth_user: AuthUser):
-        # FIXME 增加上 EAP-Failure
+        # 增加上 EAP-Failure: 04000004
         log.info(f'reject. user: {auth_user.outer_username}, mac: {auth_user.mac_address}')
         reply = AuthResponse.create_access_reject(request=request)
+        reply['EAP-Message'] = struct.pack('!B B H', EapPacket.CODE_EAP_SUCCESS, 0, 4)
         return request.reply_to(reply)
