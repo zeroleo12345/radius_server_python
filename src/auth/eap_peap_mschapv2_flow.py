@@ -217,6 +217,7 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_mschapv2_random(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         assert peap.tls_data
         # 解密
+        # EAP-PEAP: Decrypted Phase 2 EAP - hexdump(len=9): 01 74 65 73 74 75 73 65 72
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         mschapv2_identity = EapMschapv2Packet.parse(packet=tls_decrypt_data, peap_version=session.peap_version)
         account_name = mschapv2_identity.type_data.decode()
