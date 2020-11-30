@@ -362,7 +362,7 @@ class EapPeapMschapv2Flow(Flow):
                                     type_dict={'type': EapPacket.TYPE_EAP_TLV, 'type_data': type_data})
         tls_plaintext: bytes = eap_tlv_success.pack()
 
-        # 加密
+        # 加密. EAP-PEAP: Encrypting Phase 2 TLV data - hexdump(len=11): 01 08 00 0b 21 80 03 00 02 00 01
         tls_out_data: bytes = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
