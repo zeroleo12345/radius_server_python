@@ -164,7 +164,7 @@ class EapCrypto(object):
         return
 
     def __del__(self):
-        def call_tls_deinit(self):
+        def call_tls_deinit():
             self.lib.tls_deinit(self.tls_ctx)
         call_tls_deinit()
 
