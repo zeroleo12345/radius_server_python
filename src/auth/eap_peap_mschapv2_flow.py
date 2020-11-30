@@ -94,7 +94,7 @@ class EapPeapMschapv2Flow(Flow):
                 return cls.peap_challenge_mschapv2_nt(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SUCCESS:
                 return cls.peap_challenge_success(request, eap, peap, session)
-            elif session.next_state == cls.PEAP_ACCESS_ACCEPT:
+            elif peap is not None and session.next_state == cls.PEAP_ACCESS_ACCEPT:
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
             else:
                 log.error('eap peap auth error. unknown eap packet type')
