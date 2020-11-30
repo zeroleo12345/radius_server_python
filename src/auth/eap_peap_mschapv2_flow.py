@@ -357,7 +357,8 @@ class EapPeapMschapv2Flow(Flow):
 
     @classmethod
     def peap_challenge_success(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        # 解密
+        # 解密.
+        # EAP-PEAP: Decrypted Phase 2 EAP - hexdump(len=2): 1a 03
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
 
         # 返回数据 eap_tlv_success
@@ -367,7 +368,8 @@ class EapPeapMschapv2Flow(Flow):
                                     type_dict={'type': EapPacket.TYPE_EAP_TLV, 'type_data': type_data})
         tls_plaintext: bytes = eap_tlv_success.pack()
 
-        # 加密. v0: EAP-PEAP: Encrypting Phase 2 TLV data - hexdump(len=11): 01 08 00 0b 21 80 03 00 02 00 01
+        # 加密.
+        # v0: EAP-PEAP: Encrypting Phase 2 TLV data - hexdump(len=11): 01 08 00 0b 21 80 03 00 02 00 01
         tls_out_data: bytes = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
@@ -381,7 +383,8 @@ class EapPeapMschapv2Flow(Flow):
 
     @classmethod
     def peap_access_accept(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        # 解密. v0: EAP-PEAP: Decrypted Phase 2 EAP - hexdump(len=11): 02 08 00 0b 21 80 03 00 02 00 01
+        # 解密.
+        # v0: EAP-PEAP: Decrypted Phase 2 EAP - hexdump(len=11): 02 08 00 0b 21 80 03 00 02 00 01
         # tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
 
         # 返回数据
