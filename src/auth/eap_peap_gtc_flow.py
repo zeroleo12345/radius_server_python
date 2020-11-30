@@ -316,4 +316,4 @@ class EapPeapGtcFlow(Flow):
         reply['EAP-Message'] = struct.pack('!B B H', EapPacket.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
         request.reply_to(reply)
         session.set_reply(reply)
-        # SessionCache.clean(session_id=session.session_id)
+        SessionCache.clean(session_id=session.session_id)
