@@ -46,4 +46,4 @@ PRIVATE_KEY_PASSWORD = str(config('PRIVATE_KEY_PASSWORD'))
 DH_FILE = config('DH_FILE')
 libhostapd = EapCrypto(hostapd_library_path=HOSTAPD_LIBRARY, ca_cert_path=CA_CERT, client_cert_path=CLIENT_CERT,
                        private_key_path=PRIVATE_KEY, private_key_passwd=PRIVATE_KEY_PASSWORD, dh_file_path=DH_FILE)
-libhostapd.call_set_log_level(EapCrypto.MSG_EXCESSIVE)
+# libhostapd.call_set_log_level(EapCrypto.MSG_EXCESSIVE)
