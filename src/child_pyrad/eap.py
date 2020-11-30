@@ -29,13 +29,7 @@ class Eap(object):
 
     @staticmethod
     def get_next_id(identifier):
-        if identifier == 0:
-            return 1
-            # return random.randrange(1, 255)
-        elif identifier + 1 > 255:
-            return 1
-
-        return identifier + 1
+        return (identifier + 1) & 0xff
 
     @staticmethod
     def split_eap_message(eap_messages: bytes) -> list:
