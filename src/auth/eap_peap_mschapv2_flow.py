@@ -266,6 +266,8 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_mschapv2_nt(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         assert peap.tls_data
         # 解密
+        # EAP-PEAP: Decrypted Phase 2 EAP - hexdump(len=63): 1a 02 06 00 3e 31 b1 3a 4c 4f 8d 2a 09 3d 89 b2 f8 eb c1 ec 53 f0
+        # 00 00 00 00 00 00 00 00 e5 39 9d 11 d6 06 0b b9 95 8e 16 f2 20 fc 4b c9 b0 ab 4e fd bc 62 01 39 00 74 65 73 74 75 73 65 72
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         # MSCHAPV2_OP_RESPONSE(02) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 3e) +
         # 随机数长度(31) +
