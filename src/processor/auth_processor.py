@@ -1,6 +1,8 @@
 import os
 import traceback
+import signal
 # 第三方库
+import gevent
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 # 自己的库
@@ -10,11 +12,9 @@ from auth.flow import Flow, AccessReject
 from auth.chap_flow import ChapFlow
 from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
 from loguru import logger as log
 from controls.user import AuthUser
-from utils.signal import Signal
-Signal.register()
 
 
 if os.getenv('GTC') is None:
@@ -32,20 +32,8 @@ class EchoServer(DatagramServer):
         super(self.__class__, self).__init__(*args, **kwargs)
         self.dictionary = dictionary
 
-    @classmethod
-    def handle_signal(cls):
-        if Signal.is_usr1:
-            Signal.is_usr1 = False
-            return
-        if Signal.is_usr2:
-            Signal.is_usr2 = False
-            return
-
     def handle(self, data, address):
         try:
-            # 处理信号
-            self.handle_signal()
-
             ip, port = address
             log.debug(f'receive packet from {address}')
             log.trace(f'request bytes: {data}')
@@ -85,7 +73,15 @@ def main():
     listen_port = 1812
     log.debug(f'listening on {listen_ip}:{listen_port}')
     server = EchoServer(dictionary, f'{listen_ip}:{listen_port}')
-    server.serve_forever()
+
+    def shutdown():
+        log.info('exit gracefully')
+        server.close()
+    gevent.signal(signal.SIGTERM, shutdown)
+    try:
+        server.serve_forever(stop_timeout=3)
+    finally:
+        cleanup()
 
 
 main()
