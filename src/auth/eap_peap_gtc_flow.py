@@ -18,31 +18,34 @@ class EapPeapGtcFlow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         log.trace(f'request: {request}')
-        # 1. 获取报文
-        if 'State' in request:
-            session_id = request['State'][0].decode()
-            # 2. 从redis获取会话
-            session = SessionCache.load_and_housekeeping(session_id=session_id)  # 旧会话
-            if not session:
-                log.error(f'session_id: {session_id} not exist in memory')
-                raise AccessReject()
-        else:
-            # 新会话
-            session = EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
-        # 3. 解析eap报文和eap_peap报文
+        # 解析eap报文和eap_peap报文
         raw_eap_messages = EapPacket.merge_eap_message(request['EAP-Message'])
         eap = EapPacket.parse(packet=raw_eap_messages)
         peap = None
         if EapPacket.is_eap_peap(type=eap.type):
             peap = EapPeapPacket.parse(packet=raw_eap_messages)
 
+        # 判断新旧会话
+        session = None
+        if 'State' in request:
+            session_id: str = request['State'][0].decode()
+            # 2. 从redis获取会话
+            session = SessionCache.load_and_housekeeping(session_id=session_id)  # 旧会话
+            if not session:
+                # 携带 State 字段表示之前已经认证成功, 现在再申请连入网络
+                # 必须是 PEAP-Start 前的 identity 报文, 例如: EAP-Message: ['\x02\x01\x00\r\x01testuser']
+                assert eap.type == EapPacket.TYPE_EAP_IDENTITY
+        session = session or EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
+
         log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.mac_address}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
-        # 4. 调用对应状态的处理函数
+
+        # 调用对应状态的处理函数
         cls.state_machine(request=request, eap=eap, peap=peap, session=session)
         session.prev_id = request.id
         session.prev_eap_id = eap.id
+
         # 每次处理回复后, 保存session到Redis
         SessionCache.save(session=session)
 
@@ -67,21 +70,25 @@ class EapPeapGtcFlow(Flow):
                 # 会话正在处理中
                 log.warning(f'processor handling. username: {request.username}, mac: {request.mac_address}, next_state: {session.next_state}')
                 return
-        elif session.next_eap_id == -1 or session.next_eap_id == eap.id:
+        # 第一个报文 OR 符合服务端预期的 response
+        elif session.current_eap_id == -1 or session.current_eap_id == eap.id:
             # 正常eap-peap流程
-            session.next_eap_id = EapPacket.get_next_id(eap.id)
-            session.next_id = EapPacket.get_next_id(request.id)
+            session.current_eap_id = EapPacket.get_next_id(eap.id)
             log.info(f'peap auth. session_id: {session.session_id}, call next_state: {session.next_state}')
             if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == cls.PEAP_CHALLENGE_START:
                 return cls.peap_challenge_start(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO:
+                # peap: client hello
                 return cls.peap_challenge_server_hello(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
+                # peap:
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
+                # peap: Client Key Exchange; Change Cipher Spec; Encrypted Handshake Message;
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_GTC_IDENTITY:
-                return cls.peap_challenge_gtc_identity(request, eap, peap, session)
+            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_PHASE2_IDENTITY:
+                # peap: identity
+                return cls.peap_challenge_phase2_identity(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_GTC_PASSWORD:
                 return cls.peap_challenge_gtc_password(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SUCCESS:
@@ -90,13 +97,20 @@ class EapPeapGtcFlow(Flow):
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
             else:
                 log.error('eap peap auth error. unknown eap packet type')
-                return
+                raise AccessReject()
         log.error(f'id error. [prev, recv][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
-        return
+        raise AccessReject()
 
     @classmethod
     def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        eap_start = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, flag_start=1, flag_version=1)
+        # EAP-Message: b'\x02\x01\x00\r\x01testuser'
+        assert eap.type == EapPacket.TYPE_EAP_IDENTITY
+        identity = eap.type_data.decode()
+        log.debug(f'before PEAP Start, identity: {identity}')
+
+        # 返回
+        support_peap_version = 1
+        eap_start = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, flag_start=1, flag_version=support_peap_version)
         reply = AuthResponse.create_peap_challenge(request=request, peap=eap_start, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
@@ -107,11 +121,15 @@ class EapPeapGtcFlow(Flow):
 
     @classmethod
     def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+        # 客户端 PEAP 版本
+        log.debug(f'eap header, peap version: {peap.flag_version}')
+        session.set_peap_version(peap.flag_version)
+
+        # 初始化 tls_connection
         if session.tls_connection is None:
             session.tls_connection = libhostapd.call_tls_connection_init()
 
         assert peap.tls_data
-
         p_tls_in_data = ctypes.create_string_buffer(peap.tls_data)
         tls_in_data_len = ctypes.c_ulonglong(len(peap.tls_data))
 
@@ -121,7 +139,7 @@ class EapPeapGtcFlow(Flow):
             p_tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, p_tls_in=p_tls_in)
             tls_out_data_len = p_tls_out.contents.used
             tls_out_data = ctypes.string_at(p_tls_out.contents.buf, tls_out_data_len)
-            session.certificate_fragment = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+            session.certificate_fragment = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data)
             reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
             request.reply_to(reply)
             session.set_reply(reply)
@@ -141,7 +159,7 @@ class EapPeapGtcFlow(Flow):
 
     @classmethod
     def peap_challenge_server_hello_fragment(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
-        session.certificate_fragment.id = session.next_eap_id
+        session.certificate_fragment.id = session.current_eap_id
         reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
@@ -169,7 +187,7 @@ class EapPeapGtcFlow(Flow):
             p_tls_out = libhostapd.call_tls_connection_server_handshake(tls_connection=session.tls_connection, p_tls_in=p_tls_in)
             tls_out_data_len = p_tls_out.contents.used
             tls_out_data = ctypes.string_at(p_tls_out.contents.buf, tls_out_data_len)
-            peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+            peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data)
             reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
             request.reply_to(reply)
             session.set_reply(reply)
@@ -178,20 +196,20 @@ class EapPeapGtcFlow(Flow):
             libhostapd.call_free_alloc(p_tls_out)
 
         # judge next move
-        session.next_state = cls.PEAP_CHALLENGE_GTC_IDENTITY
+        session.next_state = cls.PEAP_CHALLENGE_PHASE2_IDENTITY
         return
 
     @classmethod
-    def peap_challenge_gtc_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
+    def peap_challenge_phase2_identity(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 返回数据
-        eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
+        eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.current_eap_id,
                                  type_dict={'type': EapPacket.TYPE_EAP_IDENTITY, 'type_data': b''})
         tls_plaintext = eap_identity.pack()
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
-        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
@@ -222,14 +240,14 @@ class EapPeapGtcFlow(Flow):
         # 返回数据
         response_data = b'Password'
         type_data = struct.pack(f'!{len(response_data)}s', response_data)
-        eap_password = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.next_eap_id,
+        eap_password = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.current_eap_id,
                                  type_dict={'type': EapPacket.TYPE_EAP_GTC, 'type_data': type_data})
         tls_plaintext = eap_password.pack()
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
-        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
@@ -252,17 +270,17 @@ class EapPeapGtcFlow(Flow):
         if not is_correct_password():
             log.error(f'user_password: {session.auth_user.user_password} not correct')
             # 返回数据 eap_failure
-            eap_success = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.next_eap_id)
-            tls_plaintext = eap_success.pack()
+            eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.current_eap_id)
+            tls_plaintext = eap_failure.pack()
         else:
             # 返回数据 eap_success
-            eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.next_eap_id)
+            eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.current_eap_id)
             tls_plaintext = eap_success.pack()
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
-        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.next_eap_id, tls_data=tls_out_data)
+        peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data)
         reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
@@ -278,14 +296,15 @@ class EapPeapGtcFlow(Flow):
         #
         master_key: bytes = ctypes.string_at(p_out_prf, len(p_out_prf))
         session.msk = master_key
+        session.next_state = None
         return cls.access_accept(request=request, session=session)
 
     @classmethod
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
         log.info(f'OUT: accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.mac_address}')
         reply = AuthResponse.create_access_accept(request=request)
-        # reply['Session-Timeout'] = 600
-        # reply['Idle-Timeout'] = 600
+        # reply['Session-Timeout'] = 600    # 用户可用的剩余时间
+        reply['Idle-Timeout'] = 86400       # 用户的闲置切断时间
         reply['User-Name'] = request.username
         reply['Calling-Station-Id'] = request.mac_address
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
@@ -293,7 +312,7 @@ class EapPeapGtcFlow(Flow):
         # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
         log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)
-        reply['EAP-Message'] = struct.pack('!B B H', EapPacket.CODE_EAP_SUCCESS, session.next_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
+        reply['EAP-Message'] = struct.pack('!B B H', EapPacket.CODE_EAP_SUCCESS, session.current_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
         request.reply_to(reply)
         session.set_reply(reply)
-        # SessionCache.clean(session_id=session.session_id)
+        SessionCache.clean(session_id=session.session_id)

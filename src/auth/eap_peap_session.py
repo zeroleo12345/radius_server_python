@@ -14,21 +14,23 @@ class EapPeapSession(object):
     def __init__(self, auth_user: AuthUser, session_id: str):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
         assert isinstance(session_id, str)
-        self.session_id = session_id
+        self.session_id: str = session_id
         self.next_state = Flow.PEAP_CHALLENGE_START
-        self.prev_id = -1
-        self.next_id = -1
-        self.prev_eap_id = -1
-        self.next_eap_id = -1
+        self.peap_version: int = 1
+        self.prev_id: int = -1          # 用于检查是否重发消息
+        self.prev_eap_id: int = -1      # 用于检查是否重发消息
+        self.current_eap_id: int = -1
         #
         self.auth_user: AuthUser = auth_user
         self.reply: AuthPacket = None
         self.update_time = datetime.datetime.now()
-        self.state = None
         #
         self.msk: bytes = b''       # Master Session Key
         self.certificate_fragment: EapPeapPacket = None
         self.tls_connection = None
+
+    def set_peap_version(self, version):
+        self.peap_version = version
 
     def set_reply(self, reply):
         self.reply = reply
@@ -43,6 +45,9 @@ class SessionCache(object):
 
     @classmethod
     def save(cls, session: EapPeapSession):
+        if not session.next_state:
+            log.trace(f'not save session: {session.session_id}.')
+            return
         log.trace(f'save session: {session.session_id}.')
         cls._sessions[session.session_id] = session
         assert session and session.session_id in cls._sessions

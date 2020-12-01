@@ -1,17 +1,16 @@
 import traceback
-import datetime
+import signal
 # 第三方库
+import gevent
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 # 自己的库
 from acct.accounting_flow import AccountingFlow
 from child_pyrad.dictionary import get_dictionaries
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
 from loguru import logger as log
 from child_pyrad.packet import AcctRequest, AcctResponse
 from controls.user import AcctUser
-from utils.signal import Signal
-Signal.register()
 
 
 class EchoServer(DatagramServer):
@@ -21,23 +20,11 @@ class EchoServer(DatagramServer):
         super(self.__class__, self).__init__(*args, **kwargs)
         self.dictionary = dictionary
 
-    @classmethod
-    def handle_signal(cls):
-        if Signal.is_usr1:
-            Signal.is_usr1 = False
-            return
-        if Signal.is_usr2:
-            Signal.is_usr2 = False
-            return
-
     def handle(self, data, address):
         try:
-            # 处理信号
-            self.handle_signal()
-
             ip, port = address
             log.debug(f'receive packet from {address}')
-            log.trace(f'data: {data}')
+            log.trace(f'request bytes: {data}')
 
             # 解析报文
             request = AcctRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
@@ -64,7 +51,15 @@ def main():
     listen_port = 1813
     log.debug(f'listening on {listen_ip}:{listen_port}')
     server = EchoServer(dictionary, f'{listen_ip}:{listen_port}')
-    server.serve_forever()
+
+    def shutdown():
+        log.info('exit gracefully')
+        server.close()
+    gevent.signal(signal.SIGTERM, shutdown)
+    try:
+        server.serve_forever(stop_timeout=3)
+    finally:
+        cleanup()
 
 
 main()

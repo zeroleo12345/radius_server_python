@@ -20,16 +20,16 @@ class Eap(object):
     TYPE_EAP_AKA = 23           # 0x17
     TYPE_EAP_PEAP = 25          # 0x19
     TYPE_EAP_MSCHAPV2 = 26      # 0x1a
+    TYPE_EAP_TLV = 33           # 0x21
+
+    # EAP-TLV类型
+    TYPE_RESULT_TLV_SUCCESS = 1
+    TYPE_RESULT_TLV_FAILURE = 2
+    TYPE_RESULT_TLV = 3
 
     @staticmethod
     def get_next_id(identifier):
-        if identifier == 0:
-            return 1
-            # return random.randrange(1, 255)
-        elif identifier + 1 > 255:
-            return 1
-
-        return identifier + 1
+        return (identifier + 1) & 0xff
 
     @staticmethod
     def split_eap_message(eap_messages: bytes) -> list:

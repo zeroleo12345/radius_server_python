@@ -1,9 +1,22 @@
 """
 reference:
-    PEAPv0 EAP-MSCHAPv2 - Microsoft's PEAP version 0 (Implementation in Windows XP SP1): (search Appendix A)
-        https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00
-    PEAPv1 EAP-GTC - Protected EAP Protocol (PEAP)
-        https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
+
+    PEAPv0 EAP-MSCHAPv2:
+        - Microsoft's PEAP version 0 (Implementation in Windows XP SP1): (search Appendix A)
+          the Windows XP SP1 implementation of PEAP does not include an EAP header on packets sent within the TLS channel
+            https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00
+        - Microsoft PPP CHAP Extensions, Version 2:
+            https://tools.ietf.org/html/rfc2759
+        - Microsoft Vendor-specific RADIUS Attributes:
+            https://tools.ietf.org/html/rfc2548
+
+
+    PEAPv1 EAP-GTC:
+        - Protected EAP Protocol (PEAP):
+            https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05
+        - Protected EAP Protocol (PEAP) Version 2:
+            https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-07
+
 
     认证流程参考文档:
         PEAPv1(EAP-GTC).vsd
@@ -67,7 +80,7 @@ class EapPeapPacket(Eap):
     @classmethod
     def parse(cls, packet: bytes) -> 'EapPeapPacket':
         try:
-            code, id, length, type, flag = struct.unpack('!2BH2B', packet[:6])
+            code, id, length, type, flag = struct.unpack('!B B H B B', packet[:6])
         except struct.error:
             raise PacketError('Packet header is corrupt')
         if len(packet) != length:
@@ -82,7 +95,7 @@ class EapPeapPacket(Eap):
         if length > 6:
             tls_data_start_pos = 6
             if flag_length:
-                tls_data_start_pos += 4
+                tls_data_start_pos += 4     # 头部多携带一个4字节字段: tls length
                 # tls_message_len = struct.unpack('!I', packet[6:10])
             tls_data = packet[tls_data_start_pos:]
         return EapPeapPacket(code=code, id=id, type=type,
@@ -104,7 +117,8 @@ class EapPeapPacket(Eap):
 
         _flag = flag_length << 7 | flag_more << 6 | self.flag_start << 5 | self.flag_version
 
-        header = struct.pack('!2BH2B', self.code, self.id, (6 + len(attr)), self.type, _flag)
+        packet_length = 6 + len(attr)
+        header = struct.pack('!B B H B B', self.code, self.id, packet_length, self.type, _flag)
         return header + attr
 
     @classmethod

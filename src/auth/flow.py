@@ -1,5 +1,7 @@
+import struct
 # 第三方库
 from child_pyrad.packet import AuthRequest, AuthResponse
+from child_pyrad.eap_packet import EapPacket
 # 自己的库
 from loguru import logger as log
 from controls.user import AuthUser
@@ -16,10 +18,11 @@ class Flow(object):
     PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT = 'peap_challenge_server_hello_fragment'
     PEAP_CHALLENGE_CHANGE_CIPHER_SPEC = 'peap_challenge_change_cipher_spec'
     #
+    PEAP_CHALLENGE_PHASE2_IDENTITY = 'peap_challenge_phase2_identity'
+    #
     PEAP_CHALLENGE_MSCHAPV2_RANDOM = 'peap_challenge_mschapv2_random'
     PEAP_CHALLENGE_MSCHAPV2_NT = 'peap_challenge_mschapv2_nt'
     #
-    PEAP_CHALLENGE_GTC_IDENTITY = 'peap_challenge_gtc_identity'
     PEAP_CHALLENGE_GTC_PASSWORD = 'peap_challenge_gtc_password'
     #
     PEAP_CHALLENGE_SUCCESS = 'peap_challenge_success'
@@ -27,6 +30,8 @@ class Flow(object):
 
     @classmethod
     def access_reject(cls, request: AuthRequest, auth_user: AuthUser):
+        # 增加上 EAP-Failure: 04000004
         log.info(f'reject. user: {auth_user.outer_username}, mac: {auth_user.mac_address}')
         reply = AuthResponse.create_access_reject(request=request)
+        reply['EAP-Message'] = struct.pack('!B B H', EapPacket.CODE_EAP_SUCCESS, 0, 4)
         return request.reply_to(reply)

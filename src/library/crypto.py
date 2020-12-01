@@ -11,12 +11,18 @@ class EapCryptoError(Exception):
     pass
 
 
-class TlsBuffer(ctypes.Structure):
+class WpaBuf(ctypes.Structure):
     """
     ctypes.CFUNCTYPE(restype, *argtypes, use_errno=False, use_last_error=False)
     int         =>  c_int
     int *       =>  POINTER(c_int)
     """
+    # struct wpabuf {
+    # 	size_t size;            /* total size of the allocated buffer */
+    # 	size_t used;            /* length of data in the buffer */
+    # 	u8 *buf;                /* pointer to the head of the buffer */
+    # 	unsigned int flags;     /* optionally followed by the allocated buffer */
+    # };
     _fields_ = [
         ('size', ctypes.c_ulonglong),
         ('used', ctypes.c_ulonglong),
@@ -27,6 +33,12 @@ class TlsBuffer(ctypes.Structure):
 
 class EapCrypto(object):
     tls_ctx = None
+    MSG_EXCESSIVE = 0
+    MSG_MSGDUMP = 1
+    MSG_DEBUG = 2
+    MSG_INFO = 3
+    MSG_WARNING = 4
+    MSG_ERROR = 5
 
     def __init__(self, hostapd_library_path: str, ca_cert_path, client_cert_path, private_key_path, private_key_passwd: str, dh_file_path):
         assert os.path.exists(hostapd_library_path)
@@ -75,7 +87,7 @@ class EapCrypto(object):
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data,
         #         struct wpabuf **appl_data)
-        self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(TlsBuffer)    # 不加会导致 Segmentation fault
+        self.lib.tls_connection_server_handshake.restype = ctypes.POINTER(WpaBuf)    # 不加会导致 Segmentation fault
         tls_out = self.lib.tls_connection_server_handshake(self.tls_ctx,
                                                            tls_connection,
                                                            p_tls_in,
@@ -93,7 +105,7 @@ class EapCrypto(object):
         # ./src/crypto/tls_openssl.c:3292:struct wpabuf * tls_connection_decrypt(void *tls_ctx,
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data)
-        self.lib.tls_connection_decrypt.restype = ctypes.POINTER(TlsBuffer)     # 不加会导致 Segmentation fault
+        self.lib.tls_connection_decrypt.restype = ctypes.POINTER(WpaBuf)     # 不加会导致 Segmentation fault
         return self.lib.tls_connection_decrypt(self.tls_ctx,
                                                tls_connection,
                                                input_tls_pointer)
@@ -102,7 +114,7 @@ class EapCrypto(object):
         # ./src/crypto/tls_openssl.c:3252:struct wpabuf * tls_connection_encrypt(void *tls_ctx,
         #         struct tls_connection *conn,
         #         const struct wpabuf *in_data)
-        self.lib.tls_connection_encrypt.restype = ctypes.POINTER(TlsBuffer)     # 不加会导致 Segmentation fault
+        self.lib.tls_connection_encrypt.restype = ctypes.POINTER(WpaBuf)     # 不加会导致 Segmentation fault
         return self.lib.tls_connection_encrypt(self.tls_ctx,
                                                tls_connection,
                                                input_tls_pointer)
@@ -159,13 +171,8 @@ class EapCrypto(object):
 
     def call_tls_deinit(self):
         self.lib.tls_deinit(self.tls_ctx)
-        return
-
-    def __del__(self):
-        self.call_tls_deinit()
 
     def call_set_log_level(self, level: int = 0):
-        # MSG_EXCESSIVE = 0 , MSG_MSGDUMP =1 , MSG_DEBUG = 2, MSG_INFO = 3, MSG_WARNING = 4, MSG_ERROR = 5
         self.lib.set_log_level(level)
         return
 
@@ -180,7 +187,7 @@ class EapCrypto(object):
                 raise EapCryptoError('decrypt p_tls_out is None')
             out_data_len = p_tls_out.contents.used
             out_data = ctypes.string_at(p_tls_out.contents.buf, out_data_len)
-            log.trace(f'tls decrypt data: {out_data}')
+            log.trace(f'Decrypted Phase 2 EAP - hexdump(len={len(out_data)}): {out_data}')
             log.trace(f'hex: {out_data.hex()}')
             if out_data is None:
                 raise EapCryptoError('decrypt error')
@@ -189,9 +196,14 @@ class EapCrypto(object):
             self.call_free_alloc(p_tls_in)
             self.call_free_alloc(p_tls_out)
 
-    def encrypt(self, tls_connection, tls_in_data: bytes) -> bytes:
+    def encrypt(self, tls_connection, tls_in_data: bytes, peap_version: int = 1) -> bytes:
         p_tls_in, p_tls_out = None, None
         try:
+            log.trace(f'Encrypting Phase 2 data - hexdump(len={len(tls_in_data)}): {tls_in_data}')
+            log.trace(f'hex: {tls_in_data.hex()}')
+            if peap_version == 0:
+                log.trace(f'Drop 4 byte PEAPv0 EAP header')
+                tls_in_data = tls_in_data[4:]
             tls_in_data_pointer = ctypes.create_string_buffer(tls_in_data)
             tls_in_data_len = ctypes.c_ulonglong(len(tls_in_data))
             p_tls_in = self.lib.py_wpabuf_alloc(tls_in_data_pointer, tls_in_data_len)
