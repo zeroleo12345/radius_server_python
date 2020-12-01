@@ -19,7 +19,7 @@ class EapPeapSession(object):
         self.peap_version: int = 1
         self.prev_id: int = -1          # 用于检查是否重发消息
         self.prev_eap_id: int = -1      # 用于检查是否重发消息
-        self.next_eap_id: int = -1
+        self.current_eap_id: int = -1
         #
         self.auth_user: AuthUser = auth_user
         self.reply: AuthPacket = None
