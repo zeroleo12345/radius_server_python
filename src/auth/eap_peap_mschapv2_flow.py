@@ -75,7 +75,6 @@ class EapPeapMschapv2Flow(Flow):
         # 第一个报文 OR 符合服务端预期的 response
         elif session.next_eap_id == -1 or session.next_eap_id == eap.id:
             # 正常eap-peap流程
-            session.next_id = EapPacket.get_next_id(request.id)
             session.next_eap_id = EapPacket.get_next_id(eap.id)
             log.info(f'peap auth. session_id: {session.session_id}, call next_state: {session.next_state}')
             if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == cls.PEAP_CHALLENGE_START:
