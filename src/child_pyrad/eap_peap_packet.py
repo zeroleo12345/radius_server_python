@@ -50,7 +50,7 @@ class EapPeapPacket(Eap):
                 +-+-+
     """
 
-    def __init__(self, code: int = 0, id: int = 0, type: int = Eap.TYPE_EAP_PEAP,
+    def __init__(self, code: int = 0, id: int = 0, length: int = 0, type: int = Eap.TYPE_EAP_PEAP,
                  flag_length: int = 0b0, flag_more: int = 0b0, flag_start: int = 0b0, flag_version: int = 0b001, tls_data: bytes = b''):
         """
         :param code:
@@ -65,7 +65,7 @@ class EapPeapPacket(Eap):
         self.fpos = 1
         self.code = code        # int  1-byte
         self.id = id            # int  1-byte
-        # self.length = 0       # int  2-byte
+        self.length = length    # int  2-byte
         self.type = type        # int  1-byte
         self.flag_length = flag_length
         self.flag_more = flag_more
@@ -95,10 +95,10 @@ class EapPeapPacket(Eap):
         if length > 6:
             tls_data_start_pos = 6
             if flag_length:
-                tls_data_start_pos += 4     # 头部多携带一个4字节字段: tls length
+                tls_data_start_pos += 4     # 头部多携带一个4字节字段: tls_length
                 # tls_message_len = struct.unpack('!I', packet[6:10])
             tls_data = packet[tls_data_start_pos:]
-        return EapPeapPacket(code=code, id=id, type=type,
+        return EapPeapPacket(code=code, id=id, length=length, type=type,
                              flag_length=flag_length, flag_more=flag_more, flag_start=flag_start, flag_version=flag_version, tls_data=tls_data)
 
     def go_next_fragment(self):
@@ -124,3 +124,15 @@ class EapPeapPacket(Eap):
     @classmethod
     def random_string(cls, length) -> bytes:
         return os.urandom(length)
+
+    def __str__(self):
+        attr = 'Attribute:'
+        attr += '\n        ' + self.tls_data.hex()
+        header = 'PEAP Dump:'
+        header += '\n    Header:' + struct.pack("!B B H B", self.code, self.id, self.flag_length, self.type).hex()
+        header += '\n    Code:' + str(self.code)
+        header += '\n    id:' + str(self.id)
+        header += '\n    length:' + str(self.length)
+        header += '\n    type:' + str(self.type)
+        header += '\n'
+        return header + attr

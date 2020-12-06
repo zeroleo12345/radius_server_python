@@ -18,14 +18,15 @@ from loguru import logger as log
 class EapPeapMschapv2Flow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
-        log.trace(f'request: {request}')
+        log.trace(f'request Radius: {request}')
 
         # 解析eap报文和eap_peap报文
         raw_eap_messages = EapPacket.merge_eap_message(request['EAP-Message'])
-        eap = EapPacket.parse(packet=raw_eap_messages)
-        peap = None
+        eap: EapPacket = EapPacket.parse(packet=raw_eap_messages)
+        peap: EapPeapPacket = None
         if EapPacket.is_eap_peap(type=eap.type):
             peap = EapPeapPacket.parse(packet=raw_eap_messages)
+        log.trace(f'request PEAP: {peap}')
 
         # 判断新旧会话
         session = None
@@ -58,7 +59,9 @@ class EapPeapMschapv2Flow(Flow):
         :param peap:
         :param session:
         """
-        # TODO 处理 Nak 报文
+        if eap.type == EapPacket.TYPE_EAP_NAK:
+            log.error('receive Nak. Client not support EAP-PEAP!')
+            raise AccessReject()
         if session.prev_id == request.id or session.prev_eap_id == eap.id:
             # 重复请求
             if session.reply:
@@ -79,7 +82,9 @@ class EapPeapMschapv2Flow(Flow):
             log.info(f'peap auth. session_id: {session.session_id}, call next_state: {session.next_state}')
             if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == cls.PEAP_CHALLENGE_START:
                 return cls.peap_challenge_start(request, eap, peap, session)
-            elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO:
+            # 以下流程 request 报文 phase1 协商协议必须是 EAP-PEAP
+            assert eap.type == EapPacket.TYPE_EAP_PEAP
+            if peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO:
                 return cls.peap_challenge_server_hello(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
@@ -225,8 +230,12 @@ class EapPeapMschapv2Flow(Flow):
         # v0: EAP-PEAP: Decrypted Phase 2 EAP - hexdump(len=9): 01 74 65 73 74 75 73 65 72
         # v1: EAP-PEAP: Decrypted Phase 2 EAP - hexdump(len=13): 02 06 00 0d 01 74 65 73 74 75 73 65 72
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
-        mschapv2_identity = EapMschapv2Packet.parse(packet=tls_decrypt_data, peap_version=session.peap_version)
-        account_name = mschapv2_identity.type_data.decode()
+        eap_identity = EapMschapv2Packet.parse(packet=tls_decrypt_data, peap_version=session.peap_version)
+        log.trace(f'eap_identity: {eap_identity}')
+        if eap_identity.type != EapPacket.TYPE_EAP_IDENTITY:
+            log.error('not receive eap_identity')
+            raise AccessReject()
+        account_name = eap_identity.type_data.decode()
         # 保存用户名
         session.auth_user.set_inner_username(account_name)
         # 查找用户密码
@@ -284,7 +293,11 @@ class EapPeapMschapv2Flow(Flow):
         # 24位NT-Response(72 0e 3d a8 8d bd f8 a9 e8 bd 1a 95 d9 5f 08 03 7e 10 db 9f 01 d4 a5 fc) +
         # Flags(00) +
         # 用户名(74 65 73 74 75 73 65 72)
-        mschapv2_random = EapMschapv2Packet.parse(packet=tls_decrypt_data, peap_version=session.peap_version)
+        mschapv2_random: EapMschapv2Packet = EapMschapv2Packet.parse(packet=tls_decrypt_data, peap_version=session.peap_version)
+        log.trace(f'mschapv2_random: {mschapv2_random}')
+        if mschapv2_random.type != EapPacket.TYPE_EAP_MSCHAPV2:
+            log.error('not receive mschapv2_random')
+            raise AccessReject()
         mschapv2_type, eap_id, mschapv2_length, fix_length = struct.unpack('!B B H B', mschapv2_random.type_data[:5])
         assert fix_length == 0x31 == 49
         username_len = mschapv2_length - 5 - fix_length

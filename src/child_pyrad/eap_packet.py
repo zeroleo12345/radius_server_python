@@ -62,7 +62,7 @@ class EapPacket(Eap):
         attr = 'Attribute:'
         attr += '\n        ' + self.type_data.hex()
         header = 'EAP Dump:'
-        header += '\n    Header:' + struct.pack("!B B H B", self.code, self.id, (5+len(self.type_data)), self.type).hex()
+        header += '\n    Header:' + struct.pack("!B B H B", self.code, self.id, 5 + len(self.type_data), self.type).hex()
         header += '\n    Code:' + str(self.code)
         header += '\n    id:' + str(self.id)
         header += '\n    length:' + str(5+len(self.type_data))

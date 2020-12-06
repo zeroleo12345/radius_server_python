@@ -17,7 +17,7 @@ from loguru import logger as log
 class EapPeapGtcFlow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
-        log.trace(f'request: {request}')
+        log.trace(f'request Radius: {request}')
 
         # 解析eap报文和eap_peap报文
         raw_eap_messages = EapPacket.merge_eap_message(request['EAP-Message'])

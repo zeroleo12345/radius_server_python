@@ -35,3 +35,11 @@ class EapMschapv2Packet(Eap):
             type, = struct.unpack("!B", packet[4:5]) if _length > 4 else None
             type_data = packet[5:_length] if _length > 5 else b''
         return EapMschapv2Packet(type=type, type_data=type_data)
+
+    def __str__(self):
+        attr = 'Attribute:'
+        attr += '\n        ' + self.type_data.hex()
+        header = 'Mschapv2 Dump:'
+        header += '\n    type:' + str(self.type)
+        header += '\n'
+        return header + attr
