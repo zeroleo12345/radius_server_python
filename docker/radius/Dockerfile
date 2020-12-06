@@ -20,6 +20,7 @@ RUN pip3 install --upgrade pip --trusted-host mirrors.aliyun.com --index-url htt
 WORKDIR /app/
 ADD src /app/src/
 ADD bin /app/bin/
+ENV PYTHONPATH="/app/src:${PYTHONPATH}"
 ENV PATH="${PATH}:/app/bin:/app/tools/simulator/bin"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/app/lib:/app/tools/simulator/lib"
 
