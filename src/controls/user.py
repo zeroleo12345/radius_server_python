@@ -1,7 +1,7 @@
 import datetime
 # 项目库
 from models import Transaction
-from models.auth import BroadbandUser
+from models.auth import Account
 from child_pyrad.packet import AuthRequest, AcctRequest
 from loguru import logger as log
 
@@ -48,7 +48,7 @@ class DbUser(object):
     def get_user(cls, username) -> 'DbUser':
         # 查找用户明文密码
         with Transaction() as session:
-            user = session.query(BroadbandUser).filter(BroadbandUser.username == username).first()
+            user = session.query(Account).filter(Account.username == username).first()
             if not user:
                 log.error(f'get_user({username}) not exist in db.')
                 return None

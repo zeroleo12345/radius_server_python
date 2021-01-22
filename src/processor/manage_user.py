@@ -6,7 +6,7 @@ from dateutil.parser import parse
 from processor import Task
 from settings import API_URL, log
 from models import Transaction
-from models.auth import BroadbandUser
+from models.auth import Account
 
 LOCAL_TZ = datetime.timezone(datetime.timedelta(hours=8))
 
@@ -38,9 +38,9 @@ class TaskLoop(Task):
                 #
                 expired_at_dt = parse(expired_at)   # datetime 类型
                 expired_at_str = expired_at_dt.strftime('%Y-%m-%d %H:%M:%S')    # 字符串类型
-                user = session.query(BroadbandUser).filter(BroadbandUser.username == username).first()
+                user = session.query(Account).filter(Account.username == username).first()
                 if not user:
-                    new_user = BroadbandUser(username=username, password=password, expired_at=expired_at_dt)
+                    new_user = Account(username=username, password=password, expired_at=expired_at_dt)
                     session.add(new_user)
                     session.commit()
                     log.info(f'insert user: {username}')
