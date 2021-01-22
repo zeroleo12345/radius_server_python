@@ -20,7 +20,7 @@ rm -rf ./*.attr
 openssl dhparam -out ./dh 1024
 
 # 生成CA根证书私钥
-touch index.txt; echo 01 > serial;
+touch index.txt && echo 01 > serial
 openssl genrsa -out ./ca.key.pem 2048
 
 # 通过CA根证书私钥, 生成CA根证书
