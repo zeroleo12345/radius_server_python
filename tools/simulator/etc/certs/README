@@ -69,7 +69,7 @@ openssl req -new -days 3650 -key ./server.key.pem -out ./server.csr.pem
     Please enter the following 'extra' attributes
     to be sent with your certificate request
     A challenge password []:123456
-    An optional company name []:E
+    An optional company name []:WIFI
     
 # 通过CA根证书私钥、CA根证书、服务端证书签名请求, 生成服务端证书
 openssl ca -keyfile ./ca.key.pem -cert ca.cer.pem -in ./server.csr.pem -out ./server.cer.pem
@@ -110,14 +110,14 @@ openssl genrsa -des3 -out ./client.key.pem
     ....++++++++++++
     .++++++++++++
     e is 65537 (0x10001)
-    Enter pass phrase for private/clientkey.pem:1234
-    Verifying - Enter pass phrase for private/clientkey.pem:1234
+    Enter pass phrase for private/clientkey.pem:123456
+    Verifying - Enter pass phrase for private/clientkey.pem:123456
     
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+## hostapd 不需要用到 client 证书 !!!!
 # 通过客户端私钥, 生成客户端证书签名请求
-cd ../
 openssl req -new -days 365 -key ./client.key.pem -out ./client.csr.pem
-    Enter pass phrase for private/clientkey.pem:1234
+    Enter pass phrase for private/clientkey.pem:123456
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
     What you are about to enter is what is called a Distinguished Name or a DN.
@@ -126,16 +126,16 @@ openssl req -new -days 365 -key ./client.key.pem -out ./client.csr.pem
     If you enter '.', the field will be left blank.
     -----
     Country Name (2 letter code) [AU]:CN
-    State or Province Name (full name) [Some-State]:GD
-    Locality Name (eg, city) []:GZ
-    Organization Name (eg, company) [Internet Widgits Pty Ltd]:E
-    Organizational Unit Name (eg, section) []:EIS
-    Common Name (e.g. server FQDN or YOUR name) []:MAN
-    Email Address []:email
+    State or Province Name (full name) [Some-State]:GuangDong
+    Locality Name (eg, city) []:GuangZhou
+    Organization Name (eg, company) [Internet Widgits Pty Ltd]:zhuzaiyuan
+    Organizational Unit Name (eg, section) []:zhuzaiyuan
+    Common Name (e.g. server FQDN or YOUR name) []:WIFI
+    Email Address []:xxx@qq.com
     Please enter the following 'extra' attributes
     to be sent with your certificate request
-    A challenge password []:1234
-    An optional company name []:E
+    A challenge password []:123456
+    An optional company name []:WIFI
     
 # 通过CA根证书私钥、CA根证书、客户端证书签名请求, 生成客户端证书
 openssl ca -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./client.csr.pem -out ./client.cer.pem
