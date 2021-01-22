@@ -16,11 +16,10 @@ rm -rf ./*.attr
     #dir     = ./demoCA      # TSA root directory
     dir     = ./     # TSA root directory
 
-# 生成目录
-mkdir certs newcerts
+# 生成dh文件
+openssl dhparam -out ./dh 1024
 
 # 生成CA根证书私钥
-cd certs
 touch index.txt; echo 01 > serial;
 openssl genrsa -out ./ca.key.pem 2048
 
@@ -170,5 +169,3 @@ openssl ca -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./client.csr.pem -out ./
     failed to update database
     TXT_DB error number 2
 
-# 生成dh文件
-openssl dhparam -out ./dh 1024
