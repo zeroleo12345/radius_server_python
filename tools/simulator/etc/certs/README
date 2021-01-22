@@ -19,11 +19,11 @@ rm -rf ./newcerts/ && rm -rf ./*.old && rm -rf ./*.attr
 openssl dhparam -out ./dh 1024
 
 # 生成CA根证书私钥
-touch index.txt && echo 99 > serial
+touch index.txt
 openssl genrsa -out ./ca.key.pem 2048
 
 # 通过CA根证书私钥, 生成CA根证书
-openssl req -new -x509 -days 365 -key ./ca.key.pem -out ./ca.cer.pem
+openssl req -new -x509 -days 3650 -key ./ca.key.pem -out ./ca.cer.pem
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
     What you are about to enter is what is called a Distinguished Name or a DN.
@@ -72,6 +72,7 @@ openssl req -new -days 3650 -key ./server.key.pem -out ./server.csr.pem
     
 # 通过CA根证书私钥、CA根证书、服务端证书签名请求, 生成服务端证书
 mkdir newcerts
+echo 01 > serial        # 报错则更换序列号: ERROR:Serial number 99 has already been issued
 openssl ca -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./server.csr.pem -out ./server.cer.pem
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
@@ -116,7 +117,7 @@ openssl genrsa -des3 -out ./client.key.pem
     Verifying - Enter pass phrase for private/clientkey.pem:123456
     
 # 通过客户端私钥, 生成客户端证书签名请求
-openssl req -new -days 365 -key ./client.key.pem -out ./client.csr.pem
+openssl req -new -days 3650 -key ./client.key.pem -out ./client.csr.pem
     Enter pass phrase for private/clientkey.pem:123456
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
