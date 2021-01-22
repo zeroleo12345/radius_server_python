@@ -3,16 +3,25 @@ rm -rf ./*.old
 rm -rf ./*.attr
 
 # 修改openssl配置
-vim /usr/local/ssl/openssl.cnf
+- linux
+    vim /usr/local/ssl/openssl.cnf
+
+- MacOS
+    $ openssl version -a | grep OPENSSLDIR
+    OPENSSLDIR: "/private/etc/ssl"
+    $ sudo ln -s /usr/local/etc/openssl/openssl.cnf   /private/etc/ssl/openssl.cnf
+    $ vim /private/etc/ssl/openssl.cnf
+
     [ CA_default ]
     #dir     = ./demoCA      # TSA root directory
     dir     = ./     # TSA root directory
 
 # 生成目录
-mkdir certs newcerts && cd certs
-touch index.txt; echo 01 > serial;
+mkdir certs newcerts
 
 # 生成CA根证书私钥
+cd certs
+touch index.txt; echo 01 > serial;
 openssl genrsa -out ./ca.key.pem 2048
 
 # 通过CA根证书私钥, 生成CA根证书
@@ -25,12 +34,12 @@ openssl req -new -x509 -days 365 -key ./ca.key.pem -out ./ca.cer.pem
     If you enter '.', the field will be left blank.
     -----
     Country Name (2 letter code) [AU]:CN
-    State or Province Name (full name) [Some-State]:GD     
-    Locality Name (eg, city) []:GZ
-    Organization Name (eg, company) [Internet Widgits Pty Ltd]:E
-    Organizational Unit Name (eg, section) []:EIS
-    Common Name (e.g. server FQDN or YOUR name) []:MAN
-    Email Address []:email
+    State or Province Name (full name) [Some-State]:GuangDong
+    Locality Name (eg, city) []:GuangZhou
+    Organization Name (eg, company) [Internet Widgits Pty Ltd]:zhuzaiyuan
+    Organizational Unit Name (eg, section) []:zhuzaiyuan
+    Common Name (e.g. server FQDN or YOUR name) []:WIFI
+    Email Address []:xxx@qq.com
     
 # 生成服务端私钥
 openssl genrsa -out ./server.key.pem
@@ -51,16 +60,16 @@ openssl req -new -days 3650 -key ./server.key.pem -out ./server.csr.pem
     If you enter '.', the field will be left blank.
     -----
     Country Name (2 letter code) [AU]:CN
-    State or Province Name (full name) [Some-State]:GD
-    Locality Name (eg, city) []:GZ
-    Organization Name (eg, company) [Internet Widgits Pty Ltd]:E
-    Organizational Unit Name (eg, section) []:EIS
-    Common Name (e.g. server FQDN or YOUR name) []:MAN
-    Email Address []:email
+    State or Province Name (full name) [Some-State]:GuangDong
+    Locality Name (eg, city) []:GuangZhou
+    Organization Name (eg, company) [Internet Widgits Pty Ltd]:zhuzaiyuan
+    Organizational Unit Name (eg, section) []:zhuzaiyuan
+    Common Name (e.g. server FQDN or YOUR name) []:WIFI
+    Email Address []:xxx@qq.com
 
     Please enter the following 'extra' attributes
     to be sent with your certificate request
-    A challenge password []:1234
+    A challenge password []:123456
     An optional company name []:E
     
 # 通过CA根证书私钥、CA根证书、服务端证书签名请求, 生成服务端证书
@@ -105,7 +114,9 @@ openssl genrsa -des3 -out ./client.key.pem
     Enter pass phrase for private/clientkey.pem:1234
     Verifying - Enter pass phrase for private/clientkey.pem:1234
     
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # 通过客户端私钥, 生成客户端证书签名请求
+cd ../
 openssl req -new -days 365 -key ./client.key.pem -out ./client.csr.pem
     Enter pass phrase for private/clientkey.pem:1234
     You are about to be asked to enter information that will be incorporated
