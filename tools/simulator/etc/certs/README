@@ -13,13 +13,15 @@
     dir     = ./     # TSA root directory
 
 # 清理
-rm -rf ./newcerts/ && rm -rf ./*.old && rm -rf ./*.attr
+rm -rf  ./newcerts/  ./*.old  ./*.attr  index.txt  serial
 
 # 生成dh文件
 openssl dhparam -out ./dh 1024
 
+# 报错则更换序列号: ERROR:Serial number 99 has already been issued
+touch index.txt && echo 01 > serial
+
 # 生成CA根证书私钥
-touch index.txt
 openssl genrsa -out ./ca.key.pem 2048
 
 # 通过CA根证书私钥, 生成CA根证书
@@ -72,7 +74,6 @@ openssl req -new -days 3650 -key ./server.key.pem -out ./server.csr.pem
     
 # 通过CA根证书私钥、CA根证书、服务端证书签名请求, 生成服务端证书
 mkdir newcerts
-echo 01 > serial        # 报错则更换序列号: ERROR:Serial number 99 has already been issued
 openssl ca -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./server.csr.pem -out ./server.cer.pem
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
