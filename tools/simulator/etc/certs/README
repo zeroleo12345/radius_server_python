@@ -74,7 +74,7 @@ openssl req -new -days 3650 -key ./server.key.pem -out ./server.csr.pem
     
 # 通过CA根证书私钥、CA根证书、服务端证书签名请求, 生成服务端证书
 mkdir newcerts
-openssl ca -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./server.csr.pem -out ./server.cer.pem
+openssl ca -days 3650 -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./server.csr.pem -out ./server.cer.pem
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
     Signature ok
@@ -141,7 +141,7 @@ openssl req -new -days 3650 -key ./client.key.pem -out ./client.csr.pem
     An optional company name []:WIFI
     
 # 通过CA根证书私钥、CA根证书、客户端证书签名请求, 生成客户端证书
-openssl ca -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./client.csr.pem -out ./client.cer.pem
+openssl ca -days 3650 -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./client.csr.pem -out ./client.cer.pem
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
     Signature ok
