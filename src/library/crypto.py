@@ -40,19 +40,22 @@ class EapCrypto(object):
     MSG_WARNING = 4
     MSG_ERROR = 5
 
-    def __init__(self, hostapd_library_path: str, ca_cert_path, client_cert_path, private_key_path, private_key_passwd: str, dh_file_path):
+    def __init__(self, hostapd_library_path: str, ca_cert_path, client_cert_path, private_key_path, private_key_password: str, dh_file_path):
         assert os.path.exists(hostapd_library_path)
         self.lib = ctypes.CDLL(hostapd_library_path, mode=257)
         p_ca_cert_path = ctypes.create_string_buffer(ca_cert_path.encode())
         p_client_cert_path = ctypes.create_string_buffer(client_cert_path.encode())
         p_private_key_path = ctypes.create_string_buffer(private_key_path.encode())
-        p_private_key_passwd = ctypes.create_string_buffer(private_key_passwd.encode())
+        p_private_key_passwd = ctypes.create_string_buffer(private_key_password.encode())
         p_dh_file_path = ctypes.create_string_buffer(dh_file_path.encode())
         # ./hostapd/test_main.c:94:void* py_authsrv_init(char *ca_cert_path, char *client_cert_path,
-        #         char *private_key_path, char *private_key_passwd, char *dh_file_path) {
+        #         char *private_key_path, char *private_key_password, char *dh_file_path) {
         self.lib.py_authsrv_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 不加会导致 Segmentation fault
         self.tls_ctx = self.lib.py_authsrv_init(p_ca_cert_path, p_client_cert_path,
                                                 p_private_key_path, p_private_key_passwd, p_dh_file_path)
+        if not self.tls_ctx:
+            log.error(f'load certificate fail, ca_cert: {ca_cert_path}, client_cert: {client_cert_path},'
+                      f'private_key_path: {private_key_path}, private_key_password: {private_key_password}')
         assert self.tls_ctx
 
     def call_tls_connection_init(self):
