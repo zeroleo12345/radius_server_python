@@ -1,5 +1,6 @@
 import traceback
 import signal
+import sentry_sdk
 # 第三方库
 import gevent
 from gevent.server import DatagramServer
@@ -33,6 +34,7 @@ class EchoServer(DatagramServer):
             verify(request)
         except Exception:
             log.error(traceback.format_exc())
+            sentry_sdk.capture_exception(e)
 
 
 def verify(request: AcctRequest):

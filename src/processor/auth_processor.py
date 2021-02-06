@@ -5,6 +5,7 @@ import signal
 import gevent
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
+import sentry_sdk
 # 自己的库
 from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.packet import AuthRequest
@@ -43,8 +44,9 @@ class EchoServer(DatagramServer):
 
             # 验证用户
             verify(request)
-        except Exception:
+        except Exception as e:
             log.error(traceback.format_exc())
+            sentry_sdk.capture_exception(e)
 
 
 def verify(request: AuthRequest):
