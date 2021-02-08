@@ -42,7 +42,7 @@ openssl req -new -x509 -days 3650 -key ./ca.key.pem -out ./ca.cer.pem
     Email Address []:298077831@qq.com
     
 # 生成服务端私钥
-openssl genrsa -out ./server.key.pem
+openssl genrsa -out ./server.key.pem 2048
     Generating RSA private key, 2048 bit long modulus
     ...............................................+++
     ..............................................+++
@@ -109,8 +109,8 @@ openssl ca -days 3650 -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./server.csr.
 
 ## hostapd 不需要用到 client 证书 !!!!
 # 生成客户端私钥
-openssl genrsa -des3 -out ./client.key.pem
-    Generating RSA private key, 512 bit long modulus
+openssl genrsa -des3 -out ./client.key.pem 2048
+    Generating RSA private key, 2048 bit long modulus
     ....++++++++++++
     .++++++++++++
     e is 65537 (0x10001)
