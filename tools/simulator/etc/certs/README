@@ -106,6 +106,9 @@ openssl ca -days 3650 -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./server.csr.
     Write out database with 1 new entries
     Data Base Updated
 
+# 合成p12证书文件
+openssl pkcs12 -export -out certificate.p12 -inkey server.key.pem -in server.cer.pem
+
 
 ## hostapd 不需要用到 client 证书 !!!!
 # 生成客户端私钥
