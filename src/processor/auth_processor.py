@@ -61,7 +61,7 @@ def verify(request: AuthRequest):
                 return EapPeapGtcFlow.authenticate(request=request, auth_user=auth_user)
             else:
                 return EapPeapMschapv2Flow.authenticate(request=request, auth_user=auth_user)
-        elif 'Microsoft' in request:
+        elif 'Vendor-Specific' in request:
             ChapFlow.access_accept(request=request, auth_user=auth_user)
         raise Exception('can not choose authenticate method')
     except AccessReject:
