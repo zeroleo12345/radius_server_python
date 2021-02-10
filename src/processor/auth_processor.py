@@ -41,6 +41,7 @@ class EchoServer(DatagramServer):
 
             # 解析报文
             request = AuthRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
+            log.trace(f'request Radius: {request}')
 
             # 验证用户
             verify(request)
@@ -61,8 +62,7 @@ def verify(request: AuthRequest):
                 return EapPeapGtcFlow.authenticate(request=request, auth_user=auth_user)
             else:
                 return EapPeapMschapv2Flow.authenticate(request=request, auth_user=auth_user)
-        elif 'Vendor-Specific' in request:
-            ChapFlow.access_accept(request=request, auth_user=auth_user)
+        return ChapFlow.access_accept(request=request, auth_user=auth_user)
         raise Exception('can not choose authenticate method')
     except AccessReject:
         Flow.access_reject(request=request, auth_user=auth_user)
