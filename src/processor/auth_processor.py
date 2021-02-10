@@ -63,7 +63,8 @@ def verify(request: AuthRequest):
             else:
                 return EapPeapMschapv2Flow.authenticate(request=request, auth_user=auth_user)
         elif 'MS-CHAP-Challenge' in request:
-            ChapFlow.access_accept(request=request, auth_user=auth_user)
+            return ChapFlow.access_accept(request=request, auth_user=auth_user)
+
         raise Exception('can not choose authenticate method')
     except AccessReject:
         Flow.access_reject(request=request, auth_user=auth_user)
