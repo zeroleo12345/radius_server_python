@@ -349,7 +349,7 @@ class EapPeapMschapv2Flow(Flow):
             # 返回数据
             # MSCHAPV2_OP_SUCCESS(03) + EAP_id减一(07) + MSCHAPV2_OP 到结束的长度(00 33) +
             # S=(53 3d) +
-            # 40个字符:generate_authenticator_response_pwhash计算出来的哈希值再换成hex大写(37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33)
+            # 40个字符: generate_authenticator_response_pwhash 计算出来的哈希值再换成hex大写(37 43 36 39 38 34 37 38 39 44 34 39 44 30 38 32 33 34 35 45 35 31 43 44 45 38 46 35 36 30 33 42 41 44 31 43 34 34 37 33)
             # + 空格(20) +
             # M=(4d 3d) +
             # OK(4f 4b)

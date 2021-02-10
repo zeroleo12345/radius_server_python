@@ -1,7 +1,9 @@
 """
 reference:
-    PPP Challenge Handshake Authentication Protocol (CHAP)   https://tools.ietf.org/search/rfc1994
-    Remote Authentication Dial In User Service (RADIUS)      https://tools.ietf.org/html/rfc2865
+    Remote Authentication Dial In User Service (RADIUS) - 描述认证流程:
+        https://tools.ietf.org/html/rfc2865
+    PPP Challenge Handshake Authentication Protocol (CHAP):
+        https://tools.ietf.org/search/rfc1994
 """
 import hashlib
 #
