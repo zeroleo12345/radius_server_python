@@ -28,14 +28,14 @@ class ChapFlow(Flow):
             return Chap.is_correct_challenge_value(request=request, user_password=auth_user.user_password)
 
         if is_correct_password() and cls.is_unique_session(mac_address=session.auth_user.mac_address):
-            return cls.access_accept(request=request, session=session)
+            return cls.access_accept(request=request, auth_user=auth_user)
         else:
             log.error(f'user_password: {auth_user.user_password} not correct')
             raise AccessReject()
 
     @classmethod
-    def access_accept(cls, request: AuthRequest, session: EapPeapSession):
-        log.info(f'accept. user: {session.auth_user.outer_username}, mac: {session.auth_user.mac_address}')
+    def access_accept(cls, request: AuthRequest, auth_user: AuthUser):
+        log.info(f'accept. user: {auth_user.outer_username}, mac: {auth_user.mac_address}')
         reply = AuthResponse.create_access_accept(request=request)
         return request.reply_to(reply)
 

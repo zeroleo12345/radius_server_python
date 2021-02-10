@@ -33,5 +33,6 @@ class Flow(object):
         # 增加上 EAP-Failure: 04000004
         log.info(f'reject. user: {auth_user.outer_username}, mac: {auth_user.mac_address}')
         reply = AuthResponse.create_access_reject(request=request)
-        reply['EAP-Message'] = struct.pack('!B B H', EapPacket.CODE_EAP_SUCCESS, 0, 4)
+        # TODO 验证reject有没有这个消息!
+        # reply['EAP-Message'] = struct.pack('!B B H', EapPacket.CODE_EAP_SUCCESS, 0, 4)
         return request.reply_to(reply)
