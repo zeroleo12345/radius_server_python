@@ -57,15 +57,18 @@ def verify(request: AuthRequest):
     try:
         if 'CHAP-Password' in request:
             return ChapFlow.authenticate(request=request, auth_user=auth_user)
+
         elif 'EAP-Message' in request:
             if USE_GTC:
                 return EapPeapGtcFlow.authenticate(request=request, auth_user=auth_user)
             else:
                 return EapPeapMschapv2Flow.authenticate(request=request, auth_user=auth_user)
+
         elif 'MS-CHAP-Challenge' in request:
             return ChapFlow.access_accept(request=request, auth_user=auth_user)
 
         raise Exception('can not choose authenticate method')
+
     except AccessReject:
         Flow.access_reject(request=request, auth_user=auth_user)
     except Exception as e:
