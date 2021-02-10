@@ -3,7 +3,7 @@ six==1.15.0
 netaddr==0.8.0
 # pyrad==2.3      # https://github.com/wichert/pyrad.git
 # git+https://github.com/pyradius/pyrad.git@547422f2ee3255a5fd47d7db00ebe4c477018cc6#egg=pyrad
-cryptography==3.2
+cryptography==3.3.2
 dynaconf==3.1.2
 requests==2.20.0
 sqlalchemy==1.3.11
