@@ -35,7 +35,7 @@ class MsChapFlow(Flow):
 
     @classmethod
     def access_accept(cls, request: AuthRequest, auth_user: AuthUser):
-        log.info(f'accept. user: {auth_user.outer_username}, mac: {auth_user.mac_address}')
+        log.info(f'OUT: accept|MS-CHAPv2|{request.username}|None|{request.mac_address}')
         reply = AuthResponse.create_access_accept(request=request)
         ################
         username = auth_user.outer_username
