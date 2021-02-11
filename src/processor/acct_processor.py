@@ -28,8 +28,13 @@ class EchoServer(DatagramServer):
         log.trace(f'request bytes: {data}')
 
         # 解析报文
-        request = AcctRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
-        acct_user = AcctUser(request=request)
+        try:
+            request = AcctRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
+            log.trace(f'request Radius: {request}')
+            acct_user = AcctUser(request=request)
+        except KeyError:
+            log.warning('packet corrupt!')
+            return
 
         try:
             # 验证用户
