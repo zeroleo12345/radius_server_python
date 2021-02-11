@@ -23,13 +23,14 @@ class AccountingFlow(object):
             return
 
         # 每隔x秒清理会话
-        AccountingSession.clean(interval=ACCOUNTING_INTERVAL*2)
-
+        if AccountingSession.clean(interval=ACCOUNTING_INTERVAL*2):
+            log.debug('clean up accounting session')
         #
         current_session = AccountingSession.put(account_name, acct_user.mac_address)
         if current_session > 1:
-            sentry_sdk.capture_message(f'user: {account_name} multiple session!')
-            cls.disconnect(mac_address=acct_user.mac_address) # 断开链接
+            pass
+            # sentry_sdk.capture_message(f'user: {account_name} multiple session!')
+            # cls.disconnect(mac_address=acct_user.mac_address) # 断开链接
         else:
             pass
 

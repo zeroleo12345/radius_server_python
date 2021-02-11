@@ -8,7 +8,7 @@ class AccountingSession(object):
     }
 
     @classmethod
-    def clean(cls, interval):
+    def clean(cls, interval) -> bool:
         """
         每隔多久清空
         :param interval: 秒数
@@ -19,6 +19,8 @@ class AccountingSession(object):
             cls.sessions = {
                 'username': {'mac_address'}
             }
+            return True
+        return False
 
     @classmethod
     def put(cls, username, mac_address):
