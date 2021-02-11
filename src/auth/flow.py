@@ -30,6 +30,8 @@ class Flow(object):
 
     @classmethod
     def access_reject(cls, request: AuthRequest, auth_user: AuthUser):
+        if not request and not auth_user:
+            return
         # 增加上 EAP-Failure: 04000004
         log.info(f'reject. user: {auth_user.outer_username}, mac: {auth_user.mac_address}')
         reply = AuthResponse.create_access_reject(request=request)

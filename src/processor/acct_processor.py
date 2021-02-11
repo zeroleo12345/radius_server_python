@@ -7,6 +7,7 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 # 自己的库
 from acct.accounting_flow import AccountingFlow
+from acct.flow import Flow
 from child_pyrad.dictionary import get_dictionaries
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
 from loguru import logger as log
@@ -22,6 +23,7 @@ class EchoServer(DatagramServer):
         self.dictionary = dictionary
 
     def handle(self, data, address):
+        request, acct_user = None, None
         try:
             ip, port = address
             log.debug(f'receive packet from {address}')
@@ -29,22 +31,19 @@ class EchoServer(DatagramServer):
 
             # 解析报文
             request = AcctRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
+            acct_user = AcctUser(request=request)
 
             # 验证用户
-            verify(request)
-        except Exception:
+            verify(request, acct_user)
+        except Exception as e:
             log.error(traceback.format_exc())
             sentry_sdk.capture_exception(e)
+        finally:
+            Flow.account_response(request=request, acct_user=acct_user)
 
 
-def verify(request: AcctRequest):
-    acct_user = AcctUser(request=request)
-
-    try:
-        AccountingFlow.accounting(request=request, acct_user=acct_user)
-    finally:
-        reply = AcctResponse.create_account_response(request=request)
-        request.reply_to(reply)
+def verify(request: AcctRequest, acct_user: AcctUser):
+    AccountingFlow.accounting(request=request, acct_user=acct_user)
 
 
 def main():
