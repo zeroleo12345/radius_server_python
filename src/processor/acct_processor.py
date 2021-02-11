@@ -23,16 +23,15 @@ class EchoServer(DatagramServer):
         self.dictionary = dictionary
 
     def handle(self, data, address):
-        request, acct_user = None, None
+        ip, port = address
+        log.debug(f'receive packet from {address}')
+        log.trace(f'request bytes: {data}')
+
+        # 解析报文
+        request = AcctRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
+        acct_user = AcctUser(request=request)
+
         try:
-            ip, port = address
-            log.debug(f'receive packet from {address}')
-            log.trace(f'request bytes: {data}')
-
-            # 解析报文
-            request = AcctRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
-            acct_user = AcctUser(request=request)
-
             # 验证用户
             verify(request, acct_user)
         except Exception as e:

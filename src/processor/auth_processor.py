@@ -35,22 +35,20 @@ class EchoServer(DatagramServer):
         self.dictionary = dictionary
 
     def handle(self, data, address):
-        request, auth_user = None, None
+        ip, port = address
+        log.debug(f'receive packet from {address}')
+        log.trace(f'request bytes: {data}')
+
+        # 解析报文
+        request = AuthRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
+        log.trace(f'request Radius: {request}')
+        auth_user = AuthUser(request=request)
+
         try:
-            ip, port = address
-            log.debug(f'receive packet from {address}')
-            log.trace(f'request bytes: {data}')
-
-            # 解析报文
-            request = AuthRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
-            log.trace(f'request Radius: {request}')
-            auth_user = AuthUser(request=request)
-
             # 验证用户
-            try:
-                verify(request, auth_user)
-            except AccessReject:
-                Flow.access_reject(request=request, auth_user=auth_user)
+            verify(request, auth_user)
+        except AccessReject:
+            Flow.access_reject(request=request, auth_user=auth_user)
         except Exception as e:
             log.error(traceback.format_exc())
             sentry_sdk.capture_exception(e)
