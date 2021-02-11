@@ -41,7 +41,9 @@ class MsChapFlow(Flow):
         username = auth_user.outer_username
         user_password = auth_user.user_password
         auth_challenge: bytes = request['MS-CHAP-Challenge'][0]
-        """ MS-CHAP2-Response 字段:     https://tools.ietf.org/html/rfc2548
+        """ Microsoft Vendor-specific RADIUS Attributes:
+                https://tools.ietf.org/html/rfc2548
+        ## MS-CHAP2-Response 字段:
         Vendor-Type
           25 for MS-CHAP2-Response.
         Vendor-Length
@@ -62,7 +64,7 @@ class MsChapFlow(Flow):
         ms_chap2_response = request['MS-CHAP2-Response'][0]
         ident: bytes = ms_chap2_response[1:2]
         peer_challenge: bytes = ms_chap2_response[2:18]
-        nt_response: bytes =ms_chap2_response[26:50]
+        nt_response: bytes = ms_chap2_response[26:50]
         p_username = ctypes.create_string_buffer(username.encode())
         l_username_len = ctypes.c_ulonglong(len(username))
         p_password = ctypes.create_string_buffer(user_password.encode())
