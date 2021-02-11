@@ -49,10 +49,11 @@ class DbUser(object):
         # 查找用户明文密码
         with Transaction() as session:
             user = session.query(Account).filter(Account.username == username).first()
-            if not user:
-                log.error(f'get_user({username}) not exist in db.')
-                return None
-            if user.expired_at <= datetime.datetime.now():
-                log.error(f'get_user({username}) exist but expired.')
-                return None
-            return DbUser(user)
+
+        if not user:
+            log.error(f'get_user({username}) not exist in db.')
+            return None
+        if user.expired_at <= datetime.datetime.now():
+            log.error(f'get_user({username}) exist but expired.')
+            return None
+        return DbUser(user)
