@@ -40,15 +40,29 @@ class MsChapFlow(Flow):
         ################
         username = auth_user.outer_username
         user_password = auth_user.user_password
-        auth_challenge: bytes = request['MS-CHAP-Challenge']
-        """ 封装50字节的 MS-CHAP2-Response 属性：
-        [0 : 2]           Flags
+        auth_challenge: bytes = request['MS-CHAP-Challenge'][0]
+        """ MS-CHAP2-Response 字段:     https://tools.ietf.org/html/rfc2548
+        Vendor-Type
+          25 for MS-CHAP2-Response.
+        Vendor-Length
+          52
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |  Vendor-Type  | Vendor-Length |     Ident     |     Flags     |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                           Peer-Challenge
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+        封装50字节的 MS-CHAP2-Response 属性：
+        [0 : 1]           Ident
+        [1 : 2]           Flags
         [2 : 18]          PeerChallenge 
         [18 : 26]         Reserved \x00\x00\x00\x00\x00\x00\x00\x00
         [26 : 50]         NtResponse
         """
-        peer_challenge: bytes = request['MS-CHAP2-Response'][2:18]
-        nt_response: bytes = request['MS-CHAP2-Response'][26:50]
+        ms_chap2_response = request['MS-CHAP2-Response'][0]
+        ident: bytes = ms_chap2_response[1:2]
+        peer_challenge: bytes = ms_chap2_response[2:18]
+        nt_response: bytes =ms_chap2_response[26:50]
         p_username = ctypes.create_string_buffer(username.encode())
         l_username_len = ctypes.c_ulonglong(len(username))
         p_password = ctypes.create_string_buffer(user_password.encode())
@@ -63,8 +77,9 @@ class MsChapFlow(Flow):
             p_password_md4=p_password_md4, p_peer_challenge=p_peer_challenge, p_auth_challenge=p_auth_challenge,
             p_username=p_username, l_username_len=l_username_len, p_nt_response=p_nt_response,
         )
+        # 42字节
         authenticator_response: bytes = ctypes.string_at(p_out_auth_response, len(p_out_auth_response))
-        authenticator_response: bytes = authenticator_response.hex().upper().encode()
+        authenticator_response: bytes = b'S=' + authenticator_response.hex().upper().encode()
         ################
-        reply['MS-CHAP2-Success'] = authenticator_response
+        reply['MS-CHAP2-Success'] = ident + authenticator_response
         return request.reply_to(reply)
