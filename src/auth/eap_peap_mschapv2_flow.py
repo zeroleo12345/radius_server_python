@@ -429,9 +429,6 @@ class EapPeapMschapv2Flow(Flow):
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
         log.info(f'OUT: accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.mac_address}')
         reply = AuthResponse.create_access_accept(request=request)
-        reply['User-Name'] = session.auth_user.inner_username
-        reply['Calling-Station-Id'] = request.mac_address
-        # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
         reply['State'] = session.session_id.encode()
         log.trace(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)
