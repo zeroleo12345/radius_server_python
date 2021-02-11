@@ -11,6 +11,7 @@ from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.packet import AuthRequest
 from auth.flow import Flow, AccessReject
 from auth.chap_flow import ChapFlow
+from auth.mschap_flow import MsChapFlow
 from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
@@ -34,6 +35,7 @@ class EchoServer(DatagramServer):
         self.dictionary = dictionary
 
     def handle(self, data, address):
+        request, auth_user = None, None
         try:
             ip, port = address
             log.debug(f'receive packet from {address}')
@@ -41,32 +43,35 @@ class EchoServer(DatagramServer):
 
             # 解析报文
             request = AuthRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
+            log.trace(f'request Radius: {request}')
+            auth_user = AuthUser(request=request)
 
             # 验证用户
-            verify(request)
+            try:
+                verify(request, auth_user)
+            except AccessReject:
+                Flow.access_reject(request=request, auth_user=auth_user)
         except Exception as e:
             log.error(traceback.format_exc())
             sentry_sdk.capture_exception(e)
+            Flow.access_reject(request=request, auth_user=auth_user)
 
 
-def verify(request: AuthRequest):
-    auth_user = AuthUser(request=request)
-
+def verify(request: AuthRequest, auth_user: AuthUser):
     # 根据报文内容, 选择认证方式
-    try:
-        if 'CHAP-Password' in request:
-            return ChapFlow.authenticate(request=request, auth_user=auth_user)
-        elif 'EAP-Message' in request:
-            if USE_GTC:
-                return EapPeapGtcFlow.authenticate(request=request, auth_user=auth_user)
-            else:
-                return EapPeapMschapv2Flow.authenticate(request=request, auth_user=auth_user)
-        raise Exception('can not choose authenticate method')
-    except AccessReject:
-        Flow.access_reject(request=request, auth_user=auth_user)
-    except Exception as e:
-        Flow.access_reject(request=request, auth_user=auth_user)
-        raise e
+    if 'CHAP-Password' in request:
+        return ChapFlow.authenticate(request=request, auth_user=auth_user)
+
+    elif 'EAP-Message' in request:
+        if USE_GTC:
+            return EapPeapGtcFlow.authenticate(request=request, auth_user=auth_user)
+        else:
+            return EapPeapMschapv2Flow.authenticate(request=request, auth_user=auth_user)
+
+    elif 'MS-CHAP-Challenge' in request:
+        return MsChapFlow.authenticate(request=request, auth_user=auth_user)
+
+    raise Exception('can not choose authenticate method')
 
 
 def main():

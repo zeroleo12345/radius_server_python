@@ -17,8 +17,6 @@ from loguru import logger as log
 class EapPeapGtcFlow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
-        log.trace(f'request Radius: {request}')
-
         # 解析eap报文和eap_peap报文
         raw_eap_messages = EapPacket.merge_eap_message(request['EAP-Message'])
         eap = EapPacket.parse(packet=raw_eap_messages)
@@ -309,7 +307,7 @@ class EapPeapGtcFlow(Flow):
         reply['User-Name'] = request.username
         reply['Calling-Station-Id'] = request.mac_address
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
-        reply['State'] = session.session_id.encode()
+        reply['State'] = session.session_id.encode()    # octets
         # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
         log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)
