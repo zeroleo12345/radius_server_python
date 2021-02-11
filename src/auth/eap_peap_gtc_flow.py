@@ -10,7 +10,7 @@ from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from child_pyrad.mppe import create_mppe_recv_key_send_key
 from auth.eap_peap_session import EapPeapSession, SessionCache
-from settings import libhostapd, ACCOUNTING_INTERVAL
+from settings import libhostapd
 from loguru import logger as log
 
 
@@ -302,11 +302,8 @@ class EapPeapGtcFlow(Flow):
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
         log.info(f'OUT: accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.mac_address}')
         reply = AuthResponse.create_access_accept(request=request)
-        # reply['Session-Timeout'] = 600    # 用户可用的剩余时间
-        reply['Idle-Timeout'] = 86400       # 用户的闲置切断时间
         reply['User-Name'] = request.username
         reply['Calling-Station-Id'] = request.mac_address
-        reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
         reply['State'] = session.session_id.encode()    # octets
         # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
         log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')

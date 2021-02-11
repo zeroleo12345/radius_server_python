@@ -5,6 +5,7 @@ from .exception import AuthenticatorError
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
 from loguru import logger as log
+from settings import ACCOUNTING_INTERVAL
 
 
 class Packet(object):
@@ -82,6 +83,9 @@ class AuthResponse(AuthPacket):
     @classmethod
     def create_access_accept(cls, request: AuthRequest) -> AuthPacket:
         reply = request.create_reply(code=Packet.CODE_ACCESS_ACCEPT)
+        # reply['Session-Timeout'] = 600    # 用户可用的剩余时间
+        reply['Idle-Timeout'] = 86400       # 用户的闲置切断时间
+        reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
         return reply
 
     @classmethod
