@@ -123,7 +123,7 @@ class EapCrypto(object):
                                                input_tls_pointer)
 
     def call_generate_authenticator_response_pwhash(self, p_password_md4,
-                                                    p_peer_challenge, p_server_challenge,
+                                                    p_peer_challenge, p_auth_challenge,
                                                     p_username, l_username_len,
                                                     p_nt_response):
         # int generate_authenticator_response_pwhash(
@@ -133,7 +133,7 @@ class EapCrypto(object):
         #     const u8 *nt_response, u8 *response)
         p_out_auth_response = ctypes.create_string_buffer(20)
         self.lib.generate_authenticator_response_pwhash.restype = ctypes.c_int    # 不加会导致 Segmentation fault
-        ret = self.lib.generate_authenticator_response_pwhash(p_password_md4, p_peer_challenge, p_server_challenge,
+        ret = self.lib.generate_authenticator_response_pwhash(p_password_md4, p_peer_challenge, p_auth_challenge,
                                                               p_username, l_username_len, p_nt_response, p_out_auth_response)
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('generate_authenticator_response_pwhash fail')
@@ -150,7 +150,7 @@ class EapCrypto(object):
             raise EapCryptoError('nt_password_hash fail')
         return p_password_md4
 
-    def call_generate_nt_response(self, p_server_challenge, p_peer_challenge,
+    def call_generate_nt_response(self, p_auth_challenge, p_peer_challenge,
                                   p_username, l_username_len,
                                   p_password, l_password_len):
         # int generate_nt_response(const u8 *auth_challenge, const u8 *peer_challenge,
@@ -159,7 +159,7 @@ class EapCrypto(object):
         #         u8 *response)
         p_expect = ctypes.create_string_buffer(24)
         self.lib.nt_password_hash.restype = ctypes.c_int    # 不加会导致 Segmentation fault
-        ret = self.lib.generate_nt_response(p_server_challenge, p_peer_challenge,
+        ret = self.lib.generate_nt_response(p_auth_challenge, p_peer_challenge,
                                             p_username, l_username_len,
                                             p_password, l_password_len,
                                             p_expect)

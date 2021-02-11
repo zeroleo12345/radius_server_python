@@ -1,4 +1,3 @@
-import uuid
 # 第三方库
 from child_pyrad.packet import AuthRequest, AuthResponse
 # 自己的库
@@ -6,7 +5,6 @@ from .flow import Flow, AccessReject
 from loguru import logger as log
 from controls.user import AuthUser, DbUser
 from child_pyrad.chap import Chap
-from auth.eap_peap_session import EapPeapSession
 
 
 class ChapFlow(Flow):
@@ -22,12 +20,10 @@ class ChapFlow(Flow):
             # 保存用户密码
             auth_user.set_user_password(user.password)
 
-        session = EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
-
         def is_correct_password() -> bool:
             return Chap.is_correct_challenge_value(request=request, user_password=auth_user.user_password)
 
-        if is_correct_password() and cls.is_unique_session(mac_address=session.auth_user.mac_address):
+        if is_correct_password():
             return cls.access_accept(request=request, auth_user=auth_user)
         else:
             log.error(f'user_password: {auth_user.user_password} not correct')

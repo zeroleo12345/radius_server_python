@@ -11,6 +11,7 @@ from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.packet import AuthRequest
 from auth.flow import Flow, AccessReject
 from auth.chap_flow import ChapFlow
+from auth.mschap_flow import MsChapFlow
 from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
@@ -65,7 +66,7 @@ def verify(request: AuthRequest):
                 return EapPeapMschapv2Flow.authenticate(request=request, auth_user=auth_user)
 
         elif 'MS-CHAP-Challenge' in request:
-            return ChapFlow.access_accept(request=request, auth_user=auth_user)
+            return MsChapFlow.authenticate(request=request, auth_user=auth_user)
 
         raise Exception('can not choose authenticate method')
 
