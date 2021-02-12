@@ -41,7 +41,7 @@ class DbUser(object):
     def __init__(self, user):
         self.id = user.id
         self.username = user.username
-        self.password = user.password
+        self.password = user.radius_password
         self.expired_at = user.expired_at
 
     @classmethod
