@@ -16,7 +16,7 @@ class TaskLoop(Task):
 
     def process(self):
         processes = [
-            'processor/manage_user.py',
+            'processor/sync_user.py',
             'processor/auth_processor.py',
             'processor/acct_processor.py',
         ]

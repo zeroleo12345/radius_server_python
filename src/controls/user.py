@@ -1,7 +1,7 @@
 import datetime
 # 项目库
 from models import Transaction
-from models.auth import Account
+from models.auth import Account, Platform
 from child_pyrad.packet import AuthRequest, AcctRequest
 from loguru import logger as log
 
@@ -38,22 +38,27 @@ class AcctUser(object):
 
 
 class DbUser(object):
-    def __init__(self, user):
-        self.id = user.id
-        self.username = user.username
-        self.password = user.radius_password
-        self.expired_at = user.expired_at
-
     @classmethod
-    def get_user(cls, username) -> 'DbUser':
+    def get_user(cls, username) -> 'Account':
         # 查找用户明文密码
         with Transaction() as session:
-            user = session.query(Account).filter(Account.username == username).first()
+            account = session.query(Account).filter(Account.username == username).first()
 
-        if not user:
+        if not account:
             log.error(f'get_user({username}) not exist in db.')
             return None
-        if user.expired_at <= datetime.datetime.now():
+        if account.expired_at <= datetime.datetime.now():
             log.error(f'get_user({username}) exist but expired.')
             return None
-        return DbUser(user)
+        return account
+
+    @classmethod
+    def get_platform(cls, platform_id) -> 'Platform':
+        # 查找用户明文密码
+        with Transaction() as session:
+            platform = session.query(Platform).filter(Platform.platform_id == platform_id).first()
+
+        if not platform:
+            log.error(f'get_platform({platform_id}) not exist in db.')
+            return None
+        return platform
