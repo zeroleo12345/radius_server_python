@@ -18,7 +18,7 @@ class Account(Base):
 
 
 class Platform(Base):
-    __tablename__ = 'account'
+    __tablename__ = 'platform'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     platform_id = Column(BigInteger)
