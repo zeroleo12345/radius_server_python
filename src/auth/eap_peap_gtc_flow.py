@@ -234,7 +234,7 @@ class EapPeapGtcFlow(Flow):
             raise AccessReject()
         else:
             # 保存用户密码
-            session.auth_user.set_user_password(user.password)
+            session.auth_user.set_user_password(user.radius_password)
 
         # 返回数据
         response_data = b'Password'

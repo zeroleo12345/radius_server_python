@@ -12,14 +12,22 @@ class MsChapFlow(Flow):
 
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
+        ac_mac_colon_ssid = request['Called-Station-Id'][0]
+        ssid = ac_mac_colon_ssid.split(':')[1]
+
         # 查找用户密码
         account_name = auth_user.outer_username
         user = DbUser.get_user(username=account_name)
         if not user:
             raise AccessReject()
-        else:
-            # 保存用户密码
-            auth_user.set_user_password(user.password)
+        platform = DbUser.get_platform(platform_id=user.platform_id)
+        if not platform:
+            raise AccessReject()
+        if platform.ssid != ssid:
+            log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, ssid: {ssid}')
+            raise AccessReject()
+        # 保存用户密码
+        auth_user.set_user_password(user.radius_password)
 
         ################
         username = auth_user.outer_username

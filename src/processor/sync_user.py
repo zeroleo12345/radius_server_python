@@ -45,6 +45,7 @@ class TaskLoop(Task):
                     session.commit()
                     log.info(f'insert user: {username}')
                 else:
+                    # sync 同步用户
                     if user.expired_at.strftime('%Y-%m-%d %H:%M:%S') != expired_at_str or user.password != password:
                         user.expired_at = expired_at_dt
                         user.password = password

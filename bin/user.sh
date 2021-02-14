@@ -6,4 +6,4 @@ echo "当前项目目录: $project_root"
 
 export LOG_HEADER="user"
 source $project_root/.env
-exec python3 $project_root/src/processor/manage_user.py
+exec python3 $project_root/src/processor/sync_user.py
