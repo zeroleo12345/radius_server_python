@@ -13,7 +13,7 @@ class MsChapFlow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         ac_mac_colon_ssid = request['Called-Station-Id'][0]
-        ssid = ac_mac_colon_ssid.split(':')
+        ssid = ac_mac_colon_ssid.split(':')[1]
 
         # 查找用户密码
         account_name = auth_user.outer_username
