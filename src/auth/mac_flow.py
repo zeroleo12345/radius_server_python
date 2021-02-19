@@ -14,10 +14,10 @@ class MacFlow(Flow):
         ac_mac_colon_ssid = request['Called-Station-Id'][0]
         ssid = ac_mac_colon_ssid.split(':')[1]
 
+        """
         user_password = request.PwCrypt(password=encrypt_password)
-        (Pdb) request.username
-        '5af3ce3a0959'
-        b'5af3ce3a0959\x00\x00\x00\x00'
+        # User-Name: '5af3ce3a0959'
+        # User-Password: '5af3ce3a0959\x00\x00\x00\x00'
 
         # 查找用户密码
         account_name = auth_user.outer_username
@@ -30,6 +30,7 @@ class MacFlow(Flow):
         if platform.ssid != ssid:
             log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, ssid: {ssid}')
             raise AccessReject()
+        """
 
         def is_correct_password() -> bool:
             return True
