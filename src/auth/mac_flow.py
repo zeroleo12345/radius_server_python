@@ -14,8 +14,10 @@ class MacFlow(Flow):
         ac_mac_colon_ssid = request['Called-Station-Id'][0]
         ssid = ac_mac_colon_ssid.split(':')[1]
 
-        from pprint import pprint; import pdb; pdb.set_trace()
         user_password = request.PwCrypt(password=encrypt_password)
+        (Pdb) request.username
+        '5af3ce3a0959'
+        b'5af3ce3a0959\x00\x00\x00\x00'
 
         # 查找用户密码
         account_name = auth_user.outer_username
