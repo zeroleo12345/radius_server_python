@@ -2,9 +2,10 @@
 from child_pyrad.packet import AcctRequest
 # 自己的库
 from .accounting_session import AccountingSession
-from settings import sentry_sdk, ACCOUNTING_INTERVAL
+from settings import ACCOUNTING_INTERVAL
 from loguru import logger as log
-from controls.user import AcctUser, DbUser
+from models.auth import Account
+from controls.user import AcctUser
 
 
 class AccountingFlow(object):
@@ -18,7 +19,7 @@ class AccountingFlow(object):
         )
 
         # 查找用户密码
-        user = DbUser.get_user(username=account_name)
+        user = Account.get(username=account_name)
         if not user:
             return
 

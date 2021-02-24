@@ -4,7 +4,8 @@ from child_pyrad.packet import AuthRequest, AuthResponse
 # 自己的库
 from .flow import Flow, AccessReject
 from loguru import logger as log
-from controls.user import AuthUser, DbUser
+from controls.user import AuthUser
+from models.auth import Account, Platform
 from settings import libhostapd
 
 
@@ -17,13 +18,13 @@ class MsChapFlow(Flow):
 
         # 查找用户密码
         account_name = auth_user.outer_username
-        user = DbUser.get_user(username=account_name)
+        user = Account.get(username=account_name)
         if not user:
             raise AccessReject()
-        platform = DbUser.get_platform(platform_id=user.platform_id)
+        platform = Platform.get(platform_id=user.platform_id)
         if not platform:
             raise AccessReject()
-        if platform.ssid != ssid:
+        if user.role == Account.Role.PAY_USER.value and platform.ssid != ssid:
             log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, ssid: {ssid}')
             raise AccessReject()
         # 保存用户密码
