@@ -5,7 +5,7 @@ import struct
 # 自己的库
 from .flow import Flow, AccessReject
 from child_pyrad.packet import AuthRequest, AuthResponse
-from controls.user import AuthUser\
+from controls.user import AuthUser
 from models.auth import Account
 from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
