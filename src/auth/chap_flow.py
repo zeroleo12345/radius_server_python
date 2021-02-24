@@ -14,7 +14,7 @@ class ChapFlow(Flow):
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         # 查找用户密码
         account_name = auth_user.outer_username
-        user = Account.get_user(username=account_name)
+        user = Account.get(username=account_name)
         if not user:
             raise AccessReject()
         else:

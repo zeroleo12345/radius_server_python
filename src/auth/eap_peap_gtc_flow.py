@@ -230,7 +230,7 @@ class EapPeapGtcFlow(Flow):
         session.auth_user.set_inner_username(account_name)
 
         # 查找用户密码
-        user = Account.get_user(username=account_name)
+        user = Account.get(username=account_name)
         if not user:
             raise AccessReject()
         else:

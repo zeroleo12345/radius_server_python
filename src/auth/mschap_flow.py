@@ -18,10 +18,10 @@ class MsChapFlow(Flow):
 
         # 查找用户密码
         account_name = auth_user.outer_username
-        user = Account.get_user(username=account_name)
+        user = Account.get(username=account_name)
         if not user:
             raise AccessReject()
-        platform = Platform.get_platform(platform_id=user.platform_id)
+        platform = Platform.get(platform_id=user.platform_id)
         if not platform:
             raise AccessReject()
         if user.role == Account.Role.PAY_USER.value and platform.ssid != ssid:

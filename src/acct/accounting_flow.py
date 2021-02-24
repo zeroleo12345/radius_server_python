@@ -19,7 +19,7 @@ class AccountingFlow(object):
         )
 
         # 查找用户密码
-        user = Account.get_user(username=account_name)
+        user = Account.get(username=account_name)
         if not user:
             return
 

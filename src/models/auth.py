@@ -50,7 +50,7 @@ class Platform(Base):
     ssid = Column(String(255))
 
     @classmethod
-    def get_platform(cls, platform_id) -> 'Platform':
+    def get(cls, platform_id) -> 'Platform':
         # 查找用户明文密码
         with Transaction() as session:
             platform = session.query(Platform).filter(Platform.platform_id == platform_id).first()
