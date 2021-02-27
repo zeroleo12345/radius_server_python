@@ -1,10 +1,8 @@
-import datetime
 # 第三方库
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, UniqueConstraint
 # 项目库
 from . import Base
 from models import Transaction
-from loguru import logger as log
 
 
 class MacAccount(Base):
