@@ -2,6 +2,7 @@ import datetime
 # 第三方库
 from child_pyrad.packet import AuthRequest, AuthResponse
 # 自己的库
+from utils.redispool import get_redis
 from .flow import Flow, AccessReject
 from loguru import logger as log
 from controls.user import AuthUser
@@ -25,21 +26,21 @@ class MacFlow(Flow):
         # 用户不存在则创建
         account = MacAccount.get(username=account_name)
         if not account:
+            redis = get_redis()
+            key = 'enable_mac_authentication'
+            if not redis.get(key):
+                log.error(f'mac authentication is not enable')
+                raise AccessReject()
+            #
             created_at = datetime.datetime.now()
             expired_at = created_at + datetime.timedelta(days=3600)
             account = MacAccount.create(
                 username=account_name, radius_password=user_password, is_enable=True,
                 expired_at=expired_at, created_at=created_at,
             )
+            redis.delete(key)
 
-        def is_correct_password() -> bool:
-            return True
-
-        if is_correct_password():
-            return cls.access_accept(request=request)
-        else:
-            log.error(f'user_password: {auth_user.user_password} not correct')
-            raise AccessReject()
+        return cls.access_accept(request=request)
 
     @classmethod
     def access_accept(cls, request: AuthRequest):
