@@ -29,13 +29,7 @@ class MacAccount(Base):
         with Transaction() as session:
             account = session.query(cls).filter(cls.username == username).first()
 
-        if not account:
-            log.error(f'get_user({username}) not exist in db.')
-            return None
-        if account.expired_at <= datetime.datetime.now():
-            log.error(f'get_user({username}) exist but expired.')
-            return None
-        return account
+        return account or None
 
     @classmethod
     def create(cls, **kwargs):
