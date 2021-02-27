@@ -6,7 +6,7 @@ from dateutil.parser import parse
 from processor import Task
 from settings import API_URL, log
 from models import Transaction
-from models.auth import Account
+from models.account import Account
 
 LOCAL_TZ = datetime.timezone(datetime.timedelta(hours=8))
 

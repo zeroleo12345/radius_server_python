@@ -4,7 +4,7 @@ from child_pyrad.packet import AuthRequest, AuthResponse
 from .flow import Flow, AccessReject
 from loguru import logger as log
 from controls.user import AuthUser
-from models.auth import Account
+from models.account import Account
 from child_pyrad.chap import Chap
 
 

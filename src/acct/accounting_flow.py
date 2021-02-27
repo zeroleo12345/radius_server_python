@@ -4,7 +4,7 @@ from child_pyrad.packet import AcctRequest
 from .accounting_session import AccountingSession
 from settings import ACCOUNTING_INTERVAL
 from loguru import logger as log
-from models.auth import Account
+from models.account import Account
 from controls.user import AcctUser
 
 
