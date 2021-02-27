@@ -16,7 +16,8 @@ class MacFlow(Flow):
         ac_mac_colon_ssid = request['Called-Station-Id'][0]
         ssid = ac_mac_colon_ssid.split(':')[1]
 
-        user_password = request.PwCrypt(password=encrypt_password)
+        decrypt_password = request.PwCrypt(password=encrypt_password)
+        user_password = decrypt_password.decode().split('\x00', 1)[0]
         # User-Name: '5af3ce3a0959'
         # User-Password: '5af3ce3a0959\x00\x00\x00\x00'
         account_name = auth_user.outer_username
@@ -27,7 +28,7 @@ class MacFlow(Flow):
             created_at = datetime.datetime.now()
             expired_at = created_at + datetime.timedelta(days=3600)
             account = MacAccount.create(
-                username=account_name, radius_password=str(user_password), is_enable=True,
+                username=account_name, radius_password=user_password, is_enable=True,
                 expired_at=expired_at, created_at=created_at,
             )
 
