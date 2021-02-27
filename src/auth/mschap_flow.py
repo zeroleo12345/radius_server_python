@@ -5,7 +5,8 @@ from child_pyrad.packet import AuthRequest, AuthResponse
 from .flow import Flow, AccessReject
 from loguru import logger as log
 from controls.user import AuthUser
-from models.auth import Account, Platform
+from models.account import Account
+from models.platform import Platform
 from settings import libhostapd
 
 

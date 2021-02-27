@@ -1,10 +1,12 @@
+import datetime
 # 第三方库
 from child_pyrad.packet import AuthRequest, AuthResponse
 # 自己的库
+from utils.redispool import get_redis
 from .flow import Flow, AccessReject
 from loguru import logger as log
 from controls.user import AuthUser
-from models.auth import Account
+from models.mac_account import MacAccount
 
 
 class MacFlow(Flow):
@@ -15,32 +17,30 @@ class MacFlow(Flow):
         ac_mac_colon_ssid = request['Called-Station-Id'][0]
         ssid = ac_mac_colon_ssid.split(':')[1]
 
-        """
-        user_password = request.PwCrypt(password=encrypt_password)
+        decrypt_password = request.PwCrypt(password=encrypt_password)
+        user_password = decrypt_password.decode().split('\x00', 1)[0]
         # User-Name: '5af3ce3a0959'
         # User-Password: '5af3ce3a0959\x00\x00\x00\x00'
-
-        # 查找用户密码
         account_name = auth_user.outer_username
-        user = Account.get(username=account_name)
-        if not user:
-            raise AccessReject()
-        platform = Platform.get(platform_id=user.platform_id)
-        if not platform:
-            raise AccessReject()
-        if user.role == Account.Role.PAY_USER.value and platform.ssid != ssid:
-            log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, ssid: {ssid}')
-            raise AccessReject()
-        """
 
-        def is_correct_password() -> bool:
-            return True
+        # 用户不存在则创建
+        account = MacAccount.get(username=account_name)
+        if not account:
+            redis = get_redis()
+            key = 'enable_mac_authentication'
+            if not redis.get(key):
+                log.error(f'mac authentication is not enable')
+                raise AccessReject()
+            #
+            created_at = datetime.datetime.now()
+            expired_at = created_at + datetime.timedelta(days=3600)
+            account = MacAccount.create(
+                username=account_name, radius_password=user_password, is_enable=True,
+                expired_at=expired_at, created_at=created_at,
+            )
+            redis.delete(key)
 
-        if is_correct_password():
-            return cls.access_accept(request=request)
-        else:
-            log.error(f'user_password: {auth_user.user_password} not correct')
-            raise AccessReject()
+        return cls.access_accept(request=request)
 
     @classmethod
     def access_accept(cls, request: AuthRequest):

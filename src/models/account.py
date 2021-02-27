@@ -40,22 +40,3 @@ class Account(Base):
             log.error(f'get_user({username}) exist but expired.')
             return None
         return account
-
-
-class Platform(Base):
-    __tablename__ = 'platform'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    platform_id = Column(BigInteger)
-    ssid = Column(String(255))
-
-    @classmethod
-    def get(cls, platform_id) -> 'Platform':
-        # 查找用户明文密码
-        with Transaction() as session:
-            platform = session.query(Platform).filter(Platform.platform_id == platform_id).first()
-
-        if not platform:
-            log.error(f'get_platform({platform_id}) not exist in db.')
-            return None
-        return platform
