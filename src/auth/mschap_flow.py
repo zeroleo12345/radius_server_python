@@ -19,17 +19,19 @@ class MsChapFlow(Flow):
 
         # 查找用户密码
         account_name = auth_user.outer_username
-        user = Account.get(username=account_name)
-        if not user:
+        account = Account.get(username=account_name)
+        if not account:
             raise AccessReject()
-        platform = Platform.get(platform_id=user.platform_id)
-        if not platform:
-            raise AccessReject()
-        if user.role == Account.Role.PAY_USER.value and platform.ssid != ssid:
-            log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, ssid: {ssid}')
-            raise AccessReject()
+        if account.role == Account.Role.PAY_USER.value:
+            # 付费用户, 才需要判断 SSID 是否匹配
+            platform = Platform.get(platform_id=account.platform_id)
+            if not platform:
+                raise AccessReject()
+            if account.role == Account.Role.PAY_USER.value and platform.ssid != ssid:
+                log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, ssid: {ssid}')
+                raise AccessReject()
         # 保存用户密码
-        auth_user.set_user_password(user.radius_password)
+        auth_user.set_user_password(account.radius_password)
 
         ################
         username = auth_user.outer_username
