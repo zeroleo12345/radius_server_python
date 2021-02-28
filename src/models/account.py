@@ -36,6 +36,9 @@ class Account(Base):
         if not account:
             log.error(f'get_user({username}) not exist in db.')
             return None
+        if account.role == cls.Role.PLATFORM_OWNER.value:
+            # 平台属主, 不校验时间
+            return account
         if account.expired_at <= datetime.datetime.now():
             log.error(f'get_user({username}) exist but expired.')
             return None
