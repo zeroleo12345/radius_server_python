@@ -16,7 +16,7 @@ class MacFlow(Flow):
         encrypt_password = request['User-Password'][0]
         ap_mac_colon_ssid = request['Called-Station-Id'][0]
         ap_mac, ssid = ap_mac_colon_ssid.split(':', 1)
-        ap_mac = ap_mac.replace('-', '').upper()
+        ap_mac = ap_mac.replace('-', '').lower()
 
         decrypt_password = request.PwCrypt(password=encrypt_password)
         user_password = decrypt_password.decode().split('\x00', 1)[0]
