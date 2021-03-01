@@ -14,8 +14,9 @@ class MacFlow(Flow):
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
         encrypt_password = request['User-Password'][0]
-        ac_mac_colon_ssid = request['Called-Station-Id'][0]
-        ssid = ac_mac_colon_ssid.split(':')[1]
+        ap_mac_colon_ssid = request['Called-Station-Id'][0]
+        ap_mac, ssid = ap_mac_colon_ssid.split(':', 1)
+        ap_mac = ap_mac.replace('-', '').upper()
 
         decrypt_password = request.PwCrypt(password=encrypt_password)
         user_password = decrypt_password.decode().split('\x00', 1)[0]
@@ -35,7 +36,7 @@ class MacFlow(Flow):
             created_at = datetime.datetime.now()
             expired_at = created_at + datetime.timedelta(days=3600)
             account = MacAccount.create(
-                username=account_name, radius_password=user_password, is_enable=True,
+                username=account_name, radius_password=user_password, is_enable=True, ap_mac=ap_mac,
                 expired_at=expired_at, created_at=created_at,
             )
             redis.delete(key)
