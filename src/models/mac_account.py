@@ -36,4 +36,5 @@ class MacAccount(Base):
         with Transaction() as session:
             session.add(obj)
             session.commit()
+            session.expunge(obj)
         return obj
