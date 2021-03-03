@@ -37,7 +37,7 @@ class MacFlow(Flow):
                 username=account_name, radius_password=user_password, is_enable=True, ap_mac=request.ap_mac,
                 expired_at=expired_at, created_at=created_at,
             )
-            sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {account}, ssid: {request.ssid}')
+            sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {account.username}, ssid: {request.ssid}')
             redis.delete(key)
 
         return cls.access_accept(request=request)
