@@ -14,9 +14,6 @@ class MsChapFlow(Flow):
 
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
-        ap_mac_colon_ssid = request['Called-Station-Id'][0]
-        ap_mac, ssid = ap_mac_colon_ssid.split(':', 1)
-
         # 查找用户密码
         account_name = auth_user.outer_username
         account = Account.get(username=account_name)
@@ -27,8 +24,8 @@ class MsChapFlow(Flow):
             platform = Platform.get(platform_id=account.platform_id)
             if not platform:
                 raise AccessReject()
-            if account.role == Account.Role.PAY_USER.value and platform.ssid != ssid:
-                log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, ssid: {ssid}')
+            if account.role == Account.Role.PAY_USER.value and platform.ssid != request.ssid:
+                log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, request.ssid: {request.ssid}')
                 raise AccessReject()
         # 保存用户密码
         auth_user.set_user_password(account.radius_password)
@@ -101,7 +98,7 @@ class MsChapFlow(Flow):
 
     @classmethod
     def access_accept(cls, request: AuthRequest, ms_chap2_success: bytes):
-        log.info(f'OUT: accept|MS-CHAPv2|{request.username}|None|{request.mac_address}')
+        log.info(f'OUT: accept|MS-CHAPv2|{request.username}|None|{request.mac_address}|{request.ssid}')
         reply = AuthResponse.create_access_accept(request=request)
         reply['MS-CHAP2-Success'] = ms_chap2_success
         return request.reply_to(reply)
