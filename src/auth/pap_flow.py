@@ -53,6 +53,7 @@ class PapFlow(Flow):
 
     @classmethod
     def pap_auth(cls, request: AuthRequest, auth_user: AuthUser):
+        log.info(f'PAP username: {request.username}, password: {auth_user.user_password}')
         return cls.access_accept(request=request)
 
     @classmethod
