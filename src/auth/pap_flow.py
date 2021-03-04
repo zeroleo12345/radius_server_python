@@ -14,16 +14,25 @@ class PapFlow(Flow):
 
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
+        # 获取报文
         encrypt_password = request['User-Password'][0]
 
+        # 密码解密
         decrypt_password = request.PwCrypt(password=encrypt_password)
-        user_password = decrypt_password.decode().split('\x00', 1)[0]
+        auth_user.user_password = decrypt_password.decode().split('\x00', 1)[0]
         # User-Name: '5af3ce3a0959'
         # User-Password: '5af3ce3a0959\x00\x00\x00\x00'
-        account_name = auth_user.outer_username
 
-        # 用户不存在则创建
-        account = MacAccount.get(username=account_name)
+        # 验证方法
+        if request.user_mac.replace('-', '').lower() == auth_user.outer_username:
+            return cls.mac_auth(request=request, auth_user=auth_user)
+        else:
+            return cls.pap_auth(request=request, auth_user=auth_user)
+
+    @classmethod
+    def mac_auth(cls, request: AuthRequest, auth_user: AuthUser):
+        # mac Flow: 用户不存在则创建
+        account = MacAccount.get(username=auth_user.outer_username)
         if not account:
             redis = get_redis()
             key = 'enable_mac_authentication'
@@ -34,12 +43,16 @@ class PapFlow(Flow):
             created_at = datetime.datetime.now()
             expired_at = created_at + datetime.timedelta(days=3600)
             MacAccount.create(
-                username=account_name, radius_password=user_password, is_enable=True, ap_mac=request.ap_mac,
+                username=auth_user.outer_username, radius_password=auth_user.user_password, is_enable=True, ap_mac=request.ap_mac,
                 expired_at=expired_at, created_at=created_at,
             )
-            sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {account_name}, ssid: {request.ssid}')
+            sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {auth_user.outer_username}, ssid: {request.ssid}')
             redis.delete(key)
 
+        return cls.access_accept(request=request)
+
+    @classmethod
+    def pap_auth(cls, request: AuthRequest, auth_user: AuthUser):
         return cls.access_accept(request=request)
 
     @classmethod
