@@ -33,10 +33,14 @@ class AuthRequest(AuthPacket):
         # 解析报文
         self.username = self['User-Name'][0]
         self.mac_address = self['Calling-Station-Id'][0]
-        ap_mac_colon_ssid = self['Called-Station-Id'][0]
-        ap_mac, ssid = ap_mac_colon_ssid.split(':', 1)
-        self.ap_mac = ap_mac.replace('-', '').lower()
-        self.ssid = ssid
+        if 'Called-Station-Id' in self:
+            ap_mac_colon_ssid = self['Called-Station-Id'][0]
+            ap_mac, ssid = ap_mac_colon_ssid.split(':', 1)
+            self.ap_mac = ap_mac.replace('-', '').lower()
+            self.ssid = ssid
+        else:
+            self.ap_mac = ''
+            self.ssid = ''
 
     def reply_to(self, reply: AuthPacket):
         log.trace(f'reply: {reply}')
