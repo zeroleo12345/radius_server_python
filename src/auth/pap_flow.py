@@ -46,7 +46,7 @@ class PapFlow(Flow):
                 username=auth_user.outer_username, radius_password=auth_user.user_password, is_enable=True, ap_mac=request.ap_mac,
                 expired_at=expired_at, created_at=created_at,
             )
-            sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {auth_user.outer_username}, ssid: {request.ssid}')
+            sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {auth_user.user_mac}, ssid: {request.ssid}')
             redis.delete(key)
 
         return cls.access_accept(request=request)
