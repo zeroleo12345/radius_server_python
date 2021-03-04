@@ -4,6 +4,8 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 **Support authenticate method:**
 
+- [x] PAP
+
 - [x] [CHAP](https://tools.ietf.org/search/rfc1994)
 
 - [x] [MS-CHAPv2](https://tools.ietf.org/html/rfc2759)
