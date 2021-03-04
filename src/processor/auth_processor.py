@@ -21,10 +21,10 @@ from controls.user import AuthUser
 
 
 if os.getenv('GTC') is None:
-    log.info('## MSCHAPV2 ##')
+    log.info('## PEAP-MSCHAPV2 mode ##')
     USE_GTC = False
 else:
-    log.info('## GTC ##')
+    log.info('## PEAP-GTC mode ##')
     USE_GTC = True
 
 
