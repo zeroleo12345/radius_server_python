@@ -308,7 +308,7 @@ class EapPeapGtcFlow(Flow):
             request.ssid,
             request.ap_mac,
         ]
-        log.info(f'OUT: accept|{"|".join(data)}')
+        log.info(f'OUT: accept|{"|".join(data)}|')
         reply = AuthResponse.create_access_accept(request=request)
         reply['State'] = session.session_id.encode()    # octets
         log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')

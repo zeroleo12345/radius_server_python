@@ -65,6 +65,6 @@ class PapFlow(Flow):
             request.ssid,
             request.ap_mac,
         ]
-        log.info(f'OUT: accept|{"|".join(data)}')
+        log.info(f'OUT: accept|{"|".join(data)}|')
         reply = AuthResponse.create_access_accept(request=request)
         return request.reply_to(reply)
