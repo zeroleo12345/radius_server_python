@@ -237,7 +237,7 @@ class EapPeapMschapv2Flow(Flow):
             raise AccessReject()
         account_name = eap_identity.type_data.decode()
         # 保存用户名
-        session.auth_user.set_inner_username(account_name)
+        session.auth_user.set_peap_username(account_name)
         # 查找用户密码
         user = Account.get(username=account_name)
         if not user:
@@ -310,9 +310,9 @@ class EapPeapMschapv2Flow(Flow):
         # 保存客户端随机数
         session.auth_user.set_peer_challenge(peer_challenge)
 
-        assert identity.decode() == session.auth_user.inner_username
+        assert identity.decode() == session.auth_user.peap_username
         # 计算期望密码哈希值
-        p_username = ctypes.create_string_buffer(session.auth_user.inner_username.encode())
+        p_username = ctypes.create_string_buffer(session.auth_user.peap_username.encode())
         l_username_len = ctypes.c_ulonglong(username_len)
         p_password = ctypes.create_string_buffer(session.auth_user.user_password.encode())
         l_password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
@@ -430,7 +430,7 @@ class EapPeapMschapv2Flow(Flow):
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
         data = [
             'EAP-PEAP',
-            session.auth_user.inner_username,
+            session.auth_user.peap_username,
             request.user_mac,
             request.ssid,
             request.ap_mac,

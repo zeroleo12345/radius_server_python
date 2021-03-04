@@ -7,14 +7,14 @@ class AuthUser(object):
     def __init__(self, request: AuthRequest):
         # 提取报文
         self.outer_username: str = request.username
-        self.inner_username: str = ''
+        self.peap_username: str = ''
         self.user_mac = request.user_mac      # mac地址
         self.user_password: str = ''
         self.server_challenge: bytes = b''
         self.peer_challenge: bytes = b''
 
-    def set_inner_username(self, account_name: str):
-        self.inner_username = account_name
+    def set_peap_username(self, account_name: str):
+        self.peap_username = account_name
 
     def set_user_password(self, password: str):
         self.user_password = password

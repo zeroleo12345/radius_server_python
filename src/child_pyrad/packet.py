@@ -36,7 +36,7 @@ class AuthRequest(AuthPacket):
         if 'Called-Station-Id' in self:
             ap_mac_colon_ssid = self['Called-Station-Id'][0]
             ap_mac, ssid = ap_mac_colon_ssid.split(':', 1)
-            self.ap_mac = ap_mac.replace('-', '').lower()
+            self.ap_mac = ap_mac.upper()
             self.ssid = ssid
         else:
             self.ap_mac = ''
@@ -94,7 +94,7 @@ class AuthResponse(AuthPacket):
         # reply['Session-Timeout'] = 600    # 用户可用的剩余时间
         reply['Idle-Timeout'] = 86400       # 用户的闲置切断时间
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
-        # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.inner_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
+        # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.peap_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
         return reply
 
     @classmethod

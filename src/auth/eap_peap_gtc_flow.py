@@ -227,7 +227,7 @@ class EapPeapGtcFlow(Flow):
         eap_identity = EapPacket.parse(packet=tls_decrypt_data)
         account_name = eap_identity.type_data.decode()
         # 保存用户名
-        session.auth_user.set_inner_username(account_name)
+        session.auth_user.set_peap_username(account_name)
 
         # 查找用户密码
         user = Account.get(username=account_name)
@@ -262,7 +262,7 @@ class EapPeapGtcFlow(Flow):
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         eap_password = EapPacket.parse(packet=tls_decrypt_data)
         auth_password = eap_password.type_data.decode()
-        log.debug(f'PEAP account: {session.auth_user.inner_username}, packet_password: {auth_password}')
+        log.debug(f'PEAP account: {session.auth_user.peap_username}, packet_password: {auth_password}')
 
         def is_correct_password() -> bool:
             return session.auth_user.user_password == auth_password
@@ -303,7 +303,7 @@ class EapPeapGtcFlow(Flow):
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
         data = [
             'EAP-PEAP',
-            session.auth_user.inner_username,
+            session.auth_user.peap_username,
             request.user_mac,
             request.ssid,
             request.ap_mac,
