@@ -10,7 +10,7 @@ from controls.user import AuthUser
 from models.mac_account import MacAccount
 
 
-class MacFlow(Flow):
+class PapFlow(Flow):
 
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
