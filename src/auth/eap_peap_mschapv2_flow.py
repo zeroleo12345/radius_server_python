@@ -428,7 +428,13 @@ class EapPeapMschapv2Flow(Flow):
 
     @classmethod
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
-        log.info(f'OUT: accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.user_mac}|{request.ssid}')
+        data = [
+            'EAP-PEAP',
+            session.auth_user.inner_username,
+            request.user_mac,
+            request.ssid,
+        ]
+        log.info(f'OUT: accept|{"|".join(data)}')
         reply = AuthResponse.create_access_accept(request=request)
         reply['State'] = session.session_id.encode()
         log.trace(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')

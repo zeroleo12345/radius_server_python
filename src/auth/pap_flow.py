@@ -57,6 +57,12 @@ class PapFlow(Flow):
 
     @classmethod
     def access_accept(cls, request: AuthRequest):
-        log.info(f'OUT: accept|mac-flow|{request.username}|None|{request.user_mac}|{request.ssid}')
+        data = [
+            'PAP',
+            request.username,
+            request.user_mac,
+            request.ssid,
+        ]
+        log.info(f'OUT: accept|{"|".join(data)}')
         reply = AuthResponse.create_access_accept(request=request)
         return request.reply_to(reply)
