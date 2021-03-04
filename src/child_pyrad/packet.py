@@ -130,7 +130,7 @@ class AcctRequest(AcctPacket):
         # 解析报文
         self.username = self['User-Name'][0]
         self.user_mac = self['Calling-Station-Id'][0]
-        self.acct_status_type = self["Acct-Status-Type"][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
+        self.iut = self["Acct-Status-Type"][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
 
     def reply_to(self, reply: AcctPacket):
         log.trace(f'reply: {reply}')

@@ -13,13 +13,10 @@ class AccountingFlow(object):
     @classmethod
     def accounting(cls, request: AcctRequest, acct_user: AcctUser):
         # 提取报文
-        account_name = acct_user.outer_username
-        log.debug('IN: {iut}|{username}|{mac_address}'.format(
-            iut=request.acct_status_type, username=account_name, mac_address=acct_user.user_mac)
-        )
+        log.debug(f'IN: {request.iut}|{acct_user.outer_username}|{acct_user.user_mac}')
 
         # 查找用户密码
-        user = Account.get(username=account_name)
+        user = Account.get(username=acct_user.outer_username)
         if not user:
             return
 
@@ -27,10 +24,10 @@ class AccountingFlow(object):
         if AccountingSession.clean(interval=ACCOUNTING_INTERVAL*2):
             log.debug('clean up accounting session')
         #
-        current_session = AccountingSession.put(account_name, acct_user.user_mac)
+        current_session = AccountingSession.put(acct_user.outer_username, acct_user.user_mac)
         if current_session > 1:
             pass
-            # sentry_sdk.capture_message(f'user: {account_name} multiple session!')
+            # sentry_sdk.capture_message(f'user: {acct_user.outer_username} multiple session!')
             # cls.disconnect(mac_address=acct_user.user_mac) # 断开链接
         else:
             pass
