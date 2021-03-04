@@ -32,7 +32,7 @@ class AuthRequest(AuthPacket):
         self.address = address  # (ip, port)
         # 解析报文
         self.username = self['User-Name'][0]
-        self.mac_address = self['Calling-Station-Id'][0]
+        self.user_mac = self['Calling-Station-Id'][0]
         if 'Called-Station-Id' in self:
             ap_mac_colon_ssid = self['Called-Station-Id'][0]
             ap_mac, ssid = ap_mac_colon_ssid.split(':', 1)
@@ -109,7 +109,7 @@ class AuthResponse(AuthPacket):
         eap_messages = EapPacket.split_eap_message(eap_message)
         for eap in eap_messages:
             reply.AddAttribute('EAP-Message', eap)
-        reply['Calling-Station-Id'] = request.mac_address
+        reply['Calling-Station-Id'] = request.user_mac
         reply['State'] = session_id.encode()    # ATTRIBUTE   State           24  octets
         return reply
 
@@ -129,7 +129,7 @@ class AcctRequest(AcctPacket):
         self.address = address  # (ip, port)
         # 解析报文
         self.username = self['User-Name'][0]
-        self.mac_address = self['Calling-Station-Id'][0]
+        self.user_mac = self['Calling-Station-Id'][0]
         self.acct_status_type = self["Acct-Status-Type"][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
 
     def reply_to(self, reply: AcctPacket):

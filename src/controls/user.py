@@ -8,7 +8,7 @@ class AuthUser(object):
         # 提取报文
         self.outer_username: str = request.username
         self.inner_username: str = ''
-        self.mac_address = request.mac_address      # mac地址
+        self.user_mac = request.user_mac      # mac地址
         self.user_password: str = ''
         self.server_challenge: bytes = b''
         self.peer_challenge: bytes = b''
@@ -30,4 +30,4 @@ class AcctUser(object):
 
     def __init__(self, request: AcctRequest):
         self.outer_username = request.username
-        self.mac_address = request.mac_address      # mac地址
+        self.user_mac = request.user_mac      # mac地址

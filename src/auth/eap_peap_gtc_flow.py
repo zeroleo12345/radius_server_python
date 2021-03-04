@@ -38,7 +38,7 @@ class EapPeapGtcFlow(Flow):
                 assert eap.type == EapPacket.TYPE_EAP_IDENTITY
         session = session or EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
-        log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.mac_address}.'
+        log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.user_mac}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
 
         # 调用对应状态的处理函数
@@ -64,11 +64,11 @@ class EapPeapGtcFlow(Flow):
                 reply = session.reply
                 request.reply_to(reply)
                 log.warning(f'duplicate packet, resend. id: {reply.id}, username: {request.username},'
-                            f'mac: {request.mac_address}, next_state: {session.next_state}')
+                            f'mac: {request.user_mac}, next_state: {session.next_state}')
                 return
             else:
                 # 会话正在处理中
-                log.warning(f'processor handling. username: {request.username}, mac: {request.mac_address}, next_state: {session.next_state}')
+                log.warning(f'processor handling. username: {request.username}, mac: {request.user_mac}, next_state: {session.next_state}')
                 return
         # 第一个报文 OR 符合服务端预期的 response
         elif session.current_eap_id == -1 or session.current_eap_id == eap.id:
@@ -301,7 +301,7 @@ class EapPeapGtcFlow(Flow):
 
     @classmethod
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
-        log.info(f'OUT: accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.mac_address}|{request.ssid}')
+        log.info(f'OUT: accept|EAP-PEAP|{request.username}|{session.auth_user.inner_username}|{request.user_mac}|{request.ssid}')
         reply = AuthResponse.create_access_accept(request=request)
         reply['State'] = session.session_id.encode()    # octets
         log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')

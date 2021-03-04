@@ -98,7 +98,7 @@ class MsChapFlow(Flow):
 
     @classmethod
     def access_accept(cls, request: AuthRequest, ms_chap2_success: bytes):
-        log.info(f'OUT: accept|MS-CHAPv2|{request.username}|None|{request.mac_address}|{request.ssid}')
+        log.info(f'OUT: accept|MS-CHAPv2|{request.username}|None|{request.user_mac}|{request.ssid}')
         reply = AuthResponse.create_access_accept(request=request)
         reply['MS-CHAP2-Success'] = ms_chap2_success
         return request.reply_to(reply)
