@@ -34,10 +34,8 @@ class AuthRequest(AuthPacket):
         self.username = self['User-Name'][0]
         self.user_mac = self['Calling-Station-Id'][0]
         if 'Called-Station-Id' in self:
-            ap_mac_colon_ssid = self['Called-Station-Id'][0]
-            ap_mac, ssid = ap_mac_colon_ssid.split(':', 1)
-            self.ap_mac = ap_mac.upper()
-            self.ssid = ssid
+            ap_mac_colon_ssid = self['Called-Station-Id'][0]    # 84-D9-31-7C-D6-00:WIFI-test
+            self.ap_mac, self.ssid = ap_mac_colon_ssid.split(':', 1)
         else:
             self.ap_mac = ''
             self.ssid = ''

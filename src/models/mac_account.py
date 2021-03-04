@@ -14,7 +14,7 @@ class MacAccount(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(255))
     radius_password = Column(String(255))
-    ap_mac = Column(String(12))       # 去掉连接符-, 全部小写
+    ap_mac = Column(String(24))       # 连接符"-", 全部大写. 5E-DA-F9-68-41-2B
     is_enable = Column(Boolean)
     expired_at = Column(DateTime)
     created_at = Column(DateTime)
