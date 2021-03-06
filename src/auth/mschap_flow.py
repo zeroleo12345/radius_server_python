@@ -24,7 +24,7 @@ class MsChapFlow(Flow):
             platform = Platform.get(platform_id=account.platform_id)
             if not platform:
                 raise AccessReject()
-            if account.role == Account.Role.PAY_USER.value and (request.ssid != platform.ssid or request.ssid != f'{platform.ssid}_5G'):
+            if account.role == Account.Role.PAY_USER.value and request.ssid not in [platform.ssid, f'{platform.ssid}_5G']:
                 log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, request.ssid: {request.ssid}')
                 raise AccessReject()
         # 保存用户密码
