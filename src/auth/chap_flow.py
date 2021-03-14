@@ -19,7 +19,7 @@ class ChapFlow(Flow):
             raise AccessReject()
         else:
             # 保存用户密码
-            auth_user.set_user_password(user.radius_password)
+            auth_user.set_user_password(user.password)
 
         def is_correct_password() -> bool:
             return Chap.is_correct_challenge_value(request=request, user_password=auth_user.user_password)
