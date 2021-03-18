@@ -18,6 +18,7 @@ from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
 from loguru import logger as log
 from controls.user import AuthUser
+from controls.stat import StatThread
 
 
 if os.getenv('GTC') is None:
@@ -86,10 +87,13 @@ def main():
     listen_port = 1812
     log.debug(f'listening on {listen_ip}:{listen_port}')
     server = EchoServer(dictionary, f'{listen_ip}:{listen_port}')
+    stat_thread = StatThread()
+    stat_thread.start()
 
     def shutdown():
         log.info('exit gracefully')
         server.close()
+        stat_thread.stop()
     gevent.signal(signal.SIGTERM, shutdown)
     try:
         server.serve_forever(stop_timeout=3)
