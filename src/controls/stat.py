@@ -16,7 +16,7 @@ class ApStat(object):
 
     @classmethod
     def report_ap_online(cls, username: str, ap_mac: str):
-        """ 统计认证成功或认证失败
+        """ 统计认证成功或失败
         key: 年-月-日
         sub_key: ap_mac
         value: username
