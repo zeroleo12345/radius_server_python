@@ -1,3 +1,4 @@
+import time
 import datetime
 import threading
 # 项目库
@@ -70,20 +71,26 @@ class StatThread(object):
         self.thread.join(3)
 
     def run(self):
-        last = 0
         while 1:
-            if SigTerm.is_term or self.is_process_exit:
-                result = self.release_lock()
-                log.d(f'release lock. result: {result}')
+            if self.is_process_exit:
                 raise SystemExit()
-            now = int(time.time())
-            if now - last < (self.expire_time / 2):
-                continue
-            else:
-                last = now
-            key = self.get_key(process_name=self.process_name, worker_id=self.worker_id)
-            is_success = self.get_and_expire(keys=[key], args=[self.pod_uid, self.expire_time])
-            if not is_success:
-                sentry_sdk.capture_message(f'refresh lock fail. key: {key}, pod_uid: {self.pod_uid}')
-            log.t(f'success refresh lock. key: {key}')
-            time.sleep(1)
+            fmt = '%Y-%m-%d'
+            now = datetime.datetime.now()
+            current_yyyy_mm_dd = now.strftime(fmt)
+            redis = get_redis()
+            keys = redis.keys('stat_ap_online:*')
+            for key in keys:
+                _, yyyy_mm_dd = key.split(':')
+                if yyyy_mm_dd == current_yyyy_mm_dd:
+                    continue
+                pass
+                redis.delete(key)
+            keys = redis.keys('stat_user_online:*')
+            for key in keys:
+                _, yyyy_mm_dd = key.split(':')
+                if yyyy_mm_dd == current_yyyy_mm_dd:
+                    continue
+                pass
+                redis.delete(key)
+            #
+            time.sleep(3)
