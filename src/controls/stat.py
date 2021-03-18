@@ -83,14 +83,21 @@ class StatThread(object):
                 _, yyyy_mm_dd = key.split(':')
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
-                pass
+                ap_mac_to_username_hash = redis.hgetall(key)
+                for ap_mac, username in ap_mac_to_username_hash:
+                    # TODO 入数据库表
+                    pass
                 redis.delete(key)
             keys = redis.keys('stat_user_online:*')
             for key in keys:
                 _, yyyy_mm_dd = key.split(':')
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
-                pass
+                ap_mac_to_username_hash = redis.hgetall(key)
+                for username_user_mac_ap_mac, accept_count in ap_mac_to_username_hash:
+                    username, user_mac, ap_mac = username_user_mac_ap_mac.split(':')
+                    # TODO 入数据库表
+                    pass
                 redis.delete(key)
             #
             time.sleep(3)
