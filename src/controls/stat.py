@@ -67,6 +67,7 @@ class StatThread(object):
 
     def stop(self):
         """ 停止 """
+        log.info('stat thread exit')
         if not self.thread:
             return
         self.is_process_exit = True
