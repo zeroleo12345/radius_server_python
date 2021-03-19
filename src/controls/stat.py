@@ -4,6 +4,7 @@ import threading
 # 项目库
 from utils.redispool import get_redis
 from models.stat import StatAp, StatUser
+from loguru import logger as log
 
 
 class ApStat(object):
@@ -73,7 +74,7 @@ class StatThread(object):
 
     def run(self):
         while 1:
-            lo
+            log.info('thread running')
             if self.is_process_exit:
                 raise SystemExit()
             fmt = '%Y-%m-%d'
