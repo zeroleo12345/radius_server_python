@@ -13,6 +13,7 @@ class MyBlockingConnectionPool(BlockingConnectionPool):
         :param connection_class:
         :param queue_class:
         :param connection_kwargs:
+        decode_responses: automatically convert responses from bytes to strings
         """
         # workaround:   https://github.com/andymccurdy/redis-py/blob/master/redis/connection.py
         super(self.__class__, self).__init__(
@@ -20,14 +21,12 @@ class MyBlockingConnectionPool(BlockingConnectionPool):
             timeout=timeout,
             connection_class=connection_class,
             queue_class=queue_class,
+            decode_responses=True,
             **connection_kwargs,
         )
 
 
 def get_redis(decode_responses=True) -> StrictRedis:
-    """
-    decode_responses: automatically convert responses from bytes to strings
-    """
     connection_pool = MyBlockingConnectionPool(
             host=REDIS_HOST,
             port=REDIS_PORT,
@@ -36,4 +35,4 @@ def get_redis(decode_responses=True) -> StrictRedis:
             socket_timeout=3,
             socket_connect_timeout=3,
     )
-    return StrictRedis(connection_pool=connection_pool, decode_responses=decode_responses)
+    return StrictRedis(connection_pool=connection_pool)
