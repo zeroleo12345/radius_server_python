@@ -24,7 +24,10 @@ class MyBlockingConnectionPool(BlockingConnectionPool):
         )
 
 
-def get_redis() -> StrictRedis:
+def get_redis(decode_responses=True) -> StrictRedis:
+    """
+    decode_responses: automatically convert responses from bytes to strings
+    """
     connection_pool = MyBlockingConnectionPool(
             host=REDIS_HOST,
             port=REDIS_PORT,
@@ -33,4 +36,4 @@ def get_redis() -> StrictRedis:
             socket_timeout=3,
             socket_connect_timeout=3,
     )
-    return StrictRedis(connection_pool=connection_pool)
+    return StrictRedis(connection_pool=connection_pool, decode_responses=decode_responses)
