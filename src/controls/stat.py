@@ -77,7 +77,7 @@ class StatThread(object):
     @catch_exception
     def run(self):
         while 1:
-            log.info('thread running')
+            # log.info('thread running')
             if self.is_process_exit:
                 raise SystemExit()
             fmt = '%Y-%m-%d'
@@ -86,6 +86,7 @@ class StatThread(object):
             redis = get_redis()
             keys = redis.keys('stat_ap_online:*')
             for key in keys:
+                log.info(f'handel stat key {key}')
                 _, yyyy_mm_dd = key.split(':')
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
@@ -96,6 +97,7 @@ class StatThread(object):
                 redis.delete(key)
             keys = redis.keys('stat_user_online:*')
             for key in keys:
+                log.info(f'handel stat key {key}')
                 _, yyyy_mm_dd = key.split(':')
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
