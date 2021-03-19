@@ -3,6 +3,7 @@ import datetime
 import threading
 # 项目库
 from utils.redispool import get_redis
+from models.stat import StatAp, StatUser
 
 
 class ApStat(object):
@@ -85,8 +86,8 @@ class StatThread(object):
                     continue
                 ap_mac_to_username_hash = redis.hgetall(key)
                 for ap_mac, username in ap_mac_to_username_hash:
-                    # TODO 入数据库表
-                    pass
+                    dt = datetime.datetime.strptime(yyyy_mm_dd, format='%Y-%m-%d')
+                    StatAp.create(ap_mac=ap_mac, last_auth_user=username, last_auth_date=dt.date(), created_at=now)
                 redis.delete(key)
             keys = redis.keys('stat_user_online:*')
             for key in keys:
@@ -96,8 +97,7 @@ class StatThread(object):
                 ap_mac_to_username_hash = redis.hgetall(key)
                 for username_user_mac_ap_mac, accept_count in ap_mac_to_username_hash:
                     username, user_mac, ap_mac = username_user_mac_ap_mac.split(':')
-                    # TODO 入数据库表
-                    pass
+                    StatUser.create(username=username, user_mac=user_mac, ap_mac=ap_mac, accept_count=accept_count, created_at=now)
                 redis.delete(key)
             #
             time.sleep(3)
