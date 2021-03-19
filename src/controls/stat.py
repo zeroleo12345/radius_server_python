@@ -90,7 +90,7 @@ class StatThread(object):
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
                 ap_mac_to_username_hash = redis.hgetall(key)
-                for ap_mac, username in ap_mac_to_username_hash:
+                for ap_mac, username in ap_mac_to_username_hash.items():
                     dt = datetime.datetime.strptime(yyyy_mm_dd, format='%Y-%m-%d')
                     StatAp.create(ap_mac=ap_mac, last_auth_user=username, last_auth_date=dt.date(), created_at=now)
                 redis.delete(key)
@@ -100,7 +100,7 @@ class StatThread(object):
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
                 ap_mac_to_username_hash = redis.hgetall(key)
-                for username_user_mac_ap_mac, accept_count in ap_mac_to_username_hash:
+                for username_user_mac_ap_mac, accept_count in ap_mac_to_username_hash.items():
                     username, user_mac, ap_mac = username_user_mac_ap_mac.split(':')
                     StatUser.create(username=username, user_mac=user_mac, ap_mac=ap_mac, accept_count=accept_count, created_at=now)
                 redis.delete(key)
