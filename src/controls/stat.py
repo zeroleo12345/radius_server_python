@@ -73,6 +73,7 @@ class StatThread(object):
 
     def run(self):
         while 1:
+            lo
             if self.is_process_exit:
                 raise SystemExit()
             fmt = '%Y-%m-%d'

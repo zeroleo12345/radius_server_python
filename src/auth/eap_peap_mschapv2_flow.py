@@ -2,7 +2,7 @@ import uuid
 import ctypes
 import struct
 # 第三方库
-# 自己的库
+# 项目库
 from .flow import Flow, AccessReject
 from child_pyrad.packet import AuthRequest, AuthResponse
 from controls.user import AuthUser

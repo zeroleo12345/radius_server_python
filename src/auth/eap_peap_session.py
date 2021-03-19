@@ -1,7 +1,7 @@
 import datetime
 # 第三方库
 from pyrad.packet import AuthPacket
-# 自己的库
+# 项目库
 from auth.flow import Flow
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from controls.user import AuthUser

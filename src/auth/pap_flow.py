@@ -2,7 +2,7 @@ import datetime
 # 第三方库
 import sentry_sdk
 from child_pyrad.packet import AuthRequest, AuthResponse
-# 自己的库
+# 项目库
 from utils.redispool import get_redis
 from .flow import Flow, AccessReject
 from loguru import logger as log

@@ -6,7 +6,7 @@ import gevent
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 import sentry_sdk
-# 自己的库
+# 项目库
 from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.packet import AuthRequest
 from auth.flow import Flow, AccessReject

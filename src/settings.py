@@ -2,7 +2,7 @@ import sys
 import os
 # 第三方库
 import sentry_sdk
-# 自己的库
+# 项目库
 from utils.config import config
 from library.crypto import EapCrypto
 from loguru import logger as log

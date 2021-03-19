@@ -5,7 +5,7 @@ import sentry_sdk
 import gevent
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
-# 自己的库
+# 项目库
 from acct.accounting_flow import AccountingFlow
 from acct.flow import Flow
 from child_pyrad.dictionary import get_dictionaries

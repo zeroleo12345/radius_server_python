@@ -2,7 +2,7 @@ import requests
 import datetime
 # 第三方库
 from dateutil.parser import parse
-# 自己的库
+# 项目库
 from processor import Task
 from settings import API_URL, log
 from models import Transaction

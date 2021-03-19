@@ -1,6 +1,6 @@
 # 第三方库
 from child_pyrad.packet import AcctRequest, AcctResponse
-# 自己的库
+# 项目库
 from controls.user import AcctUser
 
 
