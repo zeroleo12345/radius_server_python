@@ -26,7 +26,7 @@ class MyBlockingConnectionPool(BlockingConnectionPool):
         )
 
 
-def get_redis(decode_responses=True) -> StrictRedis:
+def get_redis() -> StrictRedis:
     connection_pool = MyBlockingConnectionPool(
             host=REDIS_HOST,
             port=REDIS_PORT,
