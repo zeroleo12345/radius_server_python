@@ -3,6 +3,7 @@ import datetime
 import threading
 # 项目库
 from utils.redispool import get_redis
+from utils.decorators import catch_exception
 from models.stat import StatAp, StatUser
 from loguru import logger as log
 
@@ -73,6 +74,7 @@ class StatThread(object):
         self.is_process_exit = True
         self.thread.join(3)
 
+    @catch_exception
     def run(self):
         while 1:
             log.info('thread running')
