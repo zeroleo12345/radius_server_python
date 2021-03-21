@@ -1,6 +1,6 @@
 # 第三方库
 from child_pyrad.packet import AcctRequest
-# 自己的库
+# 项目库
 from .accounting_session import AccountingSession
 from settings import ACCOUNTING_INTERVAL
 from loguru import logger as log

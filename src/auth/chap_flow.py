@@ -1,6 +1,6 @@
 # 第三方库
 from child_pyrad.packet import AuthRequest, AuthResponse
-# 自己的库
+# 项目库
 from .flow import Flow, AccessReject
 from loguru import logger as log
 from controls.user import AuthUser
@@ -25,13 +25,13 @@ class ChapFlow(Flow):
             return Chap.is_correct_challenge_value(request=request, user_password=auth_user.user_password)
 
         if is_correct_password():
-            return cls.access_accept(request=request, auth_user=auth_user)
+            return cls.access_accept(request=request)
         else:
             log.error(f'user_password: {auth_user.user_password} not correct')
             raise AccessReject()
 
     @classmethod
-    def access_accept(cls, request: AuthRequest, auth_user: AuthUser):
+    def access_accept(cls, request: AuthRequest):
         data = [
             'CHAP',
             request.username,

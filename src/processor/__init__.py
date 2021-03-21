@@ -3,7 +3,7 @@ import time
 import traceback
 from abc import ABC, abstractmethod
 # 第三方库
-# 自己的库
+# 项目库
 from loguru import logger as log
 
 

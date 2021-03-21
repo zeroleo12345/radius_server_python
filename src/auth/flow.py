@@ -2,7 +2,7 @@ import struct
 # 第三方库
 from child_pyrad.packet import AuthRequest, AuthResponse
 from child_pyrad.eap_packet import EapPacket
-# 自己的库
+# 项目库
 from loguru import logger as log
 from controls.user import AuthUser
 
