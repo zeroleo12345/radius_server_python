@@ -86,10 +86,10 @@ class StatThread(object):
             redis = get_redis()
             keys = redis.keys('stat_ap_online:*')
             for key in keys:
-                log.info(f'handel stat key {key}')
                 _, yyyy_mm_dd = key.split(':')
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
+                log.info(f'handel stat key {key}')
                 ap_mac_to_username_hash = redis.hgetall(key)
                 for ap_mac, username in ap_mac_to_username_hash.items():
                     dt = datetime.datetime.strptime(yyyy_mm_dd, '%Y-%m-%d')
@@ -97,10 +97,10 @@ class StatThread(object):
                 redis.delete(key)
             keys = redis.keys('stat_user_online:*')
             for key in keys:
-                log.info(f'handel stat key {key}')
                 _, yyyy_mm_dd = key.split(':')
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
+                log.info(f'handel stat key {key}')
                 ap_mac_to_username_hash = redis.hgetall(key)
                 for username_user_mac_ap_mac, accept_count in ap_mac_to_username_hash.items():
                     username, user_mac, ap_mac = username_user_mac_ap_mac.split(':')
