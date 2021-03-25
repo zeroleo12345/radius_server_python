@@ -49,17 +49,17 @@ class PapFlow(Flow):
             sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {auth_user.user_mac}, ssid: {request.ssid}')
             redis.delete(key)
 
-        return cls.access_accept(request=request)
+        return cls.access_accept(request=request, auth_method='MAC-PAP')
 
     @classmethod
     def pap_auth(cls, request: AuthRequest, auth_user: AuthUser):
         log.info(f'PAP username: {request.username}, password: {auth_user.user_password}')
-        return cls.access_accept(request=request)
+        return cls.access_accept(request=request, auth_method='PAP')
 
     @classmethod
-    def access_accept(cls, request: AuthRequest):
+    def access_accept(cls, request: AuthRequest, auth_method: str):
         data = [
-            'PAP',
+            auth_method,
             request.username,
             request.user_mac,
             request.ssid,
