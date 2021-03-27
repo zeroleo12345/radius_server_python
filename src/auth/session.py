@@ -3,13 +3,10 @@ import datetime
 from pyrad.packet import AuthPacket
 # 项目库
 from auth.flow import Flow
+from child_pyrad.eap_peap_packet import EapPeapPacket
 from controls.user import AuthUser
 from settings import libhostapd
 from loguru import logger as log
-#
-import typing
-if typing.TYPE_CHECKING:
-    from child_pyrad.eap_peap_packet import EapPeapPacket
 
 
 class BaseSession(object):
