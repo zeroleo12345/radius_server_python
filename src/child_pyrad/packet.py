@@ -3,10 +3,13 @@ from pyrad.packet import AuthPacket, AccessRequest, AcctPacket
 # 项目库
 from .exception import AuthenticatorError
 from .eap_packet import EapPacket
-from .eap_peap_packet import EapPeapPacket
 from controls.stat import ApStat, UserStat
 from loguru import logger as log
 from settings import ACCOUNTING_INTERVAL
+#
+import typing
+if typing.TYPE_CHECKING:
+    from .eap_peap_packet import EapPeapPacket
 
 
 class Packet(object):
