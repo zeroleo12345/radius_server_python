@@ -95,8 +95,8 @@ class AuthResponse(AuthPacket):
         #
         reply = request.create_reply(code=Packet.CODE_ACCESS_ACCEPT)
         # reply['Session-Timeout'] = 600    # 用户可用的剩余时间
-        reply['H3C-Input-Peak-Rate'] = session.auth_user.user_speed / 4     # 上传速度. 用户到NAS的峰值速率, 以bps为单位. 1/8字节每秒
-        reply['H3C-Output-Peak-Rate'] = session.auth_user.user_speed        # 下载速度. NAS到用户的峰值速率, 以bps为单位. 1/8字节每秒
+        reply['H3C-Input-Peak-Rate'] = session.auth_user.user_speed * 1024 * 1024 * 8 / 4  # 上传速度. 用户到NAS的峰值速率, 以bps为单位. 1/8字节每秒
+        reply['H3C-Output-Peak-Rate'] = session.auth_user.user_speed * 1024 * 1024 * 8     # 下载速度. NAS到用户的峰值速率, 以bps为单位. 1/8字节每秒
         reply['Idle-Timeout'] = 86400       # 用户的闲置切断时间
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
         # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.peap_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报

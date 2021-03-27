@@ -8,9 +8,9 @@ class AuthUser(object):
         # 提取报文
         self.outer_username: str = request.username
         self.peap_username: str = ''
-        self.user_mac = request.user_mac      # mac地址
+        self.user_mac = request.user_mac    # mac地址
         self.user_password: str = ''
-        self.user_speed: int = 0
+        self.user_speed: int = 0            # 兆
         self.server_challenge: bytes = b''
         self.peer_challenge: bytes = b''
 
