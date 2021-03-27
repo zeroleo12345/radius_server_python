@@ -110,6 +110,6 @@ class MsChapFlow(Flow):
             request.ap_mac,
         ]
         log.info(f'OUT: accept|{"|".join(data)}|')
-        reply = AuthResponse.create_access_accept(request=request)
+        reply = AuthResponse.create_access_accept(request=request, session=session)
         reply['MS-CHAP2-Success'] = session.extra['MS-CHAP2-Success']
         return request.reply_to(reply)
