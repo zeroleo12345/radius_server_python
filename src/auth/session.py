@@ -9,11 +9,20 @@ from settings import libhostapd
 from loguru import logger as log
 
 
-class EapPeapSession(object):
+class BaseSession(object):
+
+    def __init__(self, auth_user: AuthUser):
+        self.auth_user: AuthUser = auth_user
+        self.reply: AuthPacket = None
+        self.extra = dict()
+
+
+class EapPeapSession(BaseSession):
 
     def __init__(self, auth_user: AuthUser, session_id: str):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
         assert isinstance(session_id, str)
+        super(self.__class__, self).__init__(auth_user=auth_user)
         self.session_id: str = session_id
         self.next_state = Flow.PEAP_CHALLENGE_START
         self.peap_version: int = 1
@@ -21,8 +30,6 @@ class EapPeapSession(object):
         self.prev_eap_id: int = -1      # 用于检查是否重发消息
         self.current_eap_id: int = -1
         #
-        self.auth_user: AuthUser = auth_user
-        self.reply: AuthPacket = None
         self.update_time = datetime.datetime.now()
         #
         self.msk: bytes = b''       # Master Session Key

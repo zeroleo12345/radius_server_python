@@ -10,7 +10,7 @@ from models.account import Account
 from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from child_pyrad.mppe import create_mppe_recv_key_send_key
-from auth.eap_peap_session import EapPeapSession, SessionCache
+from auth.session import EapPeapSession, SessionCache
 from settings import libhostapd
 from loguru import logger as log
 
@@ -30,7 +30,7 @@ class EapPeapGtcFlow(Flow):
         if 'State' in request:
             session_id: str = request['State'][0].decode()
             # 2. 从redis获取会话
-            session = SessionCache.load_and_housekeeping(session_id=session_id)  # 旧会话
+            session: EapPeapSession = SessionCache.load_and_housekeeping(session_id=session_id)  # 旧会话
             if not session:
                 # 携带 State 字段表示之前已经认证成功, 现在再申请连入网络
                 # 必须是 PEAP-Start 前的 identity 报文, 例如: EAP-Message: ['\x02\x01\x00\r\x01testuser']

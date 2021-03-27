@@ -7,6 +7,7 @@ from loguru import logger as log
 from controls.user import AuthUser
 from models.account import Account
 from models.platform import Platform
+from auth.session import BaseSession
 from settings import libhostapd
 
 
@@ -14,8 +15,9 @@ class MsChapFlow(Flow):
 
     @classmethod
     def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
+        session = BaseSession(auth_user=auth_user)
         # 查找用户密码
-        account_name = auth_user.outer_username
+        account_name = session.auth_user.outer_username
         account = Account.get(username=account_name)
         if not account:
             raise AccessReject()
@@ -28,11 +30,11 @@ class MsChapFlow(Flow):
                 log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, request.ssid: {request.ssid}')
                 raise AccessReject()
         # 保存用户密码
-        auth_user.set_user_password(account.radius_password)
+        session.auth_user.set_user_password(account.radius_password)
 
         ################
-        username = auth_user.outer_username
-        user_password = auth_user.user_password
+        username = session.auth_user.outer_username
+        user_password = session.auth_user.user_password
         auth_challenge: bytes = request['MS-CHAP-Challenge'][0]
         """ Microsoft Vendor-specific RADIUS Attributes:
                 https://tools.ietf.org/html/rfc2548
@@ -87,17 +89,18 @@ class MsChapFlow(Flow):
         # 42字节
         authenticator_response: bytes = ctypes.string_at(p_out_auth_response, len(p_out_auth_response))
         authenticator_response: bytes = b'S=' + authenticator_response.hex().upper().encode()
-        ms_chap2_success = ident + authenticator_response
+        ms_chap2_success: bytes = ident + authenticator_response
+        session.extra['MS-CHAP2-Success'] = ms_chap2_success
         ################
 
         if is_correct_password():
-            return cls.access_accept(request=request, ms_chap2_success=ms_chap2_success)
+            return cls.access_accept(request=request, session=session)
         else:
-            log.error(f'user_password: {auth_user.user_password} not correct')
+            log.error(f'user_password: {session.auth_user.user_password} not correct')
             raise AccessReject()
 
     @classmethod
-    def access_accept(cls, request: AuthRequest, ms_chap2_success: bytes):
+    def access_accept(cls, request: AuthRequest, session: BaseSession):
         data = [
             'MS-CHAPv2',
             request.username,
@@ -107,5 +110,5 @@ class MsChapFlow(Flow):
         ]
         log.info(f'OUT: accept|{"|".join(data)}|')
         reply = AuthResponse.create_access_accept(request=request)
-        reply['MS-CHAP2-Success'] = ms_chap2_success
+        reply['MS-CHAP2-Success'] = session.extra['MS-CHAP2-Success']
         return request.reply_to(reply)
