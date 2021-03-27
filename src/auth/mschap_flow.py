@@ -31,6 +31,7 @@ class MsChapFlow(Flow):
                 raise AccessReject()
         # 保存用户密码
         session.auth_user.set_user_password(account.radius_password)
+        session.auth_user.set_user_speed(account.speed)
 
         ################
         username = session.auth_user.outer_username

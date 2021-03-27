@@ -230,12 +230,13 @@ class EapPeapGtcFlow(Flow):
         session.auth_user.set_peap_username(account_name)
 
         # 查找用户密码
-        user = Account.get(username=account_name)
-        if not user:
+        account = Account.get(username=account_name)
+        if not account:
             raise AccessReject()
         else:
             # 保存用户密码
-            session.auth_user.set_user_password(user.radius_password)
+            session.auth_user.set_user_password(account.radius_password)
+            session.auth_user.set_user_speed(account.speed)
 
         # 返回数据
         response_data = b'Password'
@@ -262,7 +263,7 @@ class EapPeapGtcFlow(Flow):
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         eap_password = EapPacket.parse(packet=tls_decrypt_data)
         auth_password = eap_password.type_data.decode()
-        log.debug(f'PEAP account: {session.auth_user.peap_username}, packet_password: {auth_password}')
+        log.debug(f'PEAP user: {session.auth_user.peap_username}, packet_password: {auth_password}')
 
         def is_correct_password() -> bool:
             return session.auth_user.user_password == auth_password

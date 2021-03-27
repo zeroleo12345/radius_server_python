@@ -10,6 +10,7 @@ class AuthUser(object):
         self.peap_username: str = ''
         self.user_mac = request.user_mac      # mac地址
         self.user_password: str = ''
+        self.user_speed: int = 0
         self.server_challenge: bytes = b''
         self.peer_challenge: bytes = b''
 
@@ -18,6 +19,9 @@ class AuthUser(object):
 
     def set_user_password(self, password: str):
         self.user_password = password
+
+    def set_user_speed(self, speed: int):
+        self.user_speed = speed
 
     def set_server_challenge(self, server_challenge: bytes):
         self.server_challenge = server_challenge

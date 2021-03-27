@@ -16,8 +16,8 @@ class AccountingFlow(object):
         log.debug(f'IN: {request.iut}|{acct_user.outer_username}|{acct_user.user_mac}')
 
         # 查找用户密码
-        user = Account.get(username=acct_user.outer_username)
-        if not user:
+        account = Account.get(username=acct_user.outer_username)
+        if not account:
             return
 
         # 每隔x秒清理会话

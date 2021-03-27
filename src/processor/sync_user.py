@@ -38,19 +38,19 @@ class TaskLoop(Task):
                 #
                 expired_at_dt = parse(expired_at)   # datetime 类型
                 expired_at_str = expired_at_dt.strftime('%Y-%m-%d %H:%M:%S')    # 字符串类型
-                user = session.query(Account).filter(Account.username == username).first()
-                if not user:
-                    new_user = Account(username=username, password=password, expired_at=expired_at_dt)
-                    session.add(new_user)
+                account = session.query(Account).filter(Account.username == username).first()
+                if not account:
+                    new_account = Account(username=username, password=password, expired_at=expired_at_dt)
+                    session.add(new_account)
                     session.commit()
-                    log.info(f'insert user: {username}')
+                    log.info(f'insert account: {username}')
                 else:
                     # sync 同步用户
-                    if user.expired_at.strftime('%Y-%m-%d %H:%M:%S') != expired_at_str or user.password != password:
-                        user.expired_at = expired_at_dt
-                        user.password = password
+                    if account.expired_at.strftime('%Y-%m-%d %H:%M:%S') != expired_at_str or account.password != password:
+                        account.expired_at = expired_at_dt
+                        account.password = password
                         session.commit()
-                        log.info(f'update user: {user.username}')
+                        log.info(f'update account: {account.username}')
 
 
 TaskLoop().start()

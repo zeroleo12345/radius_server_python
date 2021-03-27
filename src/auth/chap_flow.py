@@ -16,12 +16,13 @@ class ChapFlow(Flow):
         session = BaseSession(auth_user=auth_user)
         # 查找用户密码
         account_name = session.auth_user.outer_username
-        user = Account.get(username=account_name)
-        if not user:
+        account: Account = Account.get(username=account_name)
+        if not account:
             raise AccessReject()
         else:
             # 保存用户密码
-            session.auth_user.set_user_password(user.password)
+            session.auth_user.set_user_password(account.password)
+            session.auth_user.set_user_speed(account.speed)
 
         def is_correct_password() -> bool:
             return Chap.is_correct_challenge_value(request=request, user_password=session.auth_user.user_password)

@@ -239,12 +239,13 @@ class EapPeapMschapv2Flow(Flow):
         # 保存用户名
         session.auth_user.set_peap_username(account_name)
         # 查找用户密码
-        user = Account.get(username=account_name)
-        if not user:
+        account = Account.get(username=account_name)
+        if not account:
             raise AccessReject()
         else:
             # 保存用户密码
-            session.auth_user.set_user_password(user.radius_password)
+            session.auth_user.set_user_password(account.radius_password)
+            session.auth_user.set_user_speed(account.speed)
 
         # 返回数据
         # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 1c) +

@@ -6,6 +6,7 @@ from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
 from controls.stat import ApStat, UserStat
 from loguru import logger as log
+from auth.session import BaseSession
 from settings import ACCOUNTING_INTERVAL
 
 
@@ -88,14 +89,14 @@ class AuthResponse(AuthPacket):
     # 使用父类初始化自己
 
     @classmethod
-    def create_access_accept(cls, request: AuthRequest) -> AuthPacket:
+    def create_access_accept(cls, request: AuthRequest, session: BaseSession) -> AuthPacket:
         UserStat.report_user_online(username=request.username, user_mac=request.user_mac, ap_mac=request.ap_mac)
         ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
         #
         reply = request.create_reply(code=Packet.CODE_ACCESS_ACCEPT)
         # reply['Session-Timeout'] = 600    # 用户可用的剩余时间
-        # reply['H3C-Input-Peak-Rate'] = int(self.bandwidth_max_up)       # 用户到NAS的峰值速率, 以bps为单位. 1/8字节每秒
-        # reply['H3C-Output-Peak-Rate'] = int(self.bandwidth_max_down)    # NAS到用户的峰值速率, 以bps为单位. 1/8字节每秒
+        reply['H3C-Input-Peak-Rate'] = int(self.bandwidth_max_up)       # 用户到NAS的峰值速率, 以bps为单位. 1/8字节每秒
+        reply['H3C-Output-Peak-Rate'] = int(self.bandwidth_max_down)    # NAS到用户的峰值速率, 以bps为单位. 1/8字节每秒
         reply['Idle-Timeout'] = 86400       # 用户的闲置切断时间
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
         # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.peap_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
