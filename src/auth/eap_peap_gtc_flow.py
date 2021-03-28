@@ -310,7 +310,7 @@ class EapPeapGtcFlow(Flow):
         ]
         log.info(f'OUT: accept|{"|".join(data)}|')
         reply = AuthResponse.create_access_accept(request=request)
-        reply['State'] = session.session_id.encode()    # octets
+        reply['State'] = session.session_id.encode()    # octets 传入 bytes
         log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)
         reply['EAP-Message'] = struct.pack('!B B H', EapPacket.CODE_EAP_SUCCESS, session.current_eap_id-1, 4)  # eap_id抓包是这样, 不要惊讶!
