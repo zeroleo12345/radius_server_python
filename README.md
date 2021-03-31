@@ -1,5 +1,5 @@
-## Radius Server
-Raidus Server is writtten by Python, and use to Authentication, Authorization, Accounting for WLAN user or PPPoE user.
+## Radius Server (Python)
+This Raidus Server is writtten by Python, and is used to Authentication, Authorization, Accounting for WLAN user or PPPoE user.
 Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 **Support authenticate method:**
