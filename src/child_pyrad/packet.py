@@ -123,7 +123,7 @@ class AuthResponse(AuthPacket):
         for eap in eap_messages:
             reply.AddAttribute('EAP-Message', eap)
         reply['Calling-Station-Id'] = request.user_mac
-        reply['State'] = session_id.encode()    # ATTRIBUTE   State           24  octets
+        reply['State'] = session_id.encode()    # ATTRIBUTE  State  24  octets  传入 bytes
         return reply
 
     def __str__(self):
