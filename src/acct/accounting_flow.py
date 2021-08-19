@@ -1,4 +1,3 @@
-import datetime
 # 第三方库
 from child_pyrad.packet import AcctRequest
 # 项目库
@@ -17,16 +16,9 @@ class AccountingFlow(object):
         log.debug(f'IN: {request.iut}|{acct_user.outer_username}|{acct_user.user_mac}')
 
         # 查找用户密码
-        account = Account.get(username=acct_user.outer_username)
-        if not account:
-            log.error(f'user({acct_user.outer_username}) not exist in db.')
+        user = Account.get(username=acct_user.outer_username)
+        if not user:
             return
-        # 平台属主, 不校验时间
-        if account.role != cls.Role.PLATFORM_OWNER.value:
-            if account.expired_at <= datetime.datetime.now():
-                log.error(f'user({acct_user.outer_username}) exist but expired.')
-                # TODO: disconnect 断开连接
-                return
 
         # 每隔x秒清理会话
         if AccountingSession.clean(interval=ACCOUNTING_INTERVAL*2):
@@ -34,8 +26,10 @@ class AccountingFlow(object):
         #
         current_session = AccountingSession.put(acct_user.outer_username, acct_user.user_mac)
         if current_session > 1:
-            # sentry_sdk.capture_message(f'account: {acct_user.outer_username} multiple session!')
+            pass
+            # sentry_sdk.capture_message(f'user: {acct_user.outer_username} multiple session!')
             # cls.disconnect(mac_address=acct_user.user_mac) # 断开链接
+        else:
             pass
 
     @classmethod
