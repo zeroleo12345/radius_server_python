@@ -103,7 +103,7 @@ class StatThread(object):
                 log.info(f'handle stat key {key}')
                 ap_mac_to_username_hash = redis.hgetall(key)
                 for username_user_mac_ap_mac, accept_count in ap_mac_to_username_hash.items():
-                    username, user_mac, ap_mac = username_user_mac_ap_mac.split(':')
+                    username, user_mac, ap_mac = username_user_mac_ap_mac.rsplit(':', 2)
                     StatUser.create(username=username, user_mac=user_mac, ap_mac=ap_mac, accept_count=accept_count, created_at=now)
                 redis.delete(key)
             #
