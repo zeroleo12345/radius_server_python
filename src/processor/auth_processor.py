@@ -87,6 +87,7 @@ def verify(request: AuthRequest, auth_user: AuthUser):
 
 
 def main():
+    os.setenv('LOG_HEADER', 'auth')
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
     listen_ip = '0.0.0.0'
     listen_port = 1812
