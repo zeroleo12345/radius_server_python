@@ -29,6 +29,7 @@ class Account(Base):
 
     @classmethod
     def get(cls, username) -> 'Account':
+        # PS: 鉴权和计费共用
         # 查找用户明文密码
         with Transaction() as session:
             account = session.query(Account).filter(Account.username == username).first()
