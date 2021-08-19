@@ -1,11 +1,9 @@
-import datetime
 # 第三方库
 from sqlalchemy import Column, Integer, BigInteger, String, DateTime
 # 项目库
 from .field import ModelEnum
 from . import Base
 from models import Transaction
-from loguru import logger as log
 
 
 class Account(Base):
@@ -33,13 +31,4 @@ class Account(Base):
         with Transaction() as session:
             account = session.query(Account).filter(Account.username == username).first()
 
-        if not account:
-            log.error(f'get_user({username}) not exist in db.')
-            return None
-        if account.role == cls.Role.PLATFORM_OWNER.value:
-            # 平台属主, 不校验时间
-            return account
-        if account.expired_at <= datetime.datetime.now():
-            log.error(f'get_user({username}) exist but expired.')
-            return None
-        return account
+        return account or None
