@@ -18,13 +18,13 @@ ACCOUNTING_INTERVAL = config('ACCOUNTING_INTERVAL', default=60, cast='@int')
 API_URL = config('API_URL')
 
 # Log
-LOG_HEADER = config('LOG_HEADER')
+LOG_HEADER = config('LOG_HEADER', default='')
 LOG_DIR = config('LOG_DIR', default='')
 LOG_LEVEL = config('LOG_LEVEL')
 # 初始化日志
 log.remove()    # workaround: https://github.com/Delgan/loguru/issues/208
 log.add(sys.stderr, level=LOG_LEVEL)
-if LOG_DIR:
+if LOG_DIR and LOG_HEADER:
     log.info('start log to file')
     log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00', level=LOG_LEVEL)
 else:
