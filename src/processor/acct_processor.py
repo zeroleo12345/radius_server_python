@@ -51,7 +51,6 @@ def verify(request: AcctRequest, acct_user: AcctUser):
 
 
 def main():
-    os.environ['LOG_HEADER'] = 'acct'
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
     listen_ip = '0.0.0.0'
     listen_port = 1813
