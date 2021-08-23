@@ -5,6 +5,7 @@ from dateutil.parser import parse
 # 项目库
 from processor import Task
 from settings import API_URL, log
+from sqlalchemy import func
 from models import Transaction
 from models.account import Account
 
@@ -38,7 +39,7 @@ class TaskLoop(Task):
                 #
                 expired_at_dt = parse(expired_at)   # datetime 类型
                 expired_at_str = expired_at_dt.strftime('%Y-%m-%d %H:%M:%S')    # 字符串类型
-                user = session.query(Account).filter(Account.username == username).first()
+                user = session.query(Account).filter(Account.username == func.binary(username)).first()
                 if not user:
                     new_user = Account(username=username, password=password, expired_at=expired_at_dt)
                     session.add(new_user)
