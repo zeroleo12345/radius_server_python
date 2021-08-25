@@ -1,5 +1,5 @@
 # 第三方库
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, UniqueConstraint
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, UniqueConstraint, func
 # 项目库
 from . import Base
 from models import Transaction
@@ -26,7 +26,7 @@ class MacAccount(Base):
     def get(cls, username) -> 'MacAccount':
         # 查找用户明文密码
         with Transaction() as session:
-            account = session.query(cls).filter(cls.username == username).first()
+            account = session.query(cls).filter(cls.username == func.binary(username)).first()
 
         return account or None
 

@@ -1,6 +1,6 @@
 import datetime
 # 第三方库
-from sqlalchemy import Column, Integer, BigInteger, String, DateTime
+from sqlalchemy import Column, Integer, BigInteger, String, DateTime, func
 # 项目库
 from .field import ModelEnum
 from . import Base
@@ -32,7 +32,7 @@ class Account(Base):
         # PS: 鉴权和计费共用
         # 查找用户明文密码
         with Transaction() as session:
-            account = session.query(Account).filter(Account.username == username).first()
+            account = session.query(Account).filter(Account.username == func.binary(username)).first()
 
         if not account:
             log.error(f'get_user({username}) not exist in db.')
