@@ -37,8 +37,6 @@ class EchoServer(DatagramServer):
         self.dictionary = dictionary
 
     def handle(self, data, address):
-        ip, port = address
-        log.debug(f'receive packet from {address}')
         log.trace(f'request bytes: {data}')
 
         # 解析报文
@@ -47,7 +45,7 @@ class EchoServer(DatagramServer):
             log.trace(f'request Radius: {request}')
             auth_user = AuthUser(request=request)
         except KeyError:
-            log.warning('packet corrupt!')
+            log.warning(f'packet corrupt from {address}')
             return
 
         try:

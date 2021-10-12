@@ -34,6 +34,7 @@ class ChapFlow(Flow):
     @classmethod
     def access_accept(cls, request: AuthRequest, session: BaseSession):
         data = [
+            request.address,
             'CHAP',
             request.username,
             request.user_mac,
