@@ -19,9 +19,8 @@ class ChapFlow(Flow):
         user = Account.get(username=account_name)
         if not user:
             raise AccessReject()
-        else:
-            # 保存用户密码
-            session.auth_user.set_user_password(user.password)
+        # 保存用户密码
+        session.auth_user.set_user_password(user.password)
 
         def is_correct_password() -> bool:
             return Chap.is_correct_challenge_value(request=request, user_password=session.auth_user.user_password)

@@ -242,9 +242,8 @@ class EapPeapMschapv2Flow(Flow):
         user = Account.get(username=account_name)
         if not user:
             raise AccessReject()
-        else:
-            # 保存用户密码
-            session.auth_user.set_user_password(user.radius_password)
+        # 保存用户密码
+        session.auth_user.set_user_password(user.radius_password)
 
         # 返回数据
         # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 1c) +

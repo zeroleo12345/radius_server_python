@@ -7,6 +7,7 @@ from loguru import logger as log
 from controls.user import AuthUser
 
 
+# 全局异常: 抛出后鉴权流程返回Access-Reject
 class AccessReject(Exception):
     pass
 
