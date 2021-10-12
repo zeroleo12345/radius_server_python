@@ -35,12 +35,14 @@ class Account(Base):
             account = session.query(Account).filter(Account.username == func.binary(username)).first()
 
         if not account:
-            log.error(f'get_user({username}) not exist in db.')
-            return None
-        if account.role == cls.Role.PLATFORM_OWNER.value:
-            # 平台属主, 不校验时间
-            return account
-        if account.expired_at <= datetime.datetime.now():
-            log.error(f'get_user({username}) exist but expired.')
-            return None
-        return account
+            log.error(f'account: [{username}] not exist in db')
+
+        return account or None
+
+    def is_expired(self):
+        # 平台属主, 不校验时间
+        if self.role != self.Role.PLATFORM_OWNER.value:
+            if self.expired_at <= datetime.datetime.now():
+                log.error(f'account: [{self.username}] expired')
+                return True
+        return False

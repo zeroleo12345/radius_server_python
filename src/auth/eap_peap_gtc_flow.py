@@ -230,11 +230,11 @@ class EapPeapGtcFlow(Flow):
         session.auth_user.set_peap_username(account_name)
 
         # 查找用户密码
-        user = Account.get(username=account_name)
-        if not user:
+        account = Account.get(username=account_name)
+        if not account or account.is_expired():
             raise AccessReject()
         # 保存用户密码
-        session.auth_user.set_user_password(user.radius_password)
+        session.auth_user.set_user_password(account.radius_password)
 
         # 返回数据
         response_data = b'Password'

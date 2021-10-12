@@ -19,7 +19,7 @@ class MsChapFlow(Flow):
         # 查找用户密码
         account_name = session.auth_user.outer_username
         account = Account.get(username=account_name)
-        if not account:
+        if not account or account.is_expired():
             raise AccessReject()
         if account.role == Account.Role.PAY_USER.value:
             # 付费用户, 才需要判断 SSID 是否匹配

@@ -16,8 +16,9 @@ class AccountingFlow(object):
         log.debug(f'IN: {request.iut}|{acct_user.outer_username}|{acct_user.user_mac}')
 
         # 查找用户密码
-        user = Account.get(username=acct_user.outer_username)
-        if not user:
+        account = Account.get(username=acct_user.outer_username)
+        # TODO
+        if not account or account.is_expired():
             return
 
         # 每隔x秒清理会话
@@ -27,7 +28,7 @@ class AccountingFlow(object):
         current_session = AccountingSession.put(acct_user.outer_username, acct_user.user_mac)
         if current_session > 1:
             pass
-            # sentry_sdk.capture_message(f'user: {acct_user.outer_username} multiple session!')
+            # sentry_sdk.capture_message(f'account: {acct_user.outer_username} multiple session!')
             # cls.disconnect(mac_address=acct_user.user_mac) # 断开链接
         else:
             pass
