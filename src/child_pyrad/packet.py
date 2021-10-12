@@ -25,11 +25,11 @@ class Packet(object):
 
 
 class AuthRequest(AuthPacket):
-    CHAP_PROTOCOL = 1
-    PAP_PROTOCOL = 2
-    MSCHAPV2_PROTOCOL = 3
-    EAP_PEAP_GTC_PROTOCOL = 4
-    EAP_PEAP_MSCHAPV2_PROTOCOL = 5
+    CHAP_PROTOCOL = 'CHAP'
+    PAP_PROTOCOL = 'PAP'
+    MSCHAPV2_PROTOCOL = 'MSCHAPV2'
+    EAP_PEAP_GTC_PROTOCOL = 'EAP-PEAP-GTC'
+    EAP_PEAP_MSCHAPV2_PROTOCOL = 'EAP-PEAP-MSCHAPV2'
 
     def __init__(self, secret: str, packet: str, socket, address,
                  code=AccessRequest, id=None, authenticator=None, **attributes):
@@ -45,7 +45,7 @@ class AuthRequest(AuthPacket):
         else:
             self.ap_mac = ''
             self.ssid = ''
-        self.auth_protocol = None
+        self.auth_protocol = 'UNKNOWN-AUTH'
 
     def reply_to(self, reply: AuthPacket):
         log.trace(f'reply: {reply}')

@@ -34,12 +34,13 @@ class Flow(object):
         if not request and not auth_user:
             return
         data = [
+            request.auth_protocol,
             request.username,
             request.user_mac,
             request.ssid,
             request.ap_mac,
         ]
-        log.info(f'reject|{"|".join(data)}|')
+        log.info(f'OUT: reject|{"|".join(data)}|')
         reply = AuthResponse.create_access_reject(request=request)
         # 增加上 EAP-Failure: 04000004
         # TODO 验证reject有没有这个消息!
