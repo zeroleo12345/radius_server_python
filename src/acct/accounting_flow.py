@@ -1,4 +1,5 @@
 # 第三方库
+import sentry_sdk
 from child_pyrad.packet import AcctRequest
 # 项目库
 from .accounting_session import AccountingSession
@@ -17,9 +18,11 @@ class AccountingFlow(object):
 
         # 查找用户密码
         account = Account.get(username=acct_user.outer_username)
-        # TODO
-        if not account or account.is_expired():
+        if not account:
             return
+        if account.is_expired():
+            if account.get_expired_seconds() > 7 * 86400:
+                sentry_sdk.capture_message(f'计费用户:[{account.username}] 过期超过7天')
 
         # 每隔x秒清理会话
         if AccountingSession.clean(interval=ACCOUNTING_INTERVAL*2):

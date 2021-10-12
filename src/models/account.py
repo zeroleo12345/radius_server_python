@@ -46,3 +46,6 @@ class Account(Base):
                 log.error(f'account: [{self.username}] expired')
                 return True
         return False
+
+    def get_expired_seconds(self):
+        return datetime.datetime.now().timestamp() - self.expired_at.timestamp()
