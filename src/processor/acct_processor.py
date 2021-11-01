@@ -45,7 +45,7 @@ class EchoServer(DatagramServer):
 
 
 def verify(request: AcctRequest, acct_user: AcctUser):
-    AccountingFlow.accounting(request=request, acct_user=acct_user)
+    AccountingFlow.accounting_handler(request=request, acct_user=acct_user)
 
 
 def main():

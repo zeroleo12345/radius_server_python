@@ -14,7 +14,7 @@ from auth.session import BaseSession
 class PapFlow(Flow):
 
     @classmethod
-    def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
+    def authenticate_handler(cls, request: AuthRequest, auth_user: AuthUser):
         session = BaseSession(auth_user=auth_user)
         # 获取报文
         encrypt_password = request['User-Password'][0]

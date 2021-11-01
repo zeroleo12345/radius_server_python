@@ -12,7 +12,7 @@ from auth.session import BaseSession
 class ChapFlow(Flow):
 
     @classmethod
-    def authenticate(cls, request: AuthRequest, auth_user: AuthUser):
+    def authenticate_handler(cls, request: AuthRequest, auth_user: AuthUser):
         session = BaseSession(auth_user=auth_user)
         # 查找用户密码
         account_name = session.auth_user.outer_username

@@ -12,7 +12,7 @@ from controls.user import AcctUser
 class AccountingFlow(object):
 
     @classmethod
-    def accounting(cls, request: AcctRequest, acct_user: AcctUser):
+    def accounting_handler(cls, request: AcctRequest, acct_user: AcctUser):
         # 提取报文
         log.debug(f'OUT: acct|{request.address[0]}|{request.iut}|{acct_user.outer_username}|{acct_user.user_mac}')
 
