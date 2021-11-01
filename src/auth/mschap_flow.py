@@ -102,7 +102,7 @@ class MsChapFlow(Flow):
     @classmethod
     def access_accept(cls, request: AuthRequest, session: BaseSession):
         data = [
-            str(request.address),
+            request.address[0],
             'MS-CHAPv2',
             request.username,
             request.user_mac,

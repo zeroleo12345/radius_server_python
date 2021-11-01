@@ -34,7 +34,7 @@ class Flow(object):
         if not request and not auth_user:
             return
         data = [
-            str(request.address),
+            request.address[0],
             request.auth_protocol,
             request.username,
             request.user_mac,

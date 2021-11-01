@@ -63,7 +63,7 @@ class PapFlow(Flow):
     @classmethod
     def access_accept(cls, request: AuthRequest, session: BaseSession):
         data = [
-            str(request.address),
+            request.address[0],
             session.extra['Auth-Type'],
             request.username,
             request.user_mac,
