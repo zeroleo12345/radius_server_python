@@ -14,7 +14,7 @@ class AccountingFlow(object):
     @classmethod
     def accounting(cls, request: AcctRequest, acct_user: AcctUser):
         # 提取报文
-        log.debug(f'IN: {request.iut}|{acct_user.outer_username}|{acct_user.user_mac}')
+        log.debug(f'OUT: acct|{request.address[0]}|{request.iut}|{acct_user.outer_username}|{acct_user.user_mac}')
 
         # 查找用户密码
         account = Account.get(username=acct_user.outer_username)
