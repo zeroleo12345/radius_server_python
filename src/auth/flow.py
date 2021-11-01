@@ -35,6 +35,7 @@ class Flow(object):
             return
         data = [
             request.address[0],
+            request.nas_name,
             request.auth_protocol,
             request.username,
             request.user_mac,

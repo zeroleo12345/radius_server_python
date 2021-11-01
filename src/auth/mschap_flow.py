@@ -103,6 +103,7 @@ class MsChapFlow(Flow):
     def access_accept(cls, request: AuthRequest, session: BaseSession):
         data = [
             request.address[0],
+            request.nas_name,
             'MS-CHAPv2',
             request.username,
             request.user_mac,

@@ -35,6 +35,7 @@ class ChapFlow(Flow):
     def access_accept(cls, request: AuthRequest, session: BaseSession):
         data = [
             request.address[0],
+            request.nas_name,
             'CHAP',
             request.username,
             request.user_mac,

@@ -15,7 +15,14 @@ class AccountingFlow(object):
     @classmethod
     def accounting_handler(cls, request: AcctRequest, acct_user: AcctUser):
         # 提取报文
-        log.debug(f'OUT: acct|{request.address[0]}|{request.iut}|{acct_user.outer_username}|{acct_user.user_mac}')
+        data = [
+            request.address[0],
+            request.nas_name,
+            request.iut,
+            acct_user.outer_username,
+            acct_user.user_mac,
+        ]
+        log.info(f'OUT: acct|{"|".join(data)}|')
 
         # 查找用户密码
         account = Account.get(username=acct_user.outer_username)
