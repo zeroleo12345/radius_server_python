@@ -3,9 +3,9 @@ import datetime
 import sentry_sdk
 from child_pyrad.packet import AuthRequest, AuthResponse
 # 项目库
-from utils.redispool import get_redis
 from .flow import Flow, AccessReject
 from loguru import logger as log
+from utils.redispool import get_redis
 from controls.user import AuthUser
 from models.mac_account import MacAccount
 from auth.session import BaseSession

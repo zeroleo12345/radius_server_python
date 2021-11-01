@@ -4,6 +4,7 @@ from child_pyrad.packet import AcctRequest
 # 项目库
 from .accounting_session import AccountingSession
 from settings import ACCOUNTING_INTERVAL
+from utils.redispool import get_redis
 from loguru import logger as log
 from models.account import Account
 from controls.user import AcctUser
@@ -35,7 +36,13 @@ class AccountingFlow(object):
             # cls.disconnect(mac_address=acct_user.user_mac) # 断开链接
         else:
             pass
+        redis = get_redis()
+        key = 'nas_name_to_nas_ip'
+        sub_key = request.nas_id
+        redis.hset(name=key, key=sub_key, value=request.address[0])
+        return
 
     @classmethod
     def disconnect(cls, mac_address):
         log.info(f'disconnect session. mac_address: {mac_address}')
+        return
