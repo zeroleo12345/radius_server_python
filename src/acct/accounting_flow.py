@@ -14,16 +14,6 @@ class AccountingFlow(object):
 
     @classmethod
     def accounting_handler(cls, request: AcctRequest, acct_user: AcctUser):
-        # 提取报文
-        data = [
-            request.address[0],
-            request.nas_name,
-            request.iut,
-            acct_user.outer_username,
-            acct_user.user_mac,
-        ]
-        log.info(f'OUT: acct|{"|".join(data)}|')
-
         # 查找用户密码
         account = Account.get(username=acct_user.outer_username)
         if not account:
@@ -47,6 +37,15 @@ class AccountingFlow(object):
         key = 'nas_name_to_nas_ip'
         sub_key = request.nas_name
         redis.hset(name=key, key=sub_key, value=request.address[0])
+        #
+        data = [
+            request.address[0],
+            request.nas_name,
+            request.iut,
+            acct_user.outer_username,
+            acct_user.user_mac,
+        ]
+        log.info(f'OUT: acct|{"|".join(data)}|')
         return
 
     @classmethod
