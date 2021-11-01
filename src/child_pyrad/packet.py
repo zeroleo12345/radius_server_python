@@ -39,7 +39,7 @@ class AuthRequest(AuthPacket):
         # 解析报文
         self.username = self['User-Name'][0]
         self.user_mac = self['Calling-Station-Id'][0]
-        self.nas_id = self['NAS-Identifier'][0]
+        self.nas_name = self['NAS-Identifier'][0]
         if 'Called-Station-Id' in self:
             ap_mac_colon_ssid = self['Called-Station-Id'][0]    # 84-D9-31-7C-D6-00:WIFI-test
             self.ap_mac, self.ssid = ap_mac_colon_ssid.split(':', 1)
@@ -143,7 +143,7 @@ class AcctRequest(AcctPacket):
         # 解析报文
         self.username = self['User-Name'][0]
         self.user_mac = self['Calling-Station-Id'][0]
-        self.nas_id = self['NAS-Identifier'][0]
+        self.nas_name = self['NAS-Identifier'][0]
         self.iut = self["Acct-Status-Type"][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
 
     def reply_to(self, reply: AcctPacket):
