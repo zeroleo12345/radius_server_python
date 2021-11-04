@@ -428,7 +428,7 @@ class EapPeapMschapv2Flow(Flow):
     @classmethod
     def access_accept(cls, request: AuthRequest, session: EapPeapSession):
         data = [
-            request.address[0],
+            request.nas_ip,
             request.nas_name,
             'EAP-PEAP',
             session.auth_user.peap_username,

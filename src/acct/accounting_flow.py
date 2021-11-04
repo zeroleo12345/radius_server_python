@@ -36,10 +36,10 @@ class AccountingFlow(object):
         redis = get_redis()
         key = 'nas_name_to_nas_ip'
         sub_key = request.nas_name
-        redis.hset(name=key, key=sub_key, value=request.address[0])
+        redis.hset(name=key, key=sub_key, value=request.nas_ip)
         #
         data = [
-            request.address[0],
+            request.nas_ip,
             request.nas_name,
             request.iut,
             acct_user.outer_username,

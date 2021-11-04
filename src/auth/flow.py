@@ -34,7 +34,7 @@ class Flow(object):
         if not request and not auth_user:
             return
         data = [
-            request.address[0],
+            request.nas_ip,
             request.nas_name,
             request.auth_protocol,
             request.username,
