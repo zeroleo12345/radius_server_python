@@ -24,14 +24,12 @@ LOG_LEVEL = config('LOG_LEVEL')
 # 初始化日志
 log.remove()    # workaround: https://github.com/Delgan/loguru/issues/208
 log.add(sys.stderr, level=LOG_LEVEL)
-log_file = None
 if LOG_DIR and LOG_HEADER:
     log.info('enable log to file')
-    log_file = os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log')
-    log.add(log_file, rotation='00:00', level=LOG_LEVEL)
+    log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00', level=LOG_LEVEL)
 else:
     log.info('close log to file')
-log.info(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}, log_file: {log_file}')
+log.info(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
 
 # Redis
 REDIS_HOST = config('REDIS_HOST')
