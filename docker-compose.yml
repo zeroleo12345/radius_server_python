@@ -17,7 +17,7 @@ services:
     # entrypoint: sh      # 用于调试
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
     tty: true
-    restart: unless-stopped
+    restart: "${RESTART_POLICY}"
     networks:
       - pppoe_system
 
@@ -36,7 +36,7 @@ services:
     # entrypoint: sh
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/acct.sh; fi'
     tty: true
-    restart: unless-stopped
+    restart: "${RESTART_POLICY}"
     networks:
       - pppoe_system
 
