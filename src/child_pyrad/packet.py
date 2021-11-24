@@ -97,7 +97,7 @@ class AuthResponse(AuthPacket):
 
     @classmethod
     def create_access_accept(cls, request: AuthRequest) -> AuthPacket:
-        UserStat.report_user_online(username=request.username, user_mac=request.user_mac, ap_mac=request.ap_mac)
+        UserStat.report_user_online(username=request.username, ap_mac=request.ap_mac)
         ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
         #
         reply = request.create_reply(code=Packet.CODE_ACCESS_ACCEPT)

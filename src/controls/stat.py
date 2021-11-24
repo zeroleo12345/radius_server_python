@@ -13,7 +13,7 @@ class ApStat(object):
     def get_key(cls):
         fmt = '%Y-%m-%d'
         yyyy_mm_dd = datetime.datetime.now().strftime(fmt)
-        return f'stat_ap_online:{yyyy_mm_dd}'
+        return f'stat_ap:{yyyy_mm_dd}'
 
     @classmethod
     def get_sub_key(cls, ap_mac):
@@ -26,6 +26,8 @@ class ApStat(object):
         sub_key: ap_mac
         value: username
         """
+        if not ap_mac:
+            return
         key = cls.get_key()
         sub_key = cls.get_sub_key(ap_mac)
         redis = get_redis()
@@ -37,21 +39,23 @@ class UserStat(object):
     def get_key(cls):
         fmt = '%Y-%m-%d'
         yyyy_mm_dd = datetime.datetime.now().strftime(fmt)
-        return f'stat_user_online:{yyyy_mm_dd}'
+        return f'stat_user:{yyyy_mm_dd}'
 
     @classmethod
-    def get_sub_key(cls, username, user_mac, ap_mac):
-        return f'{username}:{user_mac}:{ap_mac}'
+    def get_sub_key(cls, username, ap_mac):
+        return f'{username}:{ap_mac}'
 
     @classmethod
-    def report_user_online(cls, username: str, user_mac: str, ap_mac: str):
+    def report_user_online(cls, username: str, ap_mac: str):
         """ 只统计认证成功用户
         key: 年-月-日
-        sub_key: username:user_mac:ap_mac
+        sub_key: username:ap_mac
         value: 认证成功次数
         """
+        if not ap_mac:
+            return
         key = cls.get_key()
-        sub_key = cls.get_sub_key(username, user_mac, ap_mac)
+        sub_key = cls.get_sub_key(username, ap_mac)
         redis = get_redis()
         redis.hincrby(name=key, key=sub_key, amount=1)
 
@@ -84,29 +88,29 @@ class StatThread(object):
             now = datetime.datetime.now()
             current_yyyy_mm_dd = now.strftime(fmt)
             redis = get_redis()
-            keys = redis.keys('stat_ap_online:*')
+            keys = redis.keys('stat_ap:*')
             for key in keys:
                 _, yyyy_mm_dd = key.split(':')
+                # 只统计历史数据
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
                 log.info(f'handle stat key {key}')
                 ap_mac_to_username_hash = redis.hgetall(key)
                 for ap_mac, username in ap_mac_to_username_hash.items():
                     dt = datetime.datetime.strptime(yyyy_mm_dd, '%Y-%m-%d')
-                    if len(username) == 8:
-                        StatAp.create(ap_mac=ap_mac, last_auth_user=username, last_auth_date=dt.date(), created_at=now)
+                    # StatAp.create(ap_mac=ap_mac, last_auth_user=username, last_auth_date=dt.date(), created_at=now)
                 redis.delete(key)
-            keys = redis.keys('stat_user_online:*')
+            keys = redis.keys('stat_user:*')
             for key in keys:
                 _, yyyy_mm_dd = key.split(':')
+                # 只统计历史数据
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
                 log.info(f'handle stat key {key}')
                 ap_mac_to_username_hash = redis.hgetall(key)
-                for username_user_mac_ap_mac, accept_count in ap_mac_to_username_hash.items():
-                    username, user_mac, ap_mac = username_user_mac_ap_mac.rsplit(':', 2)
-                    if len(username) == 8:
-                        StatUser.create(username=username, user_mac=user_mac, ap_mac=ap_mac, accept_count=accept_count, created_at=now)
+                for username_ap_mac, accept_count in ap_mac_to_username_hash.items():
+                    username, ap_mac = username_ap_mac.rsplit(':', 2)
+                    # StatUser.create(username=username, ap_mac=ap_mac, accept_count=accept_count, created_at=now)
                 redis.delete(key)
             #
             time.sleep(3)

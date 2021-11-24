@@ -10,7 +10,6 @@ class StatUser(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(255))
-    user_mac = Column(String(24))
     ap_mac = Column(String(24))
     accept_count = Column(Integer)
     created_at = Column(DateTime)
@@ -32,6 +31,32 @@ class StatAp(Base):
     ap_mac = Column(String(24))
     last_auth_user = Column(String(255))
     last_auth_date = Column(Date)
+    created_at = Column(DateTime)
+
+    @classmethod
+    def create(cls, **kwargs):
+        obj = cls(**kwargs)
+        with Transaction() as session:
+            session.add(obj)
+            session.commit()
+            session.expunge(obj)
+        return obj
+
+    @classmethod
+    def get(cls, **kwargs):
+        with Transaction() as session:
+            return session.query(cls).filter(**kwargs)
+
+    def modify(self, **kwargs):
+        return self.update(**kwargs)
+
+
+class StatDevice(Base):
+    __tablename__ = 'stat_device'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(255))
+    user_mac = Column(String(24))
     created_at = Column(DateTime)
 
     @classmethod
