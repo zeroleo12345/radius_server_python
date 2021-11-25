@@ -35,9 +35,8 @@ class Task(ABC):
                 log.debug(f'sleep {self.interval} seconds')
                 time.sleep(self.interval)    # 睡眠 X 秒
         except KeyboardInterrupt:
-            log.error('KeyboardInterrupt, break')
+            log.critical('KeyboardInterrupt, break')
         except Exception:
-            log.error(traceback.format_exc())
+            log.critical(traceback.format_exc())
         finally:
             log.info(f'exit, term: {self.term}')
-            log.close()
