@@ -1,5 +1,5 @@
 # 第三方库
-from sqlalchemy import Column, Integer, String, DateTime, Date
+from sqlalchemy import Column, Integer, String, DateTime, Date, Index
 # 项目库
 from . import Base
 from models import Transaction
@@ -26,6 +26,9 @@ class StatUser(Base):
 
 class StatAp(Base):
     __tablename__ = 'stat_ap'
+    __table_args__ = (
+        Index('my_index', 'ap_mac'),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     ap_mac = Column(String(24))
