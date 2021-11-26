@@ -50,10 +50,11 @@ class StatAp(Base):
             obj = session.query(cls).filter_by(**kwargs).first()
         return obj or None
 
-    def modify(self, **kwargs):
+    def update(self, **kwargs):
         with Transaction() as session:
-            session.query(StatAp).filter_by(id=self.id).update(kwargs, synchronize_session='evaluate')
-            return session.commit()
+            obj = session.query(StatAp).filter_by(id=self.id).update(kwargs, synchronize_session='evaluate')
+            session.commit()
+        return obj
 
 
 class StatDevice(Base):
