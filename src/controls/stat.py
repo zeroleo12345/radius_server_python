@@ -98,7 +98,7 @@ class StatThread(object):
                 ap_mac_to_username_hash = redis.hgetall(key)
                 for ap_mac, username in ap_mac_to_username_hash.items():
                     dt = datetime.datetime.strptime(yyyy_mm_dd, '%Y-%m-%d')
-                    # StatAp.create(ap_mac=ap_mac, last_auth_user=username, last_auth_date=dt.date(), created_at=now)
+                    # StatAp.create(ap_mac=ap_mac, last_auth_user=username, last_auth_date=dt.date())
                 redis.delete(key)
             keys = redis.keys('stat_user:*')
             for key in keys:
