@@ -47,7 +47,8 @@ class StatAp(Base):
     @classmethod
     def get(cls, **kwargs):
         with Transaction() as session:
-            return session.query(cls).filter_by(**kwargs).first()
+            obj = session.query(cls).filter_by(**kwargs).first()
+        return obj or None
 
     def modify(self, **kwargs):
         return self.update(**kwargs)
