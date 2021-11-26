@@ -55,6 +55,7 @@ class StatAp(Base):
             assert hasattr(self, k)
             setattr(self, k, v)
         with Transaction() as session:
+            session.expire_on_commit = False
             session.add(self)
             session.commit()
             session.expunge(self)
