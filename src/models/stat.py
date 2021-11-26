@@ -51,10 +51,13 @@ class StatAp(Base):
         return obj or None
 
     def update(self, **kwargs):
+        for k, v in kwargs.items():
+            assert hasattr(self, k)
+            setattr(self, k, v)
         with Transaction() as session:
-            obj = session.query(StatAp).filter_by(id=self.id).update(kwargs, synchronize_session='evaluate')
+            session.add(self)
             session.commit()
-        return obj
+        return self
 
 
 class StatDevice(Base):
