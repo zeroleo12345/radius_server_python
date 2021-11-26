@@ -31,7 +31,6 @@ class StatAp(Base):
     ap_mac = Column(String(24))
     last_auth_user = Column(String(255))
     last_auth_date = Column(Date)
-    created_at = Column(DateTime)
 
     @classmethod
     def create(cls, **kwargs):
