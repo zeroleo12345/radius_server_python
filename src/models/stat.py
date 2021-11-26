@@ -51,10 +51,8 @@ class StatAp(Base):
         return obj or None
 
     def modify(self, **kwargs):
-        for k, v in kwargs.items():
-            assert hasattr(self, k)
-            setattr(self, k, v)
         with Transaction() as session:
+            session.query(StatAp).filter_by(id=self.id).update(kwargs, synchronize_session='evaluate')
             return session.commit()
 
 
