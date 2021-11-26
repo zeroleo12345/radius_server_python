@@ -57,7 +57,7 @@ class StatAp(Base):
         with Transaction() as session:
             session.add(self)
             session.commit()
-            session.expunge_all()
+            session.expunge(self)
         return self
 
 
