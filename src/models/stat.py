@@ -54,7 +54,8 @@ class StatAp(Base):
         for k, v in kwargs.items():
             assert hasattr(self, k)
             setattr(self, k, v)
-        return self.commit()
+        with Transaction() as session:
+            return session.commit()
 
 
 class StatDevice(Base):
