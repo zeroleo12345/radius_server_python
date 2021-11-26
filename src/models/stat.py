@@ -41,7 +41,7 @@ class StatAp(Base):
         with Transaction() as session:
             session.add(obj)
             session.commit()
-            session.expunge(obj)
+            session.expunge(obj)    # 将一个实例变为detached状态
         return obj
 
     @classmethod
