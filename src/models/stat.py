@@ -51,7 +51,10 @@ class StatAp(Base):
         return obj or None
 
     def modify(self, **kwargs):
-        return self.update(**kwargs)
+        for k, v in kwargs.items():
+            assert hasattr(self, k)
+            setattr(self, k, v)
+        return self.commit()
 
 
 class StatDevice(Base):
