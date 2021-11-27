@@ -108,7 +108,7 @@ class StatThread(object):
             redis = get_redis()
             keys = redis.keys('hash:stat_ap:*')
             for key in keys:
-                _, yyyy_mm_dd = key.split(':')
+                *_, yyyy_mm_dd = key.split(':')
                 # 只统计历史数据
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
@@ -124,7 +124,7 @@ class StatThread(object):
                 redis.delete(key)
             keys = redis.keys('hash:stat_user:*')
             for key in keys:
-                _, yyyy_mm_dd = key.split(':')
+                *_, yyyy_mm_dd = key.split(':')
                 # 只统计历史数据
                 if yyyy_mm_dd == current_yyyy_mm_dd:
                     continue
