@@ -4,7 +4,7 @@ from pyrad.packet import AuthPacket, AccessRequest, AcctPacket
 from .exception import AuthenticatorError
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
-from controls.stat import ApStat, UserStat
+from controls.stat import ApStat, UserStat, DeviceStat
 from loguru import logger as log
 from settings import ACCOUNTING_INTERVAL
 
@@ -97,7 +97,8 @@ class AuthResponse(AuthPacket):
 
     @classmethod
     def create_access_accept(cls, request: AuthRequest) -> AuthPacket:
-        UserStat.report_user_online(username=request.username, ap_mac=request.ap_mac)
+        UserStat.report_user_bind_ap(username=request.username, ap_mac=request.ap_mac)
+        DeviceStat.report_supplicant_mac(username=request.username, user_mac=request.user_mac, ignore=request.ap_mac == "")
         ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
         #
         reply = request.create_reply(code=Packet.CODE_ACCESS_ACCEPT)
