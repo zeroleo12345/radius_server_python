@@ -34,7 +34,7 @@ class AccountingFlow(object):
         else:
             pass
         redis = get_redis()
-        key = 'nas_name_to_nas_ip'
+        key = 'hash:nas_name_to_nas_ip'
         sub_key = request.nas_name
         redis.hset(name=key, key=sub_key, value=request.nas_ip)
         #
