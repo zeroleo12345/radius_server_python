@@ -4,7 +4,7 @@ from pyrad.packet import AuthPacket, AccessRequest, AcctPacket
 from .exception import AuthenticatorError
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
-from controls.stat import ApStat, UserStat, DeviceStat
+from controls.stat import ApStat, UserStat, DeviceStat, NasStat
 from loguru import logger as log
 from settings import ACCOUNTING_INTERVAL
 
@@ -55,6 +55,14 @@ class AuthRequest(AuthPacket):
             reply.get_message_authenticator()   # 必须放在所有attribute设置好后, 发送前刷新 Message-Authenticator !!!
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
+    def create_reply(self, code, **attributes) -> 'AuthResponse':
+        NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name)
+        response = AuthResponse(Packet.CODE_ACCESS_ACCEPT, self.id,
+                                self.secret, self.authenticator, dict=self.dict,
+                                **attributes)
+        response.code = code
+        return response
+
     # @staticmethod
     # def get_message_authenticator(secret, buff):
     #     h = hmac.HMAC(key=secret)
@@ -77,13 +85,6 @@ class AuthRequest(AuthPacket):
             raise AuthenticatorError(f"Message-Authenticator mismatch. expect: {expect_authenticator.encode('hex')}, get: {message_authenticator}]")
 
         return
-
-    def create_reply(self, code, **attributes) -> 'AuthResponse':
-        response = AuthResponse(Packet.CODE_ACCESS_ACCEPT, self.id,
-                                self.secret, self.authenticator, dict=self.dict,
-                                **attributes)
-        response.code = code
-        return response
 
     def __str__(self):
         msg = f'AuthRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
@@ -154,6 +155,7 @@ class AcctRequest(AcctPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code, **attributes) -> 'AcctResponse':
+        NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name)
         response = AcctResponse(Packet.CODE_ACCOUNT_RESPONSE, self.id,
                                 self.secret, self.authenticator, dict=self.dict,
                                 **attributes)

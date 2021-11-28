@@ -33,10 +33,6 @@ class AccountingFlow(object):
             # cls.disconnect(mac_address=acct_user.user_mac) # 断开链接
         else:
             pass
-        redis = get_redis()
-        key = 'hash:nas_name_to_nas_ip'
-        sub_key = request.nas_name
-        redis.hset(name=key, key=sub_key, value=request.nas_ip)
         #
         data = [
             request.nas_ip,

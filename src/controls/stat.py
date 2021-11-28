@@ -8,6 +8,14 @@ from models.stat import StatAp, StatUser
 from loguru import logger as log
 
 
+class NasStat(object):
+    @classmethod
+    def report_nas_ip(cls, nas_ip, nas_name):
+        key = 'hash:nas_name_to_nas_ip'
+        redis = get_redis()
+        redis.hset(name=key, key=nas_name, value=nas_ip)
+
+
 class ApStat(object):
     @classmethod
     def get_key(cls):
