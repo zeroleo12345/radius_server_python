@@ -42,7 +42,7 @@ class PapFlow(Flow):
         is_set = redis.set(first_time_key, value=str(created_at), nx=True)
         if is_set:
             # notify
-            notify_url = f'{API_URL}/mac-account?mac={session.auth_user.user_mac}'
+            notify_url = f'{API_URL}/mac-account?username={session.auth_user.outer_username}&ap_mac={request.ap_mac}'
             sentry_sdk.capture_message(f'MAC 设备首次请求mac放通, mac_address: {session.auth_user.user_mac}, ssid: {request.ssid}. 允许访问请点击: {notify_url}')
 
         # mac Flow: 用户不存在则创建
@@ -58,7 +58,7 @@ class PapFlow(Flow):
             created_at = now
             expired_at = created_at + datetime.timedelta(days=3600)
             MacAccount.create(
-                username=session.auth_user.outer_username, radius_password=session.auth_user.user_password, is_enable=True, ap_mac=request.ap_mac,
+                username=session.auth_user.outer_username, radius_password=session.auth_user.user_password, ap_mac=request.ap_mac, is_enable=True,
                 expired_at=expired_at, created_at=created_at,
             )
             sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {session.auth_user.user_mac}, ssid: {request.ssid}')
