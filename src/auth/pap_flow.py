@@ -1,12 +1,12 @@
 import datetime
 # 第三方库
-import sentry_sdk
 from child_pyrad.packet import AuthRequest, AuthResponse
 # 项目库
 from .flow import Flow, AccessReject
 from settings import API_URL
 from loguru import logger as log
 from utils.redispool import get_redis
+from utils.feishu import Feishu
 from controls.user import AuthUser
 from models.mac_account import MacAccount
 from auth.session import BaseSession
@@ -43,7 +43,8 @@ class PapFlow(Flow):
         if is_set:
             # notify
             notify_url = f'{API_URL}/mac-account?username={session.auth_user.outer_username}&ap_mac={request.ap_mac}'
-            sentry_sdk.capture_message(f'MAC 设备首次请求mac放通, mac_address: {session.auth_user.user_mac}, ssid: {request.ssid}. 允许访问请点击: {notify_url}')
+            text = f'设备首次请求放通, MAC: {session.auth_user.user_mac}, SSID: {request.ssid}. 若允许访问, 请点击: {notify_url}'
+            Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SCAN_CHAT_ID, text=text)
 
         # mac Flow: 用户不存在则创建
         account = MacAccount.get(username=session.auth_user.outer_username)
@@ -61,7 +62,8 @@ class PapFlow(Flow):
                 username=session.auth_user.outer_username, radius_password=session.auth_user.user_password, ap_mac=request.ap_mac, is_enable=True,
                 expired_at=expired_at, created_at=created_at,
             )
-            sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {session.auth_user.user_mac}, ssid: {request.ssid}')
+            text = f'新增放通 MAC 设备, MAC: {session.auth_user.user_mac}, SSID: {request.ssid}'
+            Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SCAN_CHAT_ID, text=text)
             redis.delete(enable_flag_key)
 
         session.extra['Auth-Type'] = 'MAC-PAP'
