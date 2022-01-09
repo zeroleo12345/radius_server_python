@@ -18,7 +18,7 @@ def catch_exception(func):
             # 调用原函数
             return func(*args, **kwargs)
         except Exception as e:
-            log.error(traceback.format_exc())
+            log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
 
     return wrapper
