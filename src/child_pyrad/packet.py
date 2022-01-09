@@ -4,7 +4,7 @@ from pyrad.packet import AuthPacket, AccessRequest, AcctPacket
 from .exception import AuthenticatorError
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
-from controls.stat import ApStat, UserStat
+from controls.stat import ApStat, UserStat, DeviceStat, NasStat
 from loguru import logger as log
 from settings import ACCOUNTING_INTERVAL
 
@@ -55,6 +55,14 @@ class AuthRequest(AuthPacket):
             reply.get_message_authenticator()   # 必须放在所有attribute设置好后, 发送前刷新 Message-Authenticator !!!
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
+    def create_reply(self, code, **attributes) -> 'AuthResponse':
+        NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name)
+        response = AuthResponse(Packet.CODE_ACCESS_ACCEPT, self.id,
+                                self.secret, self.authenticator, dict=self.dict,
+                                **attributes)
+        response.code = code
+        return response
+
     # @staticmethod
     # def get_message_authenticator(secret, buff):
     #     h = hmac.HMAC(key=secret)
@@ -78,13 +86,6 @@ class AuthRequest(AuthPacket):
 
         return
 
-    def create_reply(self, code, **attributes) -> 'AuthResponse':
-        response = AuthResponse(Packet.CODE_ACCESS_ACCEPT, self.id,
-                                self.secret, self.authenticator, dict=self.dict,
-                                **attributes)
-        response.code = code
-        return response
-
     def __str__(self):
         msg = f'AuthRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
         for k in self.keys():
@@ -97,7 +98,8 @@ class AuthResponse(AuthPacket):
 
     @classmethod
     def create_access_accept(cls, request: AuthRequest) -> AuthPacket:
-        UserStat.report_user_online(username=request.username, user_mac=request.user_mac, ap_mac=request.ap_mac)
+        UserStat.report_user_bind_ap(username=request.username, ap_mac=request.ap_mac)
+        DeviceStat.report_supplicant_mac(username=request.username, user_mac=request.user_mac, ignore=request.ap_mac == "")
         ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
         #
         reply = request.create_reply(code=Packet.CODE_ACCESS_ACCEPT)
@@ -153,6 +155,7 @@ class AcctRequest(AcctPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code, **attributes) -> 'AcctResponse':
+        NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name)
         response = AcctResponse(Packet.CODE_ACCOUNT_RESPONSE, self.id,
                                 self.secret, self.authenticator, dict=self.dict,
                                 **attributes)

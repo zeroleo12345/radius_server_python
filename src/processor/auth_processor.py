@@ -54,7 +54,7 @@ class EchoServer(DatagramServer):
         except AccessReject:
             Flow.access_reject(request=request, auth_user=auth_user)
         except Exception as e:
-            log.error(traceback.format_exc())
+            log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
             Flow.access_reject(request=request, auth_user=auth_user)
 
