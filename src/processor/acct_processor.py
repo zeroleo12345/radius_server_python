@@ -38,7 +38,7 @@ class EchoServer(DatagramServer):
             # 验证用户
             verify(request, acct_user)
         except Exception as e:
-            log.error(traceback.format_exc())
+            log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
         finally:
             Flow.account_response(request=request, acct_user=acct_user)

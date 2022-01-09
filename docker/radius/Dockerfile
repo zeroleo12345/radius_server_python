@@ -13,7 +13,7 @@ RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shangh
     && apt-get purge --auto-remove \
     && rm -rf /tmp/* /var/lib/apt/lists/* \
     && apt-get clean -y
-RUN pip3 install --upgrade pip --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple \
+RUN pip3 install --no-cache-dir --upgrade pip --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple \
     && pip3 install --no-cache-dir -r /app/requirements/requirements-test.txt --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple
 
 # WORKDIR: 如果目录不存在, 则自动创建
