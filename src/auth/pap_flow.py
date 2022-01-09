@@ -34,20 +34,20 @@ class PapFlow(Flow):
 
     @classmethod
     def mac_auth(cls, request: AuthRequest, session: BaseSession):
+        now = datetime.datetime.now()
+        redis = get_redis()
+
+        first_time_key = 'first_time_mac_authentication'
+        created_at = now
+        is_set = redis.set(first_time_key, value=str(created_at), nx=True)
+        if is_set:
+            # notify
+            notify_url = f'{API_URL}/mac-account?mac={session.auth_user.user_mac}'
+            sentry_sdk.capture_message(f'MAC 设备首次请求mac放通, mac_address: {session.auth_user.user_mac}, ssid: {request.ssid}. 允许访问请点击: {notify_url}')
+
         # mac Flow: 用户不存在则创建
         account = MacAccount.get(username=session.auth_user.outer_username)
         if not account:
-            created_at = datetime.datetime.now()
-            expired_at = created_at + datetime.timedelta(days=3600)
-
-            redis = get_redis()
-
-            first_time_key = 'first_time_mac_authentication'
-            is_set = redis.set(first_time_key, value=str(created_at), nx=True)
-            if is_set:
-                # notify
-                notify_url = f'{API_URL}/mac-account?mac={session.auth_user.user_mac}'
-                sentry_sdk.capture_message(f'MAC 设备首次请求mac放通, mac_address: {session.auth_user.user_mac}, ssid: {request.ssid}. 允许访问请点击: {notify_url}')
 
             #
             enable_flag_key = 'enable_mac_authentication'
@@ -55,6 +55,8 @@ class PapFlow(Flow):
                 log.error(f'mac authentication is not enable')
                 raise AccessReject()
             #
+            created_at = now
+            expired_at = created_at + datetime.timedelta(days=3600)
             MacAccount.create(
                 username=session.auth_user.outer_username, radius_password=session.auth_user.user_password, is_enable=True, ap_mac=request.ap_mac,
                 expired_at=expired_at, created_at=created_at,
