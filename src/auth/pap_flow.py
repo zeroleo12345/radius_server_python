@@ -4,6 +4,7 @@ import sentry_sdk
 from child_pyrad.packet import AuthRequest, AuthResponse
 # 项目库
 from .flow import Flow, AccessReject
+from settings import API_URL
 from loguru import logger as log
 from utils.redispool import get_redis
 from controls.user import AuthUser
@@ -36,20 +37,30 @@ class PapFlow(Flow):
         # mac Flow: 用户不存在则创建
         account = MacAccount.get(username=session.auth_user.outer_username)
         if not account:
+            created_at = datetime.datetime.now()
+            expired_at = created_at + datetime.timedelta(days=3600)
+
             redis = get_redis()
-            key = 'enable_mac_authentication'
-            if not redis.get(key):
+
+            first_time_key = 'first_time_mac_authentication'
+            is_set = redis.set(first_time_key, value=str(created_at), nx=True)
+            if is_set:
+                # notify
+                notify_url = f'{API_URL}/mac-account?mac={session.auth_user.user_mac}'
+                sentry_sdk.capture_message(f'MAC 设备首次请求mac放通, mac_address: {session.auth_user.user_mac}, ssid: {request.ssid}. 允许访问请点击: {notify_url}')
+
+            #
+            enable_flag_key = 'enable_mac_authentication'
+            if not redis.get(enable_flag_key):
                 log.error(f'mac authentication is not enable')
                 raise AccessReject()
             #
-            created_at = datetime.datetime.now()
-            expired_at = created_at + datetime.timedelta(days=3600)
             MacAccount.create(
                 username=session.auth_user.outer_username, radius_password=session.auth_user.user_password, is_enable=True, ap_mac=request.ap_mac,
                 expired_at=expired_at, created_at=created_at,
             )
             sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {session.auth_user.user_mac}, ssid: {request.ssid}')
-            redis.delete(key)
+            redis.delete(enable_flag_key)
 
         session.extra['Auth-Type'] = 'MAC-PAP'
         return cls.access_accept(request=request, session=session)
