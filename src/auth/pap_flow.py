@@ -37,7 +37,7 @@ class PapFlow(Flow):
         now = datetime.datetime.now()
         redis = get_redis()
 
-        first_time_key = f'first_time_authentication:mac:{session.auth_user.user_mac}'
+        first_time_key = f'string:first_time_authentication:mac:{session.auth_user.user_mac}'
         created_at = now
         is_set = redis.set(first_time_key, value=str(created_at), nx=True)
         if is_set:
