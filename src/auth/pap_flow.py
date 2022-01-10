@@ -43,7 +43,7 @@ class PapFlow(Flow):
         if is_set:
             # notify
             notify_url = f'{API_URL}/mac-account?username={session.auth_user.outer_username}&ap_mac={request.ap_mac}'
-            text = f'设备首次请求放通\nMAC: {session.auth_user.user_mac}\nSSID: {request.ssid}.\n若允许访问, 请点击: {notify_url}'
+            text = f'设备首次请求放通:\nMAC: {session.auth_user.user_mac}\nSSID: {request.ssid}\n\n若允许访问, 请点击: {notify_url}'
             Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SCAN_CHAT_ID, text=text)
 
         # mac Flow: 用户不存在则创建
