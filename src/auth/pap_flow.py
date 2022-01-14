@@ -1,11 +1,12 @@
 import datetime
 # 第三方库
-import sentry_sdk
 from child_pyrad.packet import AuthRequest, AuthResponse
 # 项目库
 from .flow import Flow, AccessReject
+from settings import API_URL
 from loguru import logger as log
 from utils.redispool import get_redis
+from utils.feishu import Feishu
 from controls.user import AuthUser
 from models.mac_account import MacAccount
 from auth.session import BaseSession
@@ -33,23 +34,37 @@ class PapFlow(Flow):
 
     @classmethod
     def mac_auth(cls, request: AuthRequest, session: BaseSession):
+        now = datetime.datetime.now()
+        redis = get_redis()
+
+        first_time_key = f'string:first_time_authentication:mac:{session.auth_user.user_mac}'
+        created_at = now
+        is_set = redis.set(first_time_key, value=str(created_at), nx=True)
+        if is_set:
+            # notify
+            notify_url = f'{API_URL}/mac-account?username={session.auth_user.outer_username}&ap_mac={request.ap_mac}'
+            text = f'设备首次请求放通:\nMAC: {session.auth_user.user_mac}\nSSID: {request.ssid}\n若允许访问, 请点击: {notify_url}'
+            Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SCAN_CHAT_ID, text=text)
+
         # mac Flow: 用户不存在则创建
         account = MacAccount.get(username=session.auth_user.outer_username)
         if not account:
-            redis = get_redis()
-            key = 'enable_mac_authentication'
-            if not redis.get(key):
+
+            #
+            enable_flag_key = 'enable_mac_authentication'
+            if not redis.get(enable_flag_key):
                 log.error(f'mac authentication is not enable')
                 raise AccessReject()
             #
-            created_at = datetime.datetime.now()
+            created_at = now
             expired_at = created_at + datetime.timedelta(days=3600)
             MacAccount.create(
-                username=session.auth_user.outer_username, radius_password=session.auth_user.user_password, is_enable=True, ap_mac=request.ap_mac,
+                username=session.auth_user.outer_username, radius_password=session.auth_user.user_password, ap_mac=request.ap_mac, is_enable=True,
                 expired_at=expired_at, created_at=created_at,
             )
-            sentry_sdk.capture_message(f'新增放通 MAC 设备, mac_address: {session.auth_user.user_mac}, ssid: {request.ssid}')
-            redis.delete(key)
+            text = f'新增放通 MAC 设备, MAC: {session.auth_user.user_mac}, SSID: {request.ssid}'
+            Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SCAN_CHAT_ID, text=text)
+            redis.delete(enable_flag_key)
 
         session.extra['Auth-Type'] = 'MAC-PAP'
         return cls.access_accept(request=request, session=session)
