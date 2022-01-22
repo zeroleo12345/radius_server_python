@@ -13,6 +13,7 @@ from auth.flow import Flow, AccessReject
 from auth.chap_flow import ChapFlow
 from auth.mschap_flow import MsChapFlow
 from auth.pap_flow import PapFlow
+from auth.mac_flow import MacFlow
 from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
@@ -78,8 +79,12 @@ def verify(request: AuthRequest, auth_user: AuthUser):
         return MsChapFlow.authenticate_handler(request=request, auth_user=auth_user)
 
     elif 'User-Password' in request:
-        request.auth_protocol = AuthRequest.PAP_PROTOCOL
-        return PapFlow.authenticate_handler(request=request, auth_user=auth_user)
+        if request.service_type == 'Call-Check':      # Call Check
+            request.auth_protocol = AuthRequest.MAC_PROTOCOL
+            return MacFlow.authenticate_handler(request=request, auth_user=auth_user)
+        else:
+            request.auth_protocol = AuthRequest.PAP_PROTOCOL
+            return PapFlow.authenticate_handler(request=request, auth_user=auth_user)
 
     raise Exception('can not choose authenticate method')
 
