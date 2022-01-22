@@ -26,7 +26,7 @@ class PapFlow(Flow):
         # User-Name: '5af3ce3a0959'
         # User-Password: '5af3ce3a0959\x00\x00\x00\x00'
 
-        log.info(f'service_type: {request.service_type}')
+        log.info(f'service_type: {request.service_type}, {type(request.service_type)}')
         # 验证方法
         if request.service_type == 10:      # Call Check
             return cls.mac_auth(request=request, session=session)
