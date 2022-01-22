@@ -104,7 +104,7 @@ class MsChapFlow(Flow):
         data = [
             request.nas_ip,
             request.nas_name,
-            'MS-CHAPv2',
+            request.auth_protocol,
             request.username,
             request.user_mac,
             request.ssid,

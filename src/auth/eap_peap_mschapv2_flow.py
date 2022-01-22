@@ -430,7 +430,7 @@ class EapPeapMschapv2Flow(Flow):
         data = [
             request.nas_ip,
             request.nas_name,
-            'EAP-PEAP',
+            request.auth_protocol,
             session.auth_user.peap_username,
             request.user_mac,
             request.ssid,

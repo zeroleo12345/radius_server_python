@@ -65,7 +65,7 @@ class PapFlow(Flow):
             Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SCAN_CHAT_ID, text=text)
             redis.delete(enable_flag_key)
 
-        session.extra['Auth-Type'] = 'MAC-PAP'
+        session.extra['Auth-Type'] = 'MAC'
         return cls.access_accept(request=request, session=session)
 
     @classmethod
@@ -79,7 +79,7 @@ class PapFlow(Flow):
         data = [
             request.nas_ip,
             request.nas_name,
-            session.extra['Auth-Type'],
+            request.auth_protocol,
             request.username,
             request.user_mac,
             request.ssid,
