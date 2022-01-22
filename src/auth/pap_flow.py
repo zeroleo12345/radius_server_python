@@ -27,7 +27,7 @@ class PapFlow(Flow):
         # User-Password: '5af3ce3a0959\x00\x00\x00\x00'
 
         # 验证方法
-        if request.user_mac.replace('-', '').lower() == session.auth_user.outer_username:
+        if request.service_type == 10:      # Call Check
             return cls.mac_auth(request=request, session=session)
         else:
             return cls.pap_auth(request=request, session=session)
@@ -59,7 +59,7 @@ class PapFlow(Flow):
             created_at = now
             expired_at = created_at + datetime.timedelta(days=3600)
             MacAccount.create(
-                username=session.auth_user.outer_username, radius_password=session.auth_user.user_password, ap_mac=request.ap_mac, is_enable=True,
+                username=session.auth_user.outer_username, ssid=request.ssid, ap_mac=request.ap_mac, is_enable=True,
                 expired_at=expired_at, created_at=created_at,
             )
             text = f'新增放通 MAC 设备, MAC: {session.auth_user.user_mac}, SSID: {request.ssid}'
