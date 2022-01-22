@@ -20,18 +20,15 @@ class PapFlow(Flow):
         # 获取报文
         encrypt_password = request['User-Password'][0]
 
-        # 密码解密
-        decrypt_password = request.PwCrypt(password=encrypt_password)
-        session.auth_user.user_password = decrypt_password.decode().split('\x00', 1)[0]
-        # User-Name: '5af3ce3a0959'
-        # User-Password: '5af3ce3a0959\x00\x00\x00\x00'
-
-        # log.info(f'service_type: {request.service_type}, {type(request.service_type)}')
-        # service_type: Call-Check, <class 'str'>
         # 验证方法
         if request.service_type == 'Call-Check':      # Call Check
+            # User-Name: '5af3ce3a0959'
+            # User-Password: '5af3ce3a0959\x00\x00\x00\x00'
             return cls.mac_auth(request=request, session=session)
         else:
+            # 密码解密
+            decrypt_password = request.PwCrypt(password=encrypt_password)
+            session.auth_user.user_password = decrypt_password.decode()
             return cls.pap_auth(request=request, session=session)
 
     @classmethod
