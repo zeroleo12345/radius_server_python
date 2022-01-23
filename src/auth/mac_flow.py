@@ -65,7 +65,6 @@ class MacFlow(Flow):
             request.nas_ip,
             request.nas_name,
             request.auth_protocol,
-            request.username,
             request.user_mac,
             request.ssid,
             request.ap_mac,
