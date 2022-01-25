@@ -36,7 +36,7 @@ class ChapFlow(Flow):
         data = [
             request.nas_ip,
             request.nas_name,
-            'CHAP',
+            request.auth_protocol,
             request.username,
             request.user_mac,
             request.ssid,

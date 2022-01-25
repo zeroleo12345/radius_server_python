@@ -27,6 +27,7 @@ class Packet(object):
 class AuthRequest(AuthPacket):
     CHAP_PROTOCOL = 'CHAP'
     PAP_PROTOCOL = 'PAP'
+    MAC_PROTOCOL = 'MAC'
     MSCHAPV2_PROTOCOL = 'MSCHAPV2'
     EAP_PEAP_GTC_PROTOCOL = 'EAP-PEAP-GTC'
     EAP_PEAP_MSCHAPV2_PROTOCOL = 'EAP-PEAP-MSCHAPV2'
@@ -36,11 +37,13 @@ class AuthRequest(AuthPacket):
         super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
         self.socket = socket
         self.address = address  # (ip, port)
-        # 解析报文
+        # 解析报文.
+        # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
         self.username = self['User-Name'][0]
         self.user_mac = self['Calling-Station-Id'][0]
         self.nas_name = self['NAS-Identifier'][0]
         self.nas_ip = self['NAS-IP-Address'][0]
+        self.service_type = self['Service-Type'][0]     # 2: Framed; 10: Call-Check;  https://datatracker.ietf.org/doc/html/rfc2865#page-31
         if 'Called-Station-Id' in self:
             ap_mac_colon_ssid = self['Called-Station-Id'][0]    # 84-D9-31-7C-D6-00:WIFI-test
             self.ap_mac, self.ssid = ap_mac_colon_ssid.split(':', 1)
