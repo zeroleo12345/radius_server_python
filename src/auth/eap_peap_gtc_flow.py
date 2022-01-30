@@ -24,6 +24,7 @@ class EapPeapGtcFlow(Flow):
         peap = None
         if EapPacket.is_eap_peap(type=eap.type):
             peap = EapPeapPacket.parse(packet=raw_eap_messages)
+        log.trace(f'request PEAP: {peap}')
 
         # 判断新旧会话
         session = None
