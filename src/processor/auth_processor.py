@@ -79,7 +79,7 @@ def verify(request: AuthRequest, auth_user: AuthUser):
         return MsChapFlow.authenticate_handler(request=request, auth_user=auth_user)
 
     elif 'User-Password' in request:
-        if request.service_type == 'Call-Check':      # Call Check
+        if request.get_service_type() == 'Call-Check':      # Call Check
             request.auth_protocol = AuthRequest.MAC_PROTOCOL
             return MacFlow.authenticate_handler(request=request, auth_user=auth_user)
         else:

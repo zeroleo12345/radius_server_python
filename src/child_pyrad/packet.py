@@ -43,7 +43,6 @@ class AuthRequest(AuthPacket):
         self.user_mac = self['Calling-Station-Id'][0]
         self.nas_name = self['NAS-Identifier'][0]
         self.nas_ip = self['NAS-IP-Address'][0]
-        self.service_type = self['Service-Type'][0]     # 2: Framed; 10: Call-Check;  https://datatracker.ietf.org/doc/html/rfc2865#page-31
         if 'Called-Station-Id' in self:
             ap_mac_colon_ssid = self['Called-Station-Id'][0]    # 84-D9-31-7C-D6-00:WIFI-test
             self.ap_mac, self.ssid = ap_mac_colon_ssid.split(':', 1)
@@ -51,6 +50,9 @@ class AuthRequest(AuthPacket):
             self.ap_mac = ''
             self.ssid = ''
         self.auth_protocol = 'UNKNOWN-AUTH'
+
+    def get_service_type(self) -> str:
+        return self['Service-Type'][0]     # 2: Framed; 10: Call-Check;  https://datatracker.ietf.org/doc/html/rfc2865#page-31
 
     def reply_to(self, reply: AuthPacket):
         log.trace(f'reply: {reply}')
