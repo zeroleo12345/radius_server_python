@@ -16,7 +16,7 @@ from auth.pap_flow import PapFlow
 from auth.mac_flow import MacFlow
 from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT, cleanup
 from loguru import logger as log
 from controls.user import AuthUser
 from controls.stat import StatThread
@@ -92,7 +92,7 @@ def verify(request: AuthRequest, auth_user: AuthUser):
 def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
     listen_ip = '0.0.0.0'
-    listen_port = 1812
+    listen_port = RADIUS_PORT
     log.debug(f'listening on {listen_ip}:{listen_port}')
     server = EchoServer(dictionary, f'{listen_ip}:{listen_port}')
     stat_thread = StatThread()
