@@ -45,8 +45,8 @@ class EchoServer(DatagramServer):
             request = AuthRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
             auth_user = AuthUser(request=request)
-        except KeyError:
-            log.warning(f'packet corrupt from {address}')
+        except KeyError as e:
+            log.warning(f'packet corrupt from {address}, KeyError: {e.args[0]}')
             return
 
         try:
