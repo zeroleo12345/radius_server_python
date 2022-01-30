@@ -48,6 +48,9 @@ class EchoServer(DatagramServer):
         except KeyError as e:
             log.warning(f'packet corrupt from {address}, KeyError: {e.args[0]}')
             return
+        except Exception:
+            log.trace(traceback.format_exc())
+            return
 
         try:
             # 验证用户
