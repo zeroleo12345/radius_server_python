@@ -8,14 +8,12 @@ services:
        dockerfile: ./docker/radius/Dockerfile
     ports:      # 外部端口:docker内部端口
       - "1812:1812/udp"
-      # - "1813:1813/udp"
     environment:
       ENTRYPOINT: "${ENTRYPOINT}"
       RADIUS_PORT: 1812
     volumes:    # 挂载盘: - 主机路径:docker内部路径
       - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
       - ./data:/data
-    # entrypoint: sh      # 用于调试
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
@@ -47,13 +45,14 @@ services:
     build:
        context: .
        dockerfile: ./docker/radius/Dockerfile
-    ports:      # 外部端口:docker内部端口
-      # - "1812:1812/udp"
+    ports:
       - "1813:1813/udp"
-    volumes:    # 挂载盘: - 主机路径:docker内部路径
+    environment:
+      ENTRYPOINT: "${ENTRYPOINT}"
+      RADIUS_PORT: 1813
+    volumes:
       - .:/app
       - ./data:/data
-    # entrypoint: sh
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/acct.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
