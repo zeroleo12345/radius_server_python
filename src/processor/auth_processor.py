@@ -20,9 +20,10 @@ from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT, cleanup
 from loguru import logger as log
 from controls.user import AuthUser
 from controls.stat import StatThread
+from utils.config import config
 
 
-if os.getenv('USE_GTC') is not None:
+if config('USE_GTC', default=False, cast='@bool'):
     log.info('## PEAP-GTC mode ##')
     USE_GTC = True
 else:

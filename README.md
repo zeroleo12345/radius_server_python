@@ -84,7 +84,7 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 - authenticate by EAP-MSCHAPv2
 
-  remove `USE_GTC` in .env and restart docker container
+  remove `USE_GTC=0` in .env and restart docker container
 
   enter into authenticate container: `docker-compose exec auth bash`
 
