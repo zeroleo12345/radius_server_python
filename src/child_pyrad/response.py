@@ -78,7 +78,8 @@ class AcctResponse(AcctPacket):
 class DaeResponse(object):
 
     def __new__(cls, secret: str, dict, packet: str):
-        response = Packet(code=0, secret=secret, dict=dict, packet=packet)
+        response = init_packet_from_receive(Packet,
+                                            code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         if response.code in [PacketCode.CODE_DISCONNECT_ACK, PacketCode.CODE_DISCONNECT_NAK]:
             return DmResponse(secret=secret, packet=packet, dict=dict)
         if response.code in [PacketCode.CODE_COA_ACK, PacketCode.CODE_COA_NAK]:
