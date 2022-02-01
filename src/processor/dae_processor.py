@@ -4,9 +4,8 @@ reference:
         https://datatracker.ietf.org/doc/html/rfc5176
 """
 import traceback
-import signal
+from signal import signal, SIGTERM
 # 第三方库
-from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 import sentry_sdk
 # 项目库
@@ -14,10 +13,9 @@ from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.packet import DaeResponse, DmsResponse, CoAResponse
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT, cleanup
 from loguru import logger as log
-from controls.stat import StatThread
 
 
-class RadiusServer(DatagramServer):
+class DAEClient(object):
     dictionary: Dictionary = None
 
     def __init__(self, dictionary, *args, **kwargs):
@@ -55,15 +53,12 @@ def process(response):
 
 def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
-    listen_ip = '0.0.0.0'
-    listen_port = RADIUS_PORT
-    log.debug(f'listening on {listen_ip}:{listen_port}')
-    server = RadiusServer(dictionary, f'{listen_ip}:{listen_port}')
+    server = DAEClient(dictionary)
 
     def shutdown():
         log.info('exit gracefully')
         server.close()
-    signal.signal(signal.SIGTERM, shutdown)
+    signal(SIGTERM, shutdown)
     try:
         server.serve_forever(stop_timeout=3)
     finally:

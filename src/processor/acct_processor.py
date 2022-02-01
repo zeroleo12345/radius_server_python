@@ -53,7 +53,7 @@ def main():
     listen_ip = '0.0.0.0'
     listen_port = 1813
     log.debug(f'listening on {listen_ip}:{listen_port}')
-    server = RadiusServer(dictionary, f'{listen_ip}:{listen_port}')
+    server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
 
     def shutdown():
         log.info('exit gracefully')
