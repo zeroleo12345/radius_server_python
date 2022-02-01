@@ -22,12 +22,12 @@ from controls.user import AuthUser
 from controls.stat import StatThread
 
 
-if os.getenv('GTC') is None:
-    log.info('## PEAP-MSCHAPV2 mode ##')
-    USE_GTC = False
-else:
+if os.getenv('USE_GTC') is not None:
     log.info('## PEAP-GTC mode ##')
     USE_GTC = True
+else:
+    log.info('## PEAP-MSCHAPV2 mode ##')
+    USE_GTC = False
 
 
 class RadiusServer(DatagramServer):
