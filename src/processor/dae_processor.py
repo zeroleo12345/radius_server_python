@@ -25,7 +25,7 @@ class DAEClient(object):
         self.socket.settimeout(3)  # seconds
         self.dictionary = dictionary
 
-    def serve_forever(self, data):
+    def serve_forever(self):
         """
         {
             'ip': '192.168.11.11',
@@ -80,6 +80,7 @@ def main():
     def shutdown():
         log.info('exit gracefully')
     signal(SIGTERM, shutdown)
+
     try:
         client.serve_forever()
     finally:
