@@ -25,7 +25,7 @@ class DAEClient(object):
         self.socket.settimeout(3)  # seconds
         self.dictionary = dictionary
 
-    def handle(self, data):
+    def serve_forever(self, data):
         """
         {
             'ip': '192.168.11.11',
@@ -75,14 +75,13 @@ def send(response):
 
 def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
-    server = DAEClient(dictionary)
+    client = DAEClient(dictionary)
 
     def shutdown():
         log.info('exit gracefully')
-        server.close()
     signal(SIGTERM, shutdown)
     try:
-        server.serve_forever(stop_timeout=3)
+        client.serve_forever()
     finally:
         cleanup()
 
