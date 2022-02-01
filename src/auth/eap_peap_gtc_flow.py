@@ -4,7 +4,8 @@ import struct
 # 第三方库
 # 项目库
 from .flow import Flow, AccessReject
-from child_pyrad.packet import AuthRequest, AuthResponse
+from child_pyrad.request import AuthRequest
+from child_pyrad.response import AuthResponse
 from controls.user import AuthUser
 from models.account import Account
 from child_pyrad.eap_packet import EapPacket

@@ -1,5 +1,5 @@
 # 项目库
-from child_pyrad.packet import AuthRequest, AcctRequest
+from child_pyrad.request import AuthRequest, AcctRequest
 
 
 class AuthUser(object):

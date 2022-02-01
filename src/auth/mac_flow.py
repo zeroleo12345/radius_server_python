@@ -1,6 +1,7 @@
 import datetime
 # 第三方库
-from child_pyrad.packet import AuthRequest, AuthResponse
+from child_pyrad.request import AuthRequest
+from child_pyrad.response import AuthResponse
 # 项目库
 from .flow import Flow, AccessReject
 from settings import API_URL

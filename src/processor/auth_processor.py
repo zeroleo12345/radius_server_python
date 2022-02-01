@@ -8,7 +8,7 @@ from pyrad.dictionary import Dictionary
 import sentry_sdk
 # 项目库
 from child_pyrad.dictionary import get_dictionaries
-from child_pyrad.packet import AuthRequest
+from child_pyrad.request import AuthRequest
 from auth.flow import Flow, AccessReject
 from auth.chap_flow import ChapFlow
 from auth.mschap_flow import MsChapFlow
