@@ -15,7 +15,7 @@ class AuthResponse(AuthPacket):
     # 使用父类初始化自己
 
     @classmethod
-    def create_access_accept(cls, request: AuthRequest) -> AuthPacket:
+    def create_access_accept(cls, request: 'AuthRequest') -> AuthPacket:
         UserStat.report_user_bind_ap(username=request.username, ap_mac=request.ap_mac)
         DeviceStat.report_supplicant_mac(username=request.username, user_mac=request.user_mac, ignore=request.ap_mac == "")
         ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
@@ -30,14 +30,14 @@ class AuthResponse(AuthPacket):
         return reply
 
     @classmethod
-    def create_access_reject(cls, request: AuthRequest) -> AuthPacket:
+    def create_access_reject(cls, request: 'AuthRequest') -> AuthPacket:
         ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_REJECT)
         return reply
 
     @classmethod
-    def create_peap_challenge(cls, request: AuthRequest, peap: EapPeapPacket, session_id: str) -> AuthPacket:
+    def create_peap_challenge(cls, request: 'AuthRequest', peap: EapPeapPacket, session_id: str) -> AuthPacket:
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_CHALLENGE)
         eap_message = peap.pack()
         eap_messages = EapPacket.split_eap_message(eap_message)
