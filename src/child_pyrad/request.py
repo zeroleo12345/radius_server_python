@@ -89,7 +89,7 @@ class AcctRequest(AcctPacket):
     """ receive accounting request """
     def __init__(self, secret: str, dict, packet: str, socket, address):
         init_packet_from_receive(super(self.__class__, self),
-                                 code=PacketCode.CODE_ACCOUNT_REQUEST, id=None, secret=secret, authenticator=None, dict=dict, packet=packet)
+                                 code=PacketCode.CODE_ACCOUNT_REQUEST, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket = socket
         self.address = address  # (ip, port)
         # 报文提取
