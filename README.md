@@ -50,9 +50,9 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   run simulator in container:
 
   ```bash
-  $ cd tools/simulator/radius_test/auth/
+  cd tools/simulator/radius_test/auth/
 
-  $ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/chap.conf
+  radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/chap.conf
   ```
 
 - authenticate by PAP
@@ -62,9 +62,9 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   run simulator in container:
 
   ```bash
-  $ cd tools/simulator/radius_test/auth/
+  cd tools/simulator/radius_test/auth/
 
-  $ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/pap.conf
+  radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/pap.conf
   ```
 
 - authenticate by EAP-GTC
@@ -76,9 +76,9 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   run simulator in container:
 
   ```bash
-  $ cd tools/simulator/eap_test/
+  cd tools/simulator/eap_test/
 
-  $ eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.gtc -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC -N 4:x:43544d2d574946492d53494d
+  eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.gtc -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC
   ```
 
 - authenticate by EAP-MSCHAPv2
@@ -90,9 +90,9 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   run simulator in container:
 
   ```bash
-  $ cd tools/simulator/eap_test/
+  cd tools/simulator/eap_test/
 
-  $ eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.mschapv2 -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC -N 4:x:43544d2d574946492d53494d
+  eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.mschapv2 -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC
   ```
 
 - accounnting
@@ -102,13 +102,13 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   run simulator in container:
 
   ```bash
-  $ cd tools/simulator/radius_test/acct/
+  cd tools/simulator/radius_test/acct/
 
-  $ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/i.conf
+  radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/i.conf
 
-  $ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/u.conf
+  radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/u.conf
 
-  $ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/t.conf
+  radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/t.conf
   ```
 
 
@@ -121,5 +121,5 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   run simulator in container:
 
   ```bash
-  $  radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
+  radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
   ```
