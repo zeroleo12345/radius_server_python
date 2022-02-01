@@ -187,3 +187,39 @@ class AcctResponse(AcctPacket):
         for k in self.keys():
             msg += f'    {k}: {self[k]}\n'
         return msg
+
+
+class DaeResponse(object):
+
+    def __new__(cls, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None, **attributes):
+        response = Packet(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+        if response.code in [PacketCode.CODE_DISCONNECT_ACK, PacketCode.CODE_DISCONNECT_NAK]:
+            return DmsResponse(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+        if response.code in [PacketCode.CODE_COA_ACK, PacketCode.CODE_COA_NAK]:
+            return CoAResponse(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+
+        raise Exception(f'DAE response not support code: {response.code}')
+
+
+class DmsResponse(Packet):
+    """ Disconnect Messages """
+    def __init__(self, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None, **attributes):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+
+    def __str__(self):
+        msg = f'DmsResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
+
+
+class CoAResponse(Packet):
+    """ Change-of-Authorization (CoA) Messages """
+    def __init__(self, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None, **attributes):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+
+    def __str__(self):
+        msg = f'CoAResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
