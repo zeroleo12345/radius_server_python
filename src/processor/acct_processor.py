@@ -15,7 +15,7 @@ from child_pyrad.packet import AcctRequest, AcctResponse
 from controls.user import AcctUser
 
 
-class EchoServer(DatagramServer):
+class RadiusServer(DatagramServer):
     dictionary: Dictionary = None
 
     def __init__(self, dictionary, *args, **kwargs):
@@ -53,7 +53,7 @@ def main():
     listen_ip = '0.0.0.0'
     listen_port = 1813
     log.debug(f'listening on {listen_ip}:{listen_port}')
-    server = EchoServer(dictionary, f'{listen_ip}:{listen_port}')
+    server = RadiusServer(dictionary, f'{listen_ip}:{listen_port}')
 
     def shutdown():
         log.info('exit gracefully')

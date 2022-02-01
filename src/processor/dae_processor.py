@@ -18,7 +18,7 @@ from loguru import logger as log
 from controls.stat import StatThread
 
 
-class EchoServer(DatagramServer):
+class RadiusServer(DatagramServer):
     dictionary: Dictionary = None
 
     def __init__(self, dictionary, *args, **kwargs):
@@ -59,7 +59,7 @@ def main():
     listen_ip = '0.0.0.0'
     listen_port = RADIUS_PORT
     log.debug(f'listening on {listen_ip}:{listen_port}')
-    server = EchoServer(dictionary, f'{listen_ip}:{listen_port}')
+    server = RadiusServer(dictionary, f'{listen_ip}:{listen_port}')
     stat_thread = StatThread()
     stat_thread.start()
 
