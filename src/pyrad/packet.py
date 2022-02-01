@@ -613,6 +613,12 @@ class Packet(OrderedDict):
 
         return result
 
+    def __str__(self):
+        msg = f'Packet(id={self.id}): \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
+
 
 class AuthPacket(Packet):
     def __init__(self, code=AccessRequest, id=None, secret=six.b(''),

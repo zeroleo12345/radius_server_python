@@ -50,12 +50,6 @@ class AuthResponse(AuthPacket):
         reply['State'] = session_id.encode()    # ATTRIBUTE  State  24  octets  传入 bytes
         return reply
 
-    def __str__(self):
-        msg = f'auth response(id={self.id}): \nauthenticator: {self.authenticator}\n'
-        for k in self.keys():
-            msg += f'    {k}: {self[k]}\n'
-        return msg
-
 
 class AcctResponse(AcctPacket):
     """ send accounting response """
@@ -67,12 +61,6 @@ class AcctResponse(AcctPacket):
     def create_account_response(cls, request: 'AcctRequest') -> 'AcctResponse':
         reply = request.create_reply(code=PacketCode.CODE_ACCOUNT_RESPONSE)
         return reply
-
-    def __str__(self):
-        msg = f'AcctResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
-        for k in self.keys():
-            msg += f'    {k}: {self[k]}\n'
-        return msg
 
 
 class DaeResponse(object):
@@ -94,21 +82,9 @@ class DmResponse(Packet):
         init_packet_from_receive(super(self.__class__, self),
                                  code=PacketCode.CODE_DISCONNECT_ACK, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
 
-    def __str__(self):
-        msg = f'DmResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
-        for k in self.keys():
-            msg += f'    {k}: {self[k]}\n'
-        return msg
-
 
 class CoAResponse(Packet):
     """ receive Change-of-Authorization (CoA) Messages """
     def __init__(self, secret: str, dict, packet: str):
         init_packet_from_receive(super(self.__class__, self),
                                  code=PacketCode.CODE_ACCESS_REQUEST, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
-
-    def __str__(self):
-        msg = f'CoAResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
-        for k in self.keys():
-            msg += f'    {k}: {self[k]}\n'
-        return msg

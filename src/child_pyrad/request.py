@@ -79,12 +79,6 @@ class AuthRequest(AuthPacket):
 
         return
 
-    def __str__(self):
-        msg = f'AuthRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
-        for k in self.keys():
-            msg += f'    {k}: {self[k]}\n'
-        return msg
-
 
 class AcctRequest(AcctPacket):
     """ receive accounting request """
@@ -110,12 +104,6 @@ class AcctRequest(AcctPacket):
         response.code = code
         return response
 
-    def __str__(self):
-        msg = f'AcctRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
-        for k in self.keys():
-            msg += f'    {k}: {self[k]}\n'
-        return msg
-
 
 class DmRequest(Packet):
     """ send Disconnect Messages """
@@ -123,21 +111,9 @@ class DmRequest(Packet):
         init_packet_to_send(super(self.__class__, self),
                             code=PacketCode.CODE_DISCONNECT_REQUEST, id=None, secret=secret, authenticator=None, dict=dict)
 
-    def __str__(self):
-        msg = f'DmRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
-        for k in self.keys():
-            msg += f'    {k}: {self[k]}\n'
-        return msg
-
 
 class CoaRequest(Packet):
     """ send Change-of-Authorization (CoA) Messages """
     def __init__(self, secret: str, dict):
         init_packet_to_send(super(self.__class__, self),
                             code=PacketCode.CODE_COA_REQUEST, id=None, secret=secret, authenticator=None, dict=dict)
-
-    def __str__(self):
-        msg = f'DmRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
-        for k in self.keys():
-            msg += f'    {k}: {self[k]}\n'
-        return msg
