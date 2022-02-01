@@ -5,6 +5,7 @@ reference:
 """
 import traceback
 from signal import signal, SIGTERM
+import socket
 # 第三方库
 from pyrad.dictionary import Dictionary
 import sentry_sdk
@@ -15,19 +16,42 @@ from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT, cleanup
 from loguru import logger as log
 
 
-class DAEClient(object):
+class DAEClient(socket.socket):
     dictionary: Dictionary = None
 
-    def __init__(self, dictionary, *args, **kwargs):
-        super(self.__class__, self).__init__(*args, **kwargs)
+    def __init__(self, dictionary):
+        super(self.__class__, self).__init__(family=socket.AF_INET, type=socket.SOCK_DGRAM)    # | socket.SOCK_NONBLOCK
+        self.settimeout(3)  # seconds
         self.dictionary = dictionary
 
-    def handle(self, data, address):
-        log.trace(f'receive bytes: {data}')
+    def handle(self, data):
+        """
+        {
+            'ip': '192.168.11.11',
+            'port': 3799,
+            'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
+        }
+        """
+        data = {
+            'ip': '192.168.11.11',
+            'port': 3799,
+            'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
+        }
+        address = (data.pop('ip'), data.pop('port'))
+        request = DaeResponse(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket)
+        for k, v in data['data'].items():
+            reply[k] = v
+        try:
+            self.sendto(data=data.encode(), address=address)
+            response, addr = self.recvfrom(1024)
+        except Exception as e:
+            log.critical(traceback.format_exc())
+            sentry_sdk.capture_exception(e)
 
+        log.trace(f'receive bytes: {data}')
         # 解析报文
         try:
-            response = DaeResponse(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
+            response = DaeResponse(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket)
             log.trace(f'response Radius: {response}')
         except KeyError as e:
             log.warning(f'packet corrupt from {address}, KeyError: {e.args[0]}')
@@ -36,19 +60,13 @@ class DAEClient(object):
             log.trace(traceback.format_exc())
             return
 
-        try:
-            process(response)
-        except Exception as e:
-            log.critical(traceback.format_exc())
-            sentry_sdk.capture_exception(e)
 
-
-def process(response):
+def send(response):
     if isinstance(response, DmsResponse):
         return
     if isinstance(response, CoAResponse):
         return
-    raise Exception('can not choose process method')
+    raise Exception('can not choose send method')
 
 
 def main():

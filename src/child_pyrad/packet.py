@@ -32,9 +32,8 @@ class AuthRequest(AuthPacket):
     EAP_PEAP_GTC_PROTOCOL = 'EAP-PEAP-GTC'
     EAP_PEAP_MSCHAPV2_PROTOCOL = 'EAP-PEAP-MSCHAPV2'
 
-    def __init__(self, secret: str, packet: str, socket, address,
-                 code=AccessRequest, id=None, authenticator=None, **attributes):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+    def __init__(self, secret: str, packet: str, socket, address, code=AccessRequest, id=None, authenticator=None):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
         self.socket = socket
         self.address = address  # (ip, port)
         # 解析报文.
@@ -61,11 +60,10 @@ class AuthRequest(AuthPacket):
             reply.get_message_authenticator()   # 必须放在所有attribute设置好后, 发送前刷新 Message-Authenticator !!!
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
-    def create_reply(self, code, **attributes) -> 'AuthResponse':
+    def create_reply(self, code) -> 'AuthResponse':
         NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name)
         response = AuthResponse(PacketCode.CODE_ACCESS_ACCEPT, self.id,
-                                self.secret, self.authenticator, dict=self.dict,
-                                **attributes)
+                                self.secret, self.authenticator, dict=self.dict)
         response.code = code
         return response
 
@@ -145,8 +143,8 @@ class AuthResponse(AuthPacket):
 class AcctRequest(AcctPacket):
 
     def __init__(self, dict, secret: str, packet: str, socket, address,
-                 code=AccessRequest, id=None, authenticator=None, **attributes):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, dict=dict, **attributes)
+                 code=AccessRequest, id=None, authenticator=None):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, dict=dict)
         self.socket = socket
         self.address = address  # (ip, port)
         # 解析报文
@@ -160,11 +158,10 @@ class AcctRequest(AcctPacket):
         log.trace(f'reply: {reply}')
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
-    def create_reply(self, code, **attributes) -> 'AcctResponse':
+    def create_reply(self, code) -> 'AcctResponse':
         NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name)
         response = AcctResponse(PacketCode.CODE_ACCOUNT_RESPONSE, self.id,
-                                self.secret, self.authenticator, dict=self.dict,
-                                **attributes)
+                                self.secret, self.authenticator, dict=self.dict)
         response.code = code
         return response
 
@@ -189,22 +186,34 @@ class AcctResponse(AcctPacket):
         return msg
 
 
+class DmsRequest(Packet):
+    """ Disconnect Messages """
+    def __init__(self, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
+
+    def __str__(self):
+        msg = f'DmsResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
+
+
 class DaeResponse(object):
 
-    def __new__(cls, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None, **attributes):
-        response = Packet(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+    def __new__(cls, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None):
+        response = Packet(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
         if response.code in [PacketCode.CODE_DISCONNECT_ACK, PacketCode.CODE_DISCONNECT_NAK]:
-            return DmsResponse(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+            return DmsResponse(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
         if response.code in [PacketCode.CODE_COA_ACK, PacketCode.CODE_COA_NAK]:
-            return CoAResponse(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+            return CoAResponse(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
 
         raise Exception(f'DAE response not support code: {response.code}')
 
 
 class DmsResponse(Packet):
     """ Disconnect Messages """
-    def __init__(self, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None, **attributes):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+    def __init__(self, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
 
     def __str__(self):
         msg = f'DmsResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
@@ -215,8 +224,8 @@ class DmsResponse(Packet):
 
 class CoAResponse(Packet):
     """ Change-of-Authorization (CoA) Messages """
-    def __init__(self, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None, **attributes):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, **attributes)
+    def __init__(self, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
 
     def __str__(self):
         msg = f'CoAResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
