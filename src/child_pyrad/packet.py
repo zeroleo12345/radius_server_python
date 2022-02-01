@@ -1,5 +1,5 @@
 # 第三方库
-from pyrad.packet import AuthPacket, AccessRequest, AcctPacket
+from pyrad.packet import AuthPacket, AccessRequest, AcctPacket, Packet
 # 项目库
 from .exception import AuthenticatorError
 from .eap_packet import EapPacket
@@ -9,7 +9,7 @@ from loguru import logger as log
 from settings import ACCOUNTING_INTERVAL
 
 
-class Packet(object):
+class PacketCode(object):
     CODE_ACCESS_REQUEST = 1
     CODE_ACCESS_ACCEPT = 2
     CODE_ACCESS_REJECT = 3
@@ -63,7 +63,7 @@ class AuthRequest(AuthPacket):
 
     def create_reply(self, code, **attributes) -> 'AuthResponse':
         NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name)
-        response = AuthResponse(Packet.CODE_ACCESS_ACCEPT, self.id,
+        response = AuthResponse(PacketCode.CODE_ACCESS_ACCEPT, self.id,
                                 self.secret, self.authenticator, dict=self.dict,
                                 **attributes)
         response.code = code
@@ -108,7 +108,7 @@ class AuthResponse(AuthPacket):
         DeviceStat.report_supplicant_mac(username=request.username, user_mac=request.user_mac, ignore=request.ap_mac == "")
         ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
         #
-        reply = request.create_reply(code=Packet.CODE_ACCESS_ACCEPT)
+        reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
         # reply['Session-Timeout'] = 600    # 用户可用的剩余时间
         # reply['H3C-Input-Peak-Rate'] = int(self.bandwidth_max_up)       # 用户到NAS的峰值速率, 以bps为单位. 1/8字节每秒
         # reply['H3C-Output-Peak-Rate'] = int(self.bandwidth_max_down)    # NAS到用户的峰值速率, 以bps为单位. 1/8字节每秒
@@ -121,12 +121,12 @@ class AuthResponse(AuthPacket):
     def create_access_reject(cls, request: AuthRequest) -> AuthPacket:
         ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
         #
-        reply = request.create_reply(code=Packet.CODE_ACCESS_REJECT)
+        reply = request.create_reply(code=PacketCode.CODE_ACCESS_REJECT)
         return reply
 
     @classmethod
     def create_peap_challenge(cls, request: AuthRequest, peap: EapPeapPacket, session_id: str) -> AuthPacket:
-        reply = request.create_reply(code=Packet.CODE_ACCESS_CHALLENGE)
+        reply = request.create_reply(code=PacketCode.CODE_ACCESS_CHALLENGE)
         eap_message = peap.pack()
         eap_messages = EapPacket.split_eap_message(eap_message)
         for eap in eap_messages:
@@ -162,7 +162,7 @@ class AcctRequest(AcctPacket):
 
     def create_reply(self, code, **attributes) -> 'AcctResponse':
         NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name)
-        response = AcctResponse(Packet.CODE_ACCOUNT_RESPONSE, self.id,
+        response = AcctResponse(PacketCode.CODE_ACCOUNT_RESPONSE, self.id,
                                 self.secret, self.authenticator, dict=self.dict,
                                 **attributes)
         response.code = code
@@ -179,7 +179,7 @@ class AcctResponse(AcctPacket):
 
     @classmethod
     def create_account_response(cls, request: AcctRequest) -> 'AcctResponse':
-        reply = request.create_reply(code=Packet.CODE_ACCOUNT_RESPONSE)
+        reply = request.create_reply(code=PacketCode.CODE_ACCOUNT_RESPONSE)
         return reply
 
     def __str__(self):
