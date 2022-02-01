@@ -11,8 +11,9 @@ from pyrad.dictionary import Dictionary
 import sentry_sdk
 # 项目库
 from child_pyrad.dictionary import get_dictionaries
-from child_pyrad.packet import DaeResponse, DmsResponse, CoAResponse
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT, cleanup
+from child_pyrad.request import DmRequest
+from child_pyrad.response import DaeResponse, DmResponse, CoAResponse
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
 from loguru import logger as log
 
 
@@ -38,20 +39,23 @@ class DAEClient(object):
             'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
         address = (data.pop('ip'), data.pop('port'))
-        request = DaeRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket)
+        if 1:
+            request = DmRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket)
         for k, v in data['data'].items():
             request[k] = v
+        # TODO 生成报文
         try:
             self.socket.sendto(data=data.encode(), address=address)
-            response, addr = self.socket.recvfrom(1024)
+            data, addr = self.socket.recvfrom(1024)
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
 
+        data = data.decode()
+        # 收取报文并解析
         log.trace(f'receive bytes: {data}')
-        # 解析报文
         try:
-            response = DaeResponse(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket)
+            response = DaeResponse(dict=self.dictionary, secret=RADIUS_SECRET, packet=data)
             log.trace(f'response Radius: {response}')
         except KeyError as e:
             log.warning(f'packet corrupt from {address}, KeyError: {e.args[0]}')
@@ -62,7 +66,7 @@ class DAEClient(object):
 
 
 def send(response):
-    if isinstance(response, DmsResponse):
+    if isinstance(response, DmResponse):
         return
     if isinstance(response, CoAResponse):
         return

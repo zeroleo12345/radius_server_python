@@ -11,7 +11,7 @@ from acct.flow import Flow
 from child_pyrad.dictionary import get_dictionaries
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
 from loguru import logger as log
-from child_pyrad.packet import AcctRequest, AcctResponse
+from child_pyrad.request import AcctRequest
 from controls.user import AcctUser
 
 
@@ -25,9 +25,9 @@ class RadiusServer(DatagramServer):
     def handle(self, data, address):
         log.trace(f'receive bytes: {data}')
 
-        # 解析报文
+        # 收取报文并解析
         try:
-            request = AcctRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
+            request = AcctRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
             acct_user = AcctUser(request=request)
         except KeyError:

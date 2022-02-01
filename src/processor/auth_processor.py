@@ -8,7 +8,7 @@ from pyrad.dictionary import Dictionary
 import sentry_sdk
 # 项目库
 from child_pyrad.dictionary import get_dictionaries
-from child_pyrad.request import AuthRequest
+from child_pyrad.request import AuthRequest, Protocol
 from auth.flow import Flow, AccessReject
 from auth.chap_flow import ChapFlow
 from auth.mschap_flow import MsChapFlow
@@ -40,9 +40,9 @@ class RadiusServer(DatagramServer):
     def handle(self, data, address):
         log.trace(f'receive bytes: {data}')
 
-        # 解析报文
+        # 收取报文并解析
         try:
-            request = AuthRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
+            request = AuthRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
             auth_user = AuthUser(request=request)
         except KeyError as e:
@@ -66,27 +66,27 @@ class RadiusServer(DatagramServer):
 def verify(request: AuthRequest, auth_user: AuthUser):
     # 根据报文内容, 选择认证方式
     if 'CHAP-Password' in request:
-        request.auth_protocol = AuthRequest.CHAP_PROTOCOL
+        request.auth_protocol = Protocol.CHAP_PROTOCOL
         return ChapFlow.authenticate_handler(request=request, auth_user=auth_user)
 
     elif 'EAP-Message' in request:
         if USE_GTC:
-            request.auth_protocol = AuthRequest.EAP_PEAP_GTC_PROTOCOL
+            request.auth_protocol = Protocol.EAP_PEAP_GTC_PROTOCOL
             return EapPeapGtcFlow.authenticate_handler(request=request, auth_user=auth_user)
         else:
-            request.auth_protocol = AuthRequest.EAP_PEAP_MSCHAPV2_PROTOCOL
+            request.auth_protocol = Protocol.EAP_PEAP_MSCHAPV2_PROTOCOL
             return EapPeapMschapv2Flow.authenticate_handler(request=request, auth_user=auth_user)
 
     elif 'MS-CHAP-Challenge' in request:
-        request.auth_protocol = AuthRequest.MSCHAPV2_PROTOCOL
+        request.auth_protocol = Protocol.MSCHAPV2_PROTOCOL
         return MsChapFlow.authenticate_handler(request=request, auth_user=auth_user)
 
     elif 'User-Password' in request:
         if request.get_service_type() == 'Call-Check':      # Call Check
-            request.auth_protocol = AuthRequest.MAC_PROTOCOL
+            request.auth_protocol = Protocol.MAC_PROTOCOL
             return MacFlow.authenticate_handler(request=request, auth_user=auth_user)
         else:
-            request.auth_protocol = AuthRequest.PAP_PROTOCOL
+            request.auth_protocol = Protocol.PAP_PROTOCOL
             return PapFlow.authenticate_handler(request=request, auth_user=auth_user)
 
     raise Exception('can not choose authenticate method')

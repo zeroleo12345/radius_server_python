@@ -11,3 +11,13 @@ class PacketCode(object):
     CODE_COA_REQUEST = 43
     CODE_COA_ACK = 44
     CODE_COA_NAK = 45
+
+
+def init_packet_from_receive(_class, code, id, secret, authenticator, dict, packet):
+    """ server receive packet: AuthRequest, AcctRequest, DmResponse, CoAResponse """
+    _class.__init__(code=code, id=id, secret=secret, authenticator=authenticator, dict=dict, packet=packet)
+
+
+def init_packet_to_send(_class, code, id, secret, authenticator, dict):
+    """ server send packet: AuthResponse, AcctResponse, DmRequest, CoARequest """
+    _class.__init__(code=code, id=id, secret=secret, authenticator=authenticator, dict=dict)

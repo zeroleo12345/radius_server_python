@@ -1,14 +1,15 @@
 # 第三方库
-from pyrad.packet import AuthPacket, AccessRequest, AcctPacket, Packet
+from pyrad.packet import AuthPacket, AcctPacket, Packet
+from pyrad.dictionary import Dictionary
 # 项目库
-from .packet import PacketCode
+from .packet import PacketCode, init_packet_from_receive, init_packet_to_send
 from .exception import AuthenticatorError
 from controls.stat import NasStat
 from loguru import logger as log
 from .response import AuthResponse, AcctResponse
 
 
-class AuthRequest(AuthPacket):
+class Protocol(object):
     CHAP_PROTOCOL = 'CHAP'
     PAP_PROTOCOL = 'PAP'
     MAC_PROTOCOL = 'MAC'
@@ -16,11 +17,15 @@ class AuthRequest(AuthPacket):
     EAP_PEAP_GTC_PROTOCOL = 'EAP-PEAP-GTC'
     EAP_PEAP_MSCHAPV2_PROTOCOL = 'EAP-PEAP-MSCHAPV2'
 
-    def __init__(self, dict, secret: str, packet: str, socket, address, code=AccessRequest, id=None, authenticator=None):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, dict=dict)
+
+class AuthRequest(AuthPacket):
+    """ receive access request """
+    def __init__(self, secret: str, dict: Dictionary, packet: str, socket, address):
+        init_packet_from_receive(super(self.__class__, self),
+                                 code=PacketCode.CODE_ACCESS_REQUEST, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket = socket
         self.address = address  # (ip, port)
-        # 解析报文.
+        # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
         self.username = self['User-Name'][0]
         self.user_mac = self['Calling-Station-Id'][0]
@@ -46,8 +51,7 @@ class AuthRequest(AuthPacket):
 
     def create_reply(self, code) -> AuthResponse:
         NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name)
-        response = AuthResponse(PacketCode.CODE_ACCESS_ACCEPT, self.id,
-                                self.secret, self.authenticator, dict=self.dict)
+        response = AuthResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
         return response
 
@@ -82,13 +86,13 @@ class AuthRequest(AuthPacket):
 
 
 class AcctRequest(AcctPacket):
-
-    def __init__(self, dict, secret: str, packet: str, socket, address,
-                 code=AccessRequest, id=None, authenticator=None):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, dict=dict)
+    """ receive accounting request """
+    def __init__(self, secret: str, dict, packet: str, socket, address):
+        init_packet_from_receive(super(self.__class__, self),
+                                 code=PacketCode.CODE_ACCOUNT_REQUEST, id=None, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket = socket
         self.address = address  # (ip, port)
-        # 解析报文
+        # 报文提取
         self.username = self['User-Name'][0]
         self.user_mac = self['Calling-Station-Id'][0]
         self.nas_name = self['NAS-Identifier'][0]
@@ -101,8 +105,7 @@ class AcctRequest(AcctPacket):
 
     def create_reply(self, code) -> AcctResponse:
         NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name)
-        response = AcctResponse(PacketCode.CODE_ACCOUNT_RESPONSE, self.id,
-                                self.secret, self.authenticator, dict=self.dict)
+        response = AcctResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
         return response
 
@@ -113,13 +116,27 @@ class AcctRequest(AcctPacket):
         return msg
 
 
-class DmsRequest(Packet):
-    """ Disconnect Messages """
-    def __init__(self, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
+class DmRequest(Packet):
+    """ send Disconnect Messages """
+    def __init__(self, secret: str, dict):
+        init_packet_to_send(super(self.__class__, self),
+                            code=PacketCode.CODE_DISCONNECT_REQUEST, id=None, secret=secret, authenticator=None, dict=dict)
 
     def __str__(self):
-        msg = f'DmsRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
+        msg = f'DmRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
+
+
+class CoaRequest(Packet):
+    """ send Change-of-Authorization (CoA) Messages """
+    def __init__(self, secret: str, dict):
+        init_packet_to_send(super(self.__class__, self),
+                            code=PacketCode.CODE_COA_REQUEST, id=None, secret=secret, authenticator=None, dict=dict)
+
+    def __str__(self):
+        msg = f'DmRequest(id={self.id}): \nauthenticator: {self.authenticator}\n'
         for k in self.keys():
             msg += f'    {k}: {self[k]}\n'
         return msg

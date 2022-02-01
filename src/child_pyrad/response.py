@@ -1,7 +1,7 @@
 # 第三方库
-from pyrad.packet import AuthPacket, AccessRequest, AcctPacket, Packet
+from pyrad.packet import AuthPacket, AcctPacket, Packet
 # 项目库
-from .packet import PacketCode
+from .packet import PacketCode, init_packet_to_send, init_packet_from_receive
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
 from controls.stat import ApStat, UserStat, DeviceStat
@@ -12,7 +12,10 @@ if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
 
 
 class AuthResponse(AuthPacket):
-    # 使用父类初始化自己
+    """ send access response """
+    def __init__(self, id, secret, authenticator, dict):
+        init_packet_to_send(super(self.__class__, self),
+                            code=PacketCode.CODE_ACCESS_ACCEPT, id=id, secret=secret, authenticator=authenticator, dict=dict)
 
     @classmethod
     def create_access_accept(cls, request: 'AuthRequest') -> AuthPacket:
@@ -55,6 +58,10 @@ class AuthResponse(AuthPacket):
 
 
 class AcctResponse(AcctPacket):
+    """ send accounting response """
+    def __init__(self, id, secret, authenticator, dict):
+        init_packet_to_send(super(self.__class__, self),
+                            code=PacketCode.CODE_ACCOUNT_RESPONSE, id=id, secret=secret, authenticator=authenticator, dict=dict)
 
     @classmethod
     def create_account_response(cls, request: 'AcctRequest') -> 'AcctResponse':
@@ -70,32 +77,34 @@ class AcctResponse(AcctPacket):
 
 class DaeResponse(object):
 
-    def __new__(cls, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None):
-        response = Packet(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
+    def __new__(cls, secret: str, dict, packet: str):
+        response = Packet(code=0, secret=secret, dict=dict, packet=packet)
         if response.code in [PacketCode.CODE_DISCONNECT_ACK, PacketCode.CODE_DISCONNECT_NAK]:
-            return DmsResponse(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
+            return DmResponse(secret=secret, packet=packet, dict=dict)
         if response.code in [PacketCode.CODE_COA_ACK, PacketCode.CODE_COA_NAK]:
-            return CoAResponse(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
+            return CoAResponse(secret=secret, packet=packet, dict=dict)
 
         raise Exception(f'DAE response not support code: {response.code}')
 
 
-class DmsResponse(Packet):
-    """ Disconnect Messages """
-    def __init__(self, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
+class DmResponse(Packet):
+    """ receive Disconnect Messages """
+    def __init__(self, secret: str, dict, packet: str):
+        init_packet_from_receive(super(self.__class__, self),
+                                 code=PacketCode.CODE_DISCONNECT_ACK, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
 
     def __str__(self):
-        msg = f'DmsResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
+        msg = f'DmResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'
         for k in self.keys():
             msg += f'    {k}: {self[k]}\n'
         return msg
 
 
 class CoAResponse(Packet):
-    """ Change-of-Authorization (CoA) Messages """
-    def __init__(self, secret: str, packet: str, code=AccessRequest, id=None, authenticator=None):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
+    """ receive Change-of-Authorization (CoA) Messages """
+    def __init__(self, secret: str, dict, packet: str):
+        init_packet_from_receive(super(self.__class__, self),
+                                 code=PacketCode.CODE_ACCESS_REQUEST, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
 
     def __str__(self):
         msg = f'CoAResponse(id={self.id}): \nauthenticator: {self.authenticator}\n'

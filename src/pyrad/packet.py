@@ -71,7 +71,7 @@ class Packet(OrderedDict):
         :type dict:    pyrad.dictionary.Dictionary class
         :param secret: secret needed to communicate with a RADIUS server
         :type secret:  string
-        :param id:     packet identification number
+        :param id:     packet id number. if id is None: CreateID(), else: id = id
         :type id:      integer (8 bits)
         :param code:   packet type code
         :type code:    integer (8bits)
