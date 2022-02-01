@@ -82,3 +82,16 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
   $ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/t.conf
   ```
+
+
+## Send Dynamic Authorization Extensions request with simulator
+  
+- disconnect
+
+  enter into accounting container: `docker-compose exec auth bash` 
+  
+  run simulator in container:
+
+  ```bash
+  $  radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
+  ```
