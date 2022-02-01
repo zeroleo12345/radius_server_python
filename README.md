@@ -79,7 +79,6 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   $ cd tools/simulator/eap_test/
 
   $ eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.gtc -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC -N 4:x:43544d2d574946492d53494d
-  -N 232:x:3139322e3136382e342e385f43544d2d574946492d53494d
   ```
 
 - authenticate by EAP-MSCHAPv2
