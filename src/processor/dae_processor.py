@@ -6,7 +6,6 @@ reference:
 import traceback
 import signal
 # 第三方库
-import gevent
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 import sentry_sdk
@@ -60,14 +59,11 @@ def main():
     listen_port = RADIUS_PORT
     log.debug(f'listening on {listen_ip}:{listen_port}')
     server = RadiusServer(dictionary, f'{listen_ip}:{listen_port}')
-    stat_thread = StatThread()
-    stat_thread.start()
 
     def shutdown():
         log.info('exit gracefully')
         server.close()
-        stat_thread.stop()
-    gevent.signal(signal.SIGTERM, shutdown)
+    signal.signal(signal.SIGTERM, shutdown)
     try:
         server.serve_forever(stop_timeout=3)
     finally:

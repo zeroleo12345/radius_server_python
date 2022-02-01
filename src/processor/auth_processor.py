@@ -1,8 +1,8 @@
 import os
 import traceback
-import signal
+from signal import SIGTERM
 # 第三方库
-import gevent
+from gevent import signal
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 import sentry_sdk
@@ -105,7 +105,7 @@ def main():
         log.info('exit gracefully')
         server.close()
         stat_thread.stop()
-    gevent.signal(signal.SIGTERM, shutdown)
+    signal(SIGTERM, shutdown)
     try:
         server.serve_forever(stop_timeout=3)
     finally:
