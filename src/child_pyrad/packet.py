@@ -32,8 +32,8 @@ class AuthRequest(AuthPacket):
     EAP_PEAP_GTC_PROTOCOL = 'EAP-PEAP-GTC'
     EAP_PEAP_MSCHAPV2_PROTOCOL = 'EAP-PEAP-MSCHAPV2'
 
-    def __init__(self, secret: str, packet: str, socket, address, code=AccessRequest, id=None, authenticator=None):
-        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet)
+    def __init__(self, dict, secret: str, packet: str, socket, address, code=AccessRequest, id=None, authenticator=None):
+        super(self.__class__, self).__init__(code=code, id=id, secret=secret, authenticator=authenticator, packet=packet, dict=dict)
         self.socket = socket
         self.address = address  # (ip, port)
         # 解析报文.
