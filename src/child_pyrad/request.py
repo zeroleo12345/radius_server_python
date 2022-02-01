@@ -31,13 +31,14 @@ class AuthRequest(AuthPacket):
         self.user_mac = self['Calling-Station-Id'][0]
         self.nas_name = self['NAS-Identifier'][0]
         self.nas_ip = self['NAS-IP-Address'][0]
+
+        self.ssid = ''
+        self.ap_mac = ''
         if 'Called-Station-Id' in self:
             self.ap_mac = self['Called-Station-Id'][0]    # 84-D9-31-7C-D6-00:WIFI-test
             if ':' in self.ap_mac:
                 self.ap_mac, self.ssid = self.ap_mac.split(':', 1)
-        else:
-            self.ap_mac = ''
-            self.ssid = ''
+
         self.auth_protocol = 'UNKNOWN-AUTH'
 
     def get_service_type(self) -> str:
