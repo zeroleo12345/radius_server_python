@@ -1,14 +1,14 @@
 # 第三方库
 from pyrad.packet import AuthPacket, AccessRequest, AcctPacket, Packet
 # 项目库
-from child_pyrad.packet import PacketCode
+from .packet import PacketCode
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
 from controls.stat import ApStat, UserStat, DeviceStat
 from settings import ACCOUNTING_INTERVAL
 import typing
 if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
-    from child_pyrad.request import AuthRequest, AcctRequest
+    from .request import AuthRequest, AcctRequest
 
 
 class AuthResponse(AuthPacket):

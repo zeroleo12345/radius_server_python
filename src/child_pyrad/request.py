@@ -1,11 +1,11 @@
 # 第三方库
 from pyrad.packet import AuthPacket, AccessRequest, AcctPacket, Packet
 # 项目库
-from child_pyrad.packet import PacketCode
+from .packet import PacketCode
 from .exception import AuthenticatorError
 from controls.stat import NasStat
 from loguru import logger as log
-from child_pyrad.response import AuthResponse, AcctResponse
+from .response import AuthResponse, AcctResponse
 
 
 class AuthRequest(AuthPacket):
