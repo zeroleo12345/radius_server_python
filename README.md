@@ -55,6 +55,18 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   $ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/chap.conf
   ```
 
+- authenticate by PAP
+
+  enter into authenticate container: `docker-compose exec auth bash`
+
+  run simulator in container:
+
+  ```bash
+  $ cd tools/simulator/radius_test/auth/
+
+  $ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/pap.conf
+  ```
+
 - authenticate by EAP-GTC
 
   enter into authenticate container: `docker-compose exec auth bash`
