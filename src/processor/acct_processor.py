@@ -23,7 +23,7 @@ class EchoServer(DatagramServer):
         self.dictionary = dictionary
 
     def handle(self, data, address):
-        log.trace(f'request bytes: {data}')
+        log.trace(f'receive bytes: {data}')
 
         # 解析报文
         try:
