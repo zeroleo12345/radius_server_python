@@ -88,7 +88,7 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   
 - disconnect
 
-  enter into accounting container: `docker-compose exec auth bash` 
+  enter into accounting container: `docker-compose exec dae bash` 
   
   run simulator in container:
 
