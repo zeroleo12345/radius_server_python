@@ -16,12 +16,12 @@ from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT, cleanup
 from loguru import logger as log
 
 
-class DAEClient(socket.socket):
+class DAEClient(object):
     dictionary: Dictionary = None
 
     def __init__(self, dictionary):
-        super(self.__class__, self).__init__(family=socket.AF_INET, type=socket.SOCK_DGRAM)    # | socket.SOCK_NONBLOCK
-        self.settimeout(3)  # seconds
+        self.socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)    # | socket.SOCK_NONBLOCK
+        self.socket.settimeout(3)  # seconds
         self.dictionary = dictionary
 
     def handle(self, data):
@@ -38,12 +38,12 @@ class DAEClient(socket.socket):
             'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
         address = (data.pop('ip'), data.pop('port'))
-        request = DaeResponse(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket)
+        request = DaeRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket)
         for k, v in data['data'].items():
-            reply[k] = v
+            request[k] = v
         try:
-            self.sendto(data=data.encode(), address=address)
-            response, addr = self.recvfrom(1024)
+            self.socket.sendto(data=data.encode(), address=address)
+            response, addr = self.socket.recvfrom(1024)
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
