@@ -59,7 +59,7 @@ class EapPeapPacket(Eap):
         :param flag_version: 0 - PEAPv0(EAP-MSCHAPv2); 1 - PEAPv1(EAP-GTC)
         :param tls_data:
         """
-        super(self.__class__, self).__init__()
+        super().__init__()
         self.tls_data = tls_data
         self.fragments = []
         self.fpos = 1

@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
 class AuthResponse(AuthPacket):
     """ send access response """
     def __init__(self, id, secret, authenticator, dict):
-        init_packet_to_send(super(self.__class__, self), code=PacketCode.CODE_ACCESS_ACCEPT, id=id, secret=secret, authenticator=authenticator, dict=dict)
+        init_packet_to_send(super(), code=PacketCode.CODE_ACCESS_ACCEPT, id=id, secret=secret, authenticator=authenticator, dict=dict)
 
     @classmethod
     def create_access_accept(cls, request: 'AuthRequest') -> AuthPacket:
@@ -53,7 +53,7 @@ class AuthResponse(AuthPacket):
 class AcctResponse(AcctPacket):
     """ send accounting response """
     def __init__(self, id, secret, authenticator, dict):
-        init_packet_to_send(super(self.__class__, self), code=PacketCode.CODE_ACCOUNT_RESPONSE, id=id, secret=secret, authenticator=authenticator, dict=dict)
+        init_packet_to_send(super(), code=PacketCode.CODE_ACCOUNT_RESPONSE, id=id, secret=secret, authenticator=authenticator, dict=dict)
 
     @classmethod
     def create_account_response(cls, request: 'AcctRequest') -> 'AcctResponse':
@@ -79,7 +79,7 @@ class DmResponse(CoAPacket):
     code = PacketCode.CODE_DISCONNECT_ACK
 
     def __init__(self, secret, dict, packet: bytes):
-        init_packet_from_receive(super(self.__class__, self), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
 
 
 class CoAResponse(CoAPacket):
@@ -87,4 +87,4 @@ class CoAResponse(CoAPacket):
     code = PacketCode.CODE_COA_ACK
 
     def __init__(self, secret, dict, packet: bytes):
-        init_packet_from_receive(super(self.__class__, self), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)

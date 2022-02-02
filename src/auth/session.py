@@ -22,7 +22,7 @@ class EapPeapSession(BaseSession):
     def __init__(self, auth_user: AuthUser, session_id: str):
         # 该保存入Redis Session; 读取Session时, 恢复所有变量!
         assert isinstance(session_id, str)
-        super(self.__class__, self).__init__(auth_user=auth_user)
+        super().__init__(auth_user=auth_user)
         self.session_id: str = session_id
         self.next_state = Flow.PEAP_CHALLENGE_START
         self.peap_version: int = 1

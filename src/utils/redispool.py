@@ -16,7 +16,7 @@ class MyBlockingConnectionPool(BlockingConnectionPool):
         :param connection_kwargs:
         """
         # workaround:   https://github.com/andymccurdy/redis-py/blob/master/redis/connection.py
-        super(self.__class__, self).__init__(
+        super().__init__(
             max_connections=max_connections,
             timeout=timeout,
             connection_class=connection_class,

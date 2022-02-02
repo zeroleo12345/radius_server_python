@@ -19,7 +19,7 @@ class RadiusServer(DatagramServer):
     dictionary: Dictionary = None
 
     def __init__(self, dictionary, *args, **kwargs):
-        super(self.__class__, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.dictionary = dictionary
 
     def handle(self, data, address):
