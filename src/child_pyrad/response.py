@@ -1,5 +1,5 @@
 # 第三方库
-from pyrad.packet import AuthPacket, AcctPacket, CoAPacket
+from pyrad.packet import AuthPacket, AcctPacket, Packet, CoAPacket
 # 项目库
 from .packet import PacketCode, init_packet_to_send, init_packet_from_receive
 from .eap_packet import EapPacket
@@ -61,11 +61,11 @@ class AcctResponse(AcctPacket):
         return reply
 
 
-class ResponseFactory(object):
+class ResponseFactory(Packet):
 
     def __new__(cls, secret, dict, packet: str):
         from pprint import pprint; import pdb; pdb.set_trace()
-        response = init_packet_from_receive(CoAPacket, code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        response = init_packet_from_receive(super(), code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         # TODO 这里解析报文两次
         if response.code in [PacketCode.CODE_DISCONNECT_ACK, PacketCode.CODE_DISCONNECT_NAK]:
             return DmResponse(secret=secret, packet=packet, dict=dict)
