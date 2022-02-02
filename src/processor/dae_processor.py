@@ -34,13 +34,14 @@ class DAEClient(object):
         }
         """
         data = {
+            'type': 'disconnect',
             'ip': '192.168.11.11',
             'port': 3799,
             'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
         address = (data.pop('ip'), data.pop('port'))
         if 1:
-            request = DmRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket)
+            request = DmRequest(secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=address)
         for k, v in data['data'].items():
             request[k] = v
         # TODO 生成报文

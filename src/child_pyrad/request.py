@@ -23,8 +23,7 @@ class AuthRequest(AuthPacket):
     def __init__(self, secret: str, dict: Dictionary, packet: str, socket, address):
         init_packet_from_receive(super(self.__class__, self),
                                  code=PacketCode.CODE_ACCESS_REQUEST, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
-        self.socket = socket
-        self.address = address  # (ip, port)
+        self.socket, address = socket, address
         # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
         self.username = self['User-Name'][0]
@@ -85,8 +84,7 @@ class AcctRequest(AcctPacket):
     def __init__(self, secret: str, dict, packet: str, socket, address):
         init_packet_from_receive(super(self.__class__, self),
                                  code=PacketCode.CODE_ACCOUNT_REQUEST, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
-        self.socket = socket
-        self.address = address  # (ip, port)
+        self.socket, address = socket, address
         # 报文提取
         self.username = self['User-Name'][0]
         self.user_mac = self['Calling-Station-Id'][0]
@@ -107,13 +105,15 @@ class AcctRequest(AcctPacket):
 
 class DmRequest(Packet):
     """ send Disconnect Messages """
-    def __init__(self, secret: str, dict):
+    def __init__(self, secret: str, dict, socket, address):
         init_packet_to_send(super(self.__class__, self),
                             code=PacketCode.CODE_DISCONNECT_REQUEST, id=None, secret=secret, authenticator=None, dict=dict)
+        self.socket, address = socket, address
 
 
 class CoaRequest(Packet):
     """ send Change-of-Authorization (CoA) Messages """
-    def __init__(self, secret: str, dict):
+    def __init__(self, secret: str, dict, socket, address):
         init_packet_to_send(super(self.__class__, self),
                             code=PacketCode.CODE_COA_REQUEST, id=None, secret=secret, authenticator=None, dict=dict)
+        self.socket, address = socket, address
