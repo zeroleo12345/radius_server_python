@@ -80,7 +80,6 @@ class DAEClient(object):
         try:
             self.socket.sendto(request.RequestPacket(), request.address)
             res_data, from_address = self.socket.recvfrom(1024)
-            data = res_data.decode()
         except Exception as e:
             log.critical(traceback.format_exc())
             return
@@ -88,10 +87,11 @@ class DAEClient(object):
         # 收取报文, 解析
         log.trace(f'receive bytes: {data}')
         try:
-            response = ResponseFactory(dict=self.dictionary, secret=RADIUS_SECRET, packet=data)
+            response = ResponseFactory(dict=self.dictionary, secret=RADIUS_SECRET, packet=res_data)
             log.trace(f'response Radius: {response}')
-        except KeyError as e:
-            log.warning(f'packet corrupt from {from_address}, KeyError: {e.args[0]}')
+        except Exception as e:
+            log.critical(traceback.format_exc())
+            sentry_sdk.capture_exception(e)
             return
 
 
