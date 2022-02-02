@@ -1,5 +1,5 @@
 # 第三方库
-from pyrad.packet import AuthPacket, AcctPacket, Packet
+from pyrad.packet import AuthPacket, AcctPacket, CoAPacket
 # 项目库
 from .packet import PacketCode, init_packet_to_send, init_packet_from_receive
 from .eap_packet import EapPacket
@@ -64,7 +64,8 @@ class AcctResponse(AcctPacket):
 class ResponseFactory(object):
 
     def __new__(cls, secret, dict, packet: str):
-        response = init_packet_from_receive(Packet, code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        from pprint import pprint; import pdb; pdb.set_trace()
+        response = init_packet_from_receive(CoAPacket, code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         # TODO 这里解析报文两次
         if response.code in [PacketCode.CODE_DISCONNECT_ACK, PacketCode.CODE_DISCONNECT_NAK]:
             return DmResponse(secret=secret, packet=packet, dict=dict)
@@ -74,7 +75,7 @@ class ResponseFactory(object):
         raise Exception(f'DAE response not support code: {response.code}')
 
 
-class DmResponse(Packet):
+class DmResponse(CoAPacket):
     """ receive Disconnect Messages """
     code = PacketCode.CODE_DISCONNECT_ACK
 
@@ -82,7 +83,7 @@ class DmResponse(Packet):
         init_packet_from_receive(super(self.__class__, self), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
 
 
-class CoAResponse(Packet):
+class CoAResponse(CoAPacket):
     """ receive Change-of-Authorization (CoA) Messages """
     code = PacketCode.CODE_COA_ACK
 
