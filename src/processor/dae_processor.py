@@ -39,7 +39,7 @@ class DAEClient(object):
             except Exception as e:
                 log.critical(traceback.format_exc())
                 sentry_sdk.capture_exception(e)
-            time.sleep(1)
+            time.sleep(1000000)
 
     def run(self):
         """

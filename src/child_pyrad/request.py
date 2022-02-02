@@ -1,5 +1,5 @@
 # 第三方库
-from pyrad.packet import AuthPacket, AcctPacket, Packet
+from pyrad.packet import AuthPacket, AcctPacket, CoAPacket
 from pyrad.dictionary import Dictionary
 # 项目库
 from .packet import PacketCode, init_packet_from_receive, init_packet_to_send
@@ -118,7 +118,7 @@ class RequestFactory(object):
         raise Exception('')
 
 
-class DmRequest(Packet):
+class DmRequest(CoAPacket):
     """ send Disconnect Messages """
     code = PacketCode.CODE_DISCONNECT_REQUEST
 
@@ -128,7 +128,7 @@ class DmRequest(Packet):
         self.socket, self.address = socket, address
 
 
-class CoARequest(Packet):
+class CoARequest(CoAPacket):
     """ send Change-of-Authorization (CoA) Messages """
     code = PacketCode.CODE_COA_REQUEST
 
