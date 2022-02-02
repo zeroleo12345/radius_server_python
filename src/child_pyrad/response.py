@@ -63,7 +63,7 @@ class AcctResponse(AcctPacket):
 
 class ResponseFactory(object):
 
-    def __new__(cls, secret, dict, packet: str):
+    def __new__(cls, secret, dict, packet: bytes):
         response = CoAPacket(code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         # TODO 这里解析报文两次
         if response.code in [PacketCode.CODE_DISCONNECT_ACK, PacketCode.CODE_DISCONNECT_NAK]:
@@ -78,7 +78,7 @@ class DmResponse(CoAPacket):
     """ receive Disconnect Messages """
     code = PacketCode.CODE_DISCONNECT_ACK
 
-    def __init__(self, secret, dict, packet: str):
+    def __init__(self, secret, dict, packet: bytes):
         init_packet_from_receive(super(self.__class__, self), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
 
 
@@ -86,5 +86,5 @@ class CoAResponse(CoAPacket):
     """ receive Change-of-Authorization (CoA) Messages """
     code = PacketCode.CODE_COA_ACK
 
-    def __init__(self, secret, dict, packet: str):
+    def __init__(self, secret, dict, packet: bytes):
         init_packet_from_receive(super(self.__class__, self), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)

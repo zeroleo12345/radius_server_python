@@ -22,7 +22,7 @@ class AuthRequest(AuthPacket):
     """ receive access request """
     code = PacketCode.CODE_ACCESS_REQUEST
 
-    def __init__(self, secret, dict: Dictionary, packet: str, socket, address):
+    def __init__(self, secret, dict: Dictionary, packet: bytes, socket, address):
         init_packet_from_receive(super(self.__class__, self),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket, self.address = socket, address
@@ -85,7 +85,7 @@ class AcctRequest(AcctPacket):
     """ receive accounting request """
     code = PacketCode.CODE_ACCOUNT_REQUEST
 
-    def __init__(self, secret, dict, packet: str, socket, address):
+    def __init__(self, secret, dict, packet: bytes, socket, address):
         init_packet_from_receive(super(self.__class__, self),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket, self.address = socket, address
