@@ -61,11 +61,11 @@ class AcctResponse(AcctPacket):
         return reply
 
 
-class ResponseFactory(CoAPacket):
+class ResponseFactory(object):
 
     def __new__(cls, secret, dict, packet: str):
         from pprint import pprint; import pdb; pdb.set_trace()
-        response = init_packet_from_receive(super(), code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        response = CoAPacket(code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         # TODO 这里解析报文两次
         if response.code in [PacketCode.CODE_DISCONNECT_ACK, PacketCode.CODE_DISCONNECT_NAK]:
             return DmResponse(secret=secret, packet=packet, dict=dict)
