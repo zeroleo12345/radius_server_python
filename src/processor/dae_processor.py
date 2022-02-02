@@ -70,8 +70,9 @@ class DAEClient(object):
         except KeyError as e:
             log.warning(f'packet corrupt from {from_address}, KeyError: {e.args[0]}')
             return
-        except Exception:
+        except Exception as e:
             log.trace(traceback.format_exc())
+            sentry_sdk.capture_exception(e)
             return
 
 
