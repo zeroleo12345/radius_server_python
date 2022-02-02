@@ -1,5 +1,5 @@
 # 修改openssl配置(可选)
-- linux
+- RedHat 6.7
     vim /usr/local/ssl/openssl.cnf
 
 - MacOS
