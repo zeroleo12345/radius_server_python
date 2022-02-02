@@ -62,8 +62,8 @@ class DAEClient(object):
         while self.is_running:
             try:
                 if self.run() is None:
-                    log.trace('sleep 5s')
-                    time.sleep(5)
+                    log.trace('sleep 3s')
+                    time.sleep(3)
             except KeyboardInterrupt:
                 self.close()
             except Exception as e:
