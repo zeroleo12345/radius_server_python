@@ -41,14 +41,14 @@ openssl req -new -x509 -days 3650 -key ./ca.key.pem -out ./ca.cer.pem -subj "/C=
     Common Name (e.g. server FQDN or YOUR name) []:WIFI
     Email Address []:1000@gmail.com
 
-# 生成服务端私钥
-openssl genrsa -out ./server.key.pem 2048
+# 生成服务端私钥, 并使用des3加密
+openssl genrsa  -des3 -passout pass:123456  -out ./server.key.pem 2048
     Generating RSA private key, 2048 bit long modulus
     ...............................................+++
     ..............................................+++
     e is 65537 (0x10001)
-    Enter pass phrase for private/serverkey.pem:1234
-    Verifying - Enter pass phrase for private/serverkey.pem:1234
+    Enter pass phrase for private/serverkey.pem:123456
+    Verifying - Enter pass phrase for private/serverkey.pem:123456
 
 # 通过服务端私钥, 生成服务端证书签名请求
 openssl req -new -days 3650 -key ./server.key.pem -out ./server.csr.pem -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com" -passout pass:123456
