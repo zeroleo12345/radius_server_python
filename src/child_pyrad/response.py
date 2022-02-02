@@ -23,12 +23,21 @@ class AuthResponse(AuthPacket):
         ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
-        # reply['Session-Timeout'] = 600    # 用户可用的剩余时间
-        # reply['H3C-Input-Peak-Rate'] = int(self.bandwidth_max_up)       # 用户到NAS的峰值速率, 以bps为单位. 1/8字节每秒
-        # reply['H3C-Output-Peak-Rate'] = int(self.bandwidth_max_down)    # NAS到用户的峰值速率, 以bps为单位. 1/8字节每秒
-        reply['Idle-Timeout'] = 86400       # 用户的闲置切断时间
+        # 用户可用的剩余时间
+        # reply['Session-Timeout'] = 600
+        # 用户的闲置切断时间
+        reply['Idle-Timeout'] = 86400
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
-        # reply['Class'] = '\x7f'.join(('EAP-PEAP', session.auth_user.peap_username, session.session_id))   # Access-Accept发送给AC, AC在计费报文内会携带Class值上报
+        if request.username == 'zhouliying':
+            # 1M bit = 1000000
+            # 下载速度. NAS到用户的峰值速率. 单位是bps: 1/8字节每秒. 此参数对PPPoE用户有效, wlan用户无效
+            reply['H3C-Output-Peak-Rate'] = int(6 * 1000000)
+            reply['H3C-Output-Average-Rate'] = int(6 * 1000000)
+            # 上载速度. 用户到NAS的峰值速率. 单位是bps: 1/8字节每秒. 此参数对PPPoE用户有效, wlan用户无效
+            reply['H3C-Input-Peak-Rate'] = int(3 * 1000000)
+            reply['H3C-Input-Average-Rate'] = int(3 * 1000000)
+            # User Profile 适用于wlan和PPPoE用户. 当AC profile disable时, 会连不上WIFi
+            # reply['Filter-Id'] = f'pay_user_4m'
         return reply
 
     @classmethod
