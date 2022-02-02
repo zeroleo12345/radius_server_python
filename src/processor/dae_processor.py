@@ -85,7 +85,7 @@ class DAEClient(object):
             return
 
         # 收取报文, 解析
-        log.trace(f'receive bytes: {data}')
+        log.trace(f'receive bytes: {res_data}')
         try:
             response = ResponseFactory(dict=self.dictionary, secret=RADIUS_SECRET, packet=res_data)
             log.trace(f'response Radius: {response}')
