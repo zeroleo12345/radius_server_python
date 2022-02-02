@@ -29,7 +29,7 @@ def push_test_data(data):
             'port': 3799,
             'avp': {'User-Name': 'zhouliying', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
-    CoA Message:
+    CoA Message: (not support change speed rate)
         {
             'code': 43,
             'ip': '192.168.11.11',
