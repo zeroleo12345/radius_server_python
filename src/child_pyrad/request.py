@@ -124,4 +124,4 @@ class CoARequest(Packet):
     def __init__(self, secret: str, dict, socket, address):
         init_packet_to_send(super(self.__class__, self),
                             code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
-        self.socket, address = socket, address
+        self.socket, self.address = socket, address
