@@ -36,10 +36,12 @@ class DAEClient(object):
         while self.is_running:
             try:
                 self.run()
+                time.sleep(1)
+            except KeyboardInterrupt:
+                self.close()
             except Exception as e:
                 log.critical(traceback.format_exc())
                 sentry_sdk.capture_exception(e)
-            time.sleep(1)
 
     def run(self):
         """
