@@ -68,9 +68,8 @@ class DAEClient(object):
         key = 'list:dae'
         queue_data = redis.lpop(key)
         if not queue_data:
-            log.trace('redis queue empty')
             return
-        req_data = json.dumps(queue_data, ensure_ascii=False)
+        req_data = json.loads(queue_data)
         to_address = (req_data['ip'], req_data['port'])
         request = RequestFactory(code=req_data['code'], secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=to_address)
         #
@@ -78,9 +77,13 @@ class DAEClient(object):
             request[k] = v
 
         # 发送报文
-        self.socket.sendto(request.RequestPacket(), request.address)
-        res_data, from_address = self.socket.recvfrom(1024)
-        data = res_data.decode()
+        try:
+            self.socket.sendto(request.RequestPacket(), request.address)
+            res_data, from_address = self.socket.recvfrom(1024)
+            data = res_data.decode()
+        except Exception as e:
+            log.critical(traceback.format_exc())
+            return
 
         # 收取报文, 解析
         log.trace(f'receive bytes: {data}')
