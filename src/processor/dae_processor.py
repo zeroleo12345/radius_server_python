@@ -39,7 +39,7 @@ class DAEClient(object):
             except Exception as e:
                 log.critical(traceback.format_exc())
                 sentry_sdk.capture_exception(e)
-            time.sleep(1000000)
+            time.sleep(1)
 
     def run(self):
         """
@@ -50,20 +50,13 @@ class DAEClient(object):
             'avp': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
         """
-        if 1:
-            req_data = {
-                'code': 40,
-                'ip': '192.168.11.11',
-                'port': 3799,
-                'avp': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
-            }
-        else:
-            redis = get_redis()
-            queue_data = redis.lpop()
-            if not queue_data:
-                log.trace('redis queue empty')
-                return
-            req_data = json.dumps(queue_data, ensure_ascii=False)
+        redis = get_redis()
+        key = 'list:dae'
+        queue_data = redis.lpop(name=key)
+        if not queue_data:
+            log.trace('redis queue empty')
+            return
+        req_data = json.dumps(queue_data, ensure_ascii=False)
         to_address = (req_data['ip'], req_data['port'])
         request = RequestFactory(code=req_data['code'], secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=to_address)
         #
