@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-docker-compose stop auth acct
+docker-compose stop auth acct dae
