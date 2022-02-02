@@ -47,8 +47,9 @@ class DAEClient(object):
     def serve_forever(self):
         while self.is_running:
             try:
-                self.run()
-                time.sleep(1)
+                if self.run() is None:
+                    log.trace('sleep 5s')
+                    time.sleep(5)
             except KeyboardInterrupt:
                 self.close()
             except Exception as e:
@@ -68,7 +69,7 @@ class DAEClient(object):
         key = 'list:dae'
         queue_data = redis.lpop(key)
         if not queue_data:
-            return
+            return None
         req_data = json.loads(queue_data)
         to_address = (req_data['ip'], req_data['port'])
         request = RequestFactory(code=req_data['code'], secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=to_address)
@@ -82,7 +83,7 @@ class DAEClient(object):
             res_data, from_address = self.socket.recvfrom(1024)
         except Exception as e:
             log.critical(traceback.format_exc())
-            return
+            return False
 
         # 收取报文, 解析
         log.trace(f'receive bytes: {res_data}')
@@ -92,7 +93,8 @@ class DAEClient(object):
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
-            return
+            return False
+        return True
 
 
 def send(response):
