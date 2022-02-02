@@ -7,10 +7,10 @@ reference:
 """
 import hashlib
 #
-from .packet import Packet, AuthRequest
+from .request import AuthRequest
 
 
-class Chap(Packet):
+class Chap(object):
 
     @classmethod
     def is_correct_challenge_value(cls, request: AuthRequest, user_password: str) -> bool:

@@ -13,5 +13,5 @@ def get_dictionaries(directory):
         if filename.startswith('dictionary.'):
             dictionaries.append(os.path.join(root, filename))
         else:
-            log.warning(f'ignore dictionary: {filename}')
+            log.debug(f'ignore dictionary: {filename}')
     return dictionaries

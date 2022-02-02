@@ -4,7 +4,8 @@ import struct
 # 第三方库
 # 项目库
 from .flow import Flow, AccessReject
-from child_pyrad.packet import AuthRequest, AuthResponse
+from child_pyrad.request import AuthRequest
+from child_pyrad.response import AuthResponse
 from controls.user import AuthUser
 from models.account import Account
 from child_pyrad.eap_packet import EapPacket
@@ -208,7 +209,7 @@ class EapPeapMschapv2Flow(Flow):
         # 返回数据
         eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.current_eap_id,
                                  type_dict={'type': EapPacket.TYPE_EAP_IDENTITY, 'type_data': b''})
-        tls_plaintext: bytes = eap_identity.pack()
+        tls_plaintext: bytes = eap_identity.ReplyPacket()
 
         # 加密
         # EAP-PEAP: Encrypting Phase 2 data - hexdump(len=5): 01 06 00 05 01
@@ -259,7 +260,7 @@ class EapPeapMschapv2Flow(Flow):
                                 EapPacket.CODE_MSCHAPV2_CHALLENGE, session.current_eap_id, type_data_length, server_challenge_len, server_challenge, server_id)
         eap_random = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.current_eap_id,
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
-        tls_plaintext: bytes = eap_random.pack()
+        tls_plaintext: bytes = eap_random.ReplyPacket()
         # 保存服务端随机数
         session.auth_user.set_server_challenge(server_challenge)
 
@@ -332,7 +333,7 @@ class EapPeapMschapv2Flow(Flow):
             log.error(f'user_password not correct')
             # 返回数据 eap_failure
             eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.current_eap_id)
-            tls_plaintext: bytes = eap_failure.pack()
+            tls_plaintext: bytes = eap_failure.ReplyPacket()
         else:
             # 计算 md4(password)
             p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
@@ -363,7 +364,7 @@ class EapPeapMschapv2Flow(Flow):
                                     EapPacket.CODE_MSCHAPV2_SUCCESS, session.current_eap_id-1, type_data_length, b'S=', authenticator_response, b' M=', response_msg)
             eap_ok = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.current_eap_id,
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
-            tls_plaintext: bytes = eap_ok.pack()
+            tls_plaintext: bytes = eap_ok.ReplyPacket()
         # 加密
         # v0, v1: EAP-PEAP: Encrypting Phase 2 data - hexdump(len=56): 01 07 00 38 1a 03 06 00 33 53 3d 45 37 35 35 44 37 30 42 43 42 42 35 44 31
         # 43 38 41 45 33 35 35 42 30 38 41 42 31 39 36 42 37 45 33 44 42 43 38 46 31 36 20 4d 3d 4f 4b
@@ -390,11 +391,11 @@ class EapPeapMschapv2Flow(Flow):
             type_data = struct.pack(f'!B B H H', 0x80, EapPacket.TYPE_RESULT_TLV, 2, EapPacket.TYPE_RESULT_TLV_SUCCESS)
             eap_tlv_success = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.current_eap_id,
                                         type_dict={'type': EapPacket.TYPE_EAP_TLV, 'type_data': type_data})
-            tls_plaintext: bytes = eap_tlv_success.pack()
+            tls_plaintext: bytes = eap_tlv_success.ReplyPacket()
         else:
             # 返回数据 eap_success
             eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.current_eap_id)
-            tls_plaintext = eap_success.pack()
+            tls_plaintext = eap_success.ReplyPacket()
 
         # 加密.
         # v0: EAP-PEAP: Encrypting Phase 2 TLV data - hexdump(len=11): 01 08 00 0b 21 80 03 00 02 00 01

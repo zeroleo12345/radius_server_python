@@ -18,20 +18,6 @@ RADIUS_PORT = config('RADIUS_PORT')
 ACCOUNTING_INTERVAL = config('ACCOUNTING_INTERVAL', default=60, cast='@int')
 API_URL = config('API_URL')
 
-# Log
-LOG_HEADER = config('LOG_HEADER', default='')
-LOG_DIR = config('LOG_DIR', default='')
-LOG_LEVEL = config('LOG_LEVEL')
-# 初始化日志
-log.remove()    # workaround: https://github.com/Delgan/loguru/issues/208
-log.add(sys.stderr, level=LOG_LEVEL)
-if LOG_DIR and LOG_HEADER:
-    log.info('enable log to file')
-    log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00', level=LOG_LEVEL)
-else:
-    log.info('close log to file')
-log.info(f'start log. LOG_LEVEL: {LOG_LEVEL}, LOG_HEADER: {LOG_HEADER}, LOG_DIR: {LOG_DIR}')
-
 # Redis
 REDIS_HOST = config('REDIS_HOST')
 REDIS_PORT = config('REDIS_PORT')
@@ -48,6 +34,20 @@ DH_FILE = config('DH_FILE')
 libhostapd = EapCrypto(hostapd_library_path=HOSTAPD_LIBRARY, ca_cert_path=CA_CERT, client_cert_path=CLIENT_CERT,
                        private_key_path=PRIVATE_KEY, private_key_password=PRIVATE_KEY_PASSWORD, dh_file_path=DH_FILE)
 # libhostapd.call_set_log_level(EapCrypto.MSG_EXCESSIVE)
+
+# Log
+LOG_HEADER = config('LOG_HEADER', default='')
+LOG_DIR = config('LOG_DIR', default='')
+LOG_LEVEL = config('LOG_LEVEL')
+# 初始化日志
+log.remove()    # workaround: https://github.com/Delgan/loguru/issues/208
+log.add(sys.stderr, level=LOG_LEVEL)
+if LOG_DIR and LOG_HEADER:
+    log.info('enable log to file')
+    log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00', level=LOG_LEVEL)
+else:
+    log.info('close log to file')
+log.warning(f'Log parameter. Level: {LOG_LEVEL}, Header: {LOG_HEADER}, Directory: {LOG_DIR}')
 
 
 def cleanup():

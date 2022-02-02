@@ -1,6 +1,6 @@
 # 第三方库
 import sentry_sdk
-from child_pyrad.packet import AcctRequest
+from child_pyrad.request import AcctRequest
 # 项目库
 from .accounting_session import AccountingSession
 from settings import ACCOUNTING_INTERVAL

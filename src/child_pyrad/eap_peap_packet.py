@@ -59,7 +59,7 @@ class EapPeapPacket(Eap):
         :param flag_version: 0 - PEAPv0(EAP-MSCHAPv2); 1 - PEAPv1(EAP-GTC)
         :param tls_data:
         """
-        super(self.__class__, self).__init__()
+        super().__init__()
         self.tls_data = tls_data
         self.fragments = []
         self.fpos = 1
@@ -107,7 +107,7 @@ class EapPeapPacket(Eap):
     def is_last_fragment(self) -> bool:
         return self.fpos >= len(self.fragments)
 
-    def pack(self) -> bytes:
+    def ReplyPacket(self) -> bytes:
         attr = self.fragments[self.fpos-1] if self.fragments else b''           # 有包, 则取包内容. 否则为空
         flag_length = 1 if self.fpos == 1 and len(self.fragments) > 1 else 0    # 需要分包且当前在第1个包, 置为1
         flag_more = 1 if self.fpos < len(self.fragments) else 0                 # 分包未结束, 置为1

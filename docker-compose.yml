@@ -6,13 +6,13 @@ services:
     build:
        context: .
        dockerfile: ./docker/radius/Dockerfile
-    ports:      # 外部端口:docker内部端口
+    ports:
       - "1812:1812/udp"
     environment:
       ENTRYPOINT: "${ENTRYPOINT}"
       RADIUS_PORT: 1812
-    volumes:    # 挂载盘: - 主机路径:docker内部路径
-      - .:/app     # 把主机下的src目录挂在到docker下, 实现边开发, 边调试
+    volumes:
+      - .:/app
       - ./data:/data
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
     tty: true
@@ -54,6 +54,26 @@ services:
       - .:/app
       - ./data:/data
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/acct.sh; fi'
+    tty: true
+    restart: "${RESTART_POLICY}"
+    networks:
+      - pppoe_system
+
+
+  dae:
+    container_name: radius_dae
+    build:
+      context: .
+      dockerfile: ./docker/radius/Dockerfile
+    ports:
+      - "3799:3799/udp"
+    environment:
+      ENTRYPOINT: "${ENTRYPOINT}"
+      RADIUS_PORT: 3799
+    volumes:
+      - .:/app
+      - ./data:/data
+    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
     networks:

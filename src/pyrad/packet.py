@@ -71,7 +71,7 @@ class Packet(OrderedDict):
         :type dict:    pyrad.dictionary.Dictionary class
         :param secret: secret needed to communicate with a RADIUS server
         :type secret:  string
-        :param id:     packet identification number
+        :param id:     packet id number. if id is None: CreateID(), else: id = id
         :type id:      integer (8 bits)
         :param code:   packet type code
         :type code:    integer (8bits)
@@ -613,6 +613,12 @@ class Packet(OrderedDict):
 
         return result
 
+    def __str__(self):
+        msg = f'Packet(code={self.code}, id={self.id}): \nauthenticator: {self.authenticator}\n'
+        for k in self.keys():
+            msg += f'    {k}: {self[k]}\n'
+        return msg
+
 
 class AuthPacket(Packet):
     def __init__(self, code=AccessRequest, id=None, secret=six.b(''),
@@ -943,4 +949,5 @@ def CreateID():
     global CurrentID
 
     CurrentID = (CurrentID + 1) % 256
+
     return CurrentID

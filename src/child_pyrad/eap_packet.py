@@ -46,13 +46,13 @@ class EapPacket(Eap):
         except struct.error:
             raise PacketError('EAP header is corrupt')
         if len(packet) != _length:
-            raise PacketError('EAP has invalid length')
+            raise PacketError(f'EAP has invalid length. packet length({len(packet)}), avp length({_length})')
         assert code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]
         type, = struct.unpack("!B", packet[4:5]) if _length > 4 else None
         type_data = packet[5:_length] if _length > 5 else b''
         return EapPacket(code=code, id=id, type_dict={'type': type, 'type_data': type_data})
 
-    def pack(self) -> bytes:
+    def ReplyPacket(self) -> bytes:
         if self.code in [Eap.CODE_EAP_REQUEST, Eap.CODE_EAP_RESPONSE]:
             header = struct.pack('!B B H B', self.code, self.id, (5 + len(self.type_data)), self.type)
         else:

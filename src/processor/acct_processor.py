@@ -1,8 +1,8 @@
 import traceback
-import signal
+from signal import SIGTERM
 import sentry_sdk
 # 第三方库
-import gevent
+from gevent import signal
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 # 项目库
@@ -11,23 +11,23 @@ from acct.flow import Flow
 from child_pyrad.dictionary import get_dictionaries
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
 from loguru import logger as log
-from child_pyrad.packet import AcctRequest, AcctResponse
+from child_pyrad.request import AcctRequest
 from controls.user import AcctUser
 
 
-class EchoServer(DatagramServer):
+class RadiusServer(DatagramServer):
     dictionary: Dictionary = None
 
     def __init__(self, dictionary, *args, **kwargs):
-        super(self.__class__, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.dictionary = dictionary
 
     def handle(self, data, address):
-        log.trace(f'request bytes: {data}')
+        log.trace(f'receive bytes: {data}')
 
-        # 解析报文
+        # 收取报文并解析
         try:
-            request = AcctRequest(dict=self.dictionary, secret=RADIUS_SECRET, packet=data, socket=self.socket, address=address)
+            request = AcctRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
             acct_user = AcctUser(request=request)
         except KeyError:
@@ -53,16 +53,19 @@ def main():
     listen_ip = '0.0.0.0'
     listen_port = 1813
     log.debug(f'listening on {listen_ip}:{listen_port}')
-    server = EchoServer(dictionary, f'{listen_ip}:{listen_port}')
+    server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
 
     def shutdown():
         log.info('exit gracefully')
         server.close()
-    gevent.signal(signal.SIGTERM, shutdown)
+        cleanup()
+    signal(SIGTERM, shutdown)
+    #
     try:
         server.serve_forever(stop_timeout=3)
     finally:
-        cleanup()
+        shutdown()
 
 
-main()
+if __name__ == "__main__":
+    main()

@@ -4,7 +4,8 @@ import struct
 # 第三方库
 # 项目库
 from .flow import Flow, AccessReject
-from child_pyrad.packet import AuthRequest, AuthResponse
+from child_pyrad.request import AuthRequest
+from child_pyrad.response import AuthResponse
 from controls.user import AuthUser
 from models.account import Account
 from child_pyrad.eap_packet import EapPacket
@@ -205,7 +206,7 @@ class EapPeapGtcFlow(Flow):
         # 返回数据
         eap_identity = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.current_eap_id,
                                  type_dict={'type': EapPacket.TYPE_EAP_IDENTITY, 'type_data': b''})
-        tls_plaintext = eap_identity.pack()
+        tls_plaintext = eap_identity.ReplyPacket()
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
@@ -242,7 +243,7 @@ class EapPeapGtcFlow(Flow):
         type_data = struct.pack(f'!{len(response_data)}s', response_data)
         eap_password = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.current_eap_id,
                                  type_dict={'type': EapPacket.TYPE_EAP_GTC, 'type_data': type_data})
-        tls_plaintext = eap_password.pack()
+        tls_plaintext = eap_password.ReplyPacket()
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
@@ -271,11 +272,11 @@ class EapPeapGtcFlow(Flow):
             log.error(f'user_password: {session.auth_user.user_password} not correct')
             # 返回数据 eap_failure
             eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.current_eap_id)
-            tls_plaintext = eap_failure.pack()
+            tls_plaintext = eap_failure.ReplyPacket()
         else:
             # 返回数据 eap_success
             eap_success = EapPacket(code=EapPacket.CODE_EAP_SUCCESS, id=session.current_eap_id)
-            tls_plaintext = eap_success.pack()
+            tls_plaintext = eap_success.ReplyPacket()
 
         # 加密
         tls_out_data = libhostapd.encrypt(session.tls_connection, tls_plaintext)
