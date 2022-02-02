@@ -20,9 +20,11 @@ class Protocol(object):
 
 class AuthRequest(AuthPacket):
     """ receive access request """
+    code = PacketCode.CODE_ACCESS_REQUEST
+
     def __init__(self, secret: str, dict: Dictionary, packet: str, socket, address):
         init_packet_from_receive(super(self.__class__, self),
-                                 code=PacketCode.CODE_ACCESS_REQUEST, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+                                 code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket, address = socket, address
         # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
@@ -81,9 +83,11 @@ class AuthRequest(AuthPacket):
 
 class AcctRequest(AcctPacket):
     """ receive accounting request """
+    code = PacketCode.CODE_ACCOUNT_REQUEST
+
     def __init__(self, secret: str, dict, packet: str, socket, address):
         init_packet_from_receive(super(self.__class__, self),
-                                 code=PacketCode.CODE_ACCOUNT_REQUEST, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+                                 code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket, address = socket, address
         # 报文提取
         self.username = self['User-Name'][0]
@@ -105,15 +109,19 @@ class AcctRequest(AcctPacket):
 
 class DmRequest(Packet):
     """ send Disconnect Messages """
+    code = PacketCode.CODE_DISCONNECT_REQUEST
+
     def __init__(self, secret: str, dict, socket, address):
         init_packet_to_send(super(self.__class__, self),
-                            code=PacketCode.CODE_DISCONNECT_REQUEST, id=None, secret=secret, authenticator=None, dict=dict)
+                            code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
         self.socket, address = socket, address
 
 
 class CoaRequest(Packet):
     """ send Change-of-Authorization (CoA) Messages """
+    code = PacketCode.CODE_COA_REQUEST
+
     def __init__(self, secret: str, dict, socket, address):
         init_packet_to_send(super(self.__class__, self),
-                            code=PacketCode.CODE_COA_REQUEST, id=None, secret=secret, authenticator=None, dict=dict)
+                            code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
         self.socket, address = socket, address

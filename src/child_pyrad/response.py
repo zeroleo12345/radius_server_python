@@ -78,13 +78,17 @@ class DaeResponse(object):
 
 class DmResponse(Packet):
     """ receive Disconnect Messages """
+    code = PacketCode.CODE_DISCONNECT_ACK
+
     def __init__(self, secret: str, dict, packet: str):
         init_packet_from_receive(super(self.__class__, self),
-                                 code=PacketCode.CODE_DISCONNECT_ACK, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+                                 code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
 
 
 class CoAResponse(Packet):
     """ receive Change-of-Authorization (CoA) Messages """
+    code = PacketCode.CODE_COA_ACK
+
     def __init__(self, secret: str, dict, packet: str):
         init_packet_from_receive(super(self.__class__, self),
-                                 code=PacketCode.CODE_ACCESS_REQUEST, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+                                 code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)

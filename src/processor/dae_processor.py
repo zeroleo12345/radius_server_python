@@ -28,19 +28,20 @@ class DAEClient(object):
     def serve_forever(self):
         """
         {
+            'code': 40,
             'ip': '192.168.11.11',
             'port': 3799,
             'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
         """
         data = {
-            'type': 'disconnect',
+            'code': 40,
             'ip': '192.168.11.11',
             'port': 3799,
             'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
-        address = (data.pop('ip'), data.pop('port'))
-        if 1:
+        address = (data['ip'], data['port'])
+        if data['code']:
             request = DmRequest(secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=address)
         for k, v in data['data'].items():
             request[k] = v
