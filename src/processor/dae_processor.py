@@ -7,6 +7,7 @@ import time
 import traceback
 from signal import signal, SIGTERM
 import socket
+import json
 # 第三方库
 from pyrad.dictionary import Dictionary
 import sentry_sdk
@@ -14,6 +15,7 @@ import sentry_sdk
 from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.request import RequestFactory
 from child_pyrad.response import ResponseFactory, DmResponse, CoAResponse
+from utils.redispool import get_redis
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
 from loguru import logger as log
 
@@ -25,9 +27,13 @@ class DAEClient(object):
         self.socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)    # | socket.SOCK_NONBLOCK
         self.socket.settimeout(3)  # seconds
         self.dictionary = dictionary
+        self.is_running = True
+
+    def close(self):
+        self.is_running = False
 
     def serve_forever(self):
-        while 1:
+        while self.is_running:
             try:
                 self.run()
             except Exception as e:
@@ -44,13 +50,20 @@ class DAEClient(object):
             'avp': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
         """
-        req_data = {
-            'code': 40,
-            'ip': '192.168.11.11',
-            'port': 3799,
-            'avp': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
-        }
-        # TODO redis queue lpop
+        if 1:
+            req_data = {
+                'code': 40,
+                'ip': '192.168.11.11',
+                'port': 3799,
+                'avp': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
+            }
+        else:
+            redis = get_redis()
+            queue_data = redis.lpop()
+            if not queue_data:
+                log.trace('redis queue empty')
+                return
+            req_data = json.dumps(queue_data, ensure_ascii=False)
         to_address = (req_data['ip'], req_data['port'])
         request = RequestFactory(code=req_data['code'], secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=to_address)
         #
@@ -82,14 +95,15 @@ def send(response):
 
 def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
-    client = DAEClient(dictionary)
+    server = DAEClient(dictionary)
 
     def shutdown():
         log.info('exit gracefully')
+        server.close()
     signal(SIGTERM, shutdown)
 
     try:
-        client.serve_forever()
+        server.serve_forever()
     finally:
         cleanup()
 
