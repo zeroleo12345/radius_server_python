@@ -123,8 +123,7 @@ class DmRequest(CoAPacket):
     code = PacketCode.CODE_DISCONNECT_REQUEST
 
     def __init__(self, secret, dict, socket, address):
-        init_packet_to_send(super(self.__class__, self),
-                            code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
+        init_packet_to_send(super(self.__class__, self), code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
         self.socket, self.address = socket, address
 
 
@@ -133,6 +132,5 @@ class CoARequest(CoAPacket):
     code = PacketCode.CODE_COA_REQUEST
 
     def __init__(self, secret, dict, socket, address):
-        init_packet_to_send(super(self.__class__, self),
-                            code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
+        init_packet_to_send(super(self.__class__, self), code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
         self.socket, self.address = socket, address

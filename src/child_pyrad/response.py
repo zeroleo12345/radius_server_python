@@ -14,8 +14,7 @@ if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
 class AuthResponse(AuthPacket):
     """ send access response """
     def __init__(self, id, secret, authenticator, dict):
-        init_packet_to_send(super(self.__class__, self),
-                            code=PacketCode.CODE_ACCESS_ACCEPT, id=id, secret=secret, authenticator=authenticator, dict=dict)
+        init_packet_to_send(super(self.__class__, self), code=PacketCode.CODE_ACCESS_ACCEPT, id=id, secret=secret, authenticator=authenticator, dict=dict)
 
     @classmethod
     def create_access_accept(cls, request: 'AuthRequest') -> AuthPacket:
@@ -54,8 +53,7 @@ class AuthResponse(AuthPacket):
 class AcctResponse(AcctPacket):
     """ send accounting response """
     def __init__(self, id, secret, authenticator, dict):
-        init_packet_to_send(super(self.__class__, self),
-                            code=PacketCode.CODE_ACCOUNT_RESPONSE, id=id, secret=secret, authenticator=authenticator, dict=dict)
+        init_packet_to_send(super(self.__class__, self), code=PacketCode.CODE_ACCOUNT_RESPONSE, id=id, secret=secret, authenticator=authenticator, dict=dict)
 
     @classmethod
     def create_account_response(cls, request: 'AcctRequest') -> 'AcctResponse':
@@ -66,8 +64,7 @@ class AcctResponse(AcctPacket):
 class ResponseFactory(object):
 
     def __new__(cls, secret, dict, packet: str):
-        response = init_packet_from_receive(Packet,
-                                            code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        response = init_packet_from_receive(Packet, code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         # TODO 这里解析报文两次
         if response.code in [PacketCode.CODE_DISCONNECT_ACK, PacketCode.CODE_DISCONNECT_NAK]:
             return DmResponse(secret=secret, packet=packet, dict=dict)
@@ -82,8 +79,7 @@ class DmResponse(Packet):
     code = PacketCode.CODE_DISCONNECT_ACK
 
     def __init__(self, secret, dict, packet: str):
-        init_packet_from_receive(super(self.__class__, self),
-                                 code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        init_packet_from_receive(super(self.__class__, self), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
 
 
 class CoAResponse(Packet):
@@ -91,5 +87,4 @@ class CoAResponse(Packet):
     code = PacketCode.CODE_COA_ACK
 
     def __init__(self, secret, dict, packet: str):
-        init_packet_from_receive(super(self.__class__, self),
-                                 code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        init_packet_from_receive(super(self.__class__, self), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
