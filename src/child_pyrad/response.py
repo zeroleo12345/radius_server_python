@@ -1,5 +1,5 @@
 # 第三方库
-from pyrad.packet import AuthPacket, AcctPacket, Packet, CoAPacket
+from pyrad.packet import AuthPacket, AcctPacket, CoAPacket
 # 项目库
 from .packet import PacketCode, init_packet_to_send, init_packet_from_receive
 from .eap_packet import EapPacket
@@ -61,7 +61,7 @@ class AcctResponse(AcctPacket):
         return reply
 
 
-class ResponseFactory(Packet):
+class ResponseFactory(CoAPacket):
 
     def __new__(cls, secret, dict, packet: str):
         from pprint import pprint; import pdb; pdb.set_trace()
