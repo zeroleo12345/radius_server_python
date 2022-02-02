@@ -71,7 +71,7 @@ class DAEClient(object):
             request[k] = v
 
         # 发送报文
-        self.socket.sendto(data=request.ReplyPacket().encode(), address=request.address)
+        self.socket.sendto(data=request.RequestPacket(), address=request.address)
         res_data, from_address = self.socket.recvfrom(1024)
         data = res_data.decode()
 

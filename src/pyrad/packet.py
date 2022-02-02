@@ -949,4 +949,5 @@ def CreateID():
     global CurrentID
 
     CurrentID = (CurrentID + 1) % 256
+
     return CurrentID
