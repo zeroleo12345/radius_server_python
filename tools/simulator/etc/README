@@ -21,10 +21,10 @@ openssl dhparam -out ./dh 1024
 # 报错则更换序列号: ERROR:Serial number 99 has already been issued
 touch index.txt && echo 01 > serial
 
-# 生成CA根证书私钥
+# 生成CA根证书私钥(KEY)
 openssl genrsa -out ./ca.key.pem 2048
 
-# 通过CA根证书私钥, 生成CA根证书
+# 通过CA根证书私钥, 生成CA根证书(PEM)
 openssl req -new -x509 -days 3650 -key ./ca.key.pem -out ./ca.cer.pem -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com"
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
@@ -41,7 +41,7 @@ openssl req -new -x509 -days 3650 -key ./ca.key.pem -out ./ca.cer.pem -subj "/C=
     Common Name (e.g. server FQDN or YOUR name) []:WIFI
     Email Address []:1000@gmail.com
 
-# 生成服务端私钥, 并使用des3加密
+# 生成服务端私钥(KEY), 并使用des3加密
 openssl genrsa  -des3 -passout pass:123456  -out ./server.key.pem 2048
     Generating RSA private key, 2048 bit long modulus
     ...............................................+++
@@ -50,8 +50,8 @@ openssl genrsa  -des3 -passout pass:123456  -out ./server.key.pem 2048
     Enter pass phrase for private/serverkey.pem:123456
     Verifying - Enter pass phrase for private/serverkey.pem:123456
 
-# 通过服务端私钥, 生成服务端证书签名请求
-openssl req -new -days 3650 -key ./server.key.pem -out ./server.csr.pem -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com" -passout pass:123456
+# 通过服务端私钥, 生成服务端证书签名请求(CSR)
+openssl req -new -days 3650 -key ./server.key.pem  -passin pass:123456 -out ./server.csr.pem -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com"
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
     What you are about to enter is what is called a Distinguished Name or a DN.
@@ -72,7 +72,7 @@ openssl req -new -days 3650 -key ./server.key.pem -out ./server.csr.pem -subj "/
     A challenge password []:123456
     An optional company name []:WIFI
 
-# 通过CA根证书私钥、CA根证书、服务端证书签名请求, 生成服务端证书
+# 通过CA根证书私钥、CA根证书、服务端证书签名请求, 生成服务端证书(PEM)
 mkdir newcerts
 openssl ca -days 3650 -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./server.csr.pem -out ./server.cer.pem
     Using configuration from /usr/local/ssl/openssl.cnf
@@ -107,12 +107,15 @@ openssl ca -days 3650 -keyfile ./ca.key.pem -cert ./ca.cer.pem -in ./server.csr.
     Data Base Updated
 
 
-# 合成p12证书文件(暂不适用p12证书)
+# 合成p12证书文件(暂不用.p12证书)
 openssl pkcs12 -export -out certificate.p12 -inkey server.key.pem -in server.cer.pem
 
 
 # 查看证书过期时间
 openssl x509 -noout -dates -in server.cer.pem
+
+# 验证证书密码
+openssl rsa -check -in server.key.pem
 
 
 ## hostapd 不需要用到 client 证书 !!!!
