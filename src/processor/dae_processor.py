@@ -11,7 +11,7 @@ from pyrad.dictionary import Dictionary
 import sentry_sdk
 # 项目库
 from child_pyrad.dictionary import get_dictionaries
-from child_pyrad.request import DmRequest
+from child_pyrad.request import DmRequest, CoARequest
 from child_pyrad.response import DaeResponse, DmResponse, CoAResponse
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
 from loguru import logger as log
@@ -34,20 +34,22 @@ class DAEClient(object):
             'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
         """
-        data = {
+        req_data = {
             'code': 40,
             'ip': '192.168.11.11',
             'port': 3799,
             'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
-        address = (data['ip'], data['port'])
-        if data['code']:
-            request = DmRequest(secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=address)
-        for k, v in data['data'].items():
+        address = (req_data['ip'], req_data['port'])
+        request = self.init_request_from_code(req_data['code'])
+        #
+        for k, v in req_data['data'].items():
             request[k] = v
         # TODO 生成报文
+        res_data = request.ReplyPacket()
+
         try:
-            self.socket.sendto(data=data.encode(), address=address)
+            self.socket.sendto(data=res_data.encode(), address=address)
             data, addr = self.socket.recvfrom(1024)
         except Exception as e:
             log.critical(traceback.format_exc())
@@ -65,6 +67,13 @@ class DAEClient(object):
         except Exception:
             log.trace(traceback.format_exc())
             return
+
+    def init_request_from_code(self, code):
+        if code == DmRequest.code:
+            return DmRequest(secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=address)
+        if code == CoARequest.code:
+            return CoARequest(secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=address)
+        raise Exception('')
 
 
 def send(response):

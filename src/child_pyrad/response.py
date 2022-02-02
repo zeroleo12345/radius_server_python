@@ -42,7 +42,7 @@ class AuthResponse(AuthPacket):
     @classmethod
     def create_peap_challenge(cls, request: 'AuthRequest', peap: EapPeapPacket, session_id: str) -> AuthPacket:
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_CHALLENGE)
-        eap_message = peap.pack()
+        eap_message = peap.ReplyPacket()
         eap_messages = EapPacket.split_eap_message(eap_message)
         for eap in eap_messages:
             reply.AddAttribute('EAP-Message', eap)

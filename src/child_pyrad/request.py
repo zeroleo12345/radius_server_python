@@ -117,7 +117,7 @@ class DmRequest(Packet):
         self.socket, address = socket, address
 
 
-class CoaRequest(Packet):
+class CoARequest(Packet):
     """ send Change-of-Authorization (CoA) Messages """
     code = PacketCode.CODE_COA_REQUEST
 
