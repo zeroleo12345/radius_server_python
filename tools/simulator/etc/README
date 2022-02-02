@@ -1,4 +1,4 @@
-# 修改openssl配置
+# 修改openssl配置(可选)
 - linux
     vim /usr/local/ssl/openssl.cnf
 
