@@ -22,12 +22,24 @@ from loguru import logger as log
 
 def push_test_data(data):
     """
-    {
-        'code': 40,
-        'ip': '192.168.11.11',
-        'port': 3799,
-        'avp': {'User-Name': 'zhouliying', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
-    }
+    Disconnect Message:
+        {
+            'code': 40,
+            'ip': '192.168.11.11',
+            'port': 3799,
+            'avp': {'User-Name': 'zhouliying', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
+        }
+    CoA Message:
+        {
+            'code': 43,
+            'ip': '192.168.11.11',
+            'port': 3799,
+            'avp': {
+                'User-Name': 'zhouliying',
+                'H3C-Output-Peak-Rate': 100 * 1000000, 'H3C-Output-Average-Rate': 100 * 1000000,
+                'H3C-Input-Peak-Rate': 100 * 1000000, 'H3C-Input-Average-Rate': 100 * 1000000,
+            }
+        }
     """
     redis = get_redis()
     key = 'list:dae'
