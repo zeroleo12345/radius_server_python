@@ -112,7 +112,7 @@ openssl pkcs12 -export -out certificate.p12 -inkey server.key.pem -in server.cer
 
 
 # 查看证书过期时间
-openssl x509 -noout -dates -in server.cer.pem
+openssl x509 -noout -dates -in server.key.pem
 
 # 验证证书密码
 openssl rsa -check -in server.key.pem
