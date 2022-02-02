@@ -13,7 +13,7 @@
     dir     = ./     # TSA root directory
 
 # 清理
-rm -rf  ./newcerts/  ./*.old  ./*.attr  index.txt  serial  dh  *.key *.pem *.p12
+rm -rf  ./newcerts/  ./*.old  ./*.attr  index.txt  serial  dh  *.key *.cer *.p12
 
 # 生成dh文件
 openssl dhparam -out ./dh 1024
@@ -25,7 +25,7 @@ touch index.txt && echo 01 > serial
 openssl genrsa -out ./ca.key 2048
 
 # 通过CA根证书私钥, 生成CA根证书(PEM)
-openssl req -new -x509 -days 3650 -key ./ca.key -out ./ca.pem -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com"
+openssl req -new -x509 -days 3650 -key ./ca.key -out ./ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com"
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
     What you are about to enter is what is called a Distinguished Name or a DN.
@@ -74,7 +74,7 @@ openssl req -new -days 3650 -key ./server.key  -passin pass:123456 -out ./server
 
 # 通过CA根证书私钥、CA根证书、服务端证书签名请求, 生成服务端证书(PEM)
 mkdir newcerts
-openssl ca -days 3650 -keyfile ./ca.key -cert ./ca.pem -in ./server.csr -out ./server.pem
+openssl ca -days 3650 -keyfile ./ca.key -cert ./ca.cer -in ./server.csr -out ./server.cer
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
     Signature ok
@@ -108,11 +108,11 @@ openssl ca -days 3650 -keyfile ./ca.key -cert ./ca.pem -in ./server.csr -out ./s
 
 
 # 合成p12证书文件(暂不用.p12证书)
-openssl pkcs12 -export -out certificate.p12 -inkey server.key -in server.pem
+openssl pkcs12 -export -out certificate.p12 -inkey server.key -in server.cer
 
 
 # 查看证书过期时间
-openssl x509 -noout -dates -in server.pem
+openssl x509 -noout -dates -in server.cer
 
 # 验证证书密码
 openssl rsa -check -in server.key
@@ -152,7 +152,7 @@ openssl req -new -days 3650 -key ./client.key -out ./client.csr
     An optional company name []:WIFI
     
 # 通过CA根证书私钥、CA根证书、客户端证书签名请求, 生成客户端证书
-openssl ca -days 3650 -keyfile ./ca.key -cert ./ca.pem -in ./client.csr -out ./client.pem
+openssl ca -days 3650 -keyfile ./ca.key -cert ./ca.cer -in ./client.csr -out ./client.cer
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
     Signature ok
