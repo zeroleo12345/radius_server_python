@@ -58,11 +58,13 @@ def main():
     def shutdown():
         log.info('exit gracefully')
         server.close()
+        cleanup()
     signal(SIGTERM, shutdown)
+    #
     try:
         server.serve_forever(stop_timeout=3)
     finally:
-        cleanup()
+        shutdown()
 
 
 main()

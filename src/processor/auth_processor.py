@@ -58,6 +58,8 @@ class RadiusServer(DatagramServer):
             verify(request, auth_user)
         except AccessReject:
             Flow.access_reject(request=request, auth_user=auth_user)
+        except KeyboardInterrupt:
+            self.close()
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
@@ -106,11 +108,13 @@ def main():
         log.info('exit gracefully')
         server.close()
         stat_thread.stop()
+        cleanup()
     signal(SIGTERM, shutdown)
+    #
     try:
         server.serve_forever(stop_timeout=3)
     finally:
-        cleanup()
+        shutdown()
 
 
 main()
