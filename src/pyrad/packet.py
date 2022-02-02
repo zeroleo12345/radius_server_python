@@ -614,7 +614,7 @@ class Packet(OrderedDict):
         return result
 
     def __str__(self):
-        msg = f'Packet(id={self.id}): \nauthenticator: {self.authenticator}\n'
+        msg = f'Packet(code={self.code}, id={self.id}): \nauthenticator: {self.authenticator}\n'
         for k in self.keys():
             msg += f'    {k}: {self[k]}\n'
         return msg
