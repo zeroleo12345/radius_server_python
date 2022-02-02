@@ -25,7 +25,7 @@ class AuthRequest(AuthPacket):
     def __init__(self, secret: str, dict: Dictionary, packet: str, socket, address):
         init_packet_from_receive(super(self.__class__, self),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
-        self.socket, address = socket, address
+        self.socket, self.address = socket, address
         # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
         self.username = self['User-Name'][0]
@@ -88,7 +88,7 @@ class AcctRequest(AcctPacket):
     def __init__(self, secret: str, dict, packet: str, socket, address):
         init_packet_from_receive(super(self.__class__, self),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
-        self.socket, address = socket, address
+        self.socket, self.address = socket, address
         # 报文提取
         self.username = self['User-Name'][0]
         self.user_mac = self['Calling-Station-Id'][0]
@@ -114,7 +114,7 @@ class DmRequest(Packet):
     def __init__(self, secret: str, dict, socket, address):
         init_packet_to_send(super(self.__class__, self),
                             code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
-        self.socket, address = socket, address
+        self.socket, self.address = socket, address
 
 
 class CoARequest(Packet):
