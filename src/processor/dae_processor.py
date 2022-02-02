@@ -20,14 +20,16 @@ from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
 from loguru import logger as log
 
 
-def push_test_data(ip):
-    redis = get_redis()
-    data = {
-        'code': DmRequest.code,
-        'ip': ip,
+def push_test_data(data):
+    """
+    {
+        'code': 40,
+        'ip': '192.168.11.11',
         'port': 3799,
-        'avp': {'User-Name': 'zhouliying'}
+        'avp': {'User-Name': 'zhouliying', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
     }
+    """
+    redis = get_redis()
     key = 'list:dae'
     redis.lpush(key, json.dumps(data, ensure_ascii=False))
 
@@ -57,14 +59,6 @@ class DAEClient(object):
                 sentry_sdk.capture_exception(e)
 
     def run(self):
-        """
-        {
-            'code': 40,
-            'ip': '192.168.11.11',
-            'port': 3799,
-            'avp': {'User-Name': 'zhouliying', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
-        }
-        """
         redis = get_redis()
         key = 'list:dae'
         queue_data = redis.lpop(key)
