@@ -47,7 +47,7 @@ if LOG_DIR and LOG_HEADER:
     log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00', level=LOG_LEVEL)
 else:
     log.info('close log to file')
-log.warning(f'log parameter. Log-Level: {LOG_LEVEL}, Log-Header: {LOG_HEADER}, Log-Directory: {LOG_DIR}')
+log.warning(f'Log parameter. Level: {LOG_LEVEL}, Header: {LOG_HEADER}, Directory: {LOG_DIR}')
 
 
 def cleanup():
