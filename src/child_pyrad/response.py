@@ -63,11 +63,12 @@ class AcctResponse(AcctPacket):
         return reply
 
 
-class DaeResponse(object):
+class ResponseFactory(object):
 
-    def __new__(cls, secret: str, dict, packet: str):
+    def __new__(cls, secret, dict, packet: str):
         response = init_packet_from_receive(Packet,
                                             code=0, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        # TODO 这里解析报文两次
         if response.code in [PacketCode.CODE_DISCONNECT_ACK, PacketCode.CODE_DISCONNECT_NAK]:
             return DmResponse(secret=secret, packet=packet, dict=dict)
         if response.code in [PacketCode.CODE_COA_ACK, PacketCode.CODE_COA_NAK]:
@@ -80,7 +81,7 @@ class DmResponse(Packet):
     """ receive Disconnect Messages """
     code = PacketCode.CODE_DISCONNECT_ACK
 
-    def __init__(self, secret: str, dict, packet: str):
+    def __init__(self, secret, dict, packet: str):
         init_packet_from_receive(super(self.__class__, self),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
 
@@ -89,6 +90,6 @@ class CoAResponse(Packet):
     """ receive Change-of-Authorization (CoA) Messages """
     code = PacketCode.CODE_COA_ACK
 
-    def __init__(self, secret: str, dict, packet: str):
+    def __init__(self, secret, dict, packet: str):
         init_packet_from_receive(super(self.__class__, self),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)

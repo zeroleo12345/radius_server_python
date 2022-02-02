@@ -22,7 +22,7 @@ class AuthRequest(AuthPacket):
     """ receive access request """
     code = PacketCode.CODE_ACCESS_REQUEST
 
-    def __init__(self, secret: str, dict: Dictionary, packet: str, socket, address):
+    def __init__(self, secret, dict: Dictionary, packet: str, socket, address):
         init_packet_from_receive(super(self.__class__, self),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket, self.address = socket, address
@@ -85,7 +85,7 @@ class AcctRequest(AcctPacket):
     """ receive accounting request """
     code = PacketCode.CODE_ACCOUNT_REQUEST
 
-    def __init__(self, secret: str, dict, packet: str, socket, address):
+    def __init__(self, secret, dict, packet: str, socket, address):
         init_packet_from_receive(super(self.__class__, self),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket, self.address = socket, address
@@ -107,11 +107,22 @@ class AcctRequest(AcctPacket):
         return response
 
 
+class RequestFactory(object):
+
+    def __new__(cls, code, secret, dict, socket, address):
+        if code == DmRequest.code:
+            return DmRequest(secret=secret, dict=dict, socket=socket, address=address)
+        if code == CoARequest.code:
+            return CoARequest(secret=secret, dict=dict, socket=socket, address=address)
+
+        raise Exception('')
+
+
 class DmRequest(Packet):
     """ send Disconnect Messages """
     code = PacketCode.CODE_DISCONNECT_REQUEST
 
-    def __init__(self, secret: str, dict, socket, address):
+    def __init__(self, secret, dict, socket, address):
         init_packet_to_send(super(self.__class__, self),
                             code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
         self.socket, self.address = socket, address
@@ -121,7 +132,7 @@ class CoARequest(Packet):
     """ send Change-of-Authorization (CoA) Messages """
     code = PacketCode.CODE_COA_REQUEST
 
-    def __init__(self, secret: str, dict, socket, address):
+    def __init__(self, secret, dict, socket, address):
         init_packet_to_send(super(self.__class__, self),
                             code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
         self.socket, self.address = socket, address
