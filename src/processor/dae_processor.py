@@ -28,7 +28,11 @@ class DAEClient(object):
 
     def serve_forever(self):
         while 1:
-            self.run()
+            try:
+                self.run()
+            except Exception as e:
+                log.critical(traceback.format_exc())
+                sentry_sdk.capture_exception(e)
             time.sleep(1)
 
     def run(self):
@@ -37,42 +41,34 @@ class DAEClient(object):
             'code': 40,
             'ip': '192.168.11.11',
             'port': 3799,
-            'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
+            'avp': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
         """
         req_data = {
             'code': 40,
             'ip': '192.168.11.11',
             'port': 3799,
-            'data': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
+            'avp': {'User-Name': 'user', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
         # TODO redis queue lpop
         to_address = (req_data['ip'], req_data['port'])
         request = RequestFactory(code=req_data['code'], secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=to_address)
         #
-        for k, v in req_data['data'].items():
+        for k, v in req_data['avp'].items():
             request[k] = v
-        # send data
-        try:
-            self.socket.sendto(data=request.ReplyPacket().encode(), address=request.address)
-            res_data, from_address = self.socket.recvfrom(1024)
-            data = res_data.decode()
-        except Exception as e:
-            log.critical(traceback.format_exc())
-            sentry_sdk.capture_exception(e)
-            return
 
-        # 收取报文并解析
+        # 发送报文
+        self.socket.sendto(data=request.ReplyPacket().encode(), address=request.address)
+        res_data, from_address = self.socket.recvfrom(1024)
+        data = res_data.decode()
+
+        # 收取报文, 解析
         log.trace(f'receive bytes: {data}')
         try:
             response = ResponseFactory(dict=self.dictionary, secret=RADIUS_SECRET, packet=data)
             log.trace(f'response Radius: {response}')
         except KeyError as e:
             log.warning(f'packet corrupt from {from_address}, KeyError: {e.args[0]}')
-            return
-        except Exception as e:
-            log.trace(traceback.format_exc())
-            sentry_sdk.capture_exception(e)
             return
 
 
