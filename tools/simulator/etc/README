@@ -24,7 +24,7 @@ touch index.txt && echo 01 > serial
 # 生成CA根证书私钥(KEY)
 openssl genrsa -out ./ca.key 2048
 
-# 通过CA根证书私钥, 生成CA根证书(PEM)
+# 通过CA根证书私钥, 生成CA根证书(CER)
 openssl req -new -x509 -days 3650 -key ./ca.key -out ./ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com"
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
@@ -72,7 +72,7 @@ openssl req -new -days 3650 -key ./server.key  -passin pass:123456 -out ./server
     A challenge password []:123456
     An optional company name []:WIFI
 
-# 通过CA根证书私钥、CA根证书、服务端证书签名请求, 生成服务端证书(PEM)
+# 通过CA根证书私钥、CA根证书、服务端证书签名请求, 生成服务端证书(CER)
 mkdir newcerts
 openssl ca -days 3650 -keyfile ./ca.key -cert ./ca.cer -in ./server.csr -out ./server.cer
     Using configuration from /usr/local/ssl/openssl.cnf
@@ -111,10 +111,10 @@ openssl ca -days 3650 -keyfile ./ca.key -cert ./ca.cer -in ./server.csr -out ./s
 openssl pkcs12 -export -out certificate.p12 -inkey server.key -in server.cer
 
 
-# 查看证书过期时间
+# 查看公钥CER过期时间
 openssl x509 -noout -dates -in server.cer
 
-# 验证证书密码
+# 验证私钥KEY密码
 openssl rsa -check -in server.key
 
 
