@@ -76,7 +76,7 @@ class ResponseFactory(object):
 
 class DmResponse(CoAPacket):
     """ receive Disconnect Messages """
-    code = PacketCode.CODE_DISCONNECT_ACK
+    code = 0
 
     def __init__(self, secret, dict, packet: bytes):
         init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
@@ -84,7 +84,7 @@ class DmResponse(CoAPacket):
 
 class CoAResponse(CoAPacket):
     """ receive Change-of-Authorization (CoA) Messages """
-    code = PacketCode.CODE_COA_ACK
+    code = 0
 
     def __init__(self, secret, dict, packet: bytes):
         init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
