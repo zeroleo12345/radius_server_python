@@ -65,7 +65,7 @@ class DAEClient(object):
                     log.trace('sleep 3s')
                     time.sleep(3)
             except KeyboardInterrupt:
-                self.close()
+                return
             except Exception as e:
                 log.critical(traceback.format_exc())
                 sentry_sdk.capture_exception(e)
