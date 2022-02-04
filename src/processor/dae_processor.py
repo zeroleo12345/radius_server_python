@@ -13,7 +13,7 @@ from pyrad.dictionary import Dictionary
 import sentry_sdk
 # 项目库
 from child_pyrad.dictionary import get_dictionaries
-from child_pyrad.request import RequestFactory, DmRequest
+from child_pyrad.request import RequestFactory
 from child_pyrad.response import ResponseFactory, DmResponse, CoAResponse
 from utils.redispool import get_redis
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
@@ -115,7 +115,7 @@ def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
     server = DAEClient(dictionary)
 
-    def shutdown():
+    def shutdown(sig=None, frame=None):
         log.info('exit gracefully')
         server.close()
         cleanup()
