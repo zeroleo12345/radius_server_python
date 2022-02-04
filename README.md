@@ -26,11 +26,9 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 - Setup mysql
 
-  save [docker-compose.yml](https://github.com/zeroleo12345/restful_server/blob/master/docker-compose.yml) to another directory and start it.
+  start mysql:  `docker-compose -f docker-compose.yml up mysql`
 
-  `docker-compose -f docker-compose.yml up mysql`
-
-  init mysql database and table data with [mysql_insert.sql](https://github.com/zeroleo12345/radius_server/blob/feature/add_docker/data/db/mysql_insert.sql)
+  init mysql database and table data with [mysql_insert.sql](https://github.com/zeroleo12345/radius_server_python/blob/master/data/db/mysql_insert.sql)
 
 - For authenticate
 
