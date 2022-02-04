@@ -73,7 +73,7 @@ services:
     volumes:
       - .:/app
       - ./data:/data
-    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
+    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/dae.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
     networks:
