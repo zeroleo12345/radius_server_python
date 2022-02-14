@@ -9,15 +9,6 @@ from loguru import logger as log
 from .response import AuthResponse, AcctResponse
 
 
-class Protocol(object):
-    CHAP_PROTOCOL = 'CHAP'
-    PAP_PROTOCOL = 'PAP'
-    MAC_PROTOCOL = 'MAC'
-    MSCHAPV2_PROTOCOL = 'MSCHAPV2'
-    EAP_PEAP_GTC_PROTOCOL = 'EAP-PEAP-GTC'
-    EAP_PEAP_MSCHAPV2_PROTOCOL = 'EAP-PEAP-MSCHAPV2'
-
-
 class AuthRequest(AuthPacket):
     """ receive access request """
     code = PacketCode.CODE_ACCESS_REQUEST
