@@ -4,7 +4,6 @@ from child_pyrad.request import AcctRequest
 # 项目库
 from .accounting_session import AccountingSession
 from settings import ACCOUNTING_INTERVAL
-from utils.redispool import get_redis
 from loguru import logger as log
 from models.account import Account
 from controls.user import AcctUser
@@ -30,7 +29,7 @@ class AccountingFlow(object):
         if current_session > 1:
             pass
             # sentry_sdk.capture_message(f'account: {acct_user.outer_username} multiple session!')
-            # cls.disconnect(mac_address=acct_user.user_mac) # 断开链接
+            # cls.disconnect(user_name=acct_user.outer_username, mac_address=acct_user.user_mac) # 断开链接
         else:
             pass
         #
@@ -45,6 +44,6 @@ class AccountingFlow(object):
         return
 
     @classmethod
-    def disconnect(cls, mac_address):
+    def disconnect(cls, username, mac_address):
         log.info(f'disconnect session. mac_address: {mac_address}')
         return

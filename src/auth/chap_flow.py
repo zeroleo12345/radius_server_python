@@ -46,7 +46,3 @@ class ChapFlow(Flow):
         log.info(f'OUT: accept|{"|".join(data)}|')
         reply = AuthResponse.create_access_accept(request=request)
         return request.reply_to(reply)
-
-    @classmethod
-    def is_unique_session(cls, mac_address):
-        return True
