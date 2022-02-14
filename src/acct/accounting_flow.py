@@ -26,13 +26,12 @@ class AccountingFlow(object):
         if AccountingSession.clean(interval=ACCOUNTING_INTERVAL*2):
             log.debug('clean up accounting session')
         #
-        current_session = AccountingSession.put(acct_user.outer_username, acct_user.user_mac)
-        if current_session > 1:
-            text = f'account: {acct_user.outer_username} 多拨!'
-            Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=text)
-            # cls.disconnect(user_name=acct_user.outer_username, mac_address=acct_user.user_mac)
-        else:
-            pass
+        if request.auth_class:
+            current_session = AccountingSession.put(acct_user.outer_username, acct_user.user_mac)
+            if current_session > 1:
+                text = f'account: {acct_user.outer_username} 多拨!'
+                Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=text)
+                # cls.disconnect(user_name=acct_user.outer_username, mac_address=acct_user.user_mac)
         #
         data = [
             request.nas_ip,

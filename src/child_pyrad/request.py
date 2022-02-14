@@ -95,6 +95,7 @@ class AcctRequest(AcctPacket):
         self.nas_name = self['NAS-Identifier'][0]
         self.nas_ip = self['NAS-IP-Address'][0]
         self.iut = self["Acct-Status-Type"][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
+        self.auth_class = self.get("Class", (None, None))[0]
 
     def reply_to(self, reply: AcctPacket):
         log.trace(f'reply: {reply}')
