@@ -41,7 +41,7 @@ class AuthResponse(AuthPacket):
             # User Profile 适用于wlan和PPPoE用户. 当AC profile disable时, 会连不上WIFi
             # reply['Filter-Id'] = f'pay_user_4m'
         if request.auth_protocol == PacketProtocol.CHAP_PROTOCOL:
-            reply['Class'] = uuid4().hex
+            reply['Class'] = uuid4().hex.encode()
         return reply
 
     @classmethod
