@@ -38,6 +38,7 @@ class AuthResponse(AuthPacket):
             reply['H3C-Input-Average-Rate'] = int(3 * 1000000)
             # User Profile 适用于wlan和PPPoE用户. 当AC profile disable时, 会连不上WIFi
             # reply['Filter-Id'] = f'pay_user_4m'
+        reply['Class'] = '\x7f'.join((request.auth_protocol, request.username))
         return reply
 
     @classmethod
