@@ -26,6 +26,7 @@ class AccountingFlow(object):
         if AccountingSession.clean(interval=ACCOUNTING_INTERVAL*2):
             log.debug('clean up accounting session')
         #
+        log.info(f'auth_class: {request.auth_class}')
         if request.auth_class:
             current_session = AccountingSession.put(acct_user.outer_username, acct_user.user_mac)
             if current_session > 1:
