@@ -27,10 +27,10 @@ class AccountingFlow(object):
             log.debug('clean up accounting session')
         #
         if request.auth_class:
-            log.info(f'auth_class: {request.auth_class}, outer_username: {acct_user.outer_username}, user_mac: {acct_user.user_mac}')
+            #  log.info(f'auth_class: {request.auth_class}, outer_username: {acct_user.outer_username}, user_mac: {acct_user.user_mac}')
             current_session = AccountingSession.put(acct_user.outer_username, acct_user.user_mac)
             if current_session > 1:
-                text = f'account: {acct_user.outer_username} 多拨!'
+                text = f'{acct_user.outer_username} 账号多拨!'
                 Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=text)
                 # cls.disconnect(user_name=acct_user.outer_username, user_mac=acct_user.user_mac)
         #
