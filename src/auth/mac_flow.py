@@ -35,7 +35,7 @@ class MacFlow(Flow):
             # notify
             notify_url = f'{API_URL}/mac-account?username={session.auth_user.outer_username}&ssid={request.ssid}&ap_mac={request.ap_mac}'
             text = f'设备首次请求放通:\nMAC: {session.auth_user.user_mac}\nSSID: {request.ssid}\n若允许访问, 请点击: {notify_url}'
-            Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SCAN_CHAT_ID, text=text)
+            Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_MAC_CHAT_ID, text=text)
 
         # mac Flow: 用户不存在则创建
         account = MacAccount.get(username=session.auth_user.outer_username)
@@ -54,7 +54,7 @@ class MacFlow(Flow):
                 expired_at=expired_at, created_at=created_at,
             )
             text = f'新增放通 MAC 设备, MAC: {session.auth_user.user_mac}, SSID: {request.ssid}'
-            Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SCAN_CHAT_ID, text=text)
+            Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_MAC_CHAT_ID, text=text)
             redis.delete(enable_flag_key)
 
         session.extra['Auth-Type'] = 'MAC'
