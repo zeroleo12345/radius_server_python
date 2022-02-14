@@ -26,8 +26,8 @@ class AccountingFlow(object):
         if AccountingSession.clean(interval=ACCOUNTING_INTERVAL*2):
             log.debug('clean up accounting session')
         #
-        log.info(f'auth_class: {request.auth_class}, outer_username: {acct_user.outer_username}, user_mac: {acct_user.user_mac}')
         if request.auth_class:
+            log.info(f'auth_class: {request.auth_class}, outer_username: {acct_user.outer_username}, user_mac: {acct_user.user_mac}')
             current_session = AccountingSession.put(acct_user.outer_username, acct_user.user_mac)
             if current_session > 1:
                 text = f'account: {acct_user.outer_username} 多拨!'
