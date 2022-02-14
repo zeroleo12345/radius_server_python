@@ -9,6 +9,7 @@ class Feishu(object):
     FEISHU_APP_SECRET = config('FEISHU_APP_SECRET')
     FEISHU_CHARGE_CHAT_ID = config('FEISHU_CHARGE_CHAT_ID', default='oc_a4bc2f10dd9ec84f08f2bbcaa82e08cd')
     FEISHU_SCAN_CHAT_ID = config('FEISHU_SCAN_CHAT_ID', default='oc_017a5887cf1ed3aa2c79bb68af5f1438')
+    FEISHU_SESSION_CHAT_ID = config('FEISHU_SESSION_CHAT_ID', default='oc_19b2404bb0917fc066cce1b3a58c3558')
 
     @classmethod
     def send_groud_msg(cls, receiver_id: str, text: str):

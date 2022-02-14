@@ -1,9 +1,11 @@
+from uuid import uuid4
 # 第三方库
 from pyrad.packet import AuthPacket, AcctPacket, CoAPacket
 # 项目库
 from .packet import PacketCode, init_packet_to_send, init_packet_from_receive
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
+from .packet import PacketProtocol
 from controls.stat import ApStat, UserStat, DeviceStat
 from settings import ACCOUNTING_INTERVAL
 import typing
@@ -38,6 +40,8 @@ class AuthResponse(AuthPacket):
             reply['H3C-Input-Average-Rate'] = int(3 * 1000000)
             # User Profile 适用于wlan和PPPoE用户. 当AC profile disable时, 会连不上WIFi
             # reply['Filter-Id'] = f'pay_user_4m'
+        if request.auth_protocol == PacketProtocol.CHAP_PROTOCOL:
+            reply['Class'] = uuid4().hex.encode()
         return reply
 
     @classmethod

@@ -9,15 +9,6 @@ from loguru import logger as log
 from .response import AuthResponse, AcctResponse
 
 
-class Protocol(object):
-    CHAP_PROTOCOL = 'CHAP'
-    PAP_PROTOCOL = 'PAP'
-    MAC_PROTOCOL = 'MAC'
-    MSCHAPV2_PROTOCOL = 'MSCHAPV2'
-    EAP_PEAP_GTC_PROTOCOL = 'EAP-PEAP-GTC'
-    EAP_PEAP_MSCHAPV2_PROTOCOL = 'EAP-PEAP-MSCHAPV2'
-
-
 class AuthRequest(AuthPacket):
     """ receive access request """
     code = PacketCode.CODE_ACCESS_REQUEST
@@ -95,6 +86,7 @@ class AcctRequest(AcctPacket):
         self.nas_name = self['NAS-Identifier'][0]
         self.nas_ip = self['NAS-IP-Address'][0]
         self.iut = self["Acct-Status-Type"][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
+        self.auth_class = self.get("Class", (None, None))[0]
 
     def reply_to(self, reply: AcctPacket):
         log.trace(f'reply: {reply}')
