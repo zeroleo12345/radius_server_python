@@ -102,7 +102,6 @@ def main():
     listen_ip = '0.0.0.0'
     listen_port = RADIUS_PORT
     log.debug(f'listening on {listen_ip}:{listen_port}')
-    libhostapd.init()
     server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
     stat_thread = StatThread()
     stat_thread.start()
@@ -114,10 +113,11 @@ def main():
     signal(SIGTERM, shutdown)
     #
     try:
+        libhostapd.init()
         server.serve_forever(stop_timeout=3)
     finally:
         shutdown()
-        libhostapd.deinit()
+        libhostapd.deinit()     # must deinit after server stopped
 
 
 if __name__ == "__main__":
