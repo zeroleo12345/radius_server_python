@@ -114,6 +114,12 @@ enter into accounting container: `docker-compose exec dae bash`
 
 run simulator in container:
 
-```bash
+``` bash
 radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
+```
+
+
+## gdb core
+``` bash
+gdb /root/.pyenv/shims/python -c core.1 
 ```
