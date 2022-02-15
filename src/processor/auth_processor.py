@@ -17,11 +17,12 @@ from auth.pap_flow import PapFlow
 from auth.mac_flow import MacFlow
 from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT, cleanup
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT
 from loguru import logger as log
 from controls.user import AuthUser
 from controls.stat import StatThread
 from utils.config import config
+from library.crypto import libhostapd
 
 
 if config('USE_GTC', default=False, cast='@bool'):
@@ -101,6 +102,7 @@ def main():
     listen_ip = '0.0.0.0'
     listen_port = RADIUS_PORT
     log.debug(f'listening on {listen_ip}:{listen_port}')
+    libhostapd.init()
     server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
     stat_thread = StatThread()
     stat_thread.start()
@@ -109,7 +111,7 @@ def main():
         log.info('exit gracefully')
         server.close()
         stat_thread.stop()
-        cleanup()
+        libhostapd.deinit()
     signal(SIGTERM, shutdown)
     #
     try:

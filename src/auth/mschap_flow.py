@@ -9,7 +9,7 @@ from controls.user import AuthUser
 from models.account import Account
 from models.platform import Platform
 from auth.session import BaseSession
-from settings import libhostapd
+from library.crypto import libhostapd
 
 
 class MsChapFlow(Flow):

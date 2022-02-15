@@ -12,7 +12,7 @@ from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
 from child_pyrad.mppe import create_mppe_recv_key_send_key
 from auth.session import EapPeapSession, SessionCache
-from settings import libhostapd
+from library.crypto import libhostapd
 from loguru import logger as log
 
 
