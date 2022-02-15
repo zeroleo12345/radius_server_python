@@ -111,13 +111,13 @@ def main():
         log.info('exit gracefully')
         server.close()
         stat_thread.stop()
-        libhostapd.deinit()
     signal(SIGTERM, shutdown)
     #
     try:
         server.serve_forever(stop_timeout=3)
     finally:
         shutdown()
+        libhostapd.deinit()
 
 
 if __name__ == "__main__":
