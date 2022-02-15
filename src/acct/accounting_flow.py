@@ -29,7 +29,7 @@ class AccountingFlow(object):
         if request.auth_class:
             #  log.info(f'auth_class: {request.auth_class}, outer_username: {acct_user.outer_username}, user_mac: {acct_user.user_mac}')
             current_session = AccountingSession.put(acct_user.outer_username, acct_user.user_mac)
-            if current_session > 1:
+            if current_session > 1 and account.role != Account.Role.PLATFORM_OWNER.value:
                 text = f'{acct_user.outer_username} 账号多拨!'
                 Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=text)
                 # cls.disconnect(user_name=acct_user.outer_username, user_mac=acct_user.user_mac)
