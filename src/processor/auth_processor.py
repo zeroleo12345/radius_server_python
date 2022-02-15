@@ -17,11 +17,12 @@ from auth.pap_flow import PapFlow
 from auth.mac_flow import MacFlow
 from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT, cleanup
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT
 from loguru import logger as log
 from controls.user import AuthUser
 from controls.stat import StatThread
 from utils.config import config
+from library.crypto import libhostapd
 
 
 if config('USE_GTC', default=False, cast='@bool'):
@@ -109,13 +110,14 @@ def main():
         log.info('exit gracefully')
         server.close()
         stat_thread.stop()
-        cleanup()
     signal(SIGTERM, shutdown)
     #
     try:
+        libhostapd.init()
         server.serve_forever(stop_timeout=3)
     finally:
         shutdown()
+        libhostapd.deinit()     # must deinit after server stopped
 
 
 if __name__ == "__main__":

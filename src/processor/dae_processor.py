@@ -16,7 +16,7 @@ from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.request import RequestFactory
 from child_pyrad.response import ResponseFactory, DmResponse, CoAResponse
 from utils.redispool import get_redis
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET
 from loguru import logger as log
 
 
@@ -118,7 +118,6 @@ def main():
     def shutdown(sig=None, frame=None):
         log.info('exit gracefully')
         server.close()
-        cleanup()
     signal(SIGTERM, shutdown)
     #
     try:

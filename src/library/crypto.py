@@ -5,6 +5,16 @@
 import os
 import ctypes
 from loguru import logger as log
+# 项目库
+from utils.config import config
+
+# HOSTAPD 动态库
+HOSTAPD_LIBRARY = config('HOSTAPD_LIBRARY')
+CA_CERT = config('CA_CERT')
+CLIENT_CERT = config('CLIENT_CERT')
+PRIVATE_KEY = config('PRIVATE_KEY')
+PRIVATE_KEY_PASSWORD = str(config('PRIVATE_KEY_PASSWORD'))
+DH_FILE = config('DH_FILE')
 
 
 class EapCryptoError(Exception):
@@ -31,8 +41,16 @@ class WpaBuf(ctypes.Structure):
     ]
 
 
-class EapCrypto(object):
-    tls_ctx = None
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class EapCrypto(metaclass=Singleton):
     MSG_EXCESSIVE = 0
     MSG_MSGDUMP = 1
     MSG_DEBUG = 2
@@ -41,22 +59,36 @@ class EapCrypto(object):
     MSG_ERROR = 5
 
     def __init__(self, hostapd_library_path: str, ca_cert_path, client_cert_path, private_key_path, private_key_password: str, dh_file_path):
-        assert os.path.exists(hostapd_library_path)
-        self.lib = ctypes.CDLL(hostapd_library_path, mode=257)
-        p_ca_cert_path = ctypes.create_string_buffer(ca_cert_path.encode())
-        p_client_cert_path = ctypes.create_string_buffer(client_cert_path.encode())
-        p_private_key_path = ctypes.create_string_buffer(private_key_path.encode())
-        p_private_key_passwd = ctypes.create_string_buffer(private_key_password.encode())
-        p_dh_file_path = ctypes.create_string_buffer(dh_file_path.encode())
+        self.lib = None
+        self.tls_ctx = None
+        self.hostapd_library_path = hostapd_library_path
+        self.ca_cert_path = ca_cert_path
+        self.client_cert_path = client_cert_path
+        self.private_key_path = private_key_path
+        self.private_key_password = private_key_password
+        self.dh_file_path = dh_file_path
+
+    def init(self):
+        assert os.path.exists(self.hostapd_library_path)
+        self.lib = ctypes.CDLL(self.hostapd_library_path, mode=257)
+        p_ca_cert_path = ctypes.create_string_buffer(self.ca_cert_path.encode())
+        p_client_cert_path = ctypes.create_string_buffer(self.client_cert_path.encode())
+        p_private_key_path = ctypes.create_string_buffer(self.private_key_path.encode())
+        p_private_key_passwd = ctypes.create_string_buffer(self.private_key_password.encode())
+        p_dh_file_path = ctypes.create_string_buffer(self.dh_file_path.encode())
         # ./hostapd/test_main.c:94:void* py_authsrv_init(char *ca_cert_path, char *client_cert_path,
         #         char *private_key_path, char *private_key_password, char *dh_file_path) {
         self.lib.py_authsrv_init.restype = ctypes.POINTER(ctypes.c_void_p)    # 不加会导致 Segmentation fault
         self.tls_ctx = self.lib.py_authsrv_init(p_ca_cert_path, p_client_cert_path,
                                                 p_private_key_path, p_private_key_passwd, p_dh_file_path)
         if not self.tls_ctx:
-            log.error(f'load certificate fail, ca_cert: {ca_cert_path}, client_cert: {client_cert_path},'
-                      f'private_key_path: {private_key_path}, private_key_password: {private_key_password}')
+            log.error(f'load certificate fail, ca_cert: {self.ca_cert_path}, client_cert: {self.client_cert_path},'
+                      f'private_key_path: {self.private_key_path}, private_key_password: {self.private_key_password}')
         assert self.tls_ctx
+
+    def deinit(self):
+        log.info('library deinit')
+        self.call_tls_deinit()
 
     def call_tls_connection_init(self):
         # connection每个认证会话维持一个
@@ -221,3 +253,8 @@ class EapCrypto(object):
         finally:
             self.call_free_alloc(p_tls_in)
             self.call_free_alloc(p_tls_out)
+
+
+libhostapd = EapCrypto(hostapd_library_path=HOSTAPD_LIBRARY, ca_cert_path=CA_CERT, client_cert_path=CLIENT_CERT,
+                       private_key_path=PRIVATE_KEY, private_key_password=PRIVATE_KEY_PASSWORD, dh_file_path=DH_FILE)
+# libhostapd.call_set_log_level(EapCrypto.MSG_EXCESSIVE)

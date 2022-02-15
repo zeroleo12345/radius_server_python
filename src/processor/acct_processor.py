@@ -9,10 +9,11 @@ from pyrad.dictionary import Dictionary
 from acct.accounting_flow import AccountingFlow
 from acct.flow import Flow
 from child_pyrad.dictionary import get_dictionaries
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, cleanup
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET
 from loguru import logger as log
 from child_pyrad.request import AcctRequest
 from controls.user import AcctUser
+from library.crypto import libhostapd
 
 
 class RadiusServer(DatagramServer):
@@ -58,13 +59,14 @@ def main():
     def shutdown():
         log.info('exit gracefully')
         server.close()
-        cleanup()
     signal(SIGTERM, shutdown)
     #
     try:
+        libhostapd.init()
         server.serve_forever(stop_timeout=3)
     finally:
         shutdown()
+        libhostapd.deinit()     # must deinit after server stopped
 
 
 if __name__ == "__main__":

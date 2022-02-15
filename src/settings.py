@@ -4,7 +4,6 @@ import os
 import sentry_sdk
 # 项目库
 from utils.config import config
-from library.crypto import EapCrypto
 from loguru import logger as log
 
 
@@ -25,17 +24,6 @@ REDIS_PORT = config('REDIS_PORT')
 REDIS_PASSWORD = config('REDIS_PASSWORD')
 REDIS_DB = config('REDIS_DB')
 
-# HOSTAPD 动态库
-HOSTAPD_LIBRARY = config('HOSTAPD_LIBRARY')
-CA_CERT = config('CA_CERT')
-CLIENT_CERT = config('CLIENT_CERT')
-PRIVATE_KEY = config('PRIVATE_KEY')
-PRIVATE_KEY_PASSWORD = str(config('PRIVATE_KEY_PASSWORD'))
-DH_FILE = config('DH_FILE')
-libhostapd = EapCrypto(hostapd_library_path=HOSTAPD_LIBRARY, ca_cert_path=CA_CERT, client_cert_path=CLIENT_CERT,
-                       private_key_path=PRIVATE_KEY, private_key_password=PRIVATE_KEY_PASSWORD, dh_file_path=DH_FILE)
-# libhostapd.call_set_log_level(EapCrypto.MSG_EXCESSIVE)
-
 # Log
 LOG_HEADER = config('LOG_HEADER', default='')
 LOG_DIR = config('LOG_DIR', default='')
@@ -52,8 +40,3 @@ if LOG_DIR and LOG_HEADER:
 else:
     log.info('close log to file')
 log.info(f'Log parameter. Level: {LOG_LEVEL}, Header: {LOG_HEADER}, Directory: {LOG_DIR}')
-
-
-def cleanup():
-    log.info('cleanup')
-    libhostapd.call_tls_deinit()
