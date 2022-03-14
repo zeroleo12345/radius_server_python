@@ -13,6 +13,10 @@ class NasStat(object):
     def report_nas_ip(cls, nas_ip, nas_name):
         key = 'hash:nas_name_to_nas_ip'
         redis = get_redis()
+        # set if not exist, else not set
+        is_set = redis.set('expire:nas_name_to_nas_ip', value='null', ex=86400, nx=True)
+        if is_set:
+            redis.delete(key)
         redis.hset(name=key, key=nas_name, value=nas_ip)
 
 
