@@ -60,21 +60,3 @@ class StatAp(Base):
             session.commit()
             session.expunge(self)
         return self
-
-
-class StatDevice(Base):
-    __tablename__ = 'stat_device'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String(255))
-    user_mac = Column(String(24))
-    created_at = Column(DateTime)
-
-    @classmethod
-    def create(cls, **kwargs):
-        obj = cls(**kwargs)
-        with Transaction() as session:
-            session.add(obj)
-            session.commit()
-            session.expunge(obj)
-        return obj
