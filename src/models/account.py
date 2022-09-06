@@ -35,7 +35,7 @@ class Account(Base):
             account = session.query(Account).filter(Account.username == func.binary(username)).first()
 
         if not account:
-            log.warning(f'account not exist in db')
+            log.warning(f'account: {username} not exist in db')
 
         return account or None
 
