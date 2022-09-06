@@ -33,15 +33,6 @@ class AccountingFlow(object):
                 text = f'{acct_user.outer_username} 账号多拨!'
                 Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=text)
                 # cls.disconnect(user_name=acct_user.outer_username, user_mac=acct_user.user_mac)
-        #
-        data = [
-            request.nas_ip,
-            request.nas_name,
-            request.iut,
-            acct_user.outer_username,
-            acct_user.user_mac,
-        ]
-        log.info(f'OUT: acct|{"|".join(data)}|')
         return
 
     @classmethod
