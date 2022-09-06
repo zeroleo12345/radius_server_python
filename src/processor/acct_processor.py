@@ -31,8 +31,8 @@ class RadiusServer(DatagramServer):
             request = AcctRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
             acct_user = AcctUser(request=request)
-        except KeyError:
-            log.warning(f'packet corrupt from {address}')
+        except KeyError as e:
+            log.warning(f'packet corrupt from {address}, KeyError: {e.args[0]}')
             return
 
         try:
