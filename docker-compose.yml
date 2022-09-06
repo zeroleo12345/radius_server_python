@@ -15,12 +15,12 @@ services:
       - .:/app
       - ./data:/data
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
+    tty: true
+    restart: "${RESTART_POLICY}"
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
-    tty: true
-    restart: "${RESTART_POLICY}"
     networks:
       - pppoe_system
 
@@ -38,12 +38,12 @@ services:
       - .:/app
       - ./data:/data
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
+    tty: true
+    restart: "${RESTART_POLICY}"
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
-    tty: true
-    restart: "${RESTART_POLICY}"
     networks:
       - pppoe_system
 
@@ -62,12 +62,12 @@ services:
       - .:/app
       - ./data:/data
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/acct.sh; fi'
+    tty: true
+    restart: "${RESTART_POLICY}"
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
-    tty: true
-    restart: "${RESTART_POLICY}"
     networks:
       - pppoe_system
 
@@ -86,12 +86,12 @@ services:
       - .:/app
       - ./data:/data
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/dae.sh; fi'
+    tty: true
+    restart: "${RESTART_POLICY}"
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
-    tty: true
-    restart: "${RESTART_POLICY}"
     networks:
       - pppoe_system
 
@@ -105,6 +105,10 @@ services:
       - ./data/redisdata:/data
     restart: unless-stopped
     entrypoint: redis-server --appendonly yes --requirepass 123456
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
     networks:
       - pppoe_system
 
@@ -127,6 +131,10 @@ services:
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
       - --default-time-zone=+08:00
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
     networks:
       - pppoe_system
 
