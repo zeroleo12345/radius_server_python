@@ -81,12 +81,14 @@ class AcctRequest(AcctPacket):
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket, self.address = socket, address
         # 报文提取
+        default_element = ('', 0)
         self.username = self['User-Name'][0]
-        self.user_mac = self['Calling-Station-Id'][0]
         self.nas_name = self['NAS-Identifier'][0]
         self.nas_ip = self['NAS-IP-Address'][0]
-        self.iut = self["Acct-Status-Type"][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
-        self.auth_class = self.get("Class", (None, None))[0]
+        self.iut = self['Acct-Status-Type'][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
+        #
+        self.user_mac = self.get('Calling-Station-Id', default_element)[0]
+        self.auth_class = self.get('Class', default_element)[0]
 
     def reply_to(self, reply: AcctPacket):
         log.trace(f'reply: {reply}')
