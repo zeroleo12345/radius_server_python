@@ -98,7 +98,7 @@ services:
 
   redis:
     container_name: restful_server_redis
-    image: redis:alpine
+    image: redis:4.0.9-alpine
     ports:
       - "6379:6379"
     volumes:    # 挂载盘: - 主机路径:docker内部路径
