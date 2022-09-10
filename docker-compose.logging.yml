@@ -8,11 +8,15 @@ x-logging:
     fluentd-async-connect: 'true'
     mode: 'non-blocking'
     max-buffer-size: '4m'
-    tag: "restful_server.{{.Name}}.{{.ID}}"
+    tag: "radius_server.{{.Name}}.{{.ID}}"
 
 services:
-  api:
+  auth:
     logging: *default_logging
-  timer:
+  auth_test:
+    logging: *default_logging
+  acct:
+    logging: *default_logging
+  dae:
     logging: *default_logging
 
