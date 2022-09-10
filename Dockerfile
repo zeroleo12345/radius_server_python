@@ -11,7 +11,7 @@ RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shangh
     && apt-get update
 
 RUN apt-get install -y build-essential git libssl1.0-dev libnl-3-dev libtalloc-dev libmariadbclient-dev \
-    && apt-get install -y tcpdump procps curl inetutils-ping \
+    && apt-get install -y tcpdump procps curl inetutils-ping
 
 RUN pip3 install --no-cache-dir --upgrade pip --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple \
     && pip3 install --no-cache-dir -r /app/requirements/requirements.txt --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple
