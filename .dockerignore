@@ -5,3 +5,4 @@ __pycache__
 node_modules/
 third_party/
 data/
+tools/
