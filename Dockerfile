@@ -14,7 +14,7 @@ RUN apt-get install -y build-essential git libssl1.0-dev libnl-3-dev libtalloc-d
     && apt-get install -y tcpdump procps curl inetutils-ping \
 
 RUN pip3 install --no-cache-dir --upgrade pip --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple \
-    && pip3 install --no-cache-dir -r /app/requirements/requirements-test.txt --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple
+    && pip3 install --no-cache-dir -r /app/requirements/requirements.txt --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple
 
 # WORKDIR: 如果目录不存在, 则自动创建
 WORKDIR /app/

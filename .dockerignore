@@ -3,3 +3,4 @@ __pycache__
 *.pyc
 *.sqlite3
 node_modules
+third_party
