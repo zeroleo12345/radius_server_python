@@ -1,4 +1,12 @@
-version: '3.5'
+version: '3.7'
+
+
+x-logging:
+  &default_logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+
 
 services:
   auth:
@@ -17,10 +25,7 @@ services:
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
+    logging: *default_logging
     networks:
       - pppoe_system
 
@@ -40,10 +45,7 @@ services:
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
+    logging: *default_logging
     networks:
       - pppoe_system
 
@@ -64,10 +66,7 @@ services:
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/acct.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
+    logging: *default_logging
     networks:
       - pppoe_system
 
@@ -88,53 +87,7 @@ services:
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/dae.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-    networks:
-      - pppoe_system
-
-
-  redis:
-    container_name: restful_server_redis
-    image: redis:4.0.9-alpine
-    ports:
-      - "6379:6379"
-    volumes:    # 挂载盘: - 主机路径:docker内部路径
-      - ./data/redisdata:/data
-    restart: unless-stopped
-    entrypoint: redis-server --appendonly yes --requirepass 123456
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-    networks:
-      - pppoe_system
-
-
-  mysql:
-    container_name: restful_server_mysql
-    image: mysql:5.7
-    environment:
-      MYSQL_ROOT_PASSWORD: 'root'
-      MYSQL_DATABASE: 'trade'
-    ports:
-      - "3306:3306"
-    #user: mysql
-    #privileged: true   # 拥有主机的root权限
-    volumes:
-      - ./data/etc/mysql/my.cnf:/etc/mysql/my.cnf
-    restart: unless-stopped
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --skip-character-set-client-handshake
-      - --default-time-zone=+08:00
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
+    logging: *default_logging
     networks:
       - pppoe_system
 

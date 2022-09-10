@@ -116,3 +116,4 @@ run/backup/*
 nohup.out
 1812.pcapng
 1813.pcapng
+.env.local

@@ -1,0 +1,18 @@
+version: '3.7'
+
+x-logging:
+  &default_logging
+  driver: 'fluentd'
+  options:
+    fluentd-address: 'localhost:24224'
+    fluentd-async-connect: 'true'
+    mode: 'non-blocking'
+    max-buffer-size: '4m'
+    tag: "restful_server.{{.Name}}.{{.ID}}"
+
+services:
+  api:
+    logging: *default_logging
+  timer:
+    logging: *default_logging
+
