@@ -55,6 +55,10 @@ services:
     build:
        context: .
        dockerfile: ./Dockerfile
+    depends_on:
+      - fluentd
+      - mysql
+      - redis
     ports:
       - "1813:1813/udp"
     environment:
