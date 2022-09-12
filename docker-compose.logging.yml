@@ -1,0 +1,22 @@
+version: '3.7'
+
+x-logging:
+  &default_logging
+  driver: 'fluentd'
+  options:
+    fluentd-address: 'localhost:24224'
+    fluentd-async-connect: 'true'
+    mode: 'non-blocking'
+    max-buffer-size: '4m'
+    tag: "radius_server.{{.Name}}.{{.ID}}"
+
+services:
+  auth:
+    logging: *default_logging
+  auth_test:
+    logging: *default_logging
+  acct:
+    logging: *default_logging
+  dae:
+    logging: *default_logging
+

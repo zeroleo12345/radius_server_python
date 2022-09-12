@@ -16,6 +16,13 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 - [x] [PEAPv0, PEAPv1: EAP-MSCHAPv2](https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00)
 
 
+## Pull Code
+  ```
+  git submodule add  -b master git@github.com:zeroleo12345/pppoe_component.git  ./pppoe_component
+  git submodule update --init --recursive
+  ```
+
+
 **Support Dynamic Authorization Extensions:**
 
 - Disconnect Messages
