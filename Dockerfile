@@ -2,20 +2,20 @@
 FROM python:3.6.12-slim-stretch
 
 # 一. 安装 linux package. (使用: 阿里云 alpine 镜像)
-# 二. 安装 python package.
-# 三. 清理不需保留的包 且 安装需保留的包. gcc g++ freeradius-utils
-ADD requirements/sources.list.aliyun /app/requirements/sources.list.aliyun
+ADD requirements/sources.list.tencent /app/requirements/sources.list.tencent
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone \
-    && cp /app/requirements/sources.list.aliyun  /etc/apt/sources.list \
+    && cp /app/requirements/sources.list.tencent  /etc/apt/sources.list \
     && apt-get update
 
 RUN apt-get install -y build-essential git libssl1.0-dev libnl-3-dev libtalloc-dev libmariadbclient-dev \
     && apt-get install -y tcpdump procps curl inetutils-ping
 
+# 二. 安装 python package.
 ADD requirements/requirements.txt /app/requirements/requirements.txt
-RUN pip3 install --no-cache-dir --upgrade pip --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple \
-    && pip3 install --no-cache-dir -r /app/requirements/requirements.txt --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple
+
+RUN pip3 install --no-cache-dir --upgrade pip --trusted-host mirrors.tencent.com --index-url https://mirrors.tencent.com/pypi/simple/ \
+    && pip3 install --no-cache-dir -r /app/requirements/requirements.txt --trusted-host mirrors.tencent.com --index-url https://mirrors.tencent.com/pypi/simple/
 
 # WORKDIR: 如果目录不存在, 则自动创建
 WORKDIR /app/

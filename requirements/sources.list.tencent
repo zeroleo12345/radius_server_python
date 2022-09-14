@@ -1,0 +1,8 @@
+deb http://mirrors.tencent.com/debian/ stretch main non-free contrib
+deb-src http://mirrors.tencent.com/debian/ stretch main non-free contrib
+deb http://mirrors.tencent.com/debian-security stretch/updates main
+deb-src http://mirrors.tencent.com/debian-security stretch/updates main
+deb http://mirrors.tencent.com/debian/ stretch-updates main non-free contrib
+deb-src http://mirrors.tencent.com/debian/ stretch-updates main non-free contrib
+deb http://mirrors.tencent.com/debian/ stretch-backports main non-free contrib
+deb-src http://mirrors.tencent.com/debian/ stretch-backports main non-free contrib
