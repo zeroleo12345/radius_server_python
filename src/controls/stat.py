@@ -1,5 +1,4 @@
 import time
-import datetime
 import threading
 # 项目库
 from utils.redispool import get_redis
@@ -30,7 +29,7 @@ class ApStat(object):
     @classmethod
     def get_key(cls):
         fmt = '%Y-%m-%d'
-        yyyy_mm_dd = datetime.datetime.now().strftime(fmt)
+        yyyy_mm_dd = Datetime.to_str(fmt=fmt)
         return f'hash:stat_ap:{yyyy_mm_dd}'
 
     @classmethod
@@ -56,7 +55,7 @@ class UserStat(object):
     @classmethod
     def get_key(cls):
         fmt = '%Y-%m-%d'
-        yyyy_mm_dd = datetime.datetime.now().strftime(fmt)
+        yyyy_mm_dd = Datetime.to_str(fmt=fmt)
         return f'hash:stat_user:{yyyy_mm_dd}'
 
     @classmethod
@@ -121,7 +120,7 @@ class StatThread(object):
             if self.is_process_exit:
                 raise SystemExit()
             fmt = '%Y-%m-%d'
-            now = datetime.datetime.now()
+            now = Datetime.localtime()
             current_yyyy_mm_dd = now.strftime(fmt)
             redis = get_redis()
             keys = redis.keys('hash:stat_ap:*')
@@ -132,7 +131,7 @@ class StatThread(object):
                     continue
                 log.info(f'handle stat key {key}')
                 ap_mac_to_username_hash = redis.hgetall(key)
-                dt = datetime.datetime.strptime(yyyy_mm_dd, '%Y-%m-%d')
+                dt = Datetime.to_str(yyyy_mm_dd, '%Y-%m-%d')
                 for ap_mac, username in ap_mac_to_username_hash.items():
                     ap = StatAp.get(ap_mac=ap_mac)
                     if ap:
