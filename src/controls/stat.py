@@ -6,9 +6,7 @@ from utils.decorators import catch_exception
 from models.stat import StatAp, StatUser
 from loguru import logger as log
 from utils.time import Datetime
-import typing
-if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
-    from typing import Literal
+from typing import Literal
 
 
 class NasStat(object):
