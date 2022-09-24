@@ -6,12 +6,11 @@ from utils.decorators import catch_exception
 from models.stat import StatAp, StatUser
 from loguru import logger as log
 from utils.time import Datetime
-from typing import Literal
 
 
 class NasStat(object):
     @classmethod
-    def report_nas_ip(cls, nas_ip, nas_name, auth_or_acct: Literal['auth', 'acct']):
+    def report_nas_ip(cls, nas_ip, nas_name, auth_or_acct):
         key = f'hash:nas_name_to_nas_ip:{auth_or_acct}'
         expire_key = f'expire:nas_name_to_nas_ip:{auth_or_acct}'
         value = f"ip: {nas_ip}, time: {Datetime.to_str(fmt='%Y-%m-%d %H:%M:%S')}"
