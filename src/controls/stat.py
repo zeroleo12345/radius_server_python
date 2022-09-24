@@ -6,18 +6,24 @@ from utils.redispool import get_redis
 from utils.decorators import catch_exception
 from models.stat import StatAp, StatUser
 from loguru import logger as log
+from utils.time import Datetime
+import typing
+if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
+    from typing import Literal
 
 
 class NasStat(object):
     @classmethod
-    def report_nas_ip(cls, nas_ip, nas_name):
-        key = 'hash:nas_name_to_nas_ip'
+    def report_nas_ip(cls, nas_ip, nas_name, auth_or_acct: Literal['auth', 'acct']):
+        key = f'hash:nas_name_to_nas_ip:{auth_or_acct}'
+        expire_key = f'expire:nas_name_to_nas_ip:{auth_or_acct}'
+        value = f"ip: {nas_ip}, time: {Datetime.to_str(fmt='%Y-%m-%d %H:%M:%S')}"
         redis = get_redis()
         # set if not exist, else not set
-        is_set = redis.set('expire:nas_name_to_nas_ip', value='null', ex=86400, nx=True)
+        is_set = redis.set(expire_key, value='null', ex=86400, nx=True)
         if is_set:
             redis.delete(key)
-        redis.hset(name=key, key=nas_name, value=nas_ip)
+        redis.hset(name=key, key=nas_name, value=value)
 
 
 class ApStat(object):
