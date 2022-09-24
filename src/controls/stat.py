@@ -128,7 +128,7 @@ class StatThread(object):
                     continue
                 log.info(f'handle stat key {key}')
                 ap_mac_to_username_hash = redis.hgetall(key)
-                dt = Datetime.to_str(yyyy_mm_dd, '%Y-%m-%d')
+                dt = Datetime.from_str(yyyy_mm_dd, '%Y-%m-%d')
                 for ap_mac, username in ap_mac_to_username_hash.items():
                     ap = StatAp.get(ap_mac=ap_mac)
                     if ap:
