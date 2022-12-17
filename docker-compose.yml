@@ -14,10 +14,6 @@ services:
     build:
        context: .
        dockerfile: ./Dockerfile
-    depends_on:
-      - fluentd
-      - mysql
-      - redis
     ports:
       - "1812:1812/udp"
     environment:
@@ -38,10 +34,6 @@ services:
     build:
        context: .
        dockerfile: ./Dockerfile
-    depends_on:
-      - fluentd
-      - mysql
-      - redis
     ports:
       - "2812:2812/udp"
     environment:
@@ -63,14 +55,6 @@ services:
     build:
        context: .
        dockerfile: ./Dockerfile
-    depends_on:
-      - fluentd
-      - mysql
-      - redis
-    depends_on:
-      - fluentd
-      - mysql
-      - redis
     ports:
       - "1813:1813/udp"
     environment:
@@ -92,10 +76,6 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    depends_on:
-      - fluentd
-      - mysql
-      - redis
     ports:
       - "3799:3799/udp"
     environment:
