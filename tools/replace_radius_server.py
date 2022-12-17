@@ -6,11 +6,11 @@ print(f"\nRadius Server IP: {radius_server_ip}\n")
 
 msg = f"""
 radius dynamic-author client trusted ip {radius_server_ip}
-acl number 2000
+acl number 2001
  undo rule 50
  rule 50 permit source {radius_server_ip} 0
 quit
-acl number 3000
+acl number 3001
  undo rule 50
  rule 50 permit tcp source {radius_server_ip} 0 destination-port eq telnet
 quit
