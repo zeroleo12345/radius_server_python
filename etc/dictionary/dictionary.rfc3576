@@ -7,6 +7,7 @@
 #
 #	$Id: 9ad092003cb0a889c0a26d80fbf594c2a42921a3 $
 #
+ATTRIBUTE   Service-Type            6   integer
 ATTRIBUTE	Error-Cause				101	integer
 
 #	Service Types
