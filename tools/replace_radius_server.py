@@ -18,6 +18,7 @@ radius scheme eapoff_radius_scheme
  primary authentication {radius_server_ip} probe username user_probe interval 12
  primary accounting {radius_server_ip} probe username user_probe interval 12
 quit
+
 save f
 """
 
