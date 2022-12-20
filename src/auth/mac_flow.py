@@ -44,7 +44,7 @@ class MacFlow(Flow):
             #
             enable_flag_key = 'enable_mac_authentication'
             if not redis.get(enable_flag_key):
-                log.error(f'mac authentication is not enable')
+                log.warning(f'mac authentication is not enable')
                 raise AccessReject()
             #
             created_at = now

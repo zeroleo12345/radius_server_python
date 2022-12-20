@@ -1,4 +1,4 @@
-import datetime
+from utils.time import Datetime
 # 第三方库
 from sqlalchemy import Column, Integer, BigInteger, String, DateTime, func
 # 项目库
@@ -42,10 +42,10 @@ class Account(Base):
     def is_expired(self):
         # 平台属主, 不校验时间
         if self.role != self.Role.PLATFORM_OWNER.value:
-            if self.expired_at <= datetime.datetime.now():
-                log.warning(f'account expired')
+            if self.expired_at <= Datetime.now():
+                log.warning(f'account expired: {Datetime.to_str(self.expired_at)}')
                 return True
         return False
 
     def get_expired_seconds(self):
-        return datetime.datetime.now().timestamp() - self.expired_at.timestamp()
+        return Datetime.timestamp() - self.expired_at.timestamp()
