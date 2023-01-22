@@ -1,5 +1,6 @@
 import time
 import threading
+import json
 # 项目库
 from utils.redispool import get_redis
 from utils.decorators import catch_exception
@@ -21,13 +22,13 @@ class NasStat(object):
         key = f'hash:nas_name_to_nas_ip:{auth_or_acct}'
         key2 = f'sorted_set:nas_name_to_timestamp:{auth_or_acct}'
         expire_key = f'expire:nas_name_to_nas_ip:{auth_or_acct}'
-        value = f"ip: {nas_ip}, time: {Datetime.to_str(fmt='%Y-%m-%d %H:%M:%S')}"
         redis = get_redis()
         # set if not exist, else not set
         is_set = redis.set(expire_key, value='null', ex=86400, nx=True)
         if is_set:
             redis.delete(key, key2)
         with redis.pipeline(transaction=False) as pipe:
+            value = json.dumps({'ip': nas_ip, 'time': Datetime.to_str(fmt='%Y-%m-%d %H:%M:%S')})
             pipe.hset(name=key, key=nas_name, value=value)
             pipe.zadd(key2, mapping={nas_name: Datetime.timestamp()})
             pipe.execute()
