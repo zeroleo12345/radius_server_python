@@ -14,7 +14,6 @@ class NasStat(object):
         key = f'hash:nas_name_to_nas_ip:{auth_or_acct}'
         key2 = f'sorted_set:nas_name_to_timestamp:{auth_or_acct}'
         expire_key = f'expire:nas_name_to_nas_ip:{auth_or_acct}'
-        key = f'hash:nas_name_to_nas_ip:{auth_or_acct}'
         value = f"ip: {nas_ip}, time: {Datetime.to_str(fmt='%Y-%m-%d %H:%M:%S')}"
         redis = get_redis()
         # set if not exist, else not set

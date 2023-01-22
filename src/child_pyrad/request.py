@@ -46,6 +46,8 @@ class AuthRequest(AuthPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code) -> AuthResponse:
+        # TODO
+        log.info(f'timestamp: {self.timestamp}, type: {type(self.timestamp)}')
         NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name, auth_or_acct='auth')
         response = AuthResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
@@ -92,12 +94,15 @@ class AcctRequest(AcctPacket):
         default_element = ('', 0)
         self.user_mac = self.get('Calling-Station-Id', default_element)[0]
         self.auth_class = self.get('Class', default_element)[0]
+        self.timestamp = self['Event-Timestamp'][0]
 
     def reply_to(self, reply: AcctPacket):
         log.trace(f'reply: {reply}')
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code) -> AcctResponse:
+        # TODO
+        log.info(f'timestamp: {self.timestamp}, type: {type(self.timestamp)}')
         NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name, auth_or_acct='acct')
         response = AcctResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
