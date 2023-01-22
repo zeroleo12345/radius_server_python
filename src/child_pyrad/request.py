@@ -25,6 +25,7 @@ class AuthRequest(AuthPacket):
         # optional:
         default_element = ('', 0)
         self.user_mac = self.get('Calling-Station-Id', default_element)[0]
+        self.timestamp = self['Event-Timestamp'][0]
 
         self.ssid = ''
         self.ap_mac = ''

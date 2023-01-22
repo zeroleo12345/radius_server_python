@@ -27,7 +27,6 @@ class NasStat(object):
             pipe.execute()
 
 
-
 class ApStat(object):
     @classmethod
     def get_key(cls):
