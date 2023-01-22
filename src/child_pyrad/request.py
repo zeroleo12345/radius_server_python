@@ -47,7 +47,7 @@ class AuthRequest(AuthPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code) -> AuthResponse:
-        if Datetime.timestamp() - self.timestamp < 86400:
+        if abs(Datetime.timestamp() - self.timestamp) < 86400:
             NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name, auth_or_acct='auth')
         response = AuthResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
@@ -101,7 +101,7 @@ class AcctRequest(AcctPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code) -> AcctResponse:
-        if Datetime.timestamp() - self.timestamp < 86400:
+        if abs(Datetime.timestamp() - self.timestamp) < 86400:
             NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name, auth_or_acct='acct')
         response = AcctResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
