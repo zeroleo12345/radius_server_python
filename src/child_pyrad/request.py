@@ -46,7 +46,8 @@ class AuthRequest(AuthPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code) -> AuthResponse:
-        NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name, auth_or_acct='auth')
+        if self.username == 'user_probe':
+            NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name, auth_or_acct='auth')
         response = AuthResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
         return response
@@ -98,7 +99,8 @@ class AcctRequest(AcctPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code) -> AcctResponse:
-        NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name, auth_or_acct='acct')
+        if self.username == 'user_probe':
+            NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name, auth_or_acct='acct')
         response = AcctResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
         return response
