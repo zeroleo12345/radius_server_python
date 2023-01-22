@@ -11,6 +11,13 @@ from utils.time import Datetime
 class NasStat(object):
     @classmethod
     def report_nas_ip(cls, nas_ip, nas_name, auth_or_acct):
+        """
+        zrange "sorted_set:nas_name_to_timestamp:auth" 0 -1 WITHSCORES
+        zrange "sorted_set:nas_name_to_timestamp:acct" 0 -1 WITHSCORES
+
+        hgetall "hash:nas_name_to_nas_ip:auth"
+        hgetall "hash:nas_name_to_nas_ip:acct"
+        """
         key = f'hash:nas_name_to_nas_ip:{auth_or_acct}'
         key2 = f'sorted_set:nas_name_to_timestamp:{auth_or_acct}'
         expire_key = f'expire:nas_name_to_nas_ip:{auth_or_acct}'
