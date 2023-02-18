@@ -19,18 +19,23 @@ class NasStat(object):
         hgetall "hash:nas_name_to_nas_ip:auth"
         hgetall "hash:nas_name_to_nas_ip:acct"
         """
-        key = f'hash:nas_name_to_nas_ip:{auth_or_acct}'
-        key2 = f'sorted_set:nas_name_to_timestamp:{auth_or_acct}'
+        key_ip = f'hash:nas_name_to_nas_ip:{auth_or_acct}'
+        key_time = f'sorted_set:nas_name_to_timestamp:{auth_or_acct}'
         expire_key = f'expire:nas_name_to_nas_ip:{auth_or_acct}'
         redis = get_redis()
-        # set if not exist, else not set
-        is_set = redis.set(expire_key, value='null', ex=86400, nx=True)
-        if is_set:
-            redis.delete(key, key2)
+        # set if not exist, else not set. return bool: set or not
+        with redis.pipeline(transaction=False) as pipe:
+            pipe.set(name=expire_key, value='null', ex=86400, nx=True)
+            pipe.hexists(name=key_ip, key=nas_name)
+            is_set_mean_not_exist, is_existed_nas_name = pipe.execute()
+        # log.info(f'is_set_mean_not_exist: {is_set_mean_not_exist}, is_existed_nas_name: {is_existed_nas_name}')
+        if is_set_mean_not_exist:
+            # delete all key which use to save AC-ip and AC-name
+            redis.delete(key_ip, key_time)
         with redis.pipeline(transaction=False) as pipe:
             value = json.dumps({'ip': nas_ip, 'time': Datetime.to_str(fmt='%Y-%m-%d %H:%M:%S')})
-            pipe.hset(name=key, key=nas_name, value=value)
-            pipe.zadd(key2, mapping={nas_name: Datetime.timestamp()})
+            pipe.hset(name=key_ip, key=nas_name, value=value)
+            pipe.zadd(name=key_time, mapping={nas_name: Datetime.timestamp()})
             pipe.execute()
 
 
