@@ -27,8 +27,8 @@ class NasStat(object):
         with redis.pipeline(transaction=False) as pipe:
             pipe.set(name=expire_key, value='null', ex=86400, nx=True)
             pipe.hexists(name=key_ip, key=nas_name)
-            is_set_mean_not_exist, is_new_nas_name = pipe.execute()
-        if is_set_mean_not_exist or is_new_nas_name:
+            is_set_mean_not_exist, is_existed_nas_name = pipe.execute()
+        if is_set_mean_not_exist or not is_existed_nas_name:
             # delete all key which use to save AC-ip and AC-name
             redis.delete(key_ip, key_time)
         with redis.pipeline(transaction=False) as pipe:
