@@ -21,11 +21,11 @@ class AuthRequest(AuthPacket):
         # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
         self.username = self['User-Name'][0]
-        self.nas_name = self['NAS-Identifier'][0]
         self.nas_ip = self['NAS-IP-Address'][0]
         # optional:
-        default_element = ('', 0)
-        self.user_mac = self.get('Calling-Station-Id', default_element)[0]
+        default_string = ('', 0)
+        self.user_mac = self.get('Calling-Station-Id', default_string)[0]
+        self.nas_name = self.get('NAS-Identifier', default_string)[0]
 
         self.ssid = ''
         self.ap_mac = ''
@@ -46,8 +46,10 @@ class AuthRequest(AuthPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code) -> AuthResponse:
-        if self.username == 'user_probe':
-            NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name, auth_or_acct='auth')
+        if self.username.startswith('user_probe'):
+            _, domain = self.username.split('user_probe', 1)
+            nas_name = self.nas_name or domain.replace('@', '')
+            NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='auth')
         response = AuthResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
         return response
@@ -86,21 +88,23 @@ class AcctRequest(AcctPacket):
         self.socket, self.address = socket, address
         # 报文提取
         self.username = self['User-Name'][0]
-        self.nas_name = self['NAS-Identifier'][0]
         self.nas_ip = self['NAS-IP-Address'][0]
         self.iut = self['Acct-Status-Type'][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
         # optional:
-        default_element = ('', 0)
-        self.user_mac = self.get('Calling-Station-Id', default_element)[0]
-        self.auth_class = self.get('Class', default_element)[0]
+        default_string = ('', 0)
+        self.user_mac = self.get('Calling-Station-Id', default_string)[0]
+        self.auth_class = self.get('Class', default_string)[0]
+        self.nas_name = self.get('NAS-Identifier', default_string)[0]
 
     def reply_to(self, reply: AcctPacket):
         log.trace(f'reply: {reply}')
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code) -> AcctResponse:
-        if self.username == 'user_probe':
-            NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=self.nas_name, auth_or_acct='acct')
+        if self.username.startswith('user_probe'):
+            _, domain = self.username.split('user_probe', 1)
+            nas_name = self.nas_name or domain.replace('@', '')
+            NasStat.report_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='acct')
         response = AcctResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
         return response

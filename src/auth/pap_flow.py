@@ -17,8 +17,11 @@ class PapFlow(Flow):
         encrypt_password = request['User-Password'][0]
 
         # 密码解密
-        decrypt_password = request.PwCrypt(password=encrypt_password)
-        session.auth_user.user_password = decrypt_password.decode()
+        try:
+            decrypt_password = request.PwCrypt(password=encrypt_password)
+            session.auth_user.user_password = decrypt_password.decode()
+        except:
+            session.auth_user.user_password = ''
         return cls.pap_auth(request=request, session=session)
 
     @classmethod
