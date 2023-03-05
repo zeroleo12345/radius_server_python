@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-ENTRYPOINT=sh docker-compose up -d auth
+ENTRYPOINT="tail -f /dev/null" docker-compose up -d auth
