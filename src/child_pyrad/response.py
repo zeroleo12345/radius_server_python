@@ -31,25 +31,25 @@ class AuthResponse(AuthPacket):
         # 用户的闲置切断时间
         reply['Idle-Timeout'] = 86400
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
+        mega_bit = 1000000  # 1M bit = 1000000
         if request.auth_protocol in [PacketProtocol.CHAP_PROTOCOL, PacketProtocol.PAP_PROTOCOL]:
             reply['Class'] = uuid4().hex.encode()
             # 上载速度. 用户到NAS的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Input-Peak-Rate'] = int(6 * 1000000)
-            reply['H3C-Input-Average-Rate'] = int(5 * 1000000)
+            reply['H3C-Input-Peak-Rate'] = int(6 * mega_bit)
+            reply['H3C-Input-Average-Rate'] = int(5 * mega_bit)
             # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Output-Peak-Rate'] = int(35 * 1000000)
-            reply['H3C-Output-Average-Rate'] = int(30 * 1000000)
+            reply['H3C-Output-Peak-Rate'] = int(35 * mega_bit)
+            reply['H3C-Output-Average-Rate'] = int(30 * mega_bit)
         if request.auth_protocol in [PacketProtocol.EAP_PEAP_MSCHAPV2_PROTOCOL, PacketProtocol.EAP_PEAP_GTC_PROTOCOL, PacketProtocol.MSCHAPV2_PROTOCOL, PacketProtocol.MAC_PROTOCOL]:
             reply['Filter-Id'] = f'pay_user_100m'
         # ATTR for test user:
         if request.username == 'zhouliying':
-            # 1M bit = 1000000
             # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Output-Peak-Rate'] = int(6 * 1000000)
-            reply['H3C-Output-Average-Rate'] = int(6 * 1000000)
+            reply['H3C-Output-Peak-Rate'] = int(6 * mega_bit)
+            reply['H3C-Output-Average-Rate'] = int(6 * mega_bit)
             # 上载速度. 用户到NAS的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Input-Peak-Rate'] = int(3 * 1000000)
-            reply['H3C-Input-Average-Rate'] = int(3 * 1000000)
+            reply['H3C-Input-Peak-Rate'] = int(3 * mega_bit)
+            reply['H3C-Input-Average-Rate'] = int(3 * mega_bit)
             # User Profile 适用于wlan和PPPoE用户. 当AC profile disable时, 会连不上WIFi
             # reply['Filter-Id'] = f'pay_user_4m'
         return reply
