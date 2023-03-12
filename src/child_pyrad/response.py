@@ -42,7 +42,7 @@ class AuthResponse(AuthPacket):
             reply['H3C-Output-Average-Rate'] = int(30 * mega_bit)
         if request.auth_protocol in [PacketProtocol.EAP_PEAP_MSCHAPV2_PROTOCOL, PacketProtocol.EAP_PEAP_GTC_PROTOCOL, PacketProtocol.MSCHAPV2_PROTOCOL, PacketProtocol.MAC_PROTOCOL]:
             reply['Filter-Id'] = f'pay_user_100m'
-        # ATTR for test user:
+        # Attribute for test user:
         if request.username == 'zhouliying':
             # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
             reply['H3C-Output-Peak-Rate'] = int(6 * mega_bit)
