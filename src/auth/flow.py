@@ -14,6 +14,7 @@ class AccessReject(Exception):
     PASSWORD_WRONG = 'password wrong'
     MAC_FORBIDDEN = 'mac forbidden'
     DATA_WRONG = 'data wrong'
+    SYSTEM_ERROR = 'system error'
     UNKNOWN_ERROR = 'unknown error'
 
     def __init__(self, reason):
@@ -39,7 +40,7 @@ class Flow(object):
     PEAP_ACCESS_ACCEPT = 'peap_access_accept'
 
     @classmethod
-    def access_reject(cls, request: AuthRequest, auth_user: AuthUser):
+    def access_reject(cls, request: AuthRequest, auth_user: AuthUser, reason: str):
         if not request and not auth_user:
             return
         data = [
@@ -50,6 +51,7 @@ class Flow(object):
             request.user_mac,
             request.ssid,
             request.ap_mac,
+            reason,
         ]
         log.info(f'OUT: reject|{"|".join(data)}|')
         reply = AuthResponse.create_access_reject(request=request)
