@@ -21,15 +21,15 @@ class MsChapFlow(Flow):
         account_name = session.auth_user.outer_username
         account = Account.get(username=account_name)
         if not account or account.is_expired():
-            raise AccessReject()
+            raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         if account.role == Account.Role.PAY_USER.value:
             # 付费用户, 才需要判断 SSID 是否匹配
             platform = Platform.get(platform_id=account.platform_id)
             if not platform:
-                raise AccessReject()
+                raise AccessReject(reason=AccessReject.DATA_WRONG)
             if account.role == Account.Role.PAY_USER.value and request.ssid not in [platform.ssid, f'{platform.ssid}_5G']:
                 log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, request.ssid: {request.ssid}')
-                raise AccessReject()
+                raise AccessReject(reason=AccessReject.DATA_WRONG)
         # 保存用户密码
         session.auth_user.set_user_password(account.radius_password)
 
@@ -98,7 +98,7 @@ class MsChapFlow(Flow):
             return cls.access_accept(request=request, session=session)
         else:
             log.error(f'user_password: {session.auth_user.user_password} not correct')
-            raise AccessReject()
+            raise AccessReject(reason=AccessReject.PASSWORD_WRONG)
 
     @classmethod
     def access_accept(cls, request: AuthRequest, session: BaseSession):

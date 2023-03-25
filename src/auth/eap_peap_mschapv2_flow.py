@@ -62,7 +62,7 @@ class EapPeapMschapv2Flow(Flow):
         """
         if eap.type == EapPacket.TYPE_EAP_NAK:
             log.error('receive Nak. Client not support EAP-PEAP!')
-            raise AccessReject()
+            raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
         if session.prev_id == request.id or session.prev_eap_id == eap.id:
             # 重复请求
             if session.reply:
@@ -103,9 +103,9 @@ class EapPeapMschapv2Flow(Flow):
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
             else:
                 log.error('eap peap auth error. unknown eap packet type')
-                raise AccessReject()
+                raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
         log.error(f'id error. [prev, recv][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
-        raise AccessReject()
+        raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
 
     @classmethod
     def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
@@ -235,14 +235,14 @@ class EapPeapMschapv2Flow(Flow):
         log.trace(f'eap_identity: {eap_identity}')
         if eap_identity.type != EapPacket.TYPE_EAP_IDENTITY:
             log.error('not receive eap_identity')
-            raise AccessReject()
+            raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
         account_name = eap_identity.type_data.decode()
         # 保存用户名
         session.auth_user.set_peap_username(account_name)
         # 查找用户密码
         account = Account.get(username=account_name)
         if not account or account.is_expired():
-            raise AccessReject()
+            raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码
         session.auth_user.set_user_password(account.radius_password)
 
@@ -297,7 +297,7 @@ class EapPeapMschapv2Flow(Flow):
         log.trace(f'mschapv2_random: {mschapv2_random}')
         if mschapv2_random.type != EapPacket.TYPE_EAP_MSCHAPV2:
             log.error('not receive mschapv2_random')
-            raise AccessReject()
+            raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
         mschapv2_type, eap_id, mschapv2_length, fix_length = struct.unpack('!B B H B', mschapv2_random.type_data[:5])
         assert fix_length == 0x31 == 49
         username_len = mschapv2_length - 5 - fix_length

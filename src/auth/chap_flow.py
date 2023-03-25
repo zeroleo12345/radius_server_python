@@ -19,7 +19,7 @@ class ChapFlow(Flow):
         account_name = session.auth_user.outer_username
         account = Account.get(username=account_name)
         if not account or account.is_expired():
-            raise AccessReject()
+            raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码
         session.auth_user.set_user_password(account.password)
 
@@ -30,7 +30,7 @@ class ChapFlow(Flow):
             return cls.access_accept(request=request, session=session)
         else:
             log.error(f'user_password: {session.auth_user.user_password} not correct')
-            raise AccessReject()
+            raise AccessReject(reason=AccessReject.PASSWORD_WRONG)
 
     @classmethod
     def access_accept(cls, request: AuthRequest, session: BaseSession):

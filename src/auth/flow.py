@@ -10,7 +10,15 @@ from controls.user import AuthUser
 
 # 全局异常: 抛出后鉴权流程返回Access-Reject
 class AccessReject(Exception):
-    pass
+    ACCOUNT_EXPIRED = 'account expired'
+    PASSWORD_WRONG = 'password wrong'
+    MAC_FORBIDDEN = 'mac forbidden'
+    DATA_WRONG = 'data wrong'
+    UNKNOWN_ERROR = 'unknown error'
+
+    def __init__(self, reason):
+        super().__init__()
+        self.reason = reason
 
 
 class Flow(object):
