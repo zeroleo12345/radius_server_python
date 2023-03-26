@@ -99,9 +99,9 @@ class EapPeapGtcFlow(Flow):
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
             else:
                 log.error('eap peap auth error. unknown eap packet type')
-                raise AccessReject()
+                raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
         log.error(f'id error. [prev, recv][{session.prev_id}, {request.id}][{session.prev_eap_id}, {eap.id}]')
-        raise AccessReject()
+        raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
 
     @classmethod
     def peap_challenge_start(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
@@ -234,7 +234,7 @@ class EapPeapGtcFlow(Flow):
         # 查找用户密码
         account = Account.get(username=account_name)
         if not account or account.is_expired():
-            raise AccessReject()
+            raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码
         session.auth_user.set_user_password(account.radius_password)
 

@@ -10,7 +10,16 @@ from controls.user import AuthUser
 
 # 全局异常: 抛出后鉴权流程返回Access-Reject
 class AccessReject(Exception):
-    pass
+    ACCOUNT_EXPIRED = 'account expired'
+    PASSWORD_WRONG = 'password wrong'
+    MAC_FORBIDDEN = 'mac forbidden'
+    DATA_WRONG = 'data wrong'
+    SYSTEM_ERROR = 'system error'
+    UNKNOWN_ERROR = 'unknown error'
+
+    def __init__(self, reason):
+        super().__init__()
+        self.reason = reason
 
 
 class Flow(object):
@@ -31,7 +40,7 @@ class Flow(object):
     PEAP_ACCESS_ACCEPT = 'peap_access_accept'
 
     @classmethod
-    def access_reject(cls, request: AuthRequest, auth_user: AuthUser):
+    def access_reject(cls, request: AuthRequest, auth_user: AuthUser, reason: str):
         if not request and not auth_user:
             return
         data = [
@@ -42,6 +51,7 @@ class Flow(object):
             request.user_mac,
             request.ssid,
             request.ap_mac,
+            reason,
         ]
         log.info(f'OUT: reject|{"|".join(data)}|')
         reply = AuthResponse.create_access_reject(request=request)

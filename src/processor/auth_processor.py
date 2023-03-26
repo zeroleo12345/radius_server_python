@@ -58,14 +58,14 @@ class RadiusServer(DatagramServer):
         try:
             # 验证用户
             verify(request, auth_user)
-        except AccessReject:
-            Flow.access_reject(request=request, auth_user=auth_user)
+        except AccessReject as e:
+            Flow.access_reject(request=request, auth_user=auth_user, reason=e.reason)
         except KeyboardInterrupt:
             self.close()
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
-            Flow.access_reject(request=request, auth_user=auth_user)
+            Flow.access_reject(request=request, auth_user=auth_user, reason=AccessReject.SYSTEM_ERROR)
 
 
 def verify(request: AuthRequest, auth_user: AuthUser):
