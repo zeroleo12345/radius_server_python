@@ -30,7 +30,7 @@ class AuthResponse(AuthPacket):
         reply['Session-Timeout'] = 86400
         # 用户的闲置切断时间. (seconds)
         reply['Idle-Timeout'] = 86400
-        reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
+        reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL    # ATTRIBUTE	Acct-Interim-Interval   85    integer
         mega_bit = 1000000  # 1M bit = 1000000
         if request.auth_protocol in [PacketProtocol.CHAP_PROTOCOL, PacketProtocol.PAP_PROTOCOL]:
             reply['Class'] = uuid4().hex.encode()
