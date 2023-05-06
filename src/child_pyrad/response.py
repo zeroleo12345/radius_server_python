@@ -26,9 +26,9 @@ class AuthResponse(AuthPacket):
         ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
-        # 用户可用的剩余时间
-        # reply['Session-Timeout'] = 600
-        # 用户的闲置切断时间
+        # 用户可用的剩余时间. (seconds)
+        reply['Session-Timeout'] = 86400
+        # 用户的闲置切断时间. (seconds)
         reply['Idle-Timeout'] = 86400
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL
         mega_bit = 1000000  # 1M bit = 1000000
