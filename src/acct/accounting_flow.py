@@ -19,8 +19,8 @@ class AccountingFlow(object):
         if not account:
             return
         if account.is_expired():
-            if account.get_expired_seconds() > 7 * 86400:
-                sentry_sdk.capture_message(f'计费用户:[{account.username}] 过期超过7天')
+            if account.get_expired_seconds() > 1 * 86400:
+                sentry_sdk.capture_message(f'计费用户:[{account.username}] 过期超过1天')
 
         # 每隔x秒清理会话
         if AccountingSession.clean(interval=ACCOUNTING_INTERVAL*2):
