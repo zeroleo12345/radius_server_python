@@ -11,7 +11,7 @@ from utils.time import Datetime
 
 class NasStat(object):
     @classmethod
-    def report_nas_ip(cls, nas_ip, nas_name, auth_or_acct):
+    def report_probe_nas_ip(cls, nas_ip, nas_name, auth_or_acct):
         """
         zrange "sorted_set:nas_name_to_timestamp:auth" 0 -1 WITHSCORES
         zrange "sorted_set:nas_name_to_timestamp:acct" 0 -1 WITHSCORES
@@ -22,6 +22,34 @@ class NasStat(object):
         key_ip = f'hash:nas_name_to_nas_ip:{auth_or_acct}'
         key_time = f'sorted_set:nas_name_to_timestamp:{auth_or_acct}'
         expire_key = f'expire:nas_name_to_nas_ip:{auth_or_acct}'
+        redis = get_redis()
+        # set if not exist, else not set. return bool: set or not
+        with redis.pipeline(transaction=False) as pipe:
+            pipe.set(name=expire_key, value='null', ex=86400, nx=True)
+            pipe.hexists(name=key_ip, key=nas_name)
+            is_set_mean_not_exist, is_existed_nas_name = pipe.execute()
+        # log.info(f'is_set_mean_not_exist: {is_set_mean_not_exist}, is_existed_nas_name: {is_existed_nas_name}')
+        if is_set_mean_not_exist:
+            # delete all key which use to save AC-ip and AC-name
+            redis.delete(key_ip, key_time)
+        with redis.pipeline(transaction=False) as pipe:
+            value = json.dumps({'ip': nas_ip, 'time': Datetime.to_str(fmt='%Y-%m-%d %H:%M:%S')})
+            pipe.hset(name=key_ip, key=nas_name, value=value)
+            pipe.zadd(name=key_time, mapping={nas_name: Datetime.timestamp()})
+            pipe.execute()
+
+    @classmethod
+    def report_user_nas_ip(cls, nas_ip, nas_name, auth_or_acct):
+        """
+        zrange "sorted_set:user_nas_name_to_timestamp:auth" 0 -1 WITHSCORES
+        zrange "sorted_set:user_nas_name_to_timestamp:acct" 0 -1 WITHSCORES
+
+        hgetall "hash:user_nas_name_to_nas_ip:auth"
+        hgetall "hash:user_nas_name_to_nas_ip:acct"
+        """
+        key_ip = f'hash:user_nas_name_to_nas_ip:{auth_or_acct}'
+        key_time = f'sorted_set:user_nas_name_to_timestamp:{auth_or_acct}'
+        expire_key = f'expire:user_nas_name_to_nas_ip:{auth_or_acct}'
         redis = get_redis()
         # set if not exist, else not set. return bool: set or not
         with redis.pipeline(transaction=False) as pipe:
