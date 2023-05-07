@@ -110,7 +110,7 @@ class AcctRequest(AcctPacket):
             NasStat.report_probe_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='acct')
         else:
             nas_name = self.nas_name
-            NasStat.report_user_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='auth')
+            NasStat.report_user_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='acct')
         response = AcctResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
         return response
