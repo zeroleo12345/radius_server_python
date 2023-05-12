@@ -49,7 +49,7 @@ class AuthRequest(AuthPacket):
         if self.username.startswith('user_probe'):
             _, domain = self.username.split('user_probe', 1)
             nas_name = self.nas_name or domain.replace('@', '')
-            NasStat.report_probe_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='auth')
+            # NasStat.report_probe_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='auth')
         else:
             nas_name = self.nas_name
             NasStat.report_user_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='auth')
@@ -107,7 +107,7 @@ class AcctRequest(AcctPacket):
         if self.username.startswith('user_probe'):
             _, domain = self.username.split('user_probe', 1)
             nas_name = self.nas_name or domain.replace('@', '')
-            NasStat.report_probe_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='acct')
+            # NasStat.report_probe_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='acct')
         else:
             nas_name = self.nas_name
             NasStat.report_user_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='acct')
