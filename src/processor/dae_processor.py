@@ -22,6 +22,12 @@ from loguru import logger as log
 
 def push_test_dae(data):
     """
+    dbash dae
+    cd src
+    python
+    from processor.dae_processor import push_test_dae
+    push_test_dae(data)
+
     Disconnect Message:
         data = {
             'code': 40,

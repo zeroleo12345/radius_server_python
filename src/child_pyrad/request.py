@@ -23,7 +23,7 @@ class AuthRequest(AuthPacket):
         """
         init_packet_from_receive(super(),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
-        self.socket, self.ip_port = socket, address
+        self.socket, self.address = socket, address
         # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
         self.username = self['User-Name'][0]
