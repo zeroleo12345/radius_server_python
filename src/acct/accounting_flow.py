@@ -1,3 +1,4 @@
+import json
 # 第三方库
 import sentry_sdk
 from child_pyrad.request import AcctRequest
@@ -5,6 +6,7 @@ from child_pyrad.request import AcctRequest
 from .accounting_session import AccountingSession
 from settings import ACCOUNTING_INTERVAL
 from utils.feishu import Feishu
+from utils.redispool import get_redis
 from loguru import logger as log
 from models.account import Account
 from controls.user import AcctUser
@@ -20,6 +22,8 @@ class AccountingFlow(object):
             return
         if account.is_expired():
             if account.get_expired_seconds() > 1 * 86400:
+                # 计费报文上报的ip有可能是断线重拨前的旧ip, 所以这里使用source ip
+                cls.push_dae_msg(code=40, ip=request.address[0], port=3799, avp={'User-Name': request.username})
                 sentry_sdk.capture_message(f'计费用户:[{account.username}] 过期超过1天')
 
         # 每隔x秒清理会话
@@ -39,3 +43,36 @@ class AccountingFlow(object):
     def disconnect(cls, username, user_mac):
         log.info(f'disconnect session. username: {username}, user_mac: {user_mac}')
         return
+
+    @classmethod
+    def push_dae_msg(cls, code: int, ip: str, port: int, avp: dict):
+        """
+        Disconnect Message:
+            {
+                'code': 40,
+                'ip': '192.168.11.11',
+                'port': 3799,
+                'avp': {'User-Name': 'zhouliying', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
+            }
+        CoA Message: (not support change speed rate)
+            {
+                'code': 43,
+                'ip': '192.168.11.11',
+                'port': 3799,
+                'avp': {
+                    'User-Name': 'zhouliying',
+                    'H3C-Output-Peak-Rate': 100 * 1000000, 'H3C-Output-Average-Rate': 100 * 1000000,
+                    'H3C-Input-Peak-Rate': 100 * 1000000, 'H3C-Input-Average-Rate': 100 * 1000000,
+                }
+            }
+        """
+        redis = get_redis()
+        key = 'list:dae'
+        data = {
+            'code': code,
+            'ip': ip,
+            'port': port,
+            'avp': avp,
+        }
+        log.debug(f'push DAE data: {data}')
+        redis.lpush(key, json.dumps(data, ensure_ascii=False))

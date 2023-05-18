@@ -7,7 +7,6 @@ from .exception import AuthenticatorError
 from controls.stat import NasStat
 from loguru import logger as log
 from .response import AuthResponse, AcctResponse
-from utils.time import Datetime
 
 
 class AuthRequest(AuthPacket):
@@ -15,6 +14,13 @@ class AuthRequest(AuthPacket):
     code = PacketCode.CODE_ACCESS_REQUEST
 
     def __init__(self, secret, dict: Dictionary, packet: bytes, socket, address):
+        """
+        :param secret:
+        :param dict:
+        :param packet:
+        :param socket:
+        :param address: (ip, port)
+        """
         init_packet_from_receive(super(),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket, self.address = socket, address
@@ -86,6 +92,13 @@ class AcctRequest(AcctPacket):
     code = PacketCode.CODE_ACCOUNT_REQUEST
 
     def __init__(self, secret, dict, packet: bytes, socket, address):
+        """
+        :param secret:
+        :param dict:
+        :param packet:
+        :param socket:
+        :param address: (ip, port)
+        """
         init_packet_from_receive(super(),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket, self.address = socket, address
@@ -116,30 +129,39 @@ class AcctRequest(AcctPacket):
         return response
 
 
-class RequestFactory(object):
+class DaeRequestFactory(object):
+    class DmRequest(CoAPacket):
+        """ send Disconnect Messages """
+        code = PacketCode.CODE_DISCONNECT_REQUEST
+
+        def __init__(self, secret, dict, socket, address):
+            """
+            :param secret:
+            :param dict:
+            :param socket:
+            :param address: (ip, port)
+            """
+            init_packet_to_send(super(), code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
+            self.socket, self.address = socket, address
+
+    class CoARequest(CoAPacket):
+        """ send Change-of-Authorization (CoA) Messages """
+        code = PacketCode.CODE_COA_REQUEST
+
+        def __init__(self, secret, dict, socket, address):
+            """
+            :param secret:
+            :param dict:
+            :param socket:
+            :param address: (ip, port)
+            """
+            init_packet_to_send(super(), code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
+            self.socket, self.address = socket, address
 
     def __new__(cls, code, secret, dict, socket, address):
-        if code == DmRequest.code:
-            return DmRequest(secret=secret, dict=dict, socket=socket, address=address)
-        if code == CoARequest.code:
-            return CoARequest(secret=secret, dict=dict, socket=socket, address=address)
+        if code == cls.DmRequest.code:
+            return cls.DmRequest(secret=secret, dict=dict, socket=socket, address=address)
+        if code == cls.CoARequest.code:
+            return cls.CoARequest(secret=secret, dict=dict, socket=socket, address=address)
 
         raise Exception('')
-
-
-class DmRequest(CoAPacket):
-    """ send Disconnect Messages """
-    code = PacketCode.CODE_DISCONNECT_REQUEST
-
-    def __init__(self, secret, dict, socket, address):
-        init_packet_to_send(super(), code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
-        self.socket, self.address = socket, address
-
-
-class CoARequest(CoAPacket):
-    """ send Change-of-Authorization (CoA) Messages """
-    code = PacketCode.CODE_COA_REQUEST
-
-    def __init__(self, secret, dict, socket, address):
-        init_packet_to_send(super(), code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
-        self.socket, self.address = socket, address
