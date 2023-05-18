@@ -23,14 +23,14 @@ from loguru import logger as log
 def push_test_dae(data):
     """
     Disconnect Message:
-        {
+        data = {
             'code': 40,
             'ip': '192.168.11.11',
             'port': 3799,
             'avp': {'User-Name': 'zhouliying', 'Calling-Station-Id': 'AA-80-00-00-00-00'}
         }
     CoA Message: (not support change speed rate)
-        {
+        data = {
             'code': 43,
             'ip': '192.168.11.11',
             'port': 3799,
