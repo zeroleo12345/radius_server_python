@@ -14,9 +14,16 @@ class AuthRequest(AuthPacket):
     code = PacketCode.CODE_ACCESS_REQUEST
 
     def __init__(self, secret, dict: Dictionary, packet: bytes, socket, address):
+        """
+        :param secret:
+        :param dict:
+        :param packet:
+        :param socket:
+        :param address: (ip, port)
+        """
         init_packet_from_receive(super(),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
-        self.socket, self.address = socket, address
+        self.socket, self.ip_port = socket, address
         # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
         self.username = self['User-Name'][0]
@@ -85,6 +92,13 @@ class AcctRequest(AcctPacket):
     code = PacketCode.CODE_ACCOUNT_REQUEST
 
     def __init__(self, secret, dict, packet: bytes, socket, address):
+        """
+        :param secret:
+        :param dict:
+        :param packet:
+        :param socket:
+        :param address: (ip, port)
+        """
         init_packet_from_receive(super(),
                                  code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
         self.socket, self.address = socket, address
@@ -121,6 +135,12 @@ class DaeRequestFactory(object):
         code = PacketCode.CODE_DISCONNECT_REQUEST
 
         def __init__(self, secret, dict, socket, address):
+            """
+            :param secret:
+            :param dict:
+            :param socket:
+            :param address: (ip, port)
+            """
             init_packet_to_send(super(), code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
             self.socket, self.address = socket, address
 
@@ -129,6 +149,12 @@ class DaeRequestFactory(object):
         code = PacketCode.CODE_COA_REQUEST
 
         def __init__(self, secret, dict, socket, address):
+            """
+            :param secret:
+            :param dict:
+            :param socket:
+            :param address: (ip, port)
+            """
             init_packet_to_send(super(), code=self.code, id=None, secret=secret, authenticator=None, dict=dict)
             self.socket, self.address = socket, address
 
