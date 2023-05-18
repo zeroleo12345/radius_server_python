@@ -13,14 +13,14 @@ from pyrad.dictionary import Dictionary
 import sentry_sdk
 # 项目库
 from child_pyrad.dictionary import get_dictionaries
-from child_pyrad.request import RequestFactory
+from child_pyrad.request import DaeRequestFactory
 from child_pyrad.response import ResponseFactory, DmResponse, CoAResponse
 from utils.redispool import get_redis
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET
 from loguru import logger as log
 
 
-def push_test_data(data):
+def push_test_dae(data):
     """
     Disconnect Message:
         {
@@ -73,13 +73,17 @@ class DAEClient(object):
     def run(self):
         redis = get_redis()
         key = 'list:dae'
+
+        # Check msg structure in push_test_dae()
         queue_data = redis.lpop(key)
         if not queue_data:
             return None
         req_data = json.loads(queue_data)
+        log.info(f'receive msg: {req_data}')
+
+        # parse msg
         to_address = (req_data['ip'], req_data['port'])
-        request = RequestFactory(code=req_data['code'], secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=to_address)
-        #
+        request = DaeRequestFactory(code=req_data['code'], secret=RADIUS_SECRET, dict=self.dictionary, socket=self.socket, address=to_address)
         for k, v in req_data['avp'].items():
             request[k] = v
 
@@ -92,10 +96,10 @@ class DAEClient(object):
             return False
 
         # 收取报文, 解析
-        log.trace(f'receive bytes: {res_data}')
+        log.debug(f'NAS response bytes: {res_data}')
         try:
             response = ResponseFactory(dict=self.dictionary, secret=RADIUS_SECRET, packet=res_data)
-            log.trace(f'response Radius: {response}')
+            log.info(f'NAS response: {response}')
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
