@@ -12,7 +12,7 @@ def gen_pap_packet():
     dictionary = Dictionary(*get_dictionaries(dict_dir))
     #
     request = AuthPacket(dict=dictionary, secret=secret)
-    username = sys.argv[0]
+    username = sys.argv[1]
     print(f'username: {username}')
     request['User-Name'] = username
     request['User-Password'] = 'password'
