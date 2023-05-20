@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 import sys
 sys.path.append("../src")
+import binascii
 from pyrad.packet import AuthPacket
 from pyrad.dictionary import Dictionary
 from child_pyrad.dictionary import get_dictionaries
+from loguru import logger as log
 
 
 def gen_pap_packet():
@@ -13,12 +15,14 @@ def gen_pap_packet():
     #
     request = AuthPacket(dict=dictionary, secret=secret)
     username = sys.argv[1]
-    print(f'username: {username}')
+    log.info(f'username: {username}')
     request['User-Name'] = username
     request['User-Password'] = 'password'
     request['Service-Type'] = 2
     packet = request.RequestPacket()
-    print(f'packet: {packet}')
+    hex_code = binascii.hexlify(packet).decode()
+    log.info(f'packet: {packet}')
+    log.info(f'hex: {hex_code}')
 
 
 if __name__ == "__main__":
