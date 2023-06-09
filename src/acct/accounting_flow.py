@@ -21,9 +21,9 @@ class AccountingFlow(object):
         if not account:
             return
         if account.is_expired():
+            cls.push_dae_msg(code=40, ip=request.address[0], port=3799, avp={'User-Name': request.username})
             if account.get_expired_seconds() > 1 * 86400:
                 # 计费报文上报的ip有可能是断线重拨前的旧ip, 所以这里使用source ip
-                cls.push_dae_msg(code=40, ip=request.address[0], port=3799, avp={'User-Name': request.username})
                 sentry_sdk.capture_message(f'计费用户:[{account.username}] 过期超过1天')
 
         # 每隔x秒清理会话
