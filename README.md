@@ -126,6 +126,10 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.
 ```
 
 
+## Build libhostapd.so
+https://github.com/zeroleo12345/hostapd-2.5-ctm/tree/ctm_version
+
+
 ## gdb core
 ``` bash
 gdb /root/.pyenv/shims/python -c core.1 
