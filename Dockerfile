@@ -8,7 +8,7 @@ RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shangh
     && cp /app/requirements/sources.list.tencent  /etc/apt/sources.list \
     && apt-get update
 
-RUN apt-get install -y build-essential git libssl-dev libnl-3-dev libtalloc-dev libmariadb-dev \
+RUN apt-get install -y build-essential git libssl-dev libnl-3-dev libnl-genl-3-dev libtalloc-dev libmariadb-dev \
     && apt-get install -y tcpdump procps curl inetutils-ping
 
 # 二. 安装 python package.
