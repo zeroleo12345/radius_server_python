@@ -40,7 +40,9 @@ class MacFlow(Flow):
         # mac Flow: 用户不存在则创建
         account = MacAccount.get(username=session.auth_user.outer_username)
         if not account:
-
+            if not account.is_enable:
+                log.warning(f'account is disabled')
+                raise AccessReject(reason=AccessReject.MAC_FORBIDDEN)
             #
             enable_flag_key = 'enable_mac_authentication'
             if not redis.get(enable_flag_key):
