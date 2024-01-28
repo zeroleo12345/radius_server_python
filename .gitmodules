@@ -14,3 +14,7 @@
 	path = third_party/freeradius-3.0.21
 	url = git@github.com:zeroleo12345/freeradius-3.0.21.git
 	branch = master
+[submodule "third_party/hostapd-2.10"]
+	path = third_party/hostapd-2.10
+	url = git@github.com:zeroleo12345/hostapd-2.10.git
+	branch = ctm_version
