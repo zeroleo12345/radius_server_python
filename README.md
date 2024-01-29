@@ -57,6 +57,30 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   similiar with authenticate, but reaplce `auth` with `acct`
 
 
+## Build
+
+### lib `libhostapd.so`
+
+``` bash
+cd third_party/hostapd-2.10/hostapd/
+cat README.md
+```
+
+### simulator `eapol_test`
+
+``` bash
+cd third_party/wpa_supplicant-2.5/wpa_supplicant/
+cat README.md
+```
+
+### simulator `radclient`
+
+``` bash
+cd third_party/freeradius-3.0.21/
+cat README.md
+```
+
+
 ## Send authenticate request with simulator
 
 ### authenticate by CHAP
