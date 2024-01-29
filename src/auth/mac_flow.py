@@ -40,7 +40,6 @@ class MacFlow(Flow):
         # mac Flow: 用户不存在则创建
         account = MacAccount.get(username=session.auth_user.outer_username)
         if not account:
-
             #
             enable_flag_key = 'enable_mac_authentication'
             if not redis.get(enable_flag_key):
@@ -56,6 +55,9 @@ class MacFlow(Flow):
             text = f'新增放通 MAC 设备, MAC: {session.auth_user.user_mac}, SSID: {request.ssid}'
             Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_MAC_CHAT_ID, text=text)
             redis.delete(enable_flag_key)
+        if not account.is_enable:
+            log.warning(f'account is disabled')
+            raise AccessReject(reason=AccessReject.MAC_FORBIDDEN)
 
         session.extra['Auth-Type'] = 'MAC'
         return cls.access_accept(request=request, session=session)

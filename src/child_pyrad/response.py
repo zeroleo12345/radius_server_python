@@ -43,13 +43,13 @@ class AuthResponse(AuthPacket):
         if request.auth_protocol in [PacketProtocol.EAP_PEAP_MSCHAPV2_PROTOCOL, PacketProtocol.EAP_PEAP_GTC_PROTOCOL, PacketProtocol.MSCHAPV2_PROTOCOL, PacketProtocol.MAC_PROTOCOL]:
             reply['Filter-Id'] = f'pay_user_100m'
         # Attribute for test user:
-        if request.username == 'zhouliying':
+        if request.username == '32028059':
             # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Output-Peak-Rate'] = int(6 * mega_bit)
-            reply['H3C-Output-Average-Rate'] = int(6 * mega_bit)
+            reply['H3C-Output-Peak-Rate'] = int(100 * mega_bit)
+            reply['H3C-Output-Average-Rate'] = int(100 * mega_bit)
             # 上载速度. 用户到NAS的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Input-Peak-Rate'] = int(3 * mega_bit)
-            reply['H3C-Input-Average-Rate'] = int(3 * mega_bit)
+            reply['H3C-Input-Peak-Rate'] = int(10 * mega_bit)
+            reply['H3C-Input-Average-Rate'] = int(10 * mega_bit)
             # User Profile 适用于wlan和PPPoE用户. 当AC profile disable时, 会连不上WIFi
             # reply['Filter-Id'] = f'pay_user_4m'
         return reply
