@@ -87,7 +87,7 @@ cat README.md
 
 ## Send authenticate request with simulator
 
-### authenticate by CHAP
+### authenticate: CHAP
 
 enter into authenticate container: `docker-compose exec auth bash`
 
@@ -98,7 +98,7 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.
 ```
 
 
-### authenticate by PAP
+### authenticate: PAP
 
 enter into authenticate container: `docker-compose exec auth bash`
 
@@ -109,7 +109,15 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.
 ```
 
 
-### authenticate by EAP-GTC
+### authenticate: MSCHAPv2
+
+1. `docker-compose up -d auth_test`, listen on port 2812
+
+2. Access Controller route traffic to 2812
+
+
+
+### authenticate: EAP-GTC
 
 add `USE_GTC=1` in .env and restart docker container
 
@@ -122,7 +130,7 @@ run simulator in container:
 ```
 
 
-### authenticate by EAP-MSCHAPv2
+### authenticate: EAP-MSCHAPv2
 
 remove `USE_GTC=0` in .env and restart docker container
 
