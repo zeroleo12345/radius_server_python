@@ -18,3 +18,7 @@
 	path = third_party/wpa_supplicant-2.10
 	url = git@github.com:zeroleo12345/wpa_supplicant-2.10.git
 	branch = ctm_version
+[submodule "third_party/wpa_supplicant-2.5"]
+	path = third_party/wpa_supplicant-2.5
+	url = git@github.com:zeroleo12345/wpa_supplicant-2.5.git
+	branch = ctm_version
