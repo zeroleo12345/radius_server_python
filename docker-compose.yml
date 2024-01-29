@@ -10,6 +10,7 @@ x-logging:
 
 services:
   auth:
+    # platform: linux/amd64
     container_name: radius_auth
     build:
        context: .
