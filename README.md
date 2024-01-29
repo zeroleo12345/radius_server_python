@@ -18,6 +18,8 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 ## Pull Code
   ```
+  git submodule update --init --recursive
+
   git submodule add  -b ctm_version git@github.com:zeroleo12345/hostapd-2.10.git  ./third_party/hostapd-2.10
   git submodule add  -b ctm_version git@github.com:zeroleo12345/hostapd-2.5.git  ./third_party/hostapd-2.5
   git submodule add  -b ctm_version git@github.com:zeroleo12345/wpa_supplicant-2.10.git  ./third_party/wpa_supplicant-2.10
@@ -25,7 +27,6 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   git submodule add  -b master git@github.com:zeroleo12345/freeradius-3.0.21.git  ./third_party/freeradius-3.0.21
 
   git submodule add  -b master git@github.com:zeroleo12345/pppoe_component.git  ./pppoe_component
-  git submodule update --init --recursive
   ```
 
 
