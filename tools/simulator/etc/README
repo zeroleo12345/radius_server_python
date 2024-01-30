@@ -13,10 +13,10 @@
     dir     = ./     # TSA root directory
 
 # 清理
-rm -rf  ./newcerts/  ./*.old  ./*.attr  index.txt  serial  dh  *.key *.cer *.p12
+rm -rf  ./newcerts/  ./*.old  ./*.attr  index.txt  serial  dh  *.csr *.key *.cer *.p12
 
 # 生成dh文件
-openssl dhparam -out ./dh 1024
+openssl dhparam -out ./dh 2048
 
 # 报错则更换序列号: ERROR:Serial number 99 has already been issued
 touch index.txt && echo 01 > serial
@@ -26,7 +26,7 @@ touch index.txt && echo 01 > serial
 openssl genrsa -out ./ca.key 2048
 
 # 生成CA根证书(CER). 提供CA根证书私钥
-openssl req -new -x509 -days 3650 -key ./ca.key -out ./ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com"
+openssl req -new -sha256 -x509 -days 3650 -key ./ca.key -out ./ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com"
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
     What you are about to enter is what is called a Distinguished Name or a DN.
@@ -53,7 +53,7 @@ openssl genrsa  -des3 -passout pass:123456  -out ./server.key 2048
     Verifying - Enter pass phrase for server.key:123456
 
 # 生成服务端证书签名请求(CSR). 提供服务端私钥
-openssl req -new -days 3650 -key ./server.key  -passin pass:123456 -out ./server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com"
+openssl req -new -sha256 -days 3650 -key ./server.key  -passin pass:123456 -out ./server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=1000@gmail.com"
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
     What you are about to enter is what is called a Distinguished Name or a DN.
@@ -77,7 +77,7 @@ openssl req -new -days 3650 -key ./server.key  -passin pass:123456 -out ./server
 
 # 生成服务端证书(CER). 提供CA根证书私钥、CA根证书、服务端证书签名请求
 mkdir newcerts
-openssl ca -days 3650 -keyfile ./ca.key -cert ./ca.cer -in ./server.csr -out ./server.cer
+openssl ca -md sha256 -days 3650 -keyfile ./ca.key -cert ./ca.cer -in ./server.csr -out ./server.cer
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
     Signature ok

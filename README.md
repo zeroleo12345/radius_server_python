@@ -18,8 +18,17 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 ## Pull Code
   ```
-  git submodule add  -b master git@github.com:zeroleo12345/pppoe_component.git  ./pppoe_component
   git submodule update --init --recursive
+
+  git submodule add  -b ctm_version git@github.com:zeroleo12345/hostapd-2.10.git  ./third_party/hostapd-2.10
+  git submodule add  -b ctm_version git@github.com:zeroleo12345/wpa_supplicant-2.10.git  ./third_party/wpa_supplicant-2.10
+  git submodule add  -b ctm_version git@github.com:zeroleo12345/freeradius-3.2.3.git  ./third_party/freeradius-3.2.3
+
+  git submodule add  -b ctm_version git@github.com:zeroleo12345/hostapd-2.5.git  ./third_party/hostapd-2.5
+  git submodule add  -b ctm_version git@github.com:zeroleo12345/wpa_supplicant-2.5.git  ./third_party/wpa_supplicant-2.5
+  git submodule add  -b ctm_version git@github.com:zeroleo12345/freeradius-3.0.21.git  ./third_party/freeradius-3.0.21
+
+  git submodule add  -b master git@github.com:zeroleo12345/pppoe_component.git  ./pppoe_component
   ```
 
 
@@ -52,9 +61,35 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
   similiar with authenticate, but reaplce `auth` with `acct`
 
 
+## Build
+
+### lib `libhostapd.so`
+
+``` bash
+cd third_party/hostapd-2.10/hostapd/
+cat README.md
+```
+
+
+### simulator `eapol_test`
+
+``` bash
+cd third_party/wpa_supplicant-2.5/wpa_supplicant/
+cat README.md
+```
+
+
+### simulator `radclient`
+
+``` bash
+cd third_party/freeradius-3.0.21/
+cat README.md
+```
+
+
 ## Send authenticate request with simulator
 
-### authenticate by CHAP
+### authenticate: CHAP
 
 enter into authenticate container: `docker-compose exec auth bash`
 
@@ -64,7 +99,8 @@ run simulator in container:
 radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/chap.conf
 ```
 
-### authenticate by PAP
+
+### authenticate: PAP
 
 enter into authenticate container: `docker-compose exec auth bash`
 
@@ -74,7 +110,16 @@ run simulator in container:
 radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/pap.conf
 ```
 
-### authenticate by EAP-GTC
+
+### authenticate: MSCHAPv2
+
+1. `docker-compose up -d auth_test`, listen on port 2812
+
+2. Access Controller route traffic to 2812
+
+
+
+### authenticate: EAP-GTC
 
 add `USE_GTC=1` in .env and restart docker container
 
@@ -83,10 +128,11 @@ enter into authenticate container: `docker-compose exec auth bash`
 run simulator in container:
 
 ```bash
-eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.gtc -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC
+./eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.gtc -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC
 ```
 
-### authenticate by EAP-MSCHAPv2
+
+### authenticate: EAP-MSCHAPv2
 
 remove `USE_GTC=0` in .env and restart docker container
 
@@ -95,7 +141,7 @@ enter into authenticate container: `docker-compose exec auth bash`
 run simulator in container:
 
 ```bash
-eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.mschapv2 -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC
+./eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.mschapv2 -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC
 ```
 
 
@@ -105,11 +151,11 @@ enter into accounting container: `docker-compose exec acct bash`
 run simulator in container:
 
 ```bash
-radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/i.conf
+./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/i.conf
 
-radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/u.conf
+./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/u.conf
 
-radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/t.conf
+./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/t.conf
 ```
 
 
@@ -122,7 +168,7 @@ enter into accounting container: `docker-compose exec dae bash`
 run simulator in container:
 
 ``` bash
-radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
+./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
 ```
 
 

@@ -1,5 +1,6 @@
 # https://hub.docker.com/_/python/, 镜像名说明: 前缀python可选自url; 后缀:3.6-alpine为网页上的tag, 如不指定后缀, 则为:latest
-FROM python:3.6.12-slim-stretch
+FROM python:3.6.15-slim-bullseye
+#FROM --platform=linux/amd64 python:3.6.15-slim-bullseye
 
 # 一. 安装 linux package. (使用: 阿里云 alpine 镜像)
 ADD requirements/sources.list.tencent /app/requirements/sources.list.tencent
@@ -8,7 +9,7 @@ RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shangh
     && cp /app/requirements/sources.list.tencent  /etc/apt/sources.list \
     && apt-get update
 
-RUN apt-get install -y build-essential git libssl1.0-dev libnl-3-dev libtalloc-dev libmariadbclient-dev \
+RUN apt-get install -y build-essential git libssl-dev libnl-3-dev libnl-genl-3-dev libtalloc-dev libmariadb-dev \
     && apt-get install -y tcpdump procps curl inetutils-ping
 
 # 二. 安装 python package.

@@ -2,18 +2,27 @@
 	path = pppoe_component
 	url = git@github.com:zeroleo12345/pppoe_component.git
 	branch = master
-[submodule "third_party/wpa_supplicant-2.5-ctm"]
-	path = third_party/wpa_supplicant-2.5-ctm
-	url = git@github.com:zeroleo12345/wpa_supplicant-2.5-ctm.git
+[submodule "third_party/hostapd-2.5"]
+	path = third_party/hostapd-2.5
+	url = git@github.com:zeroleo12345/hostapd-2.5.git
 	branch = ctm_version
-    ignore = all
-[submodule "third_party/freeradius-3.0.21-ctm"]
-	path = third_party/freeradius-3.0.21-ctm
-	url = git@github.com:zeroleo12345/freeradius-3.0.21-ctm
+[submodule "third_party/freeradius-3.0.21"]
+	path = third_party/freeradius-3.0.21
+	url = git@github.com:zeroleo12345/freeradius-3.0.21.git
 	branch = master
-    ignore = all
-[submodule "third_party/hostapd-2.5-ctm"]
-	path = third_party/hostapd-2.5-ctm
-	url = git@github.com:zeroleo12345/hostapd-2.5-ctm
+[submodule "third_party/hostapd-2.10"]
+	path = third_party/hostapd-2.10
+	url = git@github.com:zeroleo12345/hostapd-2.10.git
 	branch = ctm_version
-    ignore = all
+[submodule "third_party/wpa_supplicant-2.10"]
+	path = third_party/wpa_supplicant-2.10
+	url = git@github.com:zeroleo12345/wpa_supplicant-2.10.git
+	branch = ctm_version
+[submodule "third_party/wpa_supplicant-2.5"]
+	path = third_party/wpa_supplicant-2.5
+	url = git@github.com:zeroleo12345/wpa_supplicant-2.5.git
+	branch = ctm_version
+[submodule "third_party/freeradius-3.2.3"]
+	path = third_party/freeradius-3.2.3
+	url = git@github.com:zeroleo12345/freeradius-3.2.3.git
+	branch = ctm_version
