@@ -103,13 +103,13 @@ def main():
     listen_port = RADIUS_PORT
     log.debug(f'listening on {listen_ip}:{listen_port}')
     server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
-    stat_thread = StatThread()
-    stat_thread.start()
+    #  stat_thread = StatThread()
+    #  stat_thread.start()
 
     def shutdown():
         log.info('exit gracefully')
         server.close()
-        stat_thread.stop()
+        #  stat_thread.stop()
     signal(SIGTERM, shutdown)
     #
     try:
