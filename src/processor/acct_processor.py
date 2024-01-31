@@ -2,7 +2,7 @@ import traceback
 from signal import SIGTERM
 import sentry_sdk
 # 第三方库
-from gevent.signal import signal
+from gevent import signal_handler
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 # 项目库
@@ -59,7 +59,7 @@ def main():
     def shutdown():
         log.info('exit gracefully')
         server.close()
-    signal(SIGTERM, shutdown)
+    signal_handler(SIGTERM, shutdown)
     #
     try:
         libhostapd.init()
