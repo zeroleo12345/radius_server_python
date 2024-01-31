@@ -180,6 +180,8 @@ gdb /root/.pyenv/shims/python -c core.1
 
 ## gdb segmentation fault
 ``` bash
+ENTRYPOINT="tail -f /dev/null" docker-compose up -d auth_test
+
 apt-get install gdb
 
 ./bin/gdb.sh    # gdb python3
