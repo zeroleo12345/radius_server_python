@@ -2,7 +2,7 @@ import os
 import traceback
 from signal import SIGTERM
 # 第三方库
-from gevent import signal
+from gevent.signal import signal
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 import sentry_sdk
