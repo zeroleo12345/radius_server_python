@@ -180,6 +180,8 @@ gdb /root/.pyenv/shims/python -c core.1
 
 ## gdb segmentation fault
 ``` bash
+apt-get install gdb
+
 ./bin/gdb.sh    # gdb python3
 
 (gdb) run /app/src/processor/auth_processor.py
