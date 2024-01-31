@@ -7,8 +7,8 @@ RUN rm -rf /etc/apt/sources.list.d/* && apt-get update
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone
 
-RUN apt-get install -y build-essential gdb git libssl-dev libnl-3-dev libnl-genl-3-dev libtalloc-dev libmariadb-dev \
-    && apt-get install -y tcpdump procps curl inetutils-ping
+RUN apt-get install -y build-essential git libssl-dev libnl-3-dev libnl-genl-3-dev libtalloc-dev libmariadb-dev \
+    && apt-get install -y tcpdump procps curl inetutils-ping gdb
 
 # 二. 安装 python package.
 ADD requirements/requirements.txt /app/requirements/requirements.txt
