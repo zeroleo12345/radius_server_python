@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/python/, 镜像名说明: 前缀python可选自url; 后缀:3.6-alpine为网页上的tag, 如不指定后缀, 则为:latest
-FROM python:3.7.17-slim-bullseye
+FROM python:3.7.17-slim-bookworm
 
 # 一. 安装 linux package. (使用: 阿里云 alpine 镜像)
 ADD requirements/debian.sources.tencent /etc/apt/sources.list
