@@ -30,6 +30,8 @@ services:
       - pppoe_system
 
   auth_test:
+    cap_add:
+      - SYS_PTRACE
     container_name: auth_test
     build:
        context: .
