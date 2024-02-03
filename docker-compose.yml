@@ -10,6 +10,7 @@ x-logging:
 
 services:
   auth:
+    platform: linux/amd64
     container_name: radius_auth
     build:
        context: .
@@ -30,6 +31,7 @@ services:
       - pppoe_system
 
   auth_test:
+    platform: linux/amd64
     cap_add:
       - SYS_PTRACE
     container_name: auth_test
@@ -53,6 +55,7 @@ services:
 
 
   acct:
+    platform: linux/amd64
     container_name: radius_acct
     build:
        context: .
@@ -74,6 +77,7 @@ services:
 
 
   dae:
+    platform: linux/amd64
     container_name: radius_dae
     build:
       context: .
