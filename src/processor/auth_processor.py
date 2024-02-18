@@ -70,7 +70,15 @@ class RadiusServer(DatagramServer):
 
 def verify(request: AuthRequest, auth_user: AuthUser):
     # 根据报文内容, 选择认证方式
-    if 'CHAP-Password' in request:
+    if 'EAP-Message' in request:
+        if USE_GTC:
+            request.auth_protocol = PacketProtocol.EAP_PEAP_GTC_PROTOCOL
+            return EapPeapGtcFlow.authenticate_handler(request=request, auth_user=auth_user)
+        else:
+            request.auth_protocol = PacketProtocol.EAP_PEAP_MSCHAPV2_PROTOCOL
+            return EapPeapMschapv2Flow.authenticate_handler(request=request, auth_user=auth_user)
+
+    elif 'CHAP-Password' in request:
         request.auth_protocol = PacketProtocol.CHAP_PROTOCOL
         return ChapFlow.authenticate_handler(request=request, auth_user=auth_user)
 
@@ -85,14 +93,6 @@ def verify(request: AuthRequest, auth_user: AuthUser):
         else:
             request.auth_protocol = PacketProtocol.PAP_PROTOCOL
             return PapFlow.authenticate_handler(request=request, auth_user=auth_user)
-
-    elif 'EAP-Message' in request:
-        if USE_GTC:
-            request.auth_protocol = PacketProtocol.EAP_PEAP_GTC_PROTOCOL
-            return EapPeapGtcFlow.authenticate_handler(request=request, auth_user=auth_user)
-        else:
-            request.auth_protocol = PacketProtocol.EAP_PEAP_MSCHAPV2_PROTOCOL
-            return EapPeapMschapv2Flow.authenticate_handler(request=request, auth_user=auth_user)
 
     raise Exception('can not choose authenticate method')
 
