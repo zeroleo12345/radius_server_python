@@ -46,7 +46,7 @@ class AuthRequest(AuthPacket):
         return self['Service-Type'][0]     # 2: Framed; 10: Call-Check;  https://datatracker.ietf.org/doc/html/rfc2865#page-31
 
     def reply_to(self, reply: AuthPacket):
-        log.trace(f'reply: {reply}')
+        log.trace(f'reply body: {reply}')
         if 'EAP-Message' in reply:
             reply.get_message_authenticator()   # 必须放在所有attribute设置好后, 发送前刷新 Message-Authenticator !!!
         self.socket.sendto(reply.ReplyPacket(), self.address)

@@ -37,7 +37,7 @@ class RadiusServer(DatagramServer):
 
         try:
             # 验证用户
-            verify(request, acct_user)
+            verify_user(request, acct_user)
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
@@ -45,7 +45,8 @@ class RadiusServer(DatagramServer):
             Flow.account_response(request=request, acct_user=acct_user)
 
 
-def verify(request: AcctRequest, acct_user: AcctUser):
+def verify_user(request: AcctRequest, acct_user: AcctUser):
+    log.info(f'verifying user from {request.address}')
     AccountingFlow.accounting_handler(request=request, acct_user=acct_user)
 
 

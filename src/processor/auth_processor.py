@@ -57,7 +57,7 @@ class RadiusServer(DatagramServer):
 
         try:
             # 验证用户
-            verify(request, auth_user)
+            verify_user(request, auth_user)
         except AccessReject as e:
             Flow.access_reject(request=request, auth_user=auth_user, reason=e.reason)
         except KeyboardInterrupt:
@@ -68,7 +68,8 @@ class RadiusServer(DatagramServer):
             Flow.access_reject(request=request, auth_user=auth_user, reason=AccessReject.SYSTEM_ERROR)
 
 
-def verify(request: AuthRequest, auth_user: AuthUser):
+def verify_user(request: AuthRequest, auth_user: AuthUser):
+    log.info(f'verifying user from {request.address}')
     # 根据报文内容, 选择认证方式
     if 'EAP-Message' in request:
         if USE_GTC:
