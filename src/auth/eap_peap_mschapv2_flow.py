@@ -93,20 +93,28 @@ class EapPeapMschapv2Flow(Flow):
             if peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO:
                 # 收到 Client Hello; 发送 Server Hello
                 return cls.peap_challenge_server_hello(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_PHASE2_IDENTITY:
                 return cls.peap_challenge_phase2_identity(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_MSCHAPV2_RANDOM:
                 return cls.peap_challenge_mschapv2_random(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_MSCHAPV2_NT:
                 return cls.peap_challenge_mschapv2_nt(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SUCCESS:
                 return cls.peap_challenge_success(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_ACCESS_ACCEPT:
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
+
             else:
                 log.error('eap peap auth error. unknown eap packet type')
                 raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
