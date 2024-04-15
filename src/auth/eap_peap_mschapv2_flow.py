@@ -60,9 +60,11 @@ class EapPeapMschapv2Flow(Flow):
         :param peap:
         :param session:
         """
+        # 收到NAK表示不支持该协议
         if eap.type == EapPacket.TYPE_EAP_NAK:
             log.error('receive Nak. Client not support EAP-PEAP!')
             raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
+
         if session.prev_id == request.id or session.prev_eap_id == eap.id:
             # 重复请求
             if session.reply:
@@ -129,6 +131,7 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 客户端 PEAP 版本
         log.debug(f'eap header, peap version: {peap.flag_version}')
+        from pprint import pprint; import pdb; pdb.set_trace()
         session.set_peap_version(peap.flag_version)
 
         # 初始化 tls_connection
