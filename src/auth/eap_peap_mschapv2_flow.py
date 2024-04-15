@@ -84,10 +84,14 @@ class EapPeapMschapv2Flow(Flow):
             session.current_eap_id = EapPacket.get_next_id(eap.id)
             log.info(f'peap auth. session_id: {session.session_id}, call next_state: {session.next_state}')
             if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == cls.PEAP_CHALLENGE_START:
+                # 收到 identity; 发送 peap start
                 return cls.peap_challenge_start(request, eap, peap, session)
+
             # 以下流程 request 报文 phase1 协商协议必须是 EAP-PEAP
             assert eap.type == EapPacket.TYPE_EAP_PEAP
+
             if peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO:
+                # 收到 Client Hello; 发送 Server Hello
                 return cls.peap_challenge_server_hello(request, eap, peap, session)
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
