@@ -1,4 +1,5 @@
 ## eap-peap 流程文档
+> 认证时支持什么协议, 是由Radius Server发起的, 不是由AC或Client发起的
 
 - EAP协议格式.xlsx
 
