@@ -8,3 +8,7 @@
 - PEAPv1(EAP-GTC).vsdx
 
 > https://miro.com/app/board/uXjVKT5REBk=/
+
+
+## 编译 hostpad server
+- 查看文档 tools/simulator/hostapd/README.md
