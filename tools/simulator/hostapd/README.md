@@ -10,10 +10,10 @@
 ## 运行 hostapd
 - 支持全协议
 ``` bash
-hostapd -dd /app/tools/simulator/hostapd/hostapd-2.5-all.conf
+./hostapd -dd /app/tools/simulator/hostapd/hostapd-2.5-all.conf
 ```
 
 - 限制只支持mschapv2
 ``` bash
-hostapd -dd /app/tools/simulator/hostapd/hostapd-2.5-mschapv2.conf
+./hostapd -dd /app/tools/simulator/hostapd/hostapd-2.5-mschapv2.conf
 ```
