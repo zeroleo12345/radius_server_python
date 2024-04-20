@@ -108,11 +108,13 @@ class EapCrypto(metaclass=Singleton):
         #         const char *label, int server_random_first,
         #         int skip_keyblock, u8 *out, size_t out_len)
         p_out_prf = ctypes.create_string_buffer(64)
-        l_prf_len = ctypes.c_ulonglong(len(p_out_prf))
+        l_out_prf_len = ctypes.c_ulonglong(len(p_out_prf))
+        p_context = None
+        l_context_len = ctypes.c_ulonglong(0)
         self.lib.tls_connection_prf.restype = ctypes.c_int    # 不加会导致 Segmentation fault
-        ret = self.lib.tls_connection_prf(self.tls_ctx, tls_connection,
-                                          p_label, 0,
-                                          0, p_out_prf, l_prf_len)
+        ret = self.lib.tls_connection_export_key(self.tls_ctx, tls_connection, p_label,
+                                                 p_context, l_context_len, p_out_prf, l_out_prf_len)
+
         if ret < 0:     # 0 和 -1
             raise EapCryptoError('tls_connection_prf error!')
         return p_out_prf
