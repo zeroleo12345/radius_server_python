@@ -1,4 +1,4 @@
-## 配置文件 eap_user
+## 配置文件解析 eap_user
 ``` bash
 第一行协商 phase 1 的认证方法顺序
 第二行协商 phase 2 的认证方法顺序
