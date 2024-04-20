@@ -18,7 +18,7 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 ## Pull Code
   ```
-  git submodule update --init --recursive
+  git submodule update --init --recursive  # pull submodule
 
   git submodule add  -b ctm_version git@github.com:zeroleo12345/hostapd-2.10.git  ./third_party/hostapd-2.10
   git submodule add  -b ctm_version git@github.com:zeroleo12345/wpa_supplicant-2.10.git  ./third_party/wpa_supplicant-2.10
