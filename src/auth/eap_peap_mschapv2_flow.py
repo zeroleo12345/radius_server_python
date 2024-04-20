@@ -143,7 +143,7 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 客户端 PEAP 版本
         log.debug(f'eap header, peap version: {peap.flag_version}')
-        from pprint import pprint; import pdb; pdb.set_trace()
+        # from pprint import pprint; import pdb; pdb.set_trace()
         session.set_peap_version(peap.flag_version)
 
         # 初始化 tls_connection
