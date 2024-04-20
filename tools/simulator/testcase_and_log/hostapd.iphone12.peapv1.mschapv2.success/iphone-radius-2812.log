@@ -40,33 +40,24 @@ private_key_path: (/app/tools/simulator/etc/certs/server.key)
 private_key_passwd: (123456)
 dh_file_path: (/app/tools/simulator/etc/certs/dh)
 py_authsrv_init success.
-2024-04-20 09:50:07.100 | INFO     | verifying user from ('119.131.151.84', 14065)
 2024-04-20 09:50:07.100 | DEBUG    | outer_username: zhouliying, mac: 2A-54-F5-6E-47-36.previd: -1, recvid: 44.  prev_eapid: -1, recv_eapid: 1]
 2024-04-20 09:50:07.100 | INFO     | peap auth. session_id: 68b8b44b-61b2-422c-8398-a27a487e67a7, call next_state: peap_challenge_start
 2024-04-20 09:50:07.101 | DEBUG    | before PEAP Start, identity: zhouliying
-2024-04-20 09:50:07.164 | INFO     | verifying user from ('119.131.151.84', 14065)
 2024-04-20 09:50:07.164 | DEBUG    | outer_username: zhouliying, mac: 2A-54-F5-6E-47-36.previd: 44, recvid: 45.  prev_eapid: 1, recv_eapid: 2]
 2024-04-20 09:50:07.164 | INFO     | peap auth. session_id: 68b8b44b-61b2-422c-8398-a27a487e67a7, call next_state: peap_challenge_server_hello
 2024-04-20 09:50:07.165 | DEBUG    | eap header, peap version: 1
-2024-04-20 09:50:07.184 | INFO     | verifying user from ('119.131.151.84', 14065)
 2024-04-20 09:50:07.184 | DEBUG    | outer_username: zhouliying, mac: 2A-54-F5-6E-47-36.previd: 45, recvid: 46.  prev_eapid: 2, recv_eapid: 3]
 2024-04-20 09:50:07.184 | INFO     | peap auth. session_id: 68b8b44b-61b2-422c-8398-a27a487e67a7, call next_state: peap_challenge_server_hello_fragment
-2024-04-20 09:50:08.765 | INFO     | verifying user from ('119.131.151.84', 14065)
 2024-04-20 09:50:08.765 | DEBUG    | outer_username: zhouliying, mac: 2A-54-F5-6E-47-36.previd: 46, recvid: 47.  prev_eapid: 3, recv_eapid: 4]
 2024-04-20 09:50:08.765 | INFO     | peap auth. session_id: 68b8b44b-61b2-422c-8398-a27a487e67a7, call next_state: peap_challenge_change_cipher_spec
-2024-04-20 09:50:08.780 | INFO     | verifying user from ('119.131.151.84', 14065)
 2024-04-20 09:50:08.780 | DEBUG    | outer_username: zhouliying, mac: 2A-54-F5-6E-47-36.previd: 47, recvid: 48.  prev_eapid: 4, recv_eapid: 5]
 2024-04-20 09:50:08.780 | INFO     | peap auth. session_id: 68b8b44b-61b2-422c-8398-a27a487e67a7, call next_state: peap_challenge_phase2_identity
-2024-04-20 09:50:08.794 | INFO     | verifying user from ('119.131.151.84', 14065)
 2024-04-20 09:50:08.794 | DEBUG    | outer_username: zhouliying, mac: 2A-54-F5-6E-47-36.previd: 48, recvid: 49.  prev_eapid: 5, recv_eapid: 6]
 2024-04-20 09:50:08.794 | INFO     | peap auth. session_id: 68b8b44b-61b2-422c-8398-a27a487e67a7, call next_state: peap_challenge_mschapv2_random
-2024-04-20 09:50:08.830 | INFO     | verifying user from ('119.131.151.84', 14065)
 2024-04-20 09:50:08.830 | DEBUG    | outer_username: zhouliying, mac: 2A-54-F5-6E-47-36.previd: 49, recvid: 50.  prev_eapid: 6, recv_eapid: 7]
 2024-04-20 09:50:08.830 | INFO     | peap auth. session_id: 68b8b44b-61b2-422c-8398-a27a487e67a7, call next_state: peap_challenge_mschapv2_nt
-2024-04-20 09:50:08.844 | INFO     | verifying user from ('119.131.151.84', 14065)
 2024-04-20 09:50:08.845 | DEBUG    | outer_username: zhouliying, mac: 2A-54-F5-6E-47-36.previd: 50, recvid: 51.  prev_eapid: 7, recv_eapid: 8]
 2024-04-20 09:50:08.845 | INFO     | peap auth. session_id: 68b8b44b-61b2-422c-8398-a27a487e67a7, call next_state: peap_challenge_success
-2024-04-20 09:50:08.859 | INFO     | verifying user from ('119.131.151.84', 14065)
 2024-04-20 09:50:08.859 | DEBUG    | outer_username: zhouliying, mac: 2A-54-F5-6E-47-36.previd: 51, recvid: 52.  prev_eapid: 8, recv_eapid: 9]
 2024-04-20 09:50:08.859 | INFO     | peap auth. session_id: 68b8b44b-61b2-422c-8398-a27a487e67a7, call next_state: peap_access_accept
 2024-04-20 09:50:08.889 | CRITICAL | Traceback (most recent call last):
