@@ -8,6 +8,8 @@
 
 
 ## 运行 hostapd
+>  cd third_party/hostapd-2.10/hostapd/
+
 - 支持全协议
 ``` bash
 ./hostapd -dd /app/tools/simulator/hostapd/hostapd-2.5-all.conf
