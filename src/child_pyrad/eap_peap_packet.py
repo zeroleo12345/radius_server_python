@@ -29,7 +29,7 @@ from .exception import PacketError
 from .eap import Eap
 
 # hostpad定义: fragment_size = 1398, tcpdump = 1403. (包头占用了10字节. 包头后接着 EAP-TLS Fragments)
-MTU_SIZE = 1300
+MTU_SIZE = 1403 - 10 # 1393
 
 
 class EapPeapPacket(Eap):
