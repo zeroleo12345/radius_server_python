@@ -15,17 +15,16 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 - [x] [PEAPv0, PEAPv1: EAP-MSCHAPv2](https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00)
 
-
-## Pull Code
-  ```
-  git submodule update --init --recursive
-  ```
-
-
 **Support Dynamic Authorization Extensions:**
 
 - Disconnect Messages
 - Change-of-Authorization (CoA) Messages
+
+
+## Pull submodule src code
+  ```
+  git submodule update --init --recursive
+  ```
 
 
 ## Installation and Usage
