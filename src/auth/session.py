@@ -20,7 +20,7 @@ class BaseSession(object):
 class EapPeapSession(BaseSession):
 
     def __init__(self, auth_user_profile: AuthUserProfile, session_id: str):
-        # 该保存入Redis Session; 读取Session时, 恢复所有变量!
+        # 读取Session时, 恢复所有变量!
         assert isinstance(session_id, str)
         super().__init__(auth_user_profile=auth_user_profile)
         self.session_id: str = session_id
