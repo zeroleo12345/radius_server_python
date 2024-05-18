@@ -20,5 +20,5 @@ class Flow(object):
             acct_user_profile.user_mac,
         ]
         log.info(f'OUT: acct|{"|".join(data)}|')
-        reply = AcctResponse.create_account_response(request=request)
+        reply = AcctResponse.create_account_response(request=request, acct_user_profile=acct_user_profile)
         return request.reply_to(reply)
