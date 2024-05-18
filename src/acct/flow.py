@@ -2,22 +2,22 @@
 from child_pyrad.request import AcctRequest
 from child_pyrad.response import AcctResponse
 # 项目库
-from controls.user import AcctUser
+from controls.user import AcctUserProfile
 from loguru import logger as log
 
 
 class Flow(object):
 
     @classmethod
-    def account_response(cls, request: AcctRequest, acct_user: AcctUser):
-        if not request and not acct_user:
+    def account_response(cls, request: AcctRequest, acct_user_profile: AcctUserProfile):
+        if not request and not acct_user_profile:
             return
         data = [
             request.nas_ip,
             request.nas_name,
             request.iut,
-            acct_user.outer_username,
-            acct_user.user_mac,
+            acct_user_profile.outer_username,
+            acct_user_profile.user_mac,
         ]
         log.info(f'OUT: acct|{"|".join(data)}|')
         reply = AcctResponse.create_account_response(request=request)

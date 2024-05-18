@@ -2,7 +2,7 @@
 from child_pyrad.request import AuthRequest, AcctRequest
 
 
-class AuthUser(object):
+class AuthUserProfile(object):
 
     def __init__(self, request: AuthRequest):
         # 提取报文
@@ -12,8 +12,12 @@ class AuthUser(object):
         self.user_password: str = ''
         self.server_challenge: bytes = b''
         self.peer_challenge: bytes = b''
+        self.is_valid_user = False
 
     def set_peap_username(self, account_name: str):
+        self.peap_username = account_name
+
+    def set_user_valid(self, account_name: str):
         self.peap_username = account_name
 
     def set_user_password(self, password: str):
@@ -26,7 +30,7 @@ class AuthUser(object):
         self.peer_challenge = peer_challenge
 
 
-class AcctUser(object):
+class AcctUserProfile(object):
 
     def __init__(self, request: AcctRequest):
         self.outer_username = request.username

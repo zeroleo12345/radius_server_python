@@ -9,15 +9,15 @@ from utils.feishu import Feishu
 from utils.redispool import get_redis
 from loguru import logger as log
 from models.account import Account
-from controls.user import AcctUser
+from controls.user import AcctUserProfile
 
 
 class AccountingFlow(object):
 
     @classmethod
-    def accounting_handler(cls, request: AcctRequest, acct_user: AcctUser):
+    def accounting_handler(cls, request: AcctRequest, acct_user_profile: AcctUserProfile):
         # 查找用户密码
-        account = Account.get(username=acct_user.outer_username)
+        account = Account.get(username=acct_user_profile.outer_username)
         if not account:
             return
         if account.is_expired():
@@ -31,12 +31,12 @@ class AccountingFlow(object):
             log.debug('clean up accounting session')
         #
         if request.auth_class:
-            #  log.info(f'auth_class: {request.auth_class}, outer_username: {acct_user.outer_username}, user_mac: {acct_user.user_mac}')
-            current_session = AccountingSession.put(acct_user.outer_username, acct_user.user_mac)
+            #  log.info(f'auth_class: {request.auth_class}, outer_username: {acct_user_profile.outer_username}, user_mac: {acct_user_profile.user_mac}')
+            current_session = AccountingSession.put(acct_user_profile.outer_username, acct_user_profile.user_mac)
             if current_session > 1 and account.role != Account.Role.PLATFORM_OWNER.value:
-                text = f'{acct_user.outer_username} 账号多拨!'
+                text = f'{acct_user_profile.outer_username} 账号多拨!'
                 Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=text)
-                # cls.disconnect(user_name=acct_user.outer_username, user_mac=acct_user.user_mac)
+                # cls.disconnect(user_name=acct_user_profile.outer_username, user_mac=acct_user_profile.user_mac)
         return
 
     @classmethod

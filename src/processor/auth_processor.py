@@ -19,7 +19,7 @@ from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT
 from loguru import logger as log
-from controls.user import AuthUser
+from controls.user import AuthUserProfile
 from controls.stat import StatThread
 from utils.config import config
 from library.crypto import libhostapd
@@ -47,7 +47,7 @@ class RadiusServer(DatagramServer):
         try:
             request = AuthRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
-            auth_user = AuthUser(request=request)
+            auth_user_profile = AuthUserProfile(request=request)
         except KeyError as e:
             log.warning(f'packet corrupt from {address}, KeyError: {e.args[0]}')
             return
@@ -57,43 +57,43 @@ class RadiusServer(DatagramServer):
 
         try:
             # 验证用户
-            verify_user(request, auth_user)
+            verify_user(request, auth_user_profile)
         except AccessReject as e:
-            Flow.access_reject(request=request, auth_user=auth_user, reason=e.reason)
+            Flow.access_reject(request=request, auth_user_profile=auth_user_profile, reason=e.reason)
         except KeyboardInterrupt:
             self.close()
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
-            Flow.access_reject(request=request, auth_user=auth_user, reason=AccessReject.SYSTEM_ERROR)
+            Flow.access_reject(request=request, auth_user_profile=auth_user_profile, reason=AccessReject.SYSTEM_ERROR)
 
 
-def verify_user(request: AuthRequest, auth_user: AuthUser):
+def verify_user(request: AuthRequest, auth_user_profile: AuthUserProfile):
     log.info(f'verifying user from {request.address}')
     # 根据报文内容, 选择认证方式
     if 'EAP-Message' in request:
         if USE_GTC:
             request.auth_protocol = PacketProtocol.EAP_PEAP_GTC_PROTOCOL
-            return EapPeapGtcFlow.authenticate_handler(request=request, auth_user=auth_user)
+            return EapPeapGtcFlow.authenticate_handler(request=request, auth_user_profile=auth_user_profile)
         else:
             request.auth_protocol = PacketProtocol.EAP_PEAP_MSCHAPV2_PROTOCOL
-            return EapPeapMschapv2Flow.authenticate_handler(request=request, auth_user=auth_user)
+            return EapPeapMschapv2Flow.authenticate_handler(request=request, auth_user_profile=auth_user_profile)
 
     elif 'CHAP-Password' in request:
         request.auth_protocol = PacketProtocol.CHAP_PROTOCOL
-        return ChapFlow.authenticate_handler(request=request, auth_user=auth_user)
+        return ChapFlow.authenticate_handler(request=request, auth_user_profile=auth_user_profile)
 
     elif 'MS-CHAP-Challenge' in request:
         request.auth_protocol = PacketProtocol.MSCHAPV2_PROTOCOL
-        return MsChapFlow.authenticate_handler(request=request, auth_user=auth_user)
+        return MsChapFlow.authenticate_handler(request=request, auth_user_profile=auth_user_profile)
 
     elif 'User-Password' in request:
         if request.get_service_type() == 'Call-Check':      # Call Check
             request.auth_protocol = PacketProtocol.MAC_PROTOCOL
-            return MacFlow.authenticate_handler(request=request, auth_user=auth_user)
+            return MacFlow.authenticate_handler(request=request, auth_user_profile=auth_user_profile)
         else:
             request.auth_protocol = PacketProtocol.PAP_PROTOCOL
-            return PapFlow.authenticate_handler(request=request, auth_user=auth_user)
+            return PapFlow.authenticate_handler(request=request, auth_user_profile=auth_user_profile)
 
     raise Exception('can not choose authenticate method')
 
