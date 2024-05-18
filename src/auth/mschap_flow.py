@@ -32,6 +32,7 @@ class MsChapFlow(Flow):
                 raise AccessReject(reason=AccessReject.DATA_WRONG)
         # 保存用户密码
         session.auth_user_profile.set_user_password(account.radius_password)
+        session.auth_user_profile.set_is_enable(account.is_enable)
 
         ################
         username = session.auth_user_profile.outer_username

@@ -22,6 +22,7 @@ class ChapFlow(Flow):
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码
         session.auth_user_profile.set_user_password(account.password)
+        session.auth_user_profile.set_is_enable(account.is_enable)
 
         def is_correct_password() -> bool:
             return Chap.is_correct_challenge_value(request=request, user_password=session.auth_user_profile.user_password)

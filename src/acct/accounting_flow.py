@@ -26,6 +26,7 @@ class AccountingFlow(object):
                 # 计费报文上报的ip有可能是断线重拨前的旧ip, 所以这里使用source ip
                 sentry_sdk.capture_message(f'计费用户:[{account.username}] 过期超过1天')
         acct_user_profile.set_user_password(account.password)
+        acct_user_profile.set_is_enable(account.is_enable)
 
         # 每隔x秒清理会话
         if AccountingSession.clean(interval=ACCOUNTING_INTERVAL*2):

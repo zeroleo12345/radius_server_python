@@ -237,6 +237,7 @@ class EapPeapGtcFlow(Flow):
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码
         session.auth_user_profile.set_user_password(account.radius_password)
+        session.auth_user_profile.set_is_enable(account.is_enable)
 
         # 返回数据
         response_data = b'Password'

@@ -1,6 +1,6 @@
 from utils.time import Datetime
 # 第三方库
-from sqlalchemy import Column, Integer, BigInteger, String, DateTime, func
+from sqlalchemy import Column, Integer, BigInteger, String, Boolean, DateTime, func
 # 项目库
 from .field import ModelEnum
 from . import Base
@@ -21,6 +21,7 @@ class Account(Base):
     username = Column(String(255))      # unique=True, nullable=True
     password = Column(String(255))
     radius_password = Column(String(255))
+    is_enable = Column(Boolean)
     role = Column(String(32))
     expired_at = Column(DateTime)
 

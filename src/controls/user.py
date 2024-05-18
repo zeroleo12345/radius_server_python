@@ -13,7 +13,7 @@ class AuthUserProfile(object):
         self.peer_challenge: bytes = b''
         # 有效用户属性
         self.user_password: str = ''
-        self.is_valid_user = False
+        self.is_enable = False
 
     def set_peap_username(self, account_name: str):
         self.peap_username = account_name
@@ -27,7 +27,9 @@ class AuthUserProfile(object):
     # 有效用户
     def set_user_password(self, password: str):
         self.user_password = password
-        self.is_valid_user = True
+
+    def set_is_enable(self, is_enable: bool):
+        self.is_enable = is_enable
 
 
 class AcctUserProfile(object):
@@ -37,8 +39,10 @@ class AcctUserProfile(object):
         self.user_mac = request.user_mac      # mac地址
         # 有效用户属性
         self.user_password: str = ''
-        self.is_valid_user = False
+        self.is_enable = None
 
     def set_user_password(self, password: str):
         self.user_password = password
-        self.is_valid_user = True
+
+    def set_is_enable(self, is_enable: bool):
+        self.is_enable = is_enable
