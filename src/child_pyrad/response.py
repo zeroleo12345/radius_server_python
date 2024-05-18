@@ -11,6 +11,7 @@ from settings import ACCOUNTING_INTERVAL
 import typing
 if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
     from .request import AuthRequest, AcctRequest
+    from ..controls.user import AuthUserProfile, AcctUserProfile
 
 
 class AuthResponse(AuthPacket):
@@ -19,9 +20,10 @@ class AuthResponse(AuthPacket):
         init_packet_to_send(super(), code=PacketCode.CODE_ACCESS_ACCEPT, id=id, secret=secret, authenticator=authenticator, dict=dict)
 
     @classmethod
-    def create_access_accept(cls, request: 'AuthRequest') -> AuthPacket:
+    def create_access_accept(cls, request: 'AuthRequest', auth_user_profile: 'AuthUserProfile') -> AuthPacket:
         # 统计
-        UserStat.report_user_oneline_time(username=request.username, auth_or_acct='auth')
+        if auth_user_profile.is_valid_user:
+            UserStat.report_user_oneline_time(username=request.username, auth_or_acct='auth')
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
         # 用户可用的剩余时间. (seconds)
@@ -77,9 +79,10 @@ class AcctResponse(AcctPacket):
         init_packet_to_send(super(), code=PacketCode.CODE_ACCOUNT_RESPONSE, id=id, secret=secret, authenticator=authenticator, dict=dict)
 
     @classmethod
-    def create_account_response(cls, request: 'AcctRequest') -> 'AcctResponse':
+    def create_account_response(cls, request: 'AcctRequest', acct_user_profile: 'AcctUserProfile') -> 'AcctResponse':
         # 统计
-        UserStat.report_user_oneline_time(username=request.username, auth_or_acct='acct')
+        if acct_user_profile.is_valid_user:
+            UserStat.report_user_oneline_time(username=request.username, auth_or_acct='acct')
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCOUNT_RESPONSE)
         return reply

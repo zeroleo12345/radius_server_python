@@ -44,5 +44,5 @@ class ChapFlow(Flow):
             request.ap_mac,
         ]
         log.info(f'OUT: accept|{"|".join(data)}|')
-        reply = AuthResponse.create_access_accept(request=request)
+        reply = AuthResponse.create_access_accept(request=request, auth_user_profile=session.auth_user_profile)
         return request.reply_to(reply)
