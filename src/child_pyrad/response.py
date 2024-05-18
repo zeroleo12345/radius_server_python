@@ -6,7 +6,7 @@ from .packet import PacketCode, init_packet_to_send, init_packet_from_receive
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
 from .packet import PacketProtocol
-from controls.stat import ApStat, UserStat, DeviceStat
+from controls.stat import DeviceStat
 from settings import ACCOUNTING_INTERVAL
 import typing
 if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
@@ -21,9 +21,6 @@ class AuthResponse(AuthPacket):
     @classmethod
     def create_access_accept(cls, request: 'AuthRequest') -> AuthPacket:
         # 统计
-        UserStat.report_user_bind_ap(username=request.username, ap_mac=request.ap_mac)
-        DeviceStat.report_supplicant_mac(username=request.username, user_mac=request.user_mac, ignore=request.ap_mac == "")
-        ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
         # 用户可用的剩余时间. (seconds)
@@ -56,7 +53,7 @@ class AuthResponse(AuthPacket):
 
     @classmethod
     def create_access_reject(cls, request: 'AuthRequest') -> AuthPacket:
-        ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
+        # 统计
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_REJECT)
         return reply

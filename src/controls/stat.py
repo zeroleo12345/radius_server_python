@@ -10,6 +10,7 @@ from utils.time import Datetime
 
 
 class NasStat(object):
+    """ 统计 AC auth 和 acct IP """
     @classmethod
     def report_probe_nas_ip(cls, nas_ip, nas_name, auth_or_acct):
         """
@@ -67,32 +68,6 @@ class NasStat(object):
             pipe.execute()
 
 
-class ApStat(object):
-    @classmethod
-    def get_key(cls):
-        fmt = '%Y-%m-%d'
-        yyyy_mm_dd = Datetime.to_str(fmt=fmt)
-        return f'hash:stat_ap:{yyyy_mm_dd}'
-
-    @classmethod
-    def get_sub_key(cls, ap_mac):
-        return f'{ap_mac}'
-
-    @classmethod
-    def report_ap_online(cls, username: str, ap_mac: str):
-        """ 统计认证成功或失败
-        key: 年-月-日
-        sub_key: ap_mac
-        value: username
-        """
-        if not ap_mac:
-            return
-        key = cls.get_key()
-        sub_key = cls.get_sub_key(ap_mac)
-        redis = get_redis()
-        redis.hset(name=key, key=sub_key, value=username)
-
-
 class UserStat(object):
     @classmethod
     def get_key(cls):
@@ -117,24 +92,6 @@ class UserStat(object):
         sub_key = cls.get_sub_key(username, ap_mac)
         redis = get_redis()
         redis.hincrby(name=key, key=sub_key, amount=1)
-
-
-class DeviceStat(object):
-    @classmethod
-    def get_key(cls, username):
-        return f'set:stat_device:{username}'
-
-    @classmethod
-    def report_supplicant_mac(cls, username: str, user_mac: str, ignore: bool):
-        """ 只统计认证成功用户
-        key: username
-        value: user_mac
-        """
-        if ignore:
-            return
-        key = cls.get_key(username)
-        redis = get_redis()
-        redis.sadd(key, user_mac)
 
 
 class StatThread(object):
