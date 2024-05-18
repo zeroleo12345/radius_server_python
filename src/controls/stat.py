@@ -83,11 +83,9 @@ class UserStat(object):
             is_set_mean_not_exist, _ = pipe.execute()
         # log.info(f'is_set_mean_not_exist: {is_set_mean_not_exist}')
         if is_set_mean_not_exist:
-            # delete all key which use to save AC-ip and AC-name
             redis.delete(online_key)
         with redis.pipeline(transaction=False) as pipe:
-            value = json.dumps({'ip': nas_ip, 'time': Datetime.to_str(fmt='%Y-%m-%d %H:%M:%S')})
-            pipe.hset(name=online_key, key=nas_name, value=value)
+            pipe.hset(name=online_key, key=username, value=Datetime.timestamp())
             pipe.execute()
 
 

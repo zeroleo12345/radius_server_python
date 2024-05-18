@@ -6,7 +6,7 @@ from .packet import PacketCode, init_packet_to_send, init_packet_from_receive
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
 from .packet import PacketProtocol
-from controls.stat import DeviceStat
+from controls.stat import UserStat
 from settings import ACCOUNTING_INTERVAL
 import typing
 if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
@@ -21,6 +21,7 @@ class AuthResponse(AuthPacket):
     @classmethod
     def create_access_accept(cls, request: 'AuthRequest') -> AuthPacket:
         # 统计
+        UserStat.report_user_oneline_time(username=request.username, auth_or_acct='auth')
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
         # 用户可用的剩余时间. (seconds)
@@ -77,6 +78,9 @@ class AcctResponse(AcctPacket):
 
     @classmethod
     def create_account_response(cls, request: 'AcctRequest') -> 'AcctResponse':
+        # 统计
+        UserStat.report_user_oneline_time(username=request.username, auth_or_acct='acct')
+        #
         reply = request.create_reply(code=PacketCode.CODE_ACCOUNT_RESPONSE)
         return reply
 
