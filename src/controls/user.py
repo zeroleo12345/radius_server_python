@@ -17,17 +17,16 @@ class AuthUserProfile(object):
     def set_peap_username(self, account_name: str):
         self.peap_username = account_name
 
-    def set_user_valid(self, account_name: str):
-        self.peap_username = account_name
-
-    def set_user_password(self, password: str):
-        self.user_password = password
-
     def set_server_challenge(self, server_challenge: bytes):
         self.server_challenge = server_challenge
 
     def set_peer_challenge(self, peer_challenge: bytes):
         self.peer_challenge = peer_challenge
+
+    # 有效用户
+    def set_user_password(self, password: str):
+        self.user_password = password
+        self.is_valid_user = True
 
 
 class AcctUserProfile(object):

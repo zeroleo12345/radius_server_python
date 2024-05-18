@@ -48,7 +48,7 @@ class EapPeapGtcFlow(Flow):
         session.prev_id = request.id
         session.prev_eap_id = eap.id
 
-        # 每次处理回复后, 保存session到Redis
+        # 每次处理回复后, 保存session
         SessionCache.save(session=session)
 
     @classmethod
