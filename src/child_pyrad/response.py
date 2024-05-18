@@ -22,7 +22,7 @@ class AuthResponse(AuthPacket):
     @classmethod
     def create_access_accept(cls, request: 'AuthRequest', auth_user_profile: 'AuthUserProfile') -> AuthPacket:
         # 统计
-        if auth_user_profile.is_valid_user:
+        if auth_user_profile.is_enable:
             UserStat.report_user_oneline_time(username=request.username, auth_or_acct='auth')
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
@@ -81,7 +81,7 @@ class AcctResponse(AcctPacket):
     @classmethod
     def create_account_response(cls, request: 'AcctRequest', acct_user_profile: 'AcctUserProfile') -> 'AcctResponse':
         # 统计
-        if acct_user_profile.is_valid_user:
+        if acct_user_profile.is_enable:
             UserStat.report_user_oneline_time(username=request.username, auth_or_acct='acct')
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCOUNT_RESPONSE)
