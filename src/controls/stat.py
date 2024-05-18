@@ -74,9 +74,11 @@ class UserStat(object):
     @classmethod
     def report_user_oneline_time(cls, username: str, auth_or_acct: str):
         online_key = f'hash:username_to_online_time:{auth_or_acct}'
+        expire_key = f'expire:username_to_online_time:{auth_or_acct}'
         redis = get_redis()
         # set if not exist, else not set. return bool: set or not
         with redis.pipeline(transaction=False) as pipe:
+            pipe.set(name=expire_key, value='null', ex=86400, nx=True)
             pipe.hexists(name=online_key, key=nas_name)
             is_set_mean_not_exist, _ = pipe.execute()
         # log.info(f'is_set_mean_not_exist: {is_set_mean_not_exist}')
