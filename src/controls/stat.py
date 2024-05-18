@@ -79,7 +79,7 @@ class UserStat(object):
         # set if not exist, else not set. return bool: set or not
         with redis.pipeline(transaction=False) as pipe:
             pipe.set(name=expire_key, value='null', ex=86400, nx=True)
-            pipe.hexists(name=online_key, key=nas_name)
+            pipe.hexists(name=online_key, key=username)
             is_set_mean_not_exist, _ = pipe.execute()
         # log.info(f'is_set_mean_not_exist: {is_set_mean_not_exist}')
         if is_set_mean_not_exist:
