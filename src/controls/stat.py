@@ -12,7 +12,7 @@ from utils.time import Datetime
 class NasStat(object):
     """ 统计 AC auth 和 acct IP """
     @classmethod
-    def report_probe_nas_ip(cls, nas_ip, nas_name, auth_or_acct):
+    def report_probe_nas_ip(cls, nas_ip: str, nas_name: str, auth_or_acct: str):
         """
         zrange "sorted_set:nas_name_to_timestamp:auth" 0 -1 WITHSCORES
         zrange "sorted_set:nas_name_to_timestamp:acct" 0 -1 WITHSCORES
@@ -40,7 +40,7 @@ class NasStat(object):
             pipe.execute()
 
     @classmethod
-    def report_user_nas_ip(cls, nas_ip, nas_name, auth_or_acct):
+    def report_user_nas_ip(cls, nas_ip: str, nas_name: str, auth_or_acct: str):
         """
         zrange "sorted_set:user_nas_name_to_timestamp:auth" 0 -1 WITHSCORES
         zrange "sorted_set:user_nas_name_to_timestamp:acct" 0 -1 WITHSCORES
@@ -56,8 +56,8 @@ class NasStat(object):
         with redis.pipeline(transaction=False) as pipe:
             pipe.set(name=expire_key, value='null', ex=2*86400, nx=True)
             pipe.hexists(name=ip_key, key=nas_name)
-            is_set_mean_not_exist, is_existed_nas_name = pipe.execute()
-        # log.info(f'is_set_mean_not_exist: {is_set_mean_not_exist}, is_existed_nas_name: {is_existed_nas_name}')
+            is_set_mean_not_exist, _ = pipe.execute()
+        # log.info(f'is_set_mean_not_exist: {is_set_mean_not_exist}')
         if is_set_mean_not_exist:
             # delete all key which use to save AC-ip and AC-name
             redis.delete(ip_key, time_key)
@@ -69,29 +69,24 @@ class NasStat(object):
 
 
 class UserStat(object):
-    @classmethod
-    def get_key(cls):
-        fmt = '%Y-%m-%d'
-        yyyy_mm_dd = Datetime.to_str(fmt=fmt)
-        return f'hash:stat_user:{yyyy_mm_dd}'
+    """ 统计 user auth 和 acct 上线时间 """
 
     @classmethod
-    def get_sub_key(cls, username, ap_mac):
-        return f'{username}:{ap_mac}'
-
-    @classmethod
-    def report_user_bind_ap(cls, username: str, ap_mac: str):
-        """ 只统计认证成功用户
-        key: 年-月-日
-        sub_key: username:ap_mac
-        value: 认证成功次数
-        """
-        if not ap_mac:
-            return
-        key = cls.get_key()
-        sub_key = cls.get_sub_key(username, ap_mac)
+    def report_user_oneline_time(cls, username: str, auth_or_acct: str):
+        online_key = f'hash:username_to_online_time:{auth_or_acct}'
         redis = get_redis()
-        redis.hincrby(name=key, key=sub_key, amount=1)
+        # set if not exist, else not set. return bool: set or not
+        with redis.pipeline(transaction=False) as pipe:
+            pipe.hexists(name=online_key, key=nas_name)
+            is_set_mean_not_exist, _ = pipe.execute()
+        # log.info(f'is_set_mean_not_exist: {is_set_mean_not_exist}')
+        if is_set_mean_not_exist:
+            # delete all key which use to save AC-ip and AC-name
+            redis.delete(online_key)
+        with redis.pipeline(transaction=False) as pipe:
+            value = json.dumps({'ip': nas_ip, 'time': Datetime.to_str(fmt='%Y-%m-%d %H:%M:%S')})
+            pipe.hset(name=online_key, key=nas_name, value=value)
+            pipe.execute()
 
 
 class StatThread(object):
