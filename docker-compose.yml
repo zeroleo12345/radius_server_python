@@ -39,10 +39,10 @@ services:
        context: .
        dockerfile: ./Dockerfile
     ports:
-      - "2812:2812/udp"
+      - "2812:1812/udp"
     environment:
       ENTRYPOINT: "${ENTRYPOINT}"
-      RADIUS_PORT: 2812
+      RADIUS_PORT: 1812
     volumes:
       - .:/app
       - ./data:/data

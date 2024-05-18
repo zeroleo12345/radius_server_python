@@ -60,9 +60,11 @@ class EapPeapMschapv2Flow(Flow):
         :param peap:
         :param session:
         """
+        # 收到NAK表示不支持该协议
         if eap.type == EapPacket.TYPE_EAP_NAK:
             log.error('receive Nak. Client not support EAP-PEAP!')
             raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
+
         if session.prev_id == request.id or session.prev_eap_id == eap.id:
             # 重复请求
             if session.reply:
@@ -82,25 +84,37 @@ class EapPeapMschapv2Flow(Flow):
             session.current_eap_id = EapPacket.get_next_id(eap.id)
             log.info(f'peap auth. session_id: {session.session_id}, call next_state: {session.next_state}')
             if eap.type == EapPacket.TYPE_EAP_IDENTITY and session.next_state == cls.PEAP_CHALLENGE_START:
+                # 收到 EAP Message Type = Identity; 发送 EAP-TLS Flags Start = True
                 return cls.peap_challenge_start(request, eap, peap, session)
+
             # 以下流程 request 报文 phase1 协商协议必须是 EAP-PEAP
             assert eap.type == EapPacket.TYPE_EAP_PEAP
+
             if peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO:
+                # 收到 Client Hello; 发送 Server Hello
                 return cls.peap_challenge_server_hello(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SERVER_HELLO_FRAGMENT:
                 return cls.peap_challenge_server_hello_fragment(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_CHANGE_CIPHER_SPEC:
                 return cls.peap_challenge_change_cipher_spec(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_PHASE2_IDENTITY:
                 return cls.peap_challenge_phase2_identity(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_MSCHAPV2_RANDOM:
                 return cls.peap_challenge_mschapv2_random(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_MSCHAPV2_NT:
                 return cls.peap_challenge_mschapv2_nt(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_CHALLENGE_SUCCESS:
                 return cls.peap_challenge_success(request, eap, peap, session)
+
             elif peap is not None and session.next_state == cls.PEAP_ACCESS_ACCEPT:
                 return cls.peap_access_accept(request, eap, peap, session)    # end move
+
             else:
                 log.error('eap peap auth error. unknown eap packet type')
                 raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
@@ -129,6 +143,7 @@ class EapPeapMschapv2Flow(Flow):
     def peap_challenge_server_hello(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         # 客户端 PEAP 版本
         log.debug(f'eap header, peap version: {peap.flag_version}')
+        # from pprint import pprint; import pdb; pdb.set_trace()
         session.set_peap_version(peap.flag_version)
 
         # 初始化 tls_connection
