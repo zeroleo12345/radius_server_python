@@ -4,6 +4,7 @@
 
     语法:
         https://benpaodewoniu.github.io/2020/03/14/python77/
+        https://www.cnblogs.com/gl1573/p/10380793.html
 """
 from utils.time import Datetime
 # 第三方库
@@ -42,9 +43,7 @@ class Account(Model):
     def get(cls, username) -> 'Account':
         # PS: 鉴权和计费共用
         # 查找用户明文密码
-        with Transaction() as session:
-            account = session.query(Account).filter(Account.username == func.binary(username)).first()
-
+        account = cls.get_or_none(username=username)
         if not account:
             log.warning(f'account: {username} not exist in db')
 
