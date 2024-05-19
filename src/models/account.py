@@ -12,16 +12,22 @@ class Account(models.Model, BaseModel):
         database = db
         db_table = 'account'
 
-    id = models.AutoField()
+    id = models.AutoField(primary_key=True)
+    user_id = models.BigIntegerField()
     platform_id = models.BigIntegerField()
+    #
+    is_enable = models.BooleanField(default=True)
+    #
+    role = models.CharField(max_length=32)
     username = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
     radius_password = models.CharField(max_length=255)
-    is_enable = models.BooleanField()
-    role = models.CharField(max_length=32)
     expired_at = models.DateTimeField()
-    auth_at = models.DateTimeField()
-    acct_at = models.DateTimeField()
+    #
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+    auth_at = models.DateTimeField(null=True)
+    acct_at = models.DateTimeField(null=True)
 
     class Role(ModelEnum):
         PLATFORM_OWNER = 'platform_owner'   # 平台属主

@@ -11,8 +11,8 @@ class Platform(models.Model, BaseModel):
         db_table = 'platform'
 
     id = models.AutoField(primary_key=True)
-    platform_id = Column(BigInteger)
-    ssid = Column(String(255))
+    platform_id = models.BigIntegerField(null=True)
+    ssid = models.CharField(max_length=255, null=True)
 
     @classmethod
     def get(cls, platform_id) -> 'Platform':
