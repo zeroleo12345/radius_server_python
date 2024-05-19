@@ -4,7 +4,7 @@ import json
 # 项目库
 from utils.redispool import get_redis
 from utils.decorators import catch_exception
-from models.stat import StatAp, StatUser
+from models.account import Account
 from loguru import logger as log
 from utils.time import Datetime
 
@@ -113,37 +113,21 @@ class StatThread(object):
             # log.info('thread running')
             if self.is_process_exit:
                 raise SystemExit()
-            fmt = '%Y-%m-%d'
-            now = Datetime.localtime()
-            current_yyyy_mm_dd = now.strftime(fmt)
             redis = get_redis()
-            keys = redis.keys('hash:stat_ap:*')
-            for key in keys:
-                *_, yyyy_mm_dd = key.split(':')
-                # 只统计历史数据
-                if yyyy_mm_dd == current_yyyy_mm_dd:
-                    continue
-                log.info(f'handle stat key {key}')
-                ap_mac_to_username_hash = redis.hgetall(key)
-                dt = Datetime.from_str(yyyy_mm_dd, '%Y-%m-%d')
-                for ap_mac, username in ap_mac_to_username_hash.items():
-                    ap = StatAp.get(ap_mac=ap_mac)
-                    if ap:
-                        ap.update(last_auth_user=username, last_auth_date=dt.date())
-                    else:
-                        StatAp.create(ap_mac=ap_mac, last_auth_user=username, last_auth_date=dt.date())
-                redis.delete(key)
-            keys = redis.keys('hash:stat_user:*')
-            for key in keys:
-                *_, yyyy_mm_dd = key.split(':')
-                # 只统计历史数据
-                if yyyy_mm_dd == current_yyyy_mm_dd:
-                    continue
-                log.info(f'handle stat key {key}')
-                ap_mac_to_username_hash = redis.hgetall(key)
-                for username_ap_mac, accept_count in ap_mac_to_username_hash.items():
-                    username, ap_mac = username_ap_mac.rsplit(':', 2)
-                    StatUser.create(username=username, ap_mac=ap_mac, accept_count=accept_count, created_at=now)
+            auth_or_acct = ['auth', 'acct']
+            for action in auth_or_acct:
+                key = f'hash:username_to_online_time:{action}'
+                log.info(f'thread handling key: {key}')
+                hash_username_to_online_time = redis.hgetall(key)
+                for username, online_time in hash_username_to_online_time.items():
+                    dt = Datetime.from_timestamp(online_time)
+                    account = Account.get(username=username)
+                    if not account:
+                        continue
+                    if action == 'auth':
+                        account.update(auth_at=dt)
+                    if action == 'acct':
+                        account.update(acct_at=dt)
                 redis.delete(key)
             #
-            time.sleep(3)
+            time.sleep(60)

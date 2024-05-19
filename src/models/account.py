@@ -24,6 +24,8 @@ class Account(Base):
     is_enable = Column(Boolean)
     role = Column(String(32))
     expired_at = Column(DateTime)
+    auth_at = Column(DateTime)
+    acct_at = Column(DateTime)
 
     def __repr__(self):
         return self.username
