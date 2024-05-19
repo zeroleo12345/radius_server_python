@@ -52,3 +52,14 @@ class Account(Base):
 
     def get_expired_seconds(self):
         return Datetime.timestamp() - self.expired_at.timestamp()
+
+    def update(self, **kwargs):
+        for k, v in kwargs.items():
+            assert hasattr(self, k)
+            setattr(self, k, v)
+        with Transaction() as session:
+            session.expire_on_commit = False
+            session.add(self)
+            session.commit()
+            session.expunge(self)
+        return self
