@@ -1,11 +1,3 @@
-"""
-    字段类型:
-        https://docs.peewee-orm.com/en/latest/peewee/models.html
-
-    语法:
-        https://benpaodewoniu.github.io/2020/03/14/python77/
-        https://www.cnblogs.com/gl1573/p/10380793.html
-"""
 from utils.time import Datetime
 # 第三方库
 from peewee import Model, IntegerField, BigIntegerField, CharField, DateTimeField, BooleanField
