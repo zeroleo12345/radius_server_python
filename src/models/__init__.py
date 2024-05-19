@@ -2,22 +2,16 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 # 项目库
-from settings import USER_DB_URI
+from settings import DB_URI
 
 
-engine = create_engine(USER_DB_URI, pool_recycle=3600, echo=False)   # echo: 控制打印sql; pool_recycle: MySQL server has gone away
-metadata = MetaData(bind=engine)
-Base = declarative_base(bind=engine)
-Session = sessionmaker(bind=engine)
+engine = create_engine(DB_URI, pool_recycle=3600, echo=False)   # echo: 控制打印sql; pool_recycle: MySQL server has gone away
 
 
-class Transaction(object):
+from playhouse.pool import PooledMySQLDatabase
 
-    def __init__(self):
-        self.session = Session()
-
-    def __enter__(self):
-        return self.session
-
-    def __exit__(self, type, value, trace):
-        self.session.close()
+db = PooledMySQLDatabase(
+    'database_name',
+    max_connections=8,
+    stale_timeout=300,
+    user='root')
