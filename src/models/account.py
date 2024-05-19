@@ -1,27 +1,27 @@
 from utils.time import Datetime
 # 第三方库
-from peewee import Model, AutoField, BigIntegerField, CharField, DateTimeField, BooleanField
+import peewee as models
 # 项目库
 from .field import ModelEnum
-from models import db
+from models import db, BaseModel
 from loguru import logger as log
 
 
-class Account(Model):
+class Account(models.Model, BaseModel):
     class Meta:
         database = db
         db_table = 'account'
 
-    id = AutoField()
-    platform_id = BigIntegerField()
-    username = CharField(max_length=255)
-    password = CharField(max_length=255)
-    radius_password = CharField(max_length=255)
-    is_enable = BooleanField()
-    role = CharField(max_length=32)
-    expired_at = DateTimeField()
-    auth_at = DateTimeField()
-    acct_at = DateTimeField()
+    id = models.AutoField()
+    platform_id = models.BigIntegerField()
+    username = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
+    radius_password = models.CharField(max_length=255)
+    is_enable = models.BooleanField()
+    role = models.CharField(max_length=32)
+    expired_at = models.DateTimeField()
+    auth_at = models.DateTimeField()
+    acct_at = models.DateTimeField()
 
     class Role(ModelEnum):
         PLATFORM_OWNER = 'platform_owner'   # 平台属主

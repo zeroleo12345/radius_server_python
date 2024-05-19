@@ -1,15 +1,16 @@
 # 第三方库
-from sqlalchemy import Column, Integer, BigInteger, String
+import peewee as models
 # 项目库
-from . import Base
-from models import Transaction
+from models import db, BaseModel
 from loguru import logger as log
 
 
-class Platform(Base):
-    __tablename__ = 'platform'
+class Platform(models.Model, BaseModel):
+    class Meta:
+        database = db
+        db_table = 'platform'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = models.AutoField(primary_key=True)
     platform_id = Column(BigInteger)
     ssid = Column(String(255))
 

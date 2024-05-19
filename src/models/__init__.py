@@ -15,3 +15,11 @@ db = PooledMySQLDatabase(
     max_connections=20,
     stale_timeout=300,
 )
+
+
+class BaseModel(object):
+    @classmethod
+    def create(cls, **kwargs):
+        # create 返回 Model 实例
+        obj = cls.create(**kwargs)
+        return obj
