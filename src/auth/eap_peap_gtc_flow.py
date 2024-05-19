@@ -6,7 +6,7 @@ import struct
 from .flow import Flow, AccessReject
 from child_pyrad.request import AuthRequest
 from child_pyrad.response import AuthResponse
-from controls.user import AuthUser
+from controls.user import AuthUserProfile
 from models.account import Account
 from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_peap_packet import EapPeapPacket
@@ -18,7 +18,7 @@ from loguru import logger as log
 
 class EapPeapGtcFlow(Flow):
     @classmethod
-    def authenticate_handler(cls, request: AuthRequest, auth_user: AuthUser):
+    def authenticate_handler(cls, request: AuthRequest, auth_user_profile: AuthUserProfile):
         # 解析eap报文和eap_peap报文
         raw_eap_messages = EapPacket.merge_eap_message(request['EAP-Message'])
         eap = EapPacket.parse(packet=raw_eap_messages)
@@ -38,9 +38,9 @@ class EapPeapGtcFlow(Flow):
                 # 必须是 PEAP-Start 前的 identity 报文, 例如: EAP-Message: ['\x02\x01\x00\r\x01testuser']
                 log.debug(f're-auth old session_id: {session_id}')
                 assert eap.type == EapPacket.TYPE_EAP_IDENTITY
-        session = session or EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
+        session = session or EapPeapSession(auth_user_profile=auth_user_profile, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
-        log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.user_mac}.'
+        log.debug(f'outer_username: {auth_user_profile.outer_username}, mac: {auth_user_profile.user_mac}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
 
         # 调用对应状态的处理函数
@@ -48,7 +48,7 @@ class EapPeapGtcFlow(Flow):
         session.prev_id = request.id
         session.prev_eap_id = eap.id
 
-        # 每次处理回复后, 保存session到Redis
+        # 每次处理回复后, 保存session
         SessionCache.save(session=session)
 
     @classmethod
@@ -229,14 +229,15 @@ class EapPeapGtcFlow(Flow):
         eap_identity = EapPacket.parse(packet=tls_decrypt_data)
         account_name = eap_identity.type_data.decode()
         # 保存用户名
-        session.auth_user.set_peap_username(account_name)
+        session.auth_user_profile.set_peap_username(account_name)
 
         # 查找用户密码
         account = Account.get(username=account_name)
         if not account or account.is_expired():
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码
-        session.auth_user.set_user_password(account.radius_password)
+        session.auth_user_profile.set_user_password(account.radius_password)
+        session.auth_user_profile.set_is_enable(account.is_enable)
 
         # 返回数据
         response_data = b'Password'
@@ -263,13 +264,13 @@ class EapPeapGtcFlow(Flow):
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         eap_password = EapPacket.parse(packet=tls_decrypt_data)
         auth_password = eap_password.type_data.decode()
-        log.debug(f'PEAP account: {session.auth_user.peap_username}, packet_password: {auth_password}')
+        log.debug(f'PEAP account: {session.auth_user_profile.peap_username}, packet_password: {auth_password}')
 
         def is_correct_password() -> bool:
-            return session.auth_user.user_password == auth_password
+            return session.auth_user_profile.user_password == auth_password
 
         if not is_correct_password():
-            log.error(f'user_password: {session.auth_user.user_password} not correct')
+            log.error(f'user_password: {session.auth_user_profile.user_password} not correct')
             # 返回数据 eap_failure
             eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.current_eap_id)
             tls_plaintext = eap_failure.ReplyPacket()
@@ -306,13 +307,13 @@ class EapPeapGtcFlow(Flow):
             request.nas_ip,
             request.nas_name,
             request.auth_protocol,
-            session.auth_user.peap_username,
+            session.auth_user_profile.peap_username,
             request.user_mac,
             request.ssid,
             request.ap_mac,
         ]
         log.info(f'OUT: accept|{"|".join(data)}|')
-        reply = AuthResponse.create_access_accept(request=request)
+        reply = AuthResponse.create_access_accept(request=request, auth_user_profile=session.auth_user_profile)
         reply['State'] = session.session_id.encode()    # octets 传入 bytes
         log.debug(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)

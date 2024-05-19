@@ -12,7 +12,8 @@ from child_pyrad.dictionary import get_dictionaries
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET
 from loguru import logger as log
 from child_pyrad.request import AcctRequest
-from controls.user import AcctUser
+from controls.user import AcctUserProfile
+from controls.stat import AcctThread
 from library.crypto import libhostapd
 
 
@@ -30,24 +31,24 @@ class RadiusServer(DatagramServer):
         try:
             request = AcctRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
-            acct_user = AcctUser(request=request)
+            acct_user_profile = AcctUserProfile(request=request)
         except KeyError as e:
             log.warning(f'packet corrupt from {address}, KeyError: {e.args[0]}')
             return
 
         try:
             # 验证用户
-            verify_user(request, acct_user)
+            verify_user(request, acct_user_profile)
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
         finally:
-            Flow.account_response(request=request, acct_user=acct_user)
+            Flow.account_response(request=request, acct_user_profile=acct_user_profile)
 
 
-def verify_user(request: AcctRequest, acct_user: AcctUser):
+def verify_user(request: AcctRequest, acct_user_profile: AcctUserProfile):
     log.info(f'verifying user from {request.address}')
-    AccountingFlow.accounting_handler(request=request, acct_user=acct_user)
+    AccountingFlow.accounting_handler(request=request, acct_user_profile=acct_user_profile)
 
 
 def main():
@@ -56,10 +57,13 @@ def main():
     listen_port = 1813
     log.debug(f'listening on {listen_ip}:{listen_port}')
     server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
+    acct_thread = AcctThread()
+    acct_thread.start()
 
     def shutdown():
         log.info('exit gracefully')
         server.close()
+        acct_thread.stop()
     signal_handler(SIGTERM, shutdown)
     #
     try:

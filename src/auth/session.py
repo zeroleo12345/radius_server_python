@@ -4,25 +4,25 @@ from pyrad.packet import AuthPacket
 # 项目库
 from auth.flow import Flow
 from child_pyrad.eap_peap_packet import EapPeapPacket
-from controls.user import AuthUser
+from controls.user import AuthUserProfile
 from library.crypto import libhostapd
 from loguru import logger as log
 
 
 class BaseSession(object):
 
-    def __init__(self, auth_user: AuthUser):
-        self.auth_user: AuthUser = auth_user
+    def __init__(self, auth_user_profile: AuthUserProfile):
+        self.auth_user_profile: AuthUserProfile = auth_user_profile
         self.reply: AuthPacket = None
         self.extra = dict()
 
 
 class EapPeapSession(BaseSession):
 
-    def __init__(self, auth_user: AuthUser, session_id: str):
-        # 该保存入Redis Session; 读取Session时, 恢复所有变量!
+    def __init__(self, auth_user_profile: AuthUserProfile, session_id: str):
+        # 读取Session时, 恢复所有变量!
         assert isinstance(session_id, str)
-        super().__init__(auth_user=auth_user)
+        super().__init__(auth_user_profile=auth_user_profile)
         self.session_id: str = session_id
         self.next_state = Flow.PEAP_CHALLENGE_START
         self.peap_version: int = 1

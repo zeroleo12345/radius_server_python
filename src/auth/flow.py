@@ -5,7 +5,7 @@ from child_pyrad.response import AuthResponse
 # from child_pyrad.eap_packet import EapPacket
 # 项目库
 from loguru import logger as log
-from controls.user import AuthUser
+from controls.user import AuthUserProfile
 
 
 # 全局异常: 抛出后鉴权流程返回Access-Reject
@@ -40,8 +40,8 @@ class Flow(object):
     PEAP_ACCESS_ACCEPT = 'peap_access_accept'
 
     @classmethod
-    def access_reject(cls, request: AuthRequest, auth_user: AuthUser, reason: str):
-        if not request and not auth_user:
+    def access_reject(cls, request: AuthRequest, auth_user_profile: AuthUserProfile, reason: str):
+        if not request and not auth_user_profile:
             return
         data = [
             request.nas_ip,

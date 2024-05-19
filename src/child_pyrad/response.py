@@ -6,11 +6,12 @@ from .packet import PacketCode, init_packet_to_send, init_packet_from_receive
 from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
 from .packet import PacketProtocol
-from controls.stat import ApStat, UserStat, DeviceStat
+from controls.stat import UserStat
 from settings import ACCOUNTING_INTERVAL
 import typing
 if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
     from .request import AuthRequest, AcctRequest
+    from ..controls.user import AuthUserProfile, AcctUserProfile
 
 
 class AuthResponse(AuthPacket):
@@ -19,11 +20,10 @@ class AuthResponse(AuthPacket):
         init_packet_to_send(super(), code=PacketCode.CODE_ACCESS_ACCEPT, id=id, secret=secret, authenticator=authenticator, dict=dict)
 
     @classmethod
-    def create_access_accept(cls, request: 'AuthRequest') -> AuthPacket:
+    def create_access_accept(cls, request: 'AuthRequest', auth_user_profile: 'AuthUserProfile') -> AuthPacket:
         # 统计
-        UserStat.report_user_bind_ap(username=request.username, ap_mac=request.ap_mac)
-        DeviceStat.report_supplicant_mac(username=request.username, user_mac=request.user_mac, ignore=request.ap_mac == "")
-        ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
+        if auth_user_profile.is_enable:
+            UserStat.report_user_oneline_time(username=request.username, auth_or_acct='auth')
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
         # 用户可用的剩余时间. (seconds)
@@ -56,7 +56,7 @@ class AuthResponse(AuthPacket):
 
     @classmethod
     def create_access_reject(cls, request: 'AuthRequest') -> AuthPacket:
-        ApStat.report_ap_online(username=request.username, ap_mac=request.ap_mac)
+        # 统计
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_REJECT)
         return reply
@@ -79,7 +79,11 @@ class AcctResponse(AcctPacket):
         init_packet_to_send(super(), code=PacketCode.CODE_ACCOUNT_RESPONSE, id=id, secret=secret, authenticator=authenticator, dict=dict)
 
     @classmethod
-    def create_account_response(cls, request: 'AcctRequest') -> 'AcctResponse':
+    def create_account_response(cls, request: 'AcctRequest', acct_user_profile: 'AcctUserProfile') -> 'AcctResponse':
+        # 统计
+        if acct_user_profile.is_enable:
+            UserStat.report_user_oneline_time(username=request.username, auth_or_acct='acct')
+        #
         reply = request.create_reply(code=PacketCode.CODE_ACCOUNT_RESPONSE)
         return reply
 

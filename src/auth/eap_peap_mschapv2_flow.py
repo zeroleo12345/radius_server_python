@@ -6,7 +6,7 @@ import struct
 from .flow import Flow, AccessReject
 from child_pyrad.request import AuthRequest
 from child_pyrad.response import AuthResponse
-from controls.user import AuthUser
+from controls.user import AuthUserProfile
 from models.account import Account
 from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_mschapv2_packet import EapMschapv2Packet
@@ -19,7 +19,7 @@ from loguru import logger as log
 
 class EapPeapMschapv2Flow(Flow):
     @classmethod
-    def authenticate_handler(cls, request: AuthRequest, auth_user: AuthUser):
+    def authenticate_handler(cls, request: AuthRequest, auth_user_profile: AuthUserProfile):
         # 解析eap报文和eap_peap报文
         raw_eap_messages = EapPacket.merge_eap_message(request['EAP-Message'])
         eap: EapPacket = EapPacket.parse(packet=raw_eap_messages)
@@ -39,9 +39,9 @@ class EapPeapMschapv2Flow(Flow):
                 # 必须是 PEAP-Start 前的 identity 报文, 例如: EAP-Message: ['\x02\x01\x00\r\x01testuser']
                 log.debug(f're-auth old session_id: {session_id}')
                 assert eap.type == EapPacket.TYPE_EAP_IDENTITY
-        session = session or EapPeapSession(auth_user=auth_user, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
+        session = session or EapPeapSession(auth_user_profile=auth_user_profile, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
-        log.debug(f'outer_username: {auth_user.outer_username}, mac: {auth_user.user_mac}.'
+        log.debug(f'outer_username: {auth_user_profile.outer_username}, mac: {auth_user_profile.user_mac}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
 
         # 调用对应状态的处理函数
@@ -49,7 +49,7 @@ class EapPeapMschapv2Flow(Flow):
         session.prev_id = request.id
         session.prev_eap_id = eap.id
 
-        # 每次处理回复后, 保存session到Redis
+        # 每次处理回复后, 保存session
         SessionCache.save(session=session)
 
     @classmethod
@@ -253,13 +253,14 @@ class EapPeapMschapv2Flow(Flow):
             raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
         account_name = eap_identity.type_data.decode()
         # 保存用户名
-        session.auth_user.set_peap_username(account_name)
+        session.auth_user_profile.set_peap_username(account_name)
         # 查找用户密码
         account = Account.get(username=account_name)
         if not account or account.is_expired():
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码
-        session.auth_user.set_user_password(account.radius_password)
+        session.auth_user_profile.set_user_password(account.radius_password)
+        session.auth_user_profile.set_is_enable(account.is_enable)
 
         # 返回数据
         # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 1c) +
@@ -277,7 +278,7 @@ class EapPeapMschapv2Flow(Flow):
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
         tls_plaintext: bytes = eap_random.ReplyPacket()
         # 保存服务端随机数
-        session.auth_user.set_server_challenge(server_challenge)
+        session.auth_user_profile.set_server_challenge(server_challenge)
 
         # 加密.
         # v0, v1: EAP-PEAP: Encrypting Phase 2 data - hexdump(len=33): 01 07 00 21 1a 01 07 00 1c 10 2d ae 52 bf 07 d0 de 7b 28 c4 d8 d9 8f 87 da 6a 68
@@ -323,16 +324,16 @@ class EapPeapMschapv2Flow(Flow):
         peer_challenge, nt_response, flag, identity = struct.unpack(f'!24s 24s B {username_len}s', mschapv2_random.type_data[5:])
         peer_challenge = peer_challenge[:16]
         # 保存客户端随机数
-        session.auth_user.set_peer_challenge(peer_challenge)
+        session.auth_user_profile.set_peer_challenge(peer_challenge)
 
-        assert identity.decode() == session.auth_user.peap_username
+        assert identity.decode() == session.auth_user_profile.peap_username
         # 计算期望密码哈希值
-        p_username = ctypes.create_string_buffer(session.auth_user.peap_username.encode())
+        p_username = ctypes.create_string_buffer(session.auth_user_profile.peap_username.encode())
         l_username_len = ctypes.c_ulonglong(username_len)
-        p_password = ctypes.create_string_buffer(session.auth_user.user_password.encode())
-        l_password_len = ctypes.c_ulonglong(len(session.auth_user.user_password))
+        p_password = ctypes.create_string_buffer(session.auth_user_profile.user_password.encode())
+        l_password_len = ctypes.c_ulonglong(len(session.auth_user_profile.user_password))
         p_expect = libhostapd.call_generate_nt_response(
-            p_auth_challenge=session.auth_user.server_challenge, p_peer_challenge=session.auth_user.peer_challenge,
+            p_auth_challenge=session.auth_user_profile.server_challenge, p_peer_challenge=session.auth_user_profile.peer_challenge,
             p_username=p_username, l_username_len=l_username_len, p_password=p_password, l_password_len=l_password_len,
         )
         expect: bytes = ctypes.string_at(p_expect, len(p_expect))
@@ -353,8 +354,8 @@ class EapPeapMschapv2Flow(Flow):
             # 计算 md4(password)
             p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
             # 计算返回报文中的 authenticator_response
-            p_peer_challenge = ctypes.create_string_buffer(session.auth_user.peer_challenge)
-            p_auth_challenge = ctypes.create_string_buffer(session.auth_user.server_challenge)
+            p_peer_challenge = ctypes.create_string_buffer(session.auth_user_profile.peer_challenge)
+            p_auth_challenge = ctypes.create_string_buffer(session.auth_user_profile.server_challenge)
             p_nt_response = ctypes.create_string_buffer(nt_response)
             p_out_auth_response = libhostapd.call_generate_authenticator_response_pwhash(
                 p_password_md4=p_password_md4, p_peer_challenge=p_peer_challenge, p_auth_challenge=p_auth_challenge,
@@ -447,13 +448,13 @@ class EapPeapMschapv2Flow(Flow):
             request.nas_ip,
             request.nas_name,
             request.auth_protocol,
-            session.auth_user.peap_username,
+            session.auth_user_profile.peap_username,
             request.user_mac,
             request.ssid,
             request.ap_mac,
         ]
         log.info(f'OUT: accept|{"|".join(data)}|')
-        reply = AuthResponse.create_access_accept(request=request)
+        reply = AuthResponse.create_access_accept(request=request, auth_user_profile=session.auth_user_profile)
         reply['State'] = session.session_id.encode()
         log.trace(f'msk: {session.msk}, secret: {reply.secret}, authenticator: {request.authenticator}')
         reply['MS-MPPE-Recv-Key'], reply['MS-MPPE-Send-Key'] = create_mppe_recv_key_send_key(session.msk, reply.secret, request.authenticator)

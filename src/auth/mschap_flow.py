@@ -5,7 +5,7 @@ from child_pyrad.response import AuthResponse
 # 项目库
 from .flow import Flow, AccessReject
 from loguru import logger as log
-from controls.user import AuthUser
+from controls.user import AuthUserProfile
 from models.account import Account
 from models.platform import Platform
 from auth.session import BaseSession
@@ -15,10 +15,10 @@ from library.crypto import libhostapd
 class MsChapFlow(Flow):
 
     @classmethod
-    def authenticate_handler(cls, request: AuthRequest, auth_user: AuthUser):
-        session = BaseSession(auth_user=auth_user)
+    def authenticate_handler(cls, request: AuthRequest, auth_user_profile: AuthUserProfile):
+        session = BaseSession(auth_user_profile=auth_user_profile)
         # 查找用户密码
-        account_name = session.auth_user.outer_username
+        account_name = session.auth_user_profile.outer_username
         account = Account.get(username=account_name)
         if not account or account.is_expired():
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
@@ -31,11 +31,12 @@ class MsChapFlow(Flow):
                 log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, request.ssid: {request.ssid}')
                 raise AccessReject(reason=AccessReject.DATA_WRONG)
         # 保存用户密码
-        session.auth_user.set_user_password(account.radius_password)
+        session.auth_user_profile.set_user_password(account.radius_password)
+        session.auth_user_profile.set_is_enable(account.is_enable)
 
         ################
-        username = session.auth_user.outer_username
-        user_password = session.auth_user.user_password
+        username = session.auth_user_profile.outer_username
+        user_password = session.auth_user_profile.user_password
         auth_challenge: bytes = request['MS-CHAP-Challenge'][0]
         """ Microsoft Vendor-specific RADIUS Attributes:
                 https://tools.ietf.org/html/rfc2548
@@ -97,7 +98,7 @@ class MsChapFlow(Flow):
         if is_correct_password():
             return cls.access_accept(request=request, session=session)
         else:
-            log.error(f'user_password: {session.auth_user.user_password} not correct')
+            log.error(f'user_password: {session.auth_user_profile.user_password} not correct')
             raise AccessReject(reason=AccessReject.PASSWORD_WRONG)
 
     @classmethod
@@ -112,6 +113,6 @@ class MsChapFlow(Flow):
             request.ap_mac,
         ]
         log.info(f'OUT: accept|{"|".join(data)}|')
-        reply = AuthResponse.create_access_accept(request=request)
+        reply = AuthResponse.create_access_accept(request=request, auth_user_profile=session.auth_user_profile)
         reply['MS-CHAP2-Success'] = session.extra['MS-CHAP2-Success']
         return request.reply_to(reply)

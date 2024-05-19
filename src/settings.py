@@ -11,6 +11,7 @@ SENTRY_DSN = config('SENTRY_DSN', mandatory=False)
 SENTRY_PROXY = config('SENTRY_PROXY', default='')
 sentry_sdk.init(
     dsn=SENTRY_DSN,
+    debug=False,
     http_proxy=SENTRY_PROXY,
     https_proxy=SENTRY_PROXY,
 )
