@@ -1,31 +1,40 @@
+"""
+    字段类型:
+        https://docs.peewee-orm.com/en/latest/peewee/models.html
+        https://benpaodewoniu.github.io/2020/03/14/python77/
+
+    语法:
+        https://benpaodewoniu.github.io/2020/03/14/python77/
+"""
 from utils.time import Datetime
 # 第三方库
-from sqlalchemy import Column, Integer, BigInteger, String, Boolean, DateTime, func
+from peewee import Model, IntegerField, BigIntegerField, CharField, DateTimeField, BooleanField
 # 项目库
 from .field import ModelEnum
-from . import Base
-from models import Transaction
+from models import db
 from loguru import logger as log
 
 
-class Account(Base):
-    __tablename__ = 'account'
+class Account(Model):
+    class Meta:
+        database = db
+        db_table = 'account'
+
+    id = IntegerField()
+    platform_id = BigIntegerField()
+    username = CharField(max_length=255)
+    password = CharField(max_length=255)
+    radius_password = CharField(max_length=255)
+    is_enable = BooleanField()
+    role = CharField(max_length=32)
+    expired_at = DateTimeField()
+    auth_at = DateTimeField()
+    acct_at = DateTimeField()
 
     class Role(ModelEnum):
         PLATFORM_OWNER = 'platform_owner'   # 平台属主
         PAY_USER = 'pay_user'               # 付费用户
         FREE_USER = 'free_user'             # 免费用户
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    platform_id = Column(BigInteger)
-    username = Column(String(255))      # unique=True, nullable=True
-    password = Column(String(255))
-    radius_password = Column(String(255))
-    is_enable = Column(Boolean)
-    role = Column(String(32))
-    expired_at = Column(DateTime)
-    auth_at = Column(DateTime)
-    acct_at = Column(DateTime)
 
     def __repr__(self):
         return self.username
@@ -52,14 +61,3 @@ class Account(Base):
 
     def get_expired_seconds(self):
         return Datetime.timestamp() - self.expired_at.timestamp()
-
-    def update(self, **kwargs):
-        for k, v in kwargs.items():
-            assert hasattr(self, k)
-            setattr(self, k, v)
-        with Transaction() as session:
-            session.expire_on_commit = False
-            session.add(self)
-            session.commit()
-            session.expunge(self)
-        return self
