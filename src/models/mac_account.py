@@ -1,23 +1,32 @@
 # 第三方库
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, UniqueConstraint, func
+from peewee import Model, IntegerField, BigIntegerField, CharField, DateTimeField, BooleanField
 # 项目库
-from . import Base
-from models import Transaction
+from models import db
 
 
-class MacAccount(Base):
-    __tablename__ = 'mac_account'
-    __table_args__ = (
-        UniqueConstraint('username'),
-    )
+class MacAccount(Model):
+    class Meta:
+        database = db
+        db_table = 'mac_account'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = IntegerField()
     username = Column(String(255))
     ssid = Column(String(255))
     ap_mac = Column(String(24))       # 连接符"-", 全部大写. 5E-DA-F9-68-41-2B
     is_enable = Column(Boolean)
     expired_at = Column(DateTime)
     created_at = Column(DateTime)
+
+    id = IntegerField()
+    platform_id = BigIntegerField()
+    username = CharField(max_length=255)
+    password = CharField(max_length=255)
+    radius_password = CharField(max_length=255)
+    is_enable = BooleanField()
+    role = CharField(max_length=32)
+    expired_at = DateTimeField()
+    auth_at = DateTimeField()
+    acct_at = DateTimeField()
 
     def __repr__(self):
         return self.username

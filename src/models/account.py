@@ -1,6 +1,6 @@
 from utils.time import Datetime
 # 第三方库
-from peewee import Model, IntegerField, BigIntegerField, CharField, DateTimeField, BooleanField
+from peewee import Model, AutoField, BigIntegerField, CharField, DateTimeField, BooleanField
 # 项目库
 from .field import ModelEnum
 from models import db
@@ -12,7 +12,7 @@ class Account(Model):
         database = db
         db_table = 'account'
 
-    id = IntegerField()
+    id = AutoField()
     platform_id = BigIntegerField()
     username = CharField(max_length=255)
     password = CharField(max_length=255)
