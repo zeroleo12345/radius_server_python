@@ -17,10 +17,8 @@ class Platform(models.Model, BaseModel):
     @classmethod
     def get(cls, platform_id) -> 'Platform':
         # 查找用户明文密码
-        with Transaction() as session:
-            platform = session.query(Platform).filter(Platform.platform_id == platform_id).first()
-
+        platform = cls.get_or_none(platform_id=platform_id)
         if not platform:
-            log.error(f'get_platform({platform_id}) not exist in db.')
-            return None
-        return platform
+            log.error(f'get_platform({platform_id}) not exist in db')
+
+        return platform or None
