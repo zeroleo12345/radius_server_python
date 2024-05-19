@@ -1,17 +1,17 @@
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from playhouse.pool import PooledMySQLDatabase
+from playhouse.db_url import parse
 # 项目库
 from settings import DB_URI
 
-
-engine = create_engine(DB_URI, pool_recycle=3600, echo=False)   # echo: 控制打印sql; pool_recycle: MySQL server has gone away
-
-
-from playhouse.pool import PooledMySQLDatabase
+# {'database': 'trade', 'user': 'root', 'password': 'root', 'host': 'mysql', 'charset': 'utf8mb4'}
+db_param: dict = parse(DB_URI)
 
 db = PooledMySQLDatabase(
-    'database_name',
-    max_connections=8,
+    database=db_param['database'],
+    user=db_param['user'],
+    password=db_param['password'],
+    host=db_param['host'],
+    charset='utf8mb4',
+    max_connections=20,
     stale_timeout=300,
-    user='root')
+)
