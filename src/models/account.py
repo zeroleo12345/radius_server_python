@@ -1,7 +1,6 @@
 """
     字段类型:
         https://docs.peewee-orm.com/en/latest/peewee/models.html
-        https://benpaodewoniu.github.io/2020/03/14/python77/
 
     语法:
         https://benpaodewoniu.github.io/2020/03/14/python77/
