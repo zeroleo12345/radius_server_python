@@ -89,7 +89,7 @@ class UserStat(object):
             pipe.execute()
 
 
-class StatThread(object):
+class AcctThread(object):
     thread = None
     is_process_exit = False
 
@@ -120,7 +120,7 @@ class StatThread(object):
                 log.info(f'thread handling key: {key}')
                 hash_username_to_online_time = redis.hgetall(key)
                 for username, online_time in hash_username_to_online_time.items():
-                    dt = Datetime.from_timestamp(online_time)
+                    dt = Datetime.from_timestamp(int(online_time))
                     account = Account.get(username=username)
                     if not account:
                         continue

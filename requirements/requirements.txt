@@ -14,6 +14,5 @@ PyMySQL==0.9.3
 # peewee==3.7.1
 redis==3.3.11
 python-dateutil==2.7.5
-psutil==5.6.6
 sentry_sdk==2.2.0
 loguru==0.7.2

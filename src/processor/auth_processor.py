@@ -20,7 +20,6 @@ from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT
 from loguru import logger as log
 from controls.user import AuthUserProfile
-from controls.stat import StatThread
 from utils.config import config
 from library.crypto import libhostapd
 
@@ -104,13 +103,10 @@ def main():
     listen_port = RADIUS_PORT
     log.debug(f'listening on {listen_ip}:{listen_port}')
     server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
-    stat_thread = StatThread()
-    stat_thread.start()
 
     def shutdown():
         log.info('exit gracefully')
         server.close()
-        #  stat_thread.stop()
     signal_handler(SIGTERM, shutdown)
     #
     try:

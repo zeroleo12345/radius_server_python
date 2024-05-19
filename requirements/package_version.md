@@ -12,7 +12,6 @@ immutables==0.19
 importlib-resources==5.4.0
 loguru==0.5.3
 netaddr==0.8.0
-psutil==5.6.6
 pycparser==2.21
 PyMySQL==0.9.3
 python-dateutil==2.7.5

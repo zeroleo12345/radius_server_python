@@ -13,6 +13,7 @@ from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET
 from loguru import logger as log
 from child_pyrad.request import AcctRequest
 from controls.user import AcctUserProfile
+from controls.stat import AcctThread
 from library.crypto import libhostapd
 
 
@@ -56,10 +57,13 @@ def main():
     listen_port = 1813
     log.debug(f'listening on {listen_ip}:{listen_port}')
     server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
+    acct_thread = AcctThread()
+    acct_thread.start()
 
     def shutdown():
         log.info('exit gracefully')
         server.close()
+        acct_thread.stop()
     signal_handler(SIGTERM, shutdown)
     #
     try:
