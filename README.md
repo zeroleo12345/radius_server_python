@@ -23,7 +23,7 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 ## Pull submodule src code
   ```
-  git submodule update --init --recursive
+  git submodule update --init --recursive  # pull
   ```
 
 
