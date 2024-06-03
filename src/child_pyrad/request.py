@@ -27,7 +27,7 @@ class AuthRequest(AuthPacket):
         # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
         self.username = self['User-Name'][0]
-        self.nas_ip = self['NAS-IP-Address'][0]
+        self.nas_ip = address[0]    # 如果获取自报文字段 self['NAS-IP-Address'][0], 会出现ip更新不及时, 与真实IP不一致的问题
         # optional:
         default_string = ('', 0)
         self.user_mac = self.get('Calling-Station-Id', default_string)[0]
@@ -104,7 +104,7 @@ class AcctRequest(AcctPacket):
         self.socket, self.address = socket, address
         # 报文提取
         self.username = self['User-Name'][0]
-        self.nas_ip = self['NAS-IP-Address'][0]
+        self.nas_ip = address[0]    # 如果获取自报文字段 self['NAS-IP-Address'][0], 会出现ip更新不及时, 与真实IP不一致的问题
         self.iut = self['Acct-Status-Type'][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
         # optional:
         default_string = ('', 0)
