@@ -14,7 +14,7 @@ services:
     container_name: radius_auth
     build:
        context: .
-       dockerfile: ./Dockerfile
+       dockerfile: ./docker/Dockerfile
     ports:
       - "1812:1812/udp"
     environment:
@@ -37,7 +37,7 @@ services:
     container_name: auth_test
     build:
        context: .
-       dockerfile: ./Dockerfile
+       dockerfile: ./docker/Dockerfile
     ports:
       - "2812:1812/udp"
     environment:
@@ -59,7 +59,7 @@ services:
     container_name: radius_acct
     build:
        context: .
-       dockerfile: ./Dockerfile
+       dockerfile: ./docker/Dockerfile
     ports:
       - "1813:1813/udp"
     environment:
@@ -81,7 +81,7 @@ services:
     container_name: radius_dae
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./docker/Dockerfile
     ports:
       - "3799:3799/udp"
     environment:

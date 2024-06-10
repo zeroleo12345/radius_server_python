@@ -2,7 +2,7 @@
 FROM python:3.7.17-slim-bookworm
 
 # 一. 安装 linux package. (使用: 阿里云 alpine 镜像)
-ADD dockerfiles/debian12-bookworm.sources.tencent /etc/apt/sources.list
+ADD docker/debian12-bookworm.sources.tencent /etc/apt/sources.list
 RUN rm -rf /etc/apt/sources.list.d/*
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone
