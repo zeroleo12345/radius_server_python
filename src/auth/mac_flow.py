@@ -38,7 +38,7 @@ class MacFlow(Flow):
             Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_MAC_CHAT_ID, text=text)
 
         # mac Flow: 用户不存在则创建
-        account = MacAccount.get(username=session.auth_user_profile.outer_username)
+        account = MacAccount.get_(username=session.auth_user_profile.outer_username)
         if not account:
             #
             enable_flag_key = 'enable_mac_authentication'
@@ -48,7 +48,7 @@ class MacFlow(Flow):
             #
             created_at = now
             expired_at = created_at + datetime.timedelta(days=3600)
-            MacAccount.create(
+            MacAccount.create_(
                 username=session.auth_user_profile.outer_username, ssid=request.ssid, ap_mac=request.ap_mac, is_enable=True,
                 expired_at=expired_at, created_at=created_at,
             )

@@ -19,7 +19,7 @@ db = PooledMySQLDatabase(
 
 class BaseModel(object):
     @classmethod
-    def create(cls, **kwargs):
+    def create_(cls, **kwargs):
         # create 返回 Model 实例
         obj = cls.create(**kwargs)
         return obj

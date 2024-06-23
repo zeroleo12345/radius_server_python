@@ -232,7 +232,7 @@ class EapPeapGtcFlow(Flow):
         session.auth_user_profile.set_peap_username(account_name)
 
         # 查找用户密码
-        account = Account.get(username=account_name)
+        account = Account.get_(username=account_name)
         if not account or account.is_expired():
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码

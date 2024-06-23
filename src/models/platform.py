@@ -15,7 +15,7 @@ class Platform(models.Model, BaseModel):
     ssid = models.CharField(max_length=255, null=True)
 
     @classmethod
-    def get(cls, platform_id) -> 'Platform':
+    def get_(cls, platform_id) -> 'Platform':
         # 查找用户明文密码
         platform = cls.get_or_none(platform_id=platform_id)
         if not platform:

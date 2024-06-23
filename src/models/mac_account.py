@@ -21,7 +21,7 @@ class MacAccount(models.Model, BaseModel):
         return self.username
 
     @classmethod
-    def get(cls, username) -> 'MacAccount':
+    def get_(cls, username) -> 'MacAccount':
         # 查找用户明文密码
         account = cls.get_or_none(username=username)
         return account or None

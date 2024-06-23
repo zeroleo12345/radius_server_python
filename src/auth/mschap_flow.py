@@ -19,12 +19,12 @@ class MsChapFlow(Flow):
         session = BaseSession(auth_user_profile=auth_user_profile)
         # 查找用户密码
         account_name = session.auth_user_profile.outer_username
-        account = Account.get(username=account_name)
+        account = Account.get_(username=account_name)
         if not account or account.is_expired():
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         if account.role == Account.Role.PAY_USER.value:
             # 付费用户, 才需要判断 SSID 是否匹配
-            platform = Platform.get(platform_id=account.platform_id)
+            platform = Platform.get_(platform_id=account.platform_id)
             if not platform:
                 raise AccessReject(reason=AccessReject.DATA_WRONG)
             if account.role == Account.Role.PAY_USER.value and request.ssid not in [platform.ssid, f'{platform.ssid}_5G']:
