@@ -17,12 +17,14 @@ sentry_sdk.init(
 )
 
 DEBUG = config('DEBUG', default=True, cast='@bool')
-DB_URI = config('DB_URI')     # sqlite:////app/data/db/users.db; mysql://username:password@localhost/test?charset=utf8mb4
 RADIUS_DICTIONARY_DIR = config('RADIUS_DICTIONARY_DIR')
 RADIUS_SECRET: bytes = str.encode(config('RADIUS_SECRET'))
 RADIUS_PORT = config('RADIUS_PORT')
 ACCOUNTING_INTERVAL = config('ACCOUNTING_INTERVAL', default=60, cast='@int')
 API_URL = config('API_URL')
+
+# DB
+DB_URI = config('DB_URI')     # sqlite:////app/data/db/users.db; mysql://username:password@localhost/test?charset=utf8mb4
 
 # Redis
 REDIS_HOST = config('REDIS_HOST')
