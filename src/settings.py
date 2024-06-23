@@ -17,7 +17,7 @@ sentry_sdk.init(
 )
 
 DEBUG = config('DEBUG', default=True, cast='@bool')
-USER_DB_URI = config('USER_DB_URI')     # sqlite:////app/data/db/users.db; mysql://username:password@localhost/test?charset=utf8mb4
+DB_URI = config('DB_URI')     # sqlite:////app/data/db/users.db; mysql://username:password@localhost/test?charset=utf8mb4
 RADIUS_DICTIONARY_DIR = config('RADIUS_DICTIONARY_DIR')
 RADIUS_SECRET: bytes = str.encode(config('RADIUS_SECRET'))
 RADIUS_PORT = config('RADIUS_PORT')
