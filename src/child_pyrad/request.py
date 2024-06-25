@@ -117,13 +117,8 @@ class AcctRequest(AcctPacket):
         self.socket.sendto(reply.ReplyPacket(), self.address)
 
     def create_reply(self, code) -> AcctResponse:
-        if self.username.startswith('user_probe'):
-            _, domain = self.username.split('user_probe', 1)
-            nas_name = self.nas_name or domain.replace('@', '')
-            NasStat.report_probe_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='acct')
-        else:
-            nas_name = self.nas_name
-            NasStat.report_user_nas_ip(nas_ip=self.nas_ip, nas_name=nas_name, auth_or_acct='acct')
+        # acct 不设置probe探针, 全部是用户请求
+        NasStat.report_user_nas_ip(nas_ip=self.address[0], nas_name=self.nas_name, auth_or_acct='acct')
         response = AcctResponse(id=self.id, secret=self.secret, authenticator=self.authenticator, dict=self.dict)
         response.code = code
         return response
