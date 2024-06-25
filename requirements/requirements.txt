@@ -9,9 +9,8 @@ netaddr==0.8.0
 cryptography==3.2
 dynaconf==3.1.2
 requests==2.27.0
-sqlalchemy==1.3.11
+peewee==3.17.5
 PyMySQL==0.9.3
-# peewee==3.7.1
 redis==3.3.11
 python-dateutil==2.7.5
 sentry_sdk==2.2.0

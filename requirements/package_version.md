@@ -20,7 +20,6 @@ redis==3.3.11
 requests==2.20.0
 sentry-sdk==0.5.5
 six==1.15.0
-SQLAlchemy==1.3.11
 typing_extensions==4.1.1
 urllib3==1.24.3
 zipp==3.6.0

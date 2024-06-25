@@ -1,25 +1,24 @@
 # 第三方库
-from sqlalchemy import Column, Integer, BigInteger, String
+import peewee as models
 # 项目库
-from . import Base
-from models import Transaction
+from models import db, BaseModel
 from loguru import logger as log
 
 
-class Platform(Base):
-    __tablename__ = 'platform'
+class Platform(models.Model, BaseModel):
+    class Meta:
+        database = db
+        db_table = 'platform'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    platform_id = Column(BigInteger)
-    ssid = Column(String(255))
+    id = models.AutoField(primary_key=True)
+    platform_id = models.BigIntegerField(null=True)
+    ssid = models.CharField(max_length=255, null=True)
 
     @classmethod
-    def get(cls, platform_id) -> 'Platform':
+    def get_(cls, platform_id) -> 'Platform':
         # 查找用户明文密码
-        with Transaction() as session:
-            platform = session.query(Platform).filter(Platform.platform_id == platform_id).first()
-
+        platform = cls.get_or_none(platform_id=platform_id)
         if not platform:
-            log.error(f'get_platform({platform_id}) not exist in db.')
-            return None
-        return platform
+            log.error(f'get_platform({platform_id}) not exist in db')
+
+        return platform or None

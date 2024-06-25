@@ -17,7 +17,7 @@ class AccountingFlow(object):
     @classmethod
     def accounting_handler(cls, request: AcctRequest, acct_user_profile: AcctUserProfile):
         # 查找用户密码
-        account = Account.get(username=acct_user_profile.outer_username)
+        account = Account.get_(username=acct_user_profile.outer_username)
         if not account:
             return
         if account.is_expired():

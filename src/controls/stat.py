@@ -121,13 +121,10 @@ class AcctThread(object):
                 hash_username_to_online_time = redis.hgetall(key)
                 for username, online_time in hash_username_to_online_time.items():
                     dt = Datetime.from_timestamp(int(online_time))
-                    account = Account.get(username=username)
-                    if not account:
-                        continue
                     if action == 'auth':
-                        account.update(auth_at=dt)
+                        Account.update(auth_at=dt).where(Account.username==username).execute()
                     if action == 'acct':
-                        account.update(acct_at=dt)
+                        Account.update(acct_at=dt).where(Account.username==username).execute()
                 redis.delete(key)
             #
             time.sleep(60)

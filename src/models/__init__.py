@@ -1,23 +1,25 @@
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from playhouse.pool import PooledMySQLDatabase
+from playhouse.db_url import parse
 # 项目库
 from settings import DB_URI
 
+# {'database': 'trade', 'user': 'root', 'host': 'mysql', 'passwd': 'root'}
+db_param: dict = parse(DB_URI)
 
-engine = create_engine(DB_URI, pool_recycle=3600, echo=False)   # echo: 控制打印sql; pool_recycle: MySQL server has gone away
-metadata = MetaData(bind=engine)
-Base = declarative_base(bind=engine)
-Session = sessionmaker(bind=engine)
+db = PooledMySQLDatabase(
+    database=db_param['database'],
+    user=db_param['user'],
+    password=db_param['passwd'],
+    host=db_param['host'],
+    charset='utf8mb4',
+    max_connections=20,
+    stale_timeout=300,
+)
 
 
-class Transaction(object):
-
-    def __init__(self):
-        self.session = Session()
-
-    def __enter__(self):
-        return self.session
-
-    def __exit__(self, type, value, trace):
-        self.session.close()
+class BaseModel(object):
+    @classmethod
+    def create_(cls, **kwargs):
+        # create 返回 Model 实例
+        obj = cls.create(**kwargs)
+        return obj
