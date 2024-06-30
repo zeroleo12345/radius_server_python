@@ -14,15 +14,15 @@ class NasStat(object):
     @classmethod
     def report_probe_nas_ip(cls, nas_ip: str, nas_name: str, auth_or_acct: str):
         """
-        zrange "sorted_set:nas_name_to_timestamp:auth" 0 -1 WITHSCORES
-        zrange "sorted_set:nas_name_to_timestamp:acct" 0 -1 WITHSCORES
+        zrange "sorted_set:probe_nas_name_to_timestamp:auth" 0 -1 WITHSCORES
+        zrange "sorted_set:probe_nas_name_to_timestamp:acct" 0 -1 WITHSCORES
 
-        hgetall "hash:nas_name_to_nas_ip:auth"
-        hgetall "hash:nas_name_to_nas_ip:acct"
+        hgetall "hash:probe_nas_name_to_nas_ip:auth"
+        hgetall "hash:probe_nas_name_to_nas_ip:acct"
         """
-        ip_key = f'hash:nas_name_to_nas_ip:{auth_or_acct}'
-        time_key = f'sorted_set:nas_name_to_timestamp:{auth_or_acct}'
-        expire_key = f'expire:nas_name_to_nas_ip:{auth_or_acct}'
+        ip_key = f'hash:probe_nas_name_to_nas_ip:{auth_or_acct}'
+        time_key = f'sorted_set:probe_nas_name_to_timestamp:{auth_or_acct}'
+        expire_key = f'expire:probe_nas_name_to_nas_ip:{auth_or_acct}'
         redis = get_redis()
         # set if not exist, else not set. return bool: set or not
         with redis.pipeline(transaction=False) as pipe:
