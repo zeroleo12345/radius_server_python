@@ -27,7 +27,7 @@ class AuthResponse(AuthPacket):
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
         # 用户可用的剩余时间. (seconds)
-        #  reply['Session-Timeout'] = 86400     # 已在计费报文处理流程加入: 用户expired告警
+        # reply['Session-Timeout'] = 86400     # 已在计费报文处理流程加入: 用户expired告警
         # 用户的闲置切断时间. (seconds)
         reply['Idle-Timeout'] = 86400
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL    # ATTRIBUTE	Acct-Interim-Interval   85    integer
