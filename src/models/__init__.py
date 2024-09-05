@@ -7,7 +7,7 @@ from settings import DB_URI
 # {'database': 'trade', 'user': 'root', 'host': 'mysql', 'passwd': 'root'}
 db_param: dict = parse(DB_URI)
 
-class ReconnectPooledMySQLDatabase(ReconnectMixin, PooledMySQLDatabase)
+class ReconnectPooledMySQLDatabase(ReconnectMixin, PooledMySQLDatabase):
     pass
 
 db = ReconnectPooledMySQLDatabase(
