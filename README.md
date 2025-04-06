@@ -54,7 +54,7 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 ### build lib `libhostapd.so` from project `hostapd`
 
-``` bash
+```bash
 docker-compose exec auth bash
 
 cd third_party/hostapd-2.10/hostapd/
@@ -64,7 +64,7 @@ cat README.md
 
 ### build simulator `eapol_test` from project `wpa_supplicant`
 
-``` bash
+```bash
 docker-compose exec auth bash
 
 cd third_party/wpa_supplicant-2.10/wpa_supplicant/
@@ -74,7 +74,7 @@ cat README.md
 
 ### build simulator `radclient` from project `freeradius`
 
-``` bash
+```bash
 docker-compose exec auth bash
 
 cd third_party/freeradius-3.2.3/
@@ -168,19 +168,19 @@ enter into accounting container: `docker-compose exec dae bash`
 
 run simulator in container directory `/app/tools/simulator/bin`:
 
-``` bash
+```bash
 ./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary dae:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
 ```
 
 
 ## gdb core
-``` bash
+```bash
 gdb /root/.pyenv/shims/python -c core.1 
 ```
 
 
 ## gdb segmentation fault
-``` bash
+```bash
 ENTRYPOINT="tail -f /dev/null" docker-compose up -d auth_test
 
 apt-get install gdb
