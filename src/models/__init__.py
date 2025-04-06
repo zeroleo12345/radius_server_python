@@ -8,8 +8,9 @@ from settings import DATABASE_URI
 db_param: dict = parse(DATABASE_URI)
 
 
-# class ReconnectPooledPostgresDatabase(ReconnectMixin, PooledPostgresqlDatabase):
-#    pass
+class ReconnectPooledPostgresDatabase(ReconnectMixin, PooledPostgresqlDatabase):
+   pass
+
 
 class ReconnectPostgresDatabase(ReconnectMixin, PostgresqlDatabase):
     # 使用 pgbouncer 后,不需使用 PooledPostgresqlDatabase
