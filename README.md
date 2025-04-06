@@ -23,17 +23,17 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 ## Pull submodule src code
   ```
-  git submodule update --init --recursive  # pull
+  git submodule update --init --recursive --remote --checkout   # pull
   ```
 
 
 ## Installation and Usage
 
-- Setup mysql
+- Setup database
 
-  start mysql:  `docker-compose -f docker-compose.yml up mysql`
+  start pg:  `docker-compose -f docker-compose.yml up pg`
 
-  init mysql database and table data with [mysql_insert.sql](https://github.com/zeroleo12345/radius_server_python/blob/master/data/db/mysql_insert.sql)
+  init database and table data with [mysql_insert.sql](https://github.com/zeroleo12345/radius_server_python/blob/master/data/db/mysql_insert.sql)
 
 - For authenticate
 

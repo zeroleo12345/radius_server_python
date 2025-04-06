@@ -1,13 +1,13 @@
-from playhouse.pool import PooledMySQLDatabase
+from playhouse.pool import PostgresqlDatabase
 from playhouse.db_url import parse
 from playhouse.shortcuts import ReconnectMixin
 # 项目库
-from settings import DB_URI
+from settings import DATABASE_URI
 
-# {'database': 'trade', 'user': 'root', 'host': 'mysql', 'passwd': 'root'}
-db_param: dict = parse(DB_URI)
+# {'database': 'trade', 'user': 'root', 'host': 'pg', 'passwd': 'root'}
+db_param: dict = parse(DATABASE_URI)
 
-class ReconnectPooledMySQLDatabase(ReconnectMixin, PooledMySQLDatabase):
+class ReconnectPooledMySQLDatabase(ReconnectMixin, PostgresqlDatabase):
     pass
 
 db = ReconnectPooledMySQLDatabase(

@@ -24,7 +24,7 @@ ACCOUNTING_INTERVAL = config('ACCOUNTING_INTERVAL', default=60, cast='@int')
 API_URL = config('API_URL')
 
 # DB
-DB_URI = config('DB_URI')     # sqlite:////app/data/db/users.db; mysql://username:password@localhost/test?charset=utf8mb4
+DATABASE_URI = config('DATABASE_URI')
 
 # Redis
 REDIS_HOST = config('REDIS_HOST')
