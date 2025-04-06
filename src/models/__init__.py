@@ -20,7 +20,7 @@ class ReconnectPostgresDatabase(ReconnectMixin, PostgresqlDatabase):
 db = ReconnectPostgresDatabase(
     database=db_param['database'],
     user=db_param['user'],
-    password=db_param['passwd'],
+    password=db_param['password'],
     host=db_param['host'],
 )
 
