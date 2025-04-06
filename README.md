@@ -67,7 +67,7 @@ cat README.md
 ``` bash
 docker-compose exec auth bash
 
-cd third_party/wpa_supplicant-2.5/wpa_supplicant/
+cd third_party/wpa_supplicant-2.10/wpa_supplicant/
 cat README.md
 ```
 
