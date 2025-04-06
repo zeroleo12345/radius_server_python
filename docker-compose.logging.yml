@@ -11,6 +11,11 @@ x-logging:
     tag: "radius_server.{{.Name}}.{{.ID}}"
 
 services:
+ auth:
+   logging: *default_logging
+ auth_test:
+   logging: *default_logging
+ acct:
+   logging: *default_logging
   dae:
     logging: *default_logging
-
