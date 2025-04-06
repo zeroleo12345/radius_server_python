@@ -1,6 +1,7 @@
 # MacOS pyenv
 ```bash
 mise install python 3.7.17 --verbose
+pip install -r requirements/requirements.txt
 ```
 
 
