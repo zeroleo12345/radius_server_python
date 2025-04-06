@@ -22,9 +22,6 @@ db = ReconnectPostgresDatabase(
     user=db_param['user'],
     password=db_param['passwd'],
     host=db_param['host'],
-    charset='utf8mb4',
-    max_connections=20,
-    stale_timeout=300,
 )
 
 
