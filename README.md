@@ -52,25 +52,31 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 ## Build
 
-### lib `libhostapd.so`
+### build lib `libhostapd.so` from project `hostapd`
 
 ``` bash
+docker-compose exec auth bash
+
 cd third_party/hostapd-2.10/hostapd/
 cat README.md
 ```
 
 
-### simulator `eapol_test`
+### build simulator `eapol_test` from project `wpa_supplicant`
 
 ``` bash
+docker-compose exec auth bash
+
 cd third_party/wpa_supplicant-2.5/wpa_supplicant/
 cat README.md
 ```
 
 
-### simulator `radclient`
+### build simulator `radclient` from project `freeradius`
 
 ``` bash
+docker-compose exec auth bash
+
 cd third_party/freeradius-3.0.21/
 cat README.md
 ```
@@ -78,7 +84,7 @@ cat README.md
 
 ## Send authenticate request with simulator
 
-### authenticate: CHAP
+### Authenticate: `CHAP`
 
 enter into authenticate container: `docker-compose exec auth bash`
 
@@ -89,7 +95,7 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.
 ```
 
 
-### authenticate: PAP
+### Authenticate: `PAP`
 
 enter into authenticate container: `docker-compose exec auth bash`
 
@@ -100,7 +106,7 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.
 ```
 
 
-### authenticate: MSCHAPv2
+### Authenticate: `MSCHAPv2`
 
 1. `docker-compose up -d auth_test`, listen on port 2812
 
@@ -108,36 +114,36 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.
 
 
 
-### authenticate: EAP-GTC
+### Authenticate: `EAP-GTC`
 
 add `USE_GTC=1` in .env and restart docker container
 
 enter into authenticate container: `docker-compose exec auth bash`
 
-run simulator in container:
+run simulator in container directory `/app/tools/simulator/bin`:
 
 ```bash
 ./eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.gtc -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC
 ```
 
 
-### authenticate: EAP-MSCHAPv2
+### Authenticate: `EAP-MSCHAPv2`
 
 remove `USE_GTC=0` in .env and restart docker container
 
 enter into authenticate container: `docker-compose exec auth bash`
 
-run simulator in container:
+run simulator in container directory `/app/tools/simulator/bin`:
 
 ```bash
 ./eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.mschapv2 -a 127.0.0.1 -p 1812 -s testing123 -r 0 -N 30:s:FF-FF-FF-FF-FF-FF -N 32:s:AC
 ```
 
 
-## Send authenticate request with simulator
+## Send `Accounting` request with simulator
 enter into accounting container: `docker-compose exec acct bash`
 
-run simulator in container:
+run simulator in container directory `/app/tools/simulator/bin`:
 
 ```bash
 ./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/i.conf
@@ -154,7 +160,7 @@ run simulator in container:
 
 enter into accounting container: `docker-compose exec dae bash` 
 
-run simulator in container:
+run simulator in container directory `/app/tools/simulator/bin`:
 
 ``` bash
 ./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary 127.0.0.1:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
