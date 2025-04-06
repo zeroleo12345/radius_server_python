@@ -77,7 +77,7 @@ cat README.md
 ``` bash
 docker-compose exec auth bash
 
-cd third_party/freeradius-3.0.21/
+cd third_party/freeradius-3.2.3/
 cat README.md
 ```
 
