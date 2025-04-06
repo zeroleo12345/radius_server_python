@@ -9,6 +9,9 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 - [x] [CHAP](https://tools.ietf.org/search/rfc1994)
 
+> freeradius not support OpenSSL 3.0 well in debian bookworm
+> freeradius not support OpenSSL 3.0 well in debian bookworm
+> freeradius not support OpenSSL 3.0 well in debian bookworm
 - [x] [MS-CHAPv2](https://tools.ietf.org/html/rfc2759)
 
 - [x] [PEAPv0, PEAPv1: EAP-GTC](https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05)
@@ -73,6 +76,7 @@ cat README.md
 
 
 ### build simulator `radclient` from project `freeradius`
+> `freeradius` not support `OpenSSL 3.0` well in debian `bookworm`
 
 ```bash
 docker-compose exec auth bash
@@ -91,20 +95,19 @@ enter into authenticate container: `docker-compose exec auth bash`
 run simulator in container:
 
 ```bash
-./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary auth:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/chap.conf
+docker-compose exec simulator bash
+
+radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary auth:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/chap.conf
 ```
 
 
 ### Authenticate: `PAP`
 
-enter into authenticate container: `docker-compose exec auth bash`
-
-run simulator in container:
-
 ```bash
-# freeradius not support OpenSSL 3.0 well in debian bookworm
-# docker pull jumanjiman/radclient:latest
-docker run --rm -it --network pppoe_system_network_name jumanjiman/radclient:latest \
+
+docker-compose exec simulator bash
+
+# docker run --rm -it --network pppoe_system_network_name jumanjiman/radclient:latest \
 radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary auth:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/pap.conf
 ```
 
@@ -144,19 +147,18 @@ run simulator in container directory `/app/tools/simulator/bin`:
 
 
 ## Send `Accounting` request with simulator
-enter into accounting container: `docker-compose exec acct bash`
-
-run simulator in container directory `/app/tools/simulator/bin`:
 
 ```bash
+docker-compose exec simulator bash
+
 # i package
-./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary acct:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/i.conf
+radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary acct:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/i.conf
 
 # u package
-./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary acct:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/u.conf
+radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary acct:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/u.conf
 
 # t package
-./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary acct:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/t.conf
+radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary acct:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/t.conf
 ```
 
 
@@ -169,7 +171,9 @@ enter into accounting container: `docker-compose exec dae bash`
 run simulator in container directory `/app/tools/simulator/bin`:
 
 ```bash
-./radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary dae:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
+docker-compose exec simulator bash
+
+radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary dae:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
 ```
 
 
