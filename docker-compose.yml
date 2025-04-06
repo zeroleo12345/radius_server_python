@@ -106,6 +106,7 @@ services:
     image: jumanjiman/radclient:latest
     volumes:
       - .:/app
+    entrypoint: tail -f /dev/null
     tty: true
     networks:
       - pppoe_system
