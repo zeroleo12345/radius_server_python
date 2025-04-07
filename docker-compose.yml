@@ -53,7 +53,7 @@ services:
       driver: "json-file"
       options:
         max-size: "10m"
-        tag: "{{.Name}}/{{.ID}}"
+        tag: "radius_server.{{.Name}}.{{.ID}}"
     networks:
       - pppoe_system
 
