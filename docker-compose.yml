@@ -49,7 +49,11 @@ services:
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
-    logging: *default_logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        tag: "{{.Name}}/{{.ID}}"
     networks:
       - pppoe_system
 
