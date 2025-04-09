@@ -1,7 +1,3 @@
-[submodule "pppoe_component"]
-	path = pppoe_component
-	url = git@github.com:zeroleo12345/pppoe_component.git
-	branch = master
 [submodule "third_party/hostapd-2.5"]
 	path = third_party/hostapd-2.5
 	url = git@github.com:zeroleo12345/hostapd-2.5.git
