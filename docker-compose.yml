@@ -56,7 +56,7 @@ services:
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
-    logging: *default_logging
+    logging: *no_tag_logging
     networks:
       - pppoe_system
 
