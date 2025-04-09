@@ -1,13 +1,18 @@
 version: '3.7'
 
 
-x-logging:
-  &default_logging
-  driver: "json-file"
-  options:
-    max-size: "10m"
-    tag: "radius_server.{{.Name}}.{{.ID}}"
+x-logging: &default-logging-settings
 
+  default_logging: &default_logging
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      tag: "radius_server.{{.Name}}.{{.ID}}"
+
+  no_tag_logging: &no_tag_logging
+    driver: "json-file"
+    options:
+      max-size: "10m"
 
 
 services:
