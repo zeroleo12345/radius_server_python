@@ -6,6 +6,8 @@ x-logging:
   driver: "json-file"
   options:
     max-size: "10m"
+    tag: "radius_server.{{.Name}}.{{.ID}}"
+
 
 
 services:
