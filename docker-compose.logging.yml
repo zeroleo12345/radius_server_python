@@ -13,8 +13,6 @@ x-logging:
 services:
   auth:
     logging: *default_logging
-  acct:
-    logging: *default_logging
   dae:
     logging: *default_logging
 
