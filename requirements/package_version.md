@@ -1,3 +1,22 @@
+# MacOS pyenv
+
+- mise
+```bash
+mise install python 3.7.17 --verbose
+pip install -r requirements/requirements.txt
+```
+
+- pycharm project intepreter
+```
+菜单 Settings... -> 
+Python Interpreter -> Add Interpreter -> 
+Virtualenv Environment -> Environment: Existing -> 点击... -> 
+复制路径并点击OK:  ~/.local/share/mise/installs/python/3.7.17/bin/python
+```
+
+
+# running package version
+```
 aiocontextvars==0.2.2
 certifi==2022.9.14
 cffi==1.15.1
@@ -23,3 +42,4 @@ six==1.15.0
 typing_extensions==4.1.1
 urllib3==1.24.3
 zipp==3.6.0
+```

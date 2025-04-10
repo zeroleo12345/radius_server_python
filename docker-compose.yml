@@ -16,6 +16,7 @@ x-logging: &default-logging-settings
 
 
 services:
+
   auth:
     platform: linux/amd64
     container_name: radius_auth
@@ -36,6 +37,7 @@ services:
     logging: *default_logging
     networks:
       - pppoe_system
+
 
   auth_test:
     platform: linux/amd64
@@ -101,6 +103,18 @@ services:
     tty: true
     restart: "${RESTART_POLICY}"
     logging: *default_logging
+    networks:
+      - pppoe_system
+
+
+  simulator:
+    platform: linux/amd64
+    container_name: simulator
+    image: jumanjiman/radclient:latest
+    volumes:
+      - .:/app
+    entrypoint: tail -f /dev/null
+    tty: true
     networks:
       - pppoe_system
 
