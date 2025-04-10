@@ -1,11 +1,18 @@
 version: '3.7'
 
 
-x-logging:
-  &default_logging
-  driver: "json-file"
-  options:
-    max-size: "10m"
+x-logging: &default-logging-settings
+
+  default_logging: &default_logging
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      tag: "radius_server.{{.Name}}.{{.ID}}"
+
+  no_tag_logging: &no_tag_logging
+    driver: "json-file"
+    options:
+      max-size: "10m"
 
 
 services:
@@ -51,7 +58,7 @@ services:
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
     tty: true
     restart: "${RESTART_POLICY}"
-    logging: *default_logging
+    logging: *no_tag_logging
     networks:
       - pppoe_system
 
