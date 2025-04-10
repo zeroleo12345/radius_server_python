@@ -9,9 +9,6 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 - [x] [CHAP](https://tools.ietf.org/search/rfc1994)
 
-> freeradius not support OpenSSL 3.0 well in debian bookworm
-> freeradius not support OpenSSL 3.0 well in debian bookworm
-> freeradius not support OpenSSL 3.0 well in debian bookworm
 - [x] [MS-CHAPv2](https://tools.ietf.org/html/rfc2759)
 
 - [x] [PEAPv0, PEAPv1: EAP-GTC](https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05)
