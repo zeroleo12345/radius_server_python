@@ -34,7 +34,6 @@ REDIS_DB = config('REDIS_DB')
 
 # Log
 LOG_LEVEL = config('LOG_LEVEL')
-LOG_FILE_FORMAT = config('LOG_FILE_FORMAT', default="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}")
 # 初始化日志
 log.remove()    # workaround: https://github.com/Delgan/loguru/issues/208
 if DEBUG:
