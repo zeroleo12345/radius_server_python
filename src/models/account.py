@@ -50,7 +50,7 @@ class Account(models.Model, BaseModel):
     def is_expired(self):
         # 平台属主, 不校验时间
         if self.role != self.Role.PLATFORM_OWNER.value:
-            if self.expired_at <= Datetime.now():
+            if self.expired_at <= Datetime.localtime():
                 log.warning(f'account expired: {Datetime.to_str(self.expired_at)}')
                 return True
         return False
