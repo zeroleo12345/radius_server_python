@@ -10,7 +10,7 @@ cryptography==3.2
 dynaconf==3.1.2
 requests==2.27.0
 peewee==3.17.5
-psycopg2-binary==2.9.9
+psycopg2-binary==2.8.6
 redis==3.3.11
 python-dateutil==2.7.5
 sentry_sdk==2.2.0
