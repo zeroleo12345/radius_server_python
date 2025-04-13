@@ -72,7 +72,7 @@ services:
     ports:
       - "1813:1813/udp"
     environment:
-      ENTRYPOINT: "${ENTRYPOINT:/app/bin/acct.sh}"
+      ENTRYPOINT: "${ENTRYPOINT:-/app/bin/acct.sh}"
       RADIUS_PORT: 1813
     volumes:
       - .:/app
