@@ -35,4 +35,7 @@ REDIS_DB = config('REDIS_DB')
 LOG_LEVEL = config('LOG_LEVEL')
 # 初始化日志
 log.remove()    # workaround: https://github.com/Delgan/loguru/issues/208
+# log_console_format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <level>{message}</level>"
+log_console_format = "{time:YYYY-MM-DD HH:mm:ss.SSS} | <level>{level: <8}</level> | <level>{message}</level>"
+log.add(sys.stderr, level=LOG_LEVEL, format=log_console_format, colorize=False)     # print log to terminal
 log.info(f'Log parameter. Level: {LOG_LEVEL}')
