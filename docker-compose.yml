@@ -26,12 +26,12 @@ services:
     ports:
       - "1812:1812/udp"
     environment:
-      ENTRYPOINT: "${ENTRYPOINT}"
+      ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
       RADIUS_PORT: 1812
     volumes:
       - .:/app
       - ./data:/data
-    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
+    entrypoint: sh -c 'exec $ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY}"
     logging: *default_logging
@@ -50,12 +50,12 @@ services:
     ports:
       - "2812:1812/udp"
     environment:
-      ENTRYPOINT: "${ENTRYPOINT}"
+      ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
       RADIUS_PORT: 1812
     volumes:
       - .:/app
       - ./data:/data
-    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/auth.sh; fi'
+    entrypoint: sh -c 'exec $ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY}"
     logging: *no_tag_logging
@@ -72,12 +72,12 @@ services:
     ports:
       - "1813:1813/udp"
     environment:
-      ENTRYPOINT: "${ENTRYPOINT}"
+      ENTRYPOINT: "${ENTRYPOINT:/app/bin/acct.sh}"
       RADIUS_PORT: 1813
     volumes:
       - .:/app
       - ./data:/data
-    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/acct.sh; fi'
+    entrypoint: sh -c 'exec $ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY}"
     logging: *default_logging
@@ -94,12 +94,12 @@ services:
     ports:
       - "3799:3799/udp"
     environment:
-      ENTRYPOINT: "${ENTRYPOINT}"
+      ENTRYPOINT: "${ENTRYPOINT:-/app/bin/dae.sh}"
       RADIUS_PORT: 3799
     volumes:
       - .:/app
       - ./data:/data
-    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/dae.sh; fi'
+    entrypoint: sh -c 'exec $ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY}"
     logging: *default_logging
