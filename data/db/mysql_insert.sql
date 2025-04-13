@@ -17,4 +17,4 @@ CREATE TABLE `account` (
   UNIQUE KEY `account_user_id_platform_id_88a2cba9_uniq` (`user_id`,`platform_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=194 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `account` VALUES (1,1351172106029633536,1,'zhouliying','zhouliying',1,'pay_user','2031-04-17 00:00:00','2018-11-03 00:00:00','2099-09-01 00:00:00','zhouliying');
+INSERT INTO `account` VALUES (1,1351172106029633536,1,'zhoulixin','zhoulixin',1,'pay_user','2031-04-17 00:00:00','2018-11-03 00:00:00','2099-09-01 00:00:00','zhoulixin');
