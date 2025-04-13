@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-ENTRYPOINT="tail -f /dev/null" docker-compose up -d auth
+export RESTART_POLICY=no; ENTRYPOINT="tail -f /dev/null" docker-compose up auth
