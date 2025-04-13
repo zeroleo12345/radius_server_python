@@ -31,7 +31,7 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 - Setup database
 
-  start pg:  `docker-compose -f docker-compose.yml up pg`
+  start pg:  `docker compose -f docker-compose.yml up pg`
 
   init database and table data with [mysql_insert.sql](https://github.com/zeroleo12345/radius_server_python/blob/master/data/db/mysql_insert.sql)
 
@@ -39,11 +39,11 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
   Build the docker image
 
-  `docker-compose build auth`
+  `docker compose build auth`
 
   Run the docker container
 
-  `docker-compose up auth`
+  `docker compose up auth`
 
 - For accouting
 
@@ -55,7 +55,7 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 ### build lib `libhostapd.so` from project `hostapd`
 
 ```bash
-docker-compose exec auth bash
+docker compose exec auth bash
 
 cd third_party/hostapd-2.10/hostapd/
 cat README.md
@@ -65,7 +65,7 @@ cat README.md
 ### build simulator `eapol_test` from project `wpa_supplicant`
 
 ```bash
-docker-compose exec auth bash
+docker compose exec auth bash
 
 cd third_party/wpa_supplicant-2.10/wpa_supplicant/
 cat README.md
@@ -76,7 +76,7 @@ cat README.md
 > `freeradius` not support `OpenSSL 3.0` well in debian `bookworm`
 
 ```bash
-docker-compose exec auth bash
+docker compose exec auth bash
 
 cd third_party/freeradius-3.2.3/
 cat README.md
@@ -87,12 +87,12 @@ cat README.md
 
 ### Authenticate: `CHAP`
 
-enter into authenticate container: `docker-compose exec auth bash`
+enter into authenticate container: `docker compose exec auth bash`
 
 run simulator in container:
 
 ```bash
-docker-compose exec simulator bash
+docker compose exec simulator bash
 
 radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary auth:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/chap.conf
 ```
@@ -102,7 +102,7 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary auth:181
 
 ```bash
 
-docker-compose exec simulator bash
+docker compose exec simulator bash
 
 # docker run --rm -it --network pppoe_system_network_name jumanjiman/radclient:latest \
 radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary auth:1812  auth  'testing123'  < /app/tools/simulator/radius_test/auth/pap.conf
@@ -111,7 +111,7 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary auth:181
 
 ### Authenticate: `MSCHAPv2`
 
-1. `docker-compose up -d auth_test`, listen on port 2812
+1. `docker compose up -d auth_test`, listen on port 2812
 
 2. Access Controller route traffic to 2812
 
@@ -121,7 +121,7 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary auth:181
 
 add `USE_GTC=1` in .env and restart docker container
 
-enter into authenticate container: `docker-compose exec auth bash`
+enter into authenticate container: `docker compose exec auth bash`
 
 run simulator in container directory `/app/tools/simulator/bin`:
 
@@ -134,7 +134,7 @@ eapol_test -c /app/tools/simulator/eap_test/eapol_test.conf.peapv1.gtc -a auth -
 
 remove `USE_GTC=0` in .env and restart docker container
 
-enter into authenticate container: `docker-compose exec auth bash`
+enter into authenticate container: `docker compose exec auth bash`
 
 run simulator in container directory `/app/tools/simulator/bin`:
 
@@ -146,7 +146,7 @@ run simulator in container directory `/app/tools/simulator/bin`:
 ## Send `Accounting` request with simulator
 
 ```bash
-docker-compose exec simulator bash
+docker compose exec simulator bash
 
 # i package
 radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary acct:1813  acct  'testing123'  < /app/tools/simulator/radius_test/acct/i.conf
@@ -163,12 +163,12 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary acct:181
   
 ### disconnect
 
-enter into accounting container: `docker-compose exec dae bash` 
+enter into accounting container: `docker compose exec dae bash` 
 
 run simulator in container directory `/app/tools/simulator/bin`:
 
 ```bash
-docker-compose exec simulator bash
+docker compose exec simulator bash
 
 radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary dae:3799  disconnect  'testing123'  < /app/tools/simulator/radius_test/dae/disconnect.conf
 ```
@@ -182,7 +182,7 @@ gdb /root/.pyenv/shims/python -c core.1
 
 ## gdb segmentation fault
 ```bash
-ENTRYPOINT="tail -f /dev/null" docker-compose up -d auth_test
+ENTRYPOINT="tail -f /dev/null" docker compose up -d auth_test
 
 apt-get install gdb
 
