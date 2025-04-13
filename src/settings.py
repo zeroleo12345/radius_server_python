@@ -16,7 +16,6 @@ sentry_sdk.init(
     https_proxy=SENTRY_PROXY,
 )
 
-DEBUG = config('DEBUG', default=True, cast='@bool')
 RADIUS_DICTIONARY_DIR = config('RADIUS_DICTIONARY_DIR')
 RADIUS_SECRET: bytes = str.encode(config('RADIUS_SECRET'))
 RADIUS_PORT = config('RADIUS_PORT')
@@ -24,7 +23,7 @@ ACCOUNTING_INTERVAL = config('ACCOUNTING_INTERVAL', default=60, cast='@int')
 API_URL = config('API_URL')
 
 # DB
-DB_URI = config('DB_URI')     # sqlite:////app/data/db/users.db; mysql://username:password@localhost/test?charset=utf8mb4
+DATABASE_URI = config('DATABASE_URI')
 
 # Redis
 REDIS_HOST = config('REDIS_HOST')
@@ -33,19 +32,7 @@ REDIS_PASSWORD = config('REDIS_PASSWORD')
 REDIS_DB = config('REDIS_DB')
 
 # Log
-LOG_HEADER = config('LOG_HEADER', default='')
-LOG_DIR = config('LOG_DIR', default='')
 LOG_LEVEL = config('LOG_LEVEL')
-LOG_FILE_FORMAT = config('LOG_FILE_FORMAT', default="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}")
 # 初始化日志
 log.remove()    # workaround: https://github.com/Delgan/loguru/issues/208
-if DEBUG:
-    # log_console_format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <level>{message}</level>"
-    log_console_format = "{time:YYYY-MM-DD HH:mm:ss.SSS} | <level>{level: <8}</level> | <level>{message}</level>"
-    log.add(sys.stderr, level=LOG_LEVEL, format=log_console_format, colorize=False)
-if LOG_DIR and LOG_HEADER:
-    log.info('enable log to file')
-    log.add(os.path.join(LOG_DIR, LOG_HEADER + '_{time:YYYYMMDD_HHmmss_SSSSSS}.log'), rotation='00:00', level=LOG_LEVEL, format=LOG_FILE_FORMAT)
-else:
-    log.info('close log to file')
-log.info(f'Log parameter. Level: {LOG_LEVEL}, Header: {LOG_HEADER}, Directory: {LOG_DIR}')
+log.info(f'Log parameter. Level: {LOG_LEVEL}')

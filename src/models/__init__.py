@@ -1,23 +1,30 @@
-from playhouse.pool import PooledMySQLDatabase
+from playhouse.pool import PostgresqlDatabase, PooledPostgresqlDatabase
 from playhouse.db_url import parse
 from playhouse.shortcuts import ReconnectMixin
 # 项目库
-from settings import DB_URI
+from settings import DATABASE_URI
+from loguru import logger as log
 
-# {'database': 'trade', 'user': 'root', 'host': 'mysql', 'passwd': 'root'}
-db_param: dict = parse(DB_URI)
+# {'database': 'trade', 'user': 'root', 'host': 'pg', 'passwd': 'root'}
+db_param: dict = parse(DATABASE_URI)
+log.debug(f'db_param: {db_param}')
 
-class ReconnectPooledMySQLDatabase(ReconnectMixin, PooledMySQLDatabase):
+
+class ReconnectPooledPostgresDatabase(ReconnectMixin, PooledPostgresqlDatabase):
+   pass
+
+
+class ReconnectPostgresDatabase(ReconnectMixin, PostgresqlDatabase):
+    # 使用 pgbouncer 后,不需使用 PooledPostgresqlDatabase
     pass
 
-db = ReconnectPooledMySQLDatabase(
+
+db = ReconnectPostgresDatabase(
     database=db_param['database'],
     user=db_param['user'],
-    password=db_param['passwd'],
+    password=db_param['password'],
     host=db_param['host'],
-    charset='utf8mb4',
-    max_connections=20,
-    stale_timeout=300,
+    port=db_param['port'],
 )
 
 
