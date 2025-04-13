@@ -33,7 +33,7 @@ services:
       - ./data:/data
     entrypoint: sh -c 'exec $ENTRYPOINT'
     tty: true
-    restart: "${RESTART_POLICY}"
+    restart: "${RESTART_POLICY:-unless-stopped}"
     logging: *default_logging
     networks:
       - pppoe_system
@@ -57,7 +57,7 @@ services:
       - ./data:/data
     entrypoint: sh -c 'exec $ENTRYPOINT'
     tty: true
-    restart: "${RESTART_POLICY}"
+    restart: "${RESTART_POLICY:-unless-stopped}"
     logging: *no_tag_logging
     networks:
       - pppoe_system
@@ -79,7 +79,7 @@ services:
       - ./data:/data
     entrypoint: sh -c 'exec $ENTRYPOINT'
     tty: true
-    restart: "${RESTART_POLICY}"
+    restart: "${RESTART_POLICY:-unless-stopped}"
     logging: *default_logging
     networks:
       - pppoe_system
@@ -101,7 +101,7 @@ services:
       - ./data:/data
     entrypoint: sh -c 'exec $ENTRYPOINT'
     tty: true
-    restart: "${RESTART_POLICY}"
+    restart: "${RESTART_POLICY:-unless-stopped}"
     logging: *default_logging
     networks:
       - pppoe_system
