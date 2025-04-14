@@ -33,7 +33,7 @@ services:
       - ./data:/data
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
-    restart: "${RESTART_POLICY:-unless-stopped}"
+    restart: "${RESTART_POLICY:-on-failure}"
     logging: *default_logging
     networks:
       - pppoe_system
@@ -57,7 +57,7 @@ services:
       - ./data:/data
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
-    restart: "${RESTART_POLICY:-unless-stopped}"
+    restart: "${RESTART_POLICY:-on-failure}"
     logging: *no_tag_logging
     networks:
       - pppoe_system
@@ -79,7 +79,7 @@ services:
       - ./data:/data
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
-    restart: "${RESTART_POLICY:-unless-stopped}"
+    restart: "${RESTART_POLICY:-on-failure}"
     logging: *default_logging
     networks:
       - pppoe_system
@@ -101,7 +101,7 @@ services:
       - ./data:/data
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
-    restart: "${RESTART_POLICY:-unless-stopped}"
+    restart: "${RESTART_POLICY:-on-failure}"
     logging: *default_logging
     networks:
       - pppoe_system
