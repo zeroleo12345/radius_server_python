@@ -122,3 +122,4 @@ services:
 networks:
   pppoe_system:
     name: pppoe_system_network_name
+    external: true
