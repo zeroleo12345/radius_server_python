@@ -23,6 +23,7 @@ class AuthRequest(AuthPacket):
         """
         try:
             init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+            # access-request 需要 Message-Authenticator 字段验证报文合法性
             if not self.VerifyAuthRequest():
                 log.warning(f'VerifyAuthRequest failed from address: {address}')
         except Exception as e:
@@ -105,6 +106,7 @@ class AcctRequest(AcctPacket):
         """
         try:
             init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+            # account-request 可使用 Authenticator 字段验证报文合法性
             assert self.VerifyAcctRequest()
         except Exception as e:
             raise PacketError(str(e))
