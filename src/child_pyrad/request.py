@@ -106,6 +106,8 @@ class AcctRequest(AcctPacket):
         self.username = self['User-Name'][0]
         self.nas_ip = self['NAS-IP-Address'][0]    # 如果获取自报文字段 self['NAS-IP-Address'][0], 会出现ip更新不及时, 与真实IP不一致的问题
         self.iut = self['Acct-Status-Type'][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
+        self.upload_gigabytes = self['Acct-Input-Gigawords'][0]
+        self.download_gigabytes = self['Acct-Output-Gigawords'][0]
         self.upload_bytes = self['Acct-Input-Octets'][0]
         self.download_bytes = self['Acct-Output-Octets'][0]
         # optional:
