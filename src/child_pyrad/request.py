@@ -23,7 +23,8 @@ class AuthRequest(AuthPacket):
         """
         try:
             init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
-            assert self.VerifyAuthRequest()
+            if not self.VerifyAuthRequest():
+                log.warning(f'VerifyAuthRequest failed from address: {address}')
         except Exception as e:
             raise PacketError(str(e))
         self.socket, self.address = socket, address
