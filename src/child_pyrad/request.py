@@ -25,7 +25,7 @@ class AuthRequest(AuthPacket):
             init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
             # access-request 需要 Message-Authenticator 字段验证报文合法性; 报文头Authenticator字段是随机生成的
             if not self.VerifyAuthRequest():
-                log.warning(f'VerifyAuthRequest failed from address: {address}')
+                log.warning(f'VerifyAuthRequest failed from address: {address}, authenticator: {self.authenticator}')
         except Exception as e:
             raise PacketError(str(e))
         self.socket, self.address = socket, address
