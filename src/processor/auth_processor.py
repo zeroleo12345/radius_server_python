@@ -55,9 +55,8 @@ class RadiusServer(DatagramServer):
             sentry_sdk.capture_exception(e)
             return
 
-        auth_user_profile = AuthUserProfile(request=request)
-
         try:
+            auth_user_profile = AuthUserProfile(request=request)
             # 验证用户
             verify_user(request, auth_user_profile)
         except AccessReject as e:

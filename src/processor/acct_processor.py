@@ -40,9 +40,8 @@ class RadiusServer(DatagramServer):
             sentry_sdk.capture_exception(e)
             return
 
-        acct_user_profile = AcctUserProfile(request=request)
-
         try:
+            acct_user_profile = AcctUserProfile(request=request)
             # 验证用户
             verify_user(request, acct_user_profile)
         except Exception as e:
