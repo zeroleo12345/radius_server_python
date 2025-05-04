@@ -6,9 +6,9 @@ reference:
           the Windows XP SP1 implementation of PEAP does not include an EAP header on packets sent within the TLS channel
             https://tools.ietf.org/html/draft-kamath-pppext-peapv0-00
         - Microsoft PPP CHAP Extensions, Version 2:
-            https://tools.ietf.org/html/rfc2759
+            https://www.rfc-editor.org/rfc/rfc2759.html
         - Microsoft Vendor-specific RADIUS Attributes:
-            https://tools.ietf.org/html/rfc2548
+            https://www.rfc-editor.org/rfc/rfc2548.html
 
 
     PEAPv1 EAP-GTC:

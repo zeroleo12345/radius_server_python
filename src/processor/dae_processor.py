@@ -1,7 +1,7 @@
 """
 reference:
     Dynamic Authorization Extensions to Remote Authentication Dial In User Service (RADIUS)
-        https://datatracker.ietf.org/doc/html/rfc5176
+        https://www.rfc-editor.org/rfc/rfc5176.html
 """
 import time
 import traceback

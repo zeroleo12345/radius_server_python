@@ -5,11 +5,11 @@ Test authorization through supplicant on Windows10, Android 4.4.4 and iOS 13.
 
 **Support authenticate method:**
 
-- [x] [PAP](https://tools.ietf.org/search/rfc1334)
+- [x] [PAP](https://www.rfc-editor.org/rfc/rfc1334.html)
 
-- [x] [CHAP](https://tools.ietf.org/search/rfc1994)
+- [x] [CHAP](https://www.rfc-editor.org/rfc/rfc1994.html)
 
-- [x] [MS-CHAPv2](https://tools.ietf.org/html/rfc2759)
+- [x] [MS-CHAPv2](https://www.rfc-editor.org/rfc/rfc2759.html)
 
 - [x] [PEAPv0, PEAPv1: EAP-GTC](https://tools.ietf.org/html/draft-josefsson-pppext-eap-tls-eap-05)
 
