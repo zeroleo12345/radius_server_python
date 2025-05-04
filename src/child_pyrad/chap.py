@@ -11,6 +11,18 @@ from .request import AuthRequest
 
 
 class Chap(object):
+    """
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |     Code      |  Identifier   |            Length             |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    |                         Authenticator                         |
+    |                                                               |
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |  Attributes ...
+    +-+-+-+-+-+-+-+-+-+-+-+-+-
+    """
 
     @classmethod
     def is_correct_challenge_value(cls, request: AuthRequest, user_password: str) -> bool:
