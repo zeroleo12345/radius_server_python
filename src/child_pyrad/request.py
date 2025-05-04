@@ -3,7 +3,7 @@ from pyrad.packet import AuthPacket, AcctPacket, CoAPacket
 from pyrad.dictionary import Dictionary
 # 项目库
 from .packet import PacketCode, init_packet_from_receive, init_packet_to_send
-from .exception import AuthenticatorError
+from .exception import AuthenticatorError, PacketError
 from controls.stat import NasStat
 from loguru import logger as log
 from .response import AuthResponse, AcctResponse
@@ -21,8 +21,10 @@ class AuthRequest(AuthPacket):
         :param socket:
         :param address: (ip, port)
         """
-        init_packet_from_receive(super(),
-                                 code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        try:
+            init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        except Exception as e:
+            raise PacketError(str(e))
         self.socket, self.address = socket, address
         # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
@@ -99,8 +101,10 @@ class AcctRequest(AcctPacket):
         :param socket:
         :param address: (ip, port)
         """
-        init_packet_from_receive(super(),
-                                 code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        try:
+            init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        except Exception as e:
+            raise PacketError(str(e))
         self.socket, self.address = socket, address
         # 报文提取
         self.username = self['User-Name'][0]
