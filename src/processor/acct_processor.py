@@ -40,7 +40,7 @@ class RadiusServer(DatagramServer):
             # 验证用户
             verify_user(request, acct_user_profile)
         except Exception as e:
-            log.critical(traceback.format_exc())
+            log.error(traceback.format_exc())
             sentry_sdk.capture_exception(e)
         finally:
             Flow.account_response(request=request, acct_user_profile=acct_user_profile)

@@ -62,7 +62,7 @@ class RadiusServer(DatagramServer):
         except KeyboardInterrupt:
             self.close()
         except Exception as e:
-            log.critical(traceback.format_exc())
+            log.error(traceback.format_exc())
             sentry_sdk.capture_exception(e)
             Flow.access_reject(request=request, auth_user_profile=auth_user_profile, reason=AccessReject.SYSTEM_ERROR)
 

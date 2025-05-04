@@ -73,7 +73,7 @@ class DAEClient(object):
             except KeyboardInterrupt:
                 return
             except Exception as e:
-                log.critical(traceback.format_exc())
+                log.error(traceback.format_exc())
                 sentry_sdk.capture_exception(e)
 
     def run(self):
@@ -98,7 +98,7 @@ class DAEClient(object):
             self.socket.sendto(request.RequestPacket(), request.address)
             res_data, from_address = self.socket.recvfrom(1024)
         except Exception as e:
-            log.critical(traceback.format_exc())
+            log.error(traceback.format_exc())
             return False
 
         # 收取报文, 解析
@@ -107,7 +107,7 @@ class DAEClient(object):
             response = ResponseFactory(dict=self.dictionary, secret=RADIUS_SECRET, packet=res_data)
             log.info(f'NAS response: {response}')
         except Exception as e:
-            log.critical(traceback.format_exc())
+            log.error(traceback.format_exc())
             sentry_sdk.capture_exception(e)
             return False
         return True
