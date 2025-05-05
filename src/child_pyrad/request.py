@@ -117,6 +117,7 @@ class AcctRequest(AcctPacket):
         #
         default_string = (0, 0)
         self.session_time = self.get('Acct-Session-Time', default_string)[0]    # 秒
+        self.event_timestamp = self.get('Event-Timestamp', default_string)[0]   # 秒
         self.upload_gigabytes = self.get('Acct-Input-Gigawords', default_string)[0]
         self.download_gigabytes = self.get('Acct-Output-Gigawords', default_string)[0]
         self.upload_bytes = self.get('Acct-Input-Octets', default_string)[0]
