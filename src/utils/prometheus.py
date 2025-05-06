@@ -9,11 +9,6 @@ class Prometheus(object):
     @classmethod
     def push_metric(cls, data: str):
         # curl -d 'foo{bar="baz"} 111 1746457233000' -X POST http://metric:8428/prometheus/api/v1/import/prometheus
-        data = """
-        upload_bytes{username="testuser"} 5012
-        download_bytes{username="testuser"} 1024
-        """
-
         headers = {
             "Content-Type": "text/plain; charset=utf-8"
         }
