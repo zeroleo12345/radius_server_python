@@ -84,8 +84,8 @@ class AccountingFlow(object):
 
     @classmethod
     def push_metric(cls, username, request: AcctRequest):
-        # upload_bytes{username="$username"} $value $timestamp
-        # download_bytes{username="$username"} $value $timestamp
+        if request.upload_bytes == 0 and request.download_bytes == 0:
+            return
         data = f"""
         upload_bytes{{username="{username}"}} {request.upload_bytes} {request.event_timestamp}
         download_bytes{{username="{username}"}} {request.download_bytes} {request.event_timestamp}
