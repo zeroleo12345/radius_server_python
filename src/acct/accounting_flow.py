@@ -7,6 +7,7 @@ from .accounting_session import AccountingSession
 from settings import ACCOUNTING_INTERVAL
 from utils.feishu import Feishu
 from utils.redispool import get_redis
+from utils.prometheus import Prometheus
 from loguru import logger as log
 from models.account import Account
 from controls.user import AcctUserProfile
@@ -39,6 +40,8 @@ class AccountingFlow(object):
                 text = f'{acct_user_profile.outer_username} 账号多拨!'
                 Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=text)
                 # cls.disconnect(user_name=acct_user_profile.outer_username, user_mac=acct_user_profile.user_mac)
+
+        cls.push_metric(username=account.username, request=request)
         return
 
     @classmethod
@@ -78,3 +81,13 @@ class AccountingFlow(object):
         }
         log.debug(f'push DAE data: {data}')
         redis.lpush(key, json.dumps(data, ensure_ascii=False))
+
+    @classmethod
+    def push_metric(cls, username, request: AcctRequest):
+        # upload_bytes{username="$username"} $value $timestamp
+        # download_bytes{username="$username"} $value $timestamp
+        data = f"""
+        upload_bytes{{username="{username}"}} {request.upload_bytes} {request.event_timestamp}
+        download_bytes{{username="{username}"}} {request.download_bytes} {request.event_timestamp}
+        """
+        Prometheus.push_metric(data=data)

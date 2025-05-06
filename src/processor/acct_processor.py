@@ -54,8 +54,6 @@ class RadiusServer(DatagramServer):
 def verify_user(request: AcctRequest, acct_user_profile: AcctUserProfile):
     log.info(f'verifying user from {request.address}')
     AccountingFlow.accounting_handler(request=request, acct_user_profile=acct_user_profile)
-    # upload_bytes{username="$username"} $value $timestamp
-    # download_bytes{username="$username"} $value $timestamp
 
 
 def main():
