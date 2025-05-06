@@ -1,7 +1,7 @@
 """
 reference:
     Extensible Authentication Protocol Method for Global System for Mobile Communications (GSM) Subscriber Identity Modules (EAP-SIM):
-        http://tools.ietf.org/search/rfc4186
+        https://www.rfc-editor.org/rfc/rfc4186.html
 """
 import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_into
 #

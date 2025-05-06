@@ -7,6 +7,7 @@ from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 import sentry_sdk
 # 项目库
+from child_pyrad.exception import PacketError
 from child_pyrad.dictionary import get_dictionaries
 from child_pyrad.request import AuthRequest
 from child_pyrad.packet import PacketProtocol
@@ -46,15 +47,16 @@ class RadiusServer(DatagramServer):
         try:
             request = AuthRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
-            auth_user_profile = AuthUserProfile(request=request)
-        except KeyError as e:
-            log.warning(f'packet corrupt from {address}, KeyError: {e.args[0]}')
+        except PacketError:
+            log.warning(f'packet corrupt from {address}')
             return
-        except Exception:
-            log.trace(traceback.format_exc())
+        except Exception as e:
+            log.error(traceback.format_exc())
+            sentry_sdk.capture_exception(e)
             return
 
         try:
+            auth_user_profile = AuthUserProfile(request=request)
             # 验证用户
             verify_user(request, auth_user_profile)
         except AccessReject as e:
@@ -62,7 +64,7 @@ class RadiusServer(DatagramServer):
         except KeyboardInterrupt:
             self.close()
         except Exception as e:
-            log.critical(traceback.format_exc())
+            log.error(traceback.format_exc())
             sentry_sdk.capture_exception(e)
             Flow.access_reject(request=request, auth_user_profile=auth_user_profile, reason=AccessReject.SYSTEM_ERROR)
 

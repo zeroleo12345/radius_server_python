@@ -6,6 +6,7 @@ from gevent import signal_handler
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 # 项目库
+from child_pyrad.exception import PacketError
 from acct.accounting_flow import AccountingFlow
 from acct.flow import Flow
 from child_pyrad.dictionary import get_dictionaries
@@ -31,16 +32,20 @@ class RadiusServer(DatagramServer):
         try:
             request = AcctRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
-            acct_user_profile = AcctUserProfile(request=request)
-        except KeyError as e:
-            log.warning(f'packet corrupt from {address}, KeyError: {e.args[0]}')
+        except PacketError:
+            log.warning(f'packet corrupt from {address}')
+            return
+        except Exception as e:
+            log.error(traceback.format_exc())
+            sentry_sdk.capture_exception(e)
             return
 
         try:
+            acct_user_profile = AcctUserProfile(request=request)
             # 验证用户
             verify_user(request, acct_user_profile)
         except Exception as e:
-            log.critical(traceback.format_exc())
+            log.error(traceback.format_exc())
             sentry_sdk.capture_exception(e)
         finally:
             Flow.account_response(request=request, acct_user_profile=acct_user_profile)

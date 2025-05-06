@@ -52,7 +52,7 @@ def create_mppe_recv_key_send_key(msk: bytes, secret: bytes, authenticator: byte
     """
     参考:
         Microsoft Vendor-specific RADIUS Attributes:
-            https://tools.ietf.org/html/rfc2548
+            https://www.rfc-editor.org/rfc/rfc2548.html
             https://github.com/talkincode/pymschap/blob/master/pymschap/mppe.py
 
     变量:

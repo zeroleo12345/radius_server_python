@@ -3,7 +3,7 @@ from pyrad.packet import AuthPacket, AcctPacket, CoAPacket
 from pyrad.dictionary import Dictionary
 # 项目库
 from .packet import PacketCode, init_packet_from_receive, init_packet_to_send
-from .exception import AuthenticatorError
+from .exception import AuthenticatorError, PacketError
 from controls.stat import NasStat
 from loguru import logger as log
 from .response import AuthResponse, AcctResponse
@@ -21,8 +21,13 @@ class AuthRequest(AuthPacket):
         :param socket:
         :param address: (ip, port)
         """
-        init_packet_from_receive(super(),
-                                 code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        try:
+            init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+            # access-request 需要 Message-Authenticator 字段验证报文合法性; 报文头Authenticator字段是随机生成的
+            # log.warning(f'VerifyAuthRequest failed from address: {address}, authenticator: {self.authenticator}')
+            assert self.authenticator != b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+        except Exception as e:
+            raise PacketError(str(e))
         self.socket, self.address = socket, address
         # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
@@ -99,13 +104,25 @@ class AcctRequest(AcctPacket):
         :param socket:
         :param address: (ip, port)
         """
-        init_packet_from_receive(super(),
-                                 code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+        try:
+            init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
+            # account-request 可使用 Authenticator 字段验证报文合法性
+            assert self.VerifyAcctRequest()
+        except Exception as e:
+            raise PacketError(str(e))
         self.socket, self.address = socket, address
         # 报文提取
         self.username = self['User-Name'][0]
         self.nas_ip = self['NAS-IP-Address'][0]    # 如果获取自报文字段 self['NAS-IP-Address'][0], 会出现ip更新不及时, 与真实IP不一致的问题
-        self.iut = self['Acct-Status-Type'][0]   # I,U,T包. Start-1; Stop-2; Interim-Update-3; Accounting-On-7; Accounting-Off-8;
+        self.iut = self['Acct-Status-Type'][0]   # I,U,T包. Start-1; Stop-2; Alive-3; Accounting-On-7; Accounting-Off-8;
+        #
+        default_string = (0, 0)
+        self.session_time = self.get('Acct-Session-Time', default_string)[0]    # 秒
+        self.event_timestamp = self.get('Event-Timestamp', default_string)[0]   # 秒
+        self.upload_gigabytes = self.get('Acct-Input-Gigawords', default_string)[0]
+        self.download_gigabytes = self.get('Acct-Output-Gigawords', default_string)[0]
+        self.upload_bytes = self.get('Acct-Input-Octets', default_string)[0]
+        self.download_bytes = self.get('Acct-Output-Octets', default_string)[0]
         # optional:
         default_string = ('', 0)
         self.user_mac = self.get('Calling-Station-Id', default_string)[0]

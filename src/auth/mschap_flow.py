@@ -39,7 +39,7 @@ class MsChapFlow(Flow):
         user_password = session.auth_user_profile.user_password
         auth_challenge: bytes = request['MS-CHAP-Challenge'][0]
         """ Microsoft Vendor-specific RADIUS Attributes:
-                https://tools.ietf.org/html/rfc2548
+                https://www.rfc-editor.org/rfc/rfc2548.html
         ## MS-CHAP2-Response 字段:
         Vendor-Type
           25 for MS-CHAP2-Response.
