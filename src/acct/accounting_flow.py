@@ -89,5 +89,6 @@ class AccountingFlow(object):
         metrics = [
             f'upload_bytes{{username="{username}"}} {request.upload_bytes} {request.event_timestamp}',
             f'download_bytes{{username="{username}"}} {request.download_bytes} {request.event_timestamp}',
+            f'session_time{{username="{username}"}} {request.session_time} {request.event_timestamp}',
         ]
         Prometheus.push_metric(metrics=metrics)
