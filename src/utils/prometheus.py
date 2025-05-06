@@ -7,8 +7,11 @@ class Prometheus(object):
     ENDPOINT = config('PROMETHEUS_ENDPOINT', default='http://metric:8428/prometheus/api/v1/import/prometheus')
 
     @classmethod
-    def push_metric(cls, data: str):
-        # curl -d 'foo{bar="baz"} 111 1746457233000' -X POST http://metric:8428/prometheus/api/v1/import/prometheus
+    def push_metric(cls, metrics: list):
+        """
+        curl -d 'foo{bar="baz"} 111 1746457233000' -X POST http://metric:8428/prometheus/api/v1/import/prometheus
+        """
+        data = '\n'.join(metrics)
         headers = {
             "Content-Type": "text/plain; charset=utf-8"
         }

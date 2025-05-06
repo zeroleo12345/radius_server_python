@@ -86,8 +86,8 @@ class AccountingFlow(object):
     def push_metric(cls, username, request: AcctRequest):
         if request.upload_bytes == 0 and request.download_bytes == 0:
             return
-        data = f"""
-        upload_bytes{{username="{username}"}} {request.upload_bytes} {request.event_timestamp}
-        download_bytes{{username="{username}"}} {request.download_bytes} {request.event_timestamp}
-        """
-        Prometheus.push_metric(data=data)
+        metrics = [
+            f'upload_bytes{{username="{username}"}} {request.upload_bytes} {request.event_timestamp}',
+            f'download_bytes{{username="{username}"}} {request.download_bytes} {request.event_timestamp}',
+        ]
+        Prometheus.push_metric(metrics=metrics)
