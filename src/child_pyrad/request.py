@@ -119,10 +119,10 @@ class AcctRequest(AcctPacket):
         default_string = (0, 0)
         self.session_time = self.get('Acct-Session-Time', default_string)[0]    # 秒
         self.event_timestamp = self.get('Event-Timestamp', default_string)[0]   # 秒
-        self.upload_gigabytes = self.get('Acct-Input-Gigawords', default_string)[0]
-        self.download_gigabytes = self.get('Acct-Output-Gigawords', default_string)[0]
-        self.upload_bytes = self.get('Acct-Input-Octets', default_string)[0]
-        self.download_bytes = self.get('Acct-Output-Octets', default_string)[0]
+        _upload_gigabytes = self.get('Acct-Input-Gigawords', default_string)[0]
+        _download_gigabytes = self.get('Acct-Output-Gigawords', default_string)[0]
+        self.upload_bytes = _upload_gigabytes * 1073741824 + self.get('Acct-Input-Octets', default_string)[0]
+        self.download_bytes = _download_gigabytes * 1073741824 + self.get('Acct-Output-Octets', default_string)[0]
         # optional:
         default_string = ('', 0)
         self.user_mac = self.get('Calling-Station-Id', default_string)[0]
