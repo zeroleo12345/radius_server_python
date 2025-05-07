@@ -160,10 +160,7 @@ def EncodeDate(num):
 
 
 def DecodeString(orig_str):
-   try:
-        return orig_str.decode('utf-8')
-   except:
-        return orig_str
+    return orig_str.decode('utf-8')
 
 
 def DecodeOctets(orig_bytes):
