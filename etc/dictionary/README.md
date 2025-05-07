@@ -1,6 +1,6 @@
 ## Dictionary source
-1. pyrad library
-2. freeradius
+1. pyrad library (https://github.com/pyradius/pyrad/blob/master/example/dictionary)
+2. freeradius (./third_party/freeradius-3.2.3/share)
 
 
 ## Modify Point
