@@ -84,11 +84,11 @@ class AccountingFlow(object):
 
     @classmethod
     def push_metric(cls, username, request: AcctRequest):
-        if request.upload_bytes == 0 and request.download_bytes == 0:
+        if request.upload_kb == 0 and request.download_kb == 0:
             return
         metrics = [
-            f'upload_bytes{{username="{username}"}} {request.upload_bytes} {request.event_timestamp}',
-            f'download_bytes{{username="{username}"}} {request.download_bytes} {request.event_timestamp}',
+            f'upload_kb{{username="{username}"}} {request.upload_kb} {request.event_timestamp}',
+            f'download_kb{{username="{username}"}} {request.download_kb} {request.event_timestamp}',
             f'session_time{{username="{username}"}} {request.session_time} {request.event_timestamp}',
         ]
         Prometheus.push_metric(metrics=metrics)
