@@ -1,3 +1,4 @@
+import math
 # 第三方库
 from pyrad.packet import AuthPacket, AcctPacket, CoAPacket
 from pyrad.dictionary import Dictionary
@@ -121,8 +122,8 @@ class AcctRequest(AcctPacket):
         self.event_timestamp = self.get('Event-Timestamp', default_string)[0]   # 秒
         _upload_gigabytes = self.get('Acct-Input-Gigawords', default_string)[0]
         _download_gigabytes = self.get('Acct-Output-Gigawords', default_string)[0]
-        self.upload_kb = _upload_gigabytes * 1048576 + self.get('Acct-Input-Octets', default_string)[0] / 1024
-        self.download_kb = _download_gigabytes * 1048576 + self.get('Acct-Output-Octets', default_string)[0] / 1024
+        self.upload_kb = math.floor(_upload_gigabytes * 1048576 + self.get('Acct-Input-Octets', default_string)[0] / 1024)
+        self.download_kb = math.floor(_download_gigabytes * 1048576 + self.get('Acct-Output-Octets', default_string)[0] / 1024)
         # optional:
         default_string = ('', 0)
         self.user_mac = self.get('Calling-Station-Id', default_string)[0]
