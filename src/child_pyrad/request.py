@@ -116,7 +116,7 @@ class AcctRequest(AcctPacket):
         self.username = self['User-Name'][0]
         self.nas_ip = self['NAS-IP-Address'][0]    # 如果获取自报文字段 self['NAS-IP-Address'][0], 会出现ip更新不及时, 与真实IP不一致的问题
         self.iut = self['Acct-Status-Type'][0]   # I,U,T包. Start-1; Stop-2; Alive-3; Accounting-On-7; Accounting-Off-8;
-        #
+        # https://www.h3c.com/cn/Service/Document_Software/Document_Center/Home/Wlan/00-Public/Configure/Radius_Attribute_List/H3C_RADIUS_V7-19485/
         default_string = (0, 0)
         self.session_time = self.get('Acct-Session-Time', default_string)[0]    # 秒
         self.event_timestamp = self.get('Event-Timestamp', default_string)[0]   # 秒
