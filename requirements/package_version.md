@@ -33,7 +33,6 @@ loguru==0.5.3
 netaddr==0.8.0
 pycparser==2.21
 PyMySQL==0.9.3
-python-dateutil==2.7.5
 pytz==2019.1
 redis==3.3.11
 requests==2.20.0
