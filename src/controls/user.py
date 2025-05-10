@@ -7,11 +7,12 @@ class _Account(object):
     def __init__(self):
         self.password: str = ''
         self.is_enable: bool = False
-        self.is_enable: bool = False
+        self.speed_id: int = -1
 
     def copy_attribute(self, account: Account):
         self.password = account.password
         self.is_enable = account.is_enable
+        self.speed_id = account.speed_id
 
 
 class _Packet(object):

@@ -21,6 +21,8 @@ class Account(models.Model, BaseModel):
     role = models.CharField(max_length=32)
     username = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
+    price_id = models.IntegerField(default=50)
+    speed_id = models.IntegerField(default=50)
     expired_at = models.DateTimeField()
     #
     created_at = models.DateTimeField()
