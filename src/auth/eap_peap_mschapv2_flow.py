@@ -259,8 +259,7 @@ class EapPeapMschapv2Flow(Flow):
         if not account or account.is_expired():
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码
-        session.auth_user_profile.set_user_password(account.radius_password)
-        session.auth_user_profile.set_is_enable(account.is_enable)
+        session.auth_user_profile.account.copy_attribute(account)
 
         # 返回数据
         # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 1c) +
