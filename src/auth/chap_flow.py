@@ -24,12 +24,12 @@ class ChapFlow(Flow):
         session.auth_user_profile.account.copy_attribute(account)
 
         def is_correct_password() -> bool:
-            return Chap.is_correct_challenge_value(request=request, account_password=session.auth_user_profile.account.password)
+            return Chap.is_correct_challenge(request=request, account_password=session.auth_user_profile.account.password)
 
         if is_correct_password():
             return cls.access_accept(request=request, session=session)
         else:
-            log.error(f'input_password: {session.auth_user_profile.packet.input_password} not correct')
+            log.error(f'input password not correct, hash mismatch')
             raise AccessReject(reason=AccessReject.PASSWORD_WRONG)
 
     @classmethod

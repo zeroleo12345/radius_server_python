@@ -25,17 +25,22 @@ class Chap(object):
     """
 
     @classmethod
-    def is_correct_challenge_value(cls, request: AuthRequest, account_password: str) -> bool:
+    def is_correct_challenge(cls, request: AuthRequest, account_password: str) -> bool:
         # 获取报文
         chap_password = request['CHAP-Password'][0]
         chap_challenge = request['CHAP-Challenge'][0]
 
         # 根据算法, 判断上报的用户密码是否正确
         chap_ident, chap_response = chap_password[0:1], chap_password[1:]
-        if chap_response != cls.get_challenge_value(chap_ident=chap_ident, chap_challenge=chap_challenge, account_password=account_password):
-            return False
 
-        return True
+        # 根据用户真实密码生成的hash值
+        expected_hash = cls.get_challenge_value(chap_ident=chap_ident, chap_challenge=chap_challenge, account_password=account_password)
+
+        # 判断是否相等
+        if chap_response == expected_hash:
+            return True
+        else:
+            return False
 
     @classmethod
     def get_challenge_value(cls, chap_ident: bytes, chap_challenge: bytes, account_password: str):

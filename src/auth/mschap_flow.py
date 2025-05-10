@@ -35,7 +35,7 @@ class MsChapFlow(Flow):
 
         ################
         username = session.auth_user_profile.packet.outer_username
-        input_password = session.auth_user_profile.packet.input_password
+        account_password = session.auth_user_profile.account.password
         auth_challenge: bytes = request['MS-CHAP-Challenge'][0]
         """ Microsoft Vendor-specific RADIUS Attributes:
                 https://www.rfc-editor.org/rfc/rfc2548.html
@@ -63,8 +63,8 @@ class MsChapFlow(Flow):
         nt_response: bytes = ms_chap2_response[26:50]
         p_username = ctypes.create_string_buffer(username.encode())
         l_username_len = ctypes.c_ulonglong(len(username))
-        p_password = ctypes.create_string_buffer(input_password.encode())
-        l_password_len = ctypes.c_ulonglong(len(input_password))
+        p_password = ctypes.create_string_buffer(account_password.encode())
+        l_password_len = ctypes.c_ulonglong(len(account_password))
         # 计算 md4(password)
         p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
         # 计算返回报文中的 authenticator_response
@@ -97,7 +97,7 @@ class MsChapFlow(Flow):
         if is_correct_password():
             return cls.access_accept(request=request, session=session)
         else:
-            log.error(f'input_password: {session.auth_user_profile.packet.input_password} not correct')
+            log.error(f'input password not correct, hash mismatch')
             raise AccessReject(reason=AccessReject.PASSWORD_WRONG)
 
     @classmethod

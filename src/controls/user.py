@@ -5,11 +5,13 @@ from models.account import Account
 
 class _Account(object):
     def __init__(self):
+        self.username: str = ''
         self.password: str = ''
         self.is_enable: bool = False
         self.speed_id: int = -1
 
     def copy_attribute(self, account: Account):
+        self.username = account.username
         self.password = account.password
         self.is_enable = account.is_enable
         self.speed_id = account.speed_id

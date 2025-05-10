@@ -262,14 +262,14 @@ class EapPeapGtcFlow(Flow):
         # 解密
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         eap_password = EapPacket.parse(packet=tls_decrypt_data)
-        auth_password = eap_password.type_data.decode()
-        log.debug(f'PEAP account: {session.auth_user_profile.packet.peap_username}, packet_password: {auth_password}')
+        input_password = eap_password.type_data.decode()
+        log.debug(f'PEAP account: {session.auth_user_profile.packet.peap_username}, input_password: {input_password}')
 
         def is_correct_password() -> bool:
-            return session.auth_user_profile.packet.input_password == auth_password
+            return input_password == session.auth_user_profile.account.password
 
         if not is_correct_password():
-            log.error(f'input_password: {session.auth_user_profile.packet.input_password} not correct')
+            log.error(f'input_password: {input_password} not correct')
             # 返回数据 eap_failure
             eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.current_eap_id)
             tls_plaintext = eap_failure.ReplyPacket()

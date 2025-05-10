@@ -327,10 +327,10 @@ class EapPeapMschapv2Flow(Flow):
 
         assert identity.decode() == session.auth_user_profile.packet.peap_username
         # 计算期望密码哈希值
-        p_username = ctypes.create_string_buffer(session.auth_user_profile.packet.peap_username.encode())
+        p_username = ctypes.create_string_buffer(session.auth_user_profile.account.username.encode())
         l_username_len = ctypes.c_ulonglong(username_len)
-        p_password = ctypes.create_string_buffer(session.auth_user_profile.packet.input_password.encode())
-        l_password_len = ctypes.c_ulonglong(len(session.auth_user_profile.packet.input_password))
+        p_password = ctypes.create_string_buffer(session.auth_user_profile.account.password.encode())
+        l_password_len = ctypes.c_ulonglong(len(session.auth_user_profile.account.password))
         p_expect = libhostapd.call_generate_nt_response(
             p_auth_challenge=session.auth_user_profile.packet.server_challenge, p_peer_challenge=session.auth_user_profile.packet.peer_challenge,
             p_username=p_username, l_username_len=l_username_len, p_password=p_password, l_password_len=l_password_len,
@@ -345,7 +345,7 @@ class EapPeapMschapv2Flow(Flow):
 
         if not is_correct_password():
             # 密码整错
-            log.error(f'input_password not correct')
+            log.error(f'input password not correct, hash mismatch')
             # 返回数据 eap_failure
             eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.current_eap_id)
             tls_plaintext: bytes = eap_failure.ReplyPacket()
