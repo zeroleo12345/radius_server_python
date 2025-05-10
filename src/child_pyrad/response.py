@@ -55,8 +55,15 @@ class AuthResponse(AuthPacket):
         return reply
 
     @classmethod
-    def create_peap_access_challenge(cls, request: 'AuthRequest', peap: EapPeapPacket, session_id: str) -> AuthPacket:
-        reply = request.create_reply(code=PacketCode.CODE_ACCESS_CHALLENGE)
+    def create_peap_response(cls, code, request: 'AuthRequest', peap: EapPeapPacket, session_id: str) -> AuthPacket:
+        """
+        :param code: PacketCode.CODE_ACCESS_CHALLENGE; PacketCode.CODE_ACCESS_REJECT
+        :param request:
+        :param peap:
+        :param session_id:
+        :return:
+        """
+        reply = request.create_reply(code=code)
         eap_message = peap.ReplyPacket()
         eap_messages = EapPacket.split_eap_message(eap_message)
         for eap in eap_messages:
