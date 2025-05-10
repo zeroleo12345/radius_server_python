@@ -8,6 +8,7 @@ from .eap_peap_packet import EapPeapPacket
 from .packet import PacketProtocol
 from controls.stat import UserStat
 from settings import ACCOUNTING_INTERVAL
+from loguru import logger as log
 import typing
 if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
     from .request import AuthRequest, AcctRequest
@@ -35,7 +36,7 @@ class AuthResponse(AuthPacket):
         if request.auth_protocol in [PacketProtocol.CHAP_PROTOCOL, PacketProtocol.PAP_PROTOCOL]:
             reply['Class'] = uuid4().hex.encode()
             # 上载速度. 用户到NAS的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            auth_user_profile.account.speed_id
+            log.info(f'speed_id: {auth_user_profile.account.speed_id}')
             reply['H3C-Input-Average-Rate'] = int(8 * mega_bit)
             reply['H3C-Input-Peak-Rate'] = int(10 * mega_bit)
             # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
