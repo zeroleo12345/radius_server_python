@@ -40,7 +40,6 @@ class AuthUserProfile(object):
         self.account: _Account = _Account()
 
 
-
 class AcctUserProfile(object):
 
     def __init__(self, request: AcctRequest):
