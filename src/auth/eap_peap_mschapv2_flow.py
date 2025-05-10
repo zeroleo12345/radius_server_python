@@ -346,7 +346,7 @@ class EapPeapMschapv2Flow(Flow):
 
         if not is_correct_password():
             # 密码整错
-            log.error(f'input password not correct, hash mismatch')
+            log.warning(f'input password not correct, hash mismatch')
             # 返回数据 eap_failure
             eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.current_eap_id)
             tls_plaintext: bytes = eap_failure.ReplyPacket()

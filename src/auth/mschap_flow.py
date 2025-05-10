@@ -97,7 +97,7 @@ class MsChapFlow(Flow):
         if is_correct_password():
             return cls.access_accept(request=request, session=session)
         else:
-            log.error(f'input password not correct, hash mismatch')
+            log.warning(f'input password not correct, hash mismatch')
             raise AccessReject(reason=AccessReject.PASSWORD_WRONG)
 
     @classmethod
