@@ -22,7 +22,7 @@ class AuthResponse(AuthPacket):
     @classmethod
     def create_access_accept(cls, request: 'AuthRequest', auth_user_profile: 'AuthUserProfile') -> AuthPacket:
         # 统计
-        if auth_user_profile.is_enable:
+        if auth_user_profile.account.is_enable:
             UserStat.report_user_oneline_time(username=request.username, auth_or_acct='auth')
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
@@ -35,6 +35,7 @@ class AuthResponse(AuthPacket):
         if request.auth_protocol in [PacketProtocol.CHAP_PROTOCOL, PacketProtocol.PAP_PROTOCOL]:
             reply['Class'] = uuid4().hex.encode()
             # 上载速度. 用户到NAS的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
+            auth_user_profile.account.speed_id
             reply['H3C-Input-Average-Rate'] = int(8 * mega_bit)
             reply['H3C-Input-Peak-Rate'] = int(10 * mega_bit)
             # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
@@ -72,7 +73,7 @@ class AcctResponse(AcctPacket):
     @classmethod
     def create_account_response(cls, request: 'AcctRequest', acct_user_profile: 'AcctUserProfile') -> 'AcctResponse':
         # 统计
-        if acct_user_profile.is_enable:
+        if acct_user_profile.account.is_enable:
             UserStat.report_user_oneline_time(username=request.username, auth_or_acct='acct')
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCOUNT_RESPONSE)
