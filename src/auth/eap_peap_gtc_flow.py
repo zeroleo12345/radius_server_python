@@ -40,7 +40,7 @@ class EapPeapGtcFlow(Flow):
                 assert eap.type == EapPacket.TYPE_EAP_IDENTITY
         session = session or EapPeapSession(auth_user_profile=auth_user_profile, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
-        log.debug(f'outer_username: {auth_user_profile.outer_username}, mac: {auth_user_profile.user_mac}.'
+        log.debug(f'outer_username: {auth_user_profile.packet.outer_username}, mac: {auth_user_profile.packet.user_mac}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
 
         # 调用对应状态的处理函数
@@ -263,13 +263,13 @@ class EapPeapGtcFlow(Flow):
         tls_decrypt_data = libhostapd.decrypt(session.tls_connection, peap.tls_data)
         eap_password = EapPacket.parse(packet=tls_decrypt_data)
         auth_password = eap_password.type_data.decode()
-        log.debug(f'PEAP account: {session.auth_user_profile.peap_username}, packet_password: {auth_password}')
+        log.debug(f'PEAP account: {session.auth_user_profile.packet.peap_username}, packet_password: {auth_password}')
 
         def is_correct_password() -> bool:
-            return session.auth_user_profile.user_password == auth_password
+            return session.auth_user_profile.packet.user_password == auth_password
 
         if not is_correct_password():
-            log.error(f'user_password: {session.auth_user_profile.user_password} not correct')
+            log.error(f'user_password: {session.auth_user_profile.packet.user_password} not correct')
             # 返回数据 eap_failure
             eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.current_eap_id)
             tls_plaintext = eap_failure.ReplyPacket()
@@ -306,7 +306,7 @@ class EapPeapGtcFlow(Flow):
             request.nas_ip,
             request.nas_name,
             request.auth_protocol,
-            session.auth_user_profile.peap_username,
+            session.auth_user_profile.packet.peap_username,
             request.user_mac,
             request.ssid,
             request.ap_mac,

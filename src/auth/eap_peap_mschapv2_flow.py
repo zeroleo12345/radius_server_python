@@ -41,7 +41,7 @@ class EapPeapMschapv2Flow(Flow):
                 assert eap.type == EapPacket.TYPE_EAP_IDENTITY
         session = session or EapPeapSession(auth_user_profile=auth_user_profile, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
-        log.debug(f'outer_username: {auth_user_profile.outer_username}, mac: {auth_user_profile.user_mac}.'
+        log.debug(f'outer_username: {auth_user_profile.packet.outer_username}, mac: {auth_user_profile.packet.user_mac}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
 
         # 调用对应状态的处理函数
@@ -325,14 +325,14 @@ class EapPeapMschapv2Flow(Flow):
         # 保存客户端随机数
         session.auth_user_profile.packet.set_peer_challenge(peer_challenge)
 
-        assert identity.decode() == session.auth_user_profile.peap_username
+        assert identity.decode() == session.auth_user_profile.packet.peap_username
         # 计算期望密码哈希值
-        p_username = ctypes.create_string_buffer(session.auth_user_profile.peap_username.encode())
+        p_username = ctypes.create_string_buffer(session.auth_user_profile.packet.peap_username.encode())
         l_username_len = ctypes.c_ulonglong(username_len)
-        p_password = ctypes.create_string_buffer(session.auth_user_profile.user_password.encode())
-        l_password_len = ctypes.c_ulonglong(len(session.auth_user_profile.user_password))
+        p_password = ctypes.create_string_buffer(session.auth_user_profile.packet.user_password.encode())
+        l_password_len = ctypes.c_ulonglong(len(session.auth_user_profile.packet.user_password))
         p_expect = libhostapd.call_generate_nt_response(
-            p_auth_challenge=session.auth_user_profile.server_challenge, p_peer_challenge=session.auth_user_profile.peer_challenge,
+            p_auth_challenge=session.auth_user_profile.packet.server_challenge, p_peer_challenge=session.auth_user_profile.packet.peer_challenge,
             p_username=p_username, l_username_len=l_username_len, p_password=p_password, l_password_len=l_password_len,
         )
         expect: bytes = ctypes.string_at(p_expect, len(p_expect))
@@ -353,8 +353,8 @@ class EapPeapMschapv2Flow(Flow):
             # 计算 md4(password)
             p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
             # 计算返回报文中的 authenticator_response
-            p_peer_challenge = ctypes.create_string_buffer(session.auth_user_profile.peer_challenge)
-            p_auth_challenge = ctypes.create_string_buffer(session.auth_user_profile.server_challenge)
+            p_peer_challenge = ctypes.create_string_buffer(session.auth_user_profile.packet.peer_challenge)
+            p_auth_challenge = ctypes.create_string_buffer(session.auth_user_profile.packet.server_challenge)
             p_nt_response = ctypes.create_string_buffer(nt_response)
             p_out_auth_response = libhostapd.call_generate_authenticator_response_pwhash(
                 p_password_md4=p_password_md4, p_peer_challenge=p_peer_challenge, p_auth_challenge=p_auth_challenge,
@@ -447,7 +447,7 @@ class EapPeapMschapv2Flow(Flow):
             request.nas_ip,
             request.nas_name,
             request.auth_protocol,
-            session.auth_user_profile.peap_username,
+            session.auth_user_profile.packet.peap_username,
             request.user_mac,
             request.ssid,
             request.ap_mac,

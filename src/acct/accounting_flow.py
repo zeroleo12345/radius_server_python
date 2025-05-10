@@ -18,7 +18,7 @@ class AccountingFlow(object):
     @classmethod
     def accounting_handler(cls, request: AcctRequest, acct_user_profile: AcctUserProfile):
         # 查找用户密码
-        account = Account.get_(username=acct_user_profile.outer_username)
+        account = Account.get_(username=acct_user_profile.packet.outer_username)
         if not account:
             return
         if account.is_expired():
@@ -33,12 +33,12 @@ class AccountingFlow(object):
             log.debug('clean up accounting session')
         #
         if request.auth_class:
-            #  log.info(f'auth_class: {request.auth_class}, outer_username: {acct_user_profile.outer_username}, user_mac: {acct_user_profile.user_mac}')
-            current_session = AccountingSession.put(acct_user_profile.outer_username, acct_user_profile.user_mac)
+            #  log.info(f'auth_class: {request.auth_class}, outer_username: {acct_user_profile.packet.outer_username}, user_mac: {acct_user_profile.packet.user_mac}')
+            current_session = AccountingSession.put(acct_user_profile.packet.outer_username, acct_user_profile.packet.user_mac)
             if current_session > 1 and account.role != Account.Role.PLATFORM_OWNER.value:
-                text = f'{acct_user_profile.outer_username} 账号多拨!'
+                text = f'{acct_user_profile.packet.outer_username} 账号多拨!'
                 Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=text)
-                # cls.disconnect(user_name=acct_user_profile.outer_username, user_mac=acct_user_profile.user_mac)
+                # cls.disconnect(user_name=acct_user_profile.packet.outer_username, user_mac=acct_user_profile.packet.user_mac)
 
         cls.push_metric(username=account.username, request=request)
         return

@@ -19,14 +19,14 @@ class PapFlow(Flow):
         # 密码解密
         try:
             decrypt_password = request.PwCrypt(password=encrypt_password)
-            session.auth_user_profile.user_password = decrypt_password.decode()
+            session.auth_user_profile.packet.user_password = decrypt_password.decode()
         except:
-            session.auth_user_profile.user_password = ''
+            session.auth_user_profile.packet.user_password = ''
         return cls.pap_auth(request=request, session=session)
 
     @classmethod
     def pap_auth(cls, request: AuthRequest, session: BaseSession):
-        log.info(f'PAP username: {request.username}, password: {session.auth_user_profile.user_password}')
+        log.info(f'PAP username: {request.username}, password: {session.auth_user_profile.packet.user_password}')
         session.extra['Auth-Type'] = 'PAP'
         return cls.access_accept(request=request, session=session)
 
