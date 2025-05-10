@@ -206,7 +206,7 @@ class Datetime(object):
 
     @staticmethod
     def from_iso8601(string: str, tzinfo=LOCAL_TZ):
-        # TODO: Since Python 3.7
+        # Need Python 3.7+
         dt = datetime.fromisoformat(string)
         return Datetime.convert_timezone(dt, tzinfo=tzinfo)
 
