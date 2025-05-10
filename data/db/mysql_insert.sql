@@ -11,7 +11,6 @@ CREATE TABLE `account` (
   `expired_at` datetime(6) NOT NULL,
   `created_at` datetime(6) NOT NULL,
   `updated_at` datetime(6) NOT NULL,
-  `radius_password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `account_username_cfe70fab_uniq` (`username`),
   UNIQUE KEY `account_user_id_platform_id_88a2cba9_uniq` (`user_id`,`platform_id`)

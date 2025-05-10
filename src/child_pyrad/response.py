@@ -7,7 +7,9 @@ from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
 from .packet import PacketProtocol
 from controls.stat import UserStat
+from models.speed import Speed
 from settings import ACCOUNTING_INTERVAL
+from loguru import logger as log
 import typing
 if typing.TYPE_CHECKING:  # workaround:   https://www.v2ex.com/t/456858
     from .request import AuthRequest, AcctRequest
@@ -22,7 +24,7 @@ class AuthResponse(AuthPacket):
     @classmethod
     def create_access_accept(cls, request: 'AuthRequest', auth_user_profile: 'AuthUserProfile') -> AuthPacket:
         # 统计
-        if auth_user_profile.is_enable:
+        if auth_user_profile.account.is_enable:
             UserStat.report_user_oneline_time(username=request.username, auth_or_acct='auth')
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCESS_ACCEPT)
@@ -33,25 +35,19 @@ class AuthResponse(AuthPacket):
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL    # ATTRIBUTE	Acct-Interim-Interval   85    integer
         mega_bit = 1000000  # 1M bit = 1000000
         if request.auth_protocol in [PacketProtocol.CHAP_PROTOCOL, PacketProtocol.PAP_PROTOCOL]:
-            reply['Class'] = uuid4().hex.encode()
-            # 上载速度. 用户到NAS的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Input-Peak-Rate'] = int(10 * mega_bit)
-            reply['H3C-Input-Average-Rate'] = int(8 * mega_bit)
-            # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Output-Peak-Rate'] = int(60 * mega_bit)
-            reply['H3C-Output-Average-Rate'] = int(50 * mega_bit)
+            if auth_user_profile.account.username:
+                speed = Speed.get_(speed_id=auth_user_profile.account.speed_id)
+                log.info(f'up_avg_rate: {speed.up_avg_rate}, up_peak_rate: {speed.up_peak_rate}, down_avg_rate: {speed.down_avg_rate}, down_peak_rate: {speed.down_peak_rate}')
+                reply['Class'] = uuid4().hex.encode()
+                # 上载速度. 用户到NAS的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
+                reply['H3C-Input-Average-Rate'] = int(speed.up_avg_rate * mega_bit)
+                reply['H3C-Input-Peak-Rate'] = int(speed.up_peak_rate * mega_bit)
+                # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
+                reply['H3C-Output-Average-Rate'] = int(speed.down_avg_rate * mega_bit)
+                reply['H3C-Output-Peak-Rate'] = int(speed.down_peak_rate * mega_bit)
         if request.auth_protocol in [PacketProtocol.EAP_PEAP_MSCHAPV2_PROTOCOL, PacketProtocol.EAP_PEAP_GTC_PROTOCOL, PacketProtocol.MSCHAPV2_PROTOCOL, PacketProtocol.MAC_PROTOCOL]:
-            reply['Filter-Id'] = f'pay_user_100m'
-        # Attribute for test user:
-        if request.username == '88054200':
-            # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Output-Peak-Rate'] = int(100 * mega_bit)
-            reply['H3C-Output-Average-Rate'] = int(100 * mega_bit)
-            # 上载速度. 用户到NAS的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Input-Peak-Rate'] = int(10 * mega_bit)
-            reply['H3C-Input-Average-Rate'] = int(10 * mega_bit)
             # User Profile 适用于wlan和PPPoE用户. 当AC profile disable时, 会连不上WIFi
-            # reply['Filter-Id'] = f'pay_user_4m'
+            reply['Filter-Id'] = f'pay_user_100m'
         return reply
 
     @classmethod
@@ -62,8 +58,15 @@ class AuthResponse(AuthPacket):
         return reply
 
     @classmethod
-    def create_peap_challenge(cls, request: 'AuthRequest', peap: EapPeapPacket, session_id: str) -> AuthPacket:
-        reply = request.create_reply(code=PacketCode.CODE_ACCESS_CHALLENGE)
+    def create_peap_response(cls, code, request: 'AuthRequest', peap: EapPeapPacket, session_id: str) -> AuthPacket:
+        """
+        :param code: PacketCode.CODE_ACCESS_CHALLENGE; PacketCode.CODE_ACCESS_REJECT
+        :param request:
+        :param peap:
+        :param session_id:
+        :return:
+        """
+        reply = request.create_reply(code=code)
         eap_message = peap.ReplyPacket()
         eap_messages = EapPacket.split_eap_message(eap_message)
         for eap in eap_messages:
@@ -81,7 +84,7 @@ class AcctResponse(AcctPacket):
     @classmethod
     def create_account_response(cls, request: 'AcctRequest', acct_user_profile: 'AcctUserProfile') -> 'AcctResponse':
         # 统计
-        if acct_user_profile.is_enable:
+        if acct_user_profile.account.is_enable:
             UserStat.report_user_oneline_time(username=request.username, auth_or_acct='acct')
         #
         reply = request.create_reply(code=PacketCode.CODE_ACCOUNT_RESPONSE)

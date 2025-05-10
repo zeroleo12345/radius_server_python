@@ -2,6 +2,9 @@
 reference:
     Extensible Authentication Protocol Method for Global System for Mobile Communications (GSM) Subscriber Identity Modules (EAP-SIM):
         https://www.rfc-editor.org/rfc/rfc4186.html
+
+    RADIUS (Remote Authentication Dial In User Service) Support For Extensible Authentication Protocol (EAP)
+        https://www.rfc-editor.org/rfc/rfc3579.html
 """
 import struct   # from struct import pack, unpack, calcsize, unpack_from, pack_into
 #

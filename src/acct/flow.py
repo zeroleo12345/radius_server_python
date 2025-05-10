@@ -18,8 +18,8 @@ class Flow(object):
             request.iut,
             str(request.upload_kb),
             str(request.download_kb),
-            acct_user_profile.outer_username,
-            acct_user_profile.user_mac,
+            acct_user_profile.packet.outer_username,
+            acct_user_profile.packet.user_mac,
         ]
         log.info(f'OUT: acct|{"|".join(data)}|')
         reply = AcctResponse.create_account_response(request=request, acct_user_profile=acct_user_profile)

@@ -28,17 +28,17 @@ class MacFlow(Flow):
         now = datetime.datetime.now()
         redis = get_redis()
 
-        first_time_key = f'string:first_time_authentication:mac:{session.auth_user_profile.user_mac}'
+        first_time_key = f'string:first_time_authentication:mac:{session.auth_user_profile.packet.user_mac}'
         created_at = now
         is_set = redis.set(first_time_key, value=str(created_at), nx=True)
         if is_set:
             # notify
-            notify_url = f'{API_URL}/mac-account?username={session.auth_user_profile.outer_username}&ssid={request.ssid}&ap_mac={request.ap_mac}'
-            text = f'设备首次请求放通:\nMAC: {session.auth_user_profile.user_mac}\nSSID: {request.ssid}\n若允许访问, 请点击: {notify_url}'
+            notify_url = f'{API_URL}/mac-account?username={session.auth_user_profile.packet.outer_username}&ssid={request.ssid}&ap_mac={request.ap_mac}'
+            text = f'设备首次请求放通:\nMAC: {session.auth_user_profile.packet.user_mac}\nSSID: {request.ssid}\n若允许访问, 请点击: {notify_url}'
             Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_MAC_CHAT_ID, text=text)
 
         # mac Flow: 用户不存在则创建
-        account = MacAccount.get_(username=session.auth_user_profile.outer_username)
+        account = MacAccount.get_(username=session.auth_user_profile.packet.outer_username)
         if not account:
             #
             enable_flag_key = 'enable_mac_authentication'
@@ -49,10 +49,10 @@ class MacFlow(Flow):
             created_at = now
             expired_at = created_at + datetime.timedelta(days=3600)
             MacAccount.create_(
-                username=session.auth_user_profile.outer_username, ssid=request.ssid, ap_mac=request.ap_mac, is_enable=True,
+                username=session.auth_user_profile.packet.outer_username, ssid=request.ssid, ap_mac=request.ap_mac, is_enable=True,
                 expired_at=expired_at, created_at=created_at,
             )
-            text = f'新增放通 MAC 设备, MAC: {session.auth_user_profile.user_mac}, SSID: {request.ssid}'
+            text = f'新增放通 MAC 设备, MAC: {session.auth_user_profile.packet.user_mac}, SSID: {request.ssid}'
             Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_MAC_CHAT_ID, text=text)
             redis.delete(enable_flag_key)
         if not account.is_enable:

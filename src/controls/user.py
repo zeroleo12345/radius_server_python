@@ -1,19 +1,30 @@
 # 项目库
 from child_pyrad.request import AuthRequest, AcctRequest
+from models.account import Account
 
 
-class AuthUserProfile(object):
+class _Account(object):
+    def __init__(self):
+        self.username: str = ''
+        self.password: str = ''
+        self.is_enable: bool = False
+        self.speed_id: int = -1
 
-    def __init__(self, request: AuthRequest):
-        # 提取报文
-        self.outer_username: str = request.username
+    def copy_attribute(self, account: Account):
+        self.username = account.username
+        self.password = account.password
+        self.is_enable = account.is_enable
+        self.speed_id = account.speed_id
+
+
+class _Packet(object):
+    def __init__(self, username, user_mac):
+        self.outer_username: str = username
         self.peap_username: str = ''
-        self.user_mac = request.user_mac      # mac地址
+        self.user_mac = user_mac
         self.server_challenge: bytes = b''
         self.peer_challenge: bytes = b''
-        # 有效用户属性
-        self.user_password: str = ''
-        self.is_enable = False
+        self.input_password: str = ''
 
     def set_peap_username(self, account_name: str):
         self.peap_username = account_name
@@ -24,25 +35,16 @@ class AuthUserProfile(object):
     def set_peer_challenge(self, peer_challenge: bytes):
         self.peer_challenge = peer_challenge
 
-    # 有效用户
-    def set_user_password(self, password: str):
-        self.user_password = password
 
-    def set_is_enable(self, is_enable: bool):
-        self.is_enable = is_enable
+class AuthUserProfile(object):
+
+    def __init__(self, request: AuthRequest):
+        self.packet: _Packet = _Packet(username=request.username, user_mac=request.user_mac)
+        self.account: _Account = _Account()
 
 
 class AcctUserProfile(object):
 
     def __init__(self, request: AcctRequest):
-        self.outer_username = request.username
-        self.user_mac = request.user_mac      # mac地址
-        # 有效用户属性
-        self.user_password: str = ''
-        self.is_enable = None
-
-    def set_user_password(self, password: str):
-        self.user_password = password
-
-    def set_is_enable(self, is_enable: bool):
-        self.is_enable = is_enable
+        self.packet: _Packet = _Packet(username=request.username, user_mac=request.user_mac)
+        self.account: _Account = _Account()

@@ -8,6 +8,7 @@ from child_pyrad.request import AuthRequest
 from child_pyrad.response import AuthResponse
 from controls.user import AuthUserProfile
 from models.account import Account
+from child_pyrad.packet import PacketCode
 from child_pyrad.eap_packet import EapPacket
 from child_pyrad.eap_mschapv2_packet import EapMschapv2Packet
 from child_pyrad.eap_peap_packet import EapPeapPacket
@@ -41,7 +42,7 @@ class EapPeapMschapv2Flow(Flow):
                 assert eap.type == EapPacket.TYPE_EAP_IDENTITY
         session = session or EapPeapSession(auth_user_profile=auth_user_profile, session_id=str(uuid.uuid4()))   # 每个请求State不重复即可!!
 
-        log.debug(f'outer_username: {auth_user_profile.outer_username}, mac: {auth_user_profile.user_mac}.'
+        log.debug(f'outer_username: {auth_user_profile.packet.outer_username}, mac: {auth_user_profile.packet.user_mac}.'
                   f'previd: {session.prev_id}, recvid: {request.id}.  prev_eapid: {session.prev_eap_id}, recv_eapid: {eap.id}]')
 
         # 调用对应状态的处理函数
@@ -131,7 +132,7 @@ class EapPeapMschapv2Flow(Flow):
         # 返回
         support_peap_version = 1
         eap_start = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, flag_start=1, flag_version=support_peap_version)
-        reply = AuthResponse.create_peap_challenge(request=request, peap=eap_start, session_id=session.session_id)
+        reply = AuthResponse.create_peap_response(code=PacketCode.CODE_ACCESS_CHALLENGE, request=request, peap=eap_start, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
 
@@ -160,7 +161,7 @@ class EapPeapMschapv2Flow(Flow):
             tls_out_data_len = p_tls_out.contents.used
             tls_out_data: bytes = ctypes.string_at(p_tls_out.contents.buf, tls_out_data_len)
             session.certificate_fragment = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
-            reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
+            reply = AuthResponse.create_peap_response(code=PacketCode.CODE_ACCESS_CHALLENGE, request=request, peap=session.certificate_fragment, session_id=session.session_id)
             request.reply_to(reply)
             session.set_reply(reply)
         finally:
@@ -180,7 +181,7 @@ class EapPeapMschapv2Flow(Flow):
     @classmethod
     def peap_challenge_server_hello_fragment(cls, request: AuthRequest, eap: EapPacket, peap: EapPeapPacket, session: EapPeapSession):
         session.certificate_fragment.id = session.current_eap_id
-        reply = AuthResponse.create_peap_challenge(request=request, peap=session.certificate_fragment, session_id=session.session_id)
+        reply = AuthResponse.create_peap_response(code=PacketCode.CODE_ACCESS_CHALLENGE, request=request, peap=session.certificate_fragment, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
 
@@ -208,7 +209,7 @@ class EapPeapMschapv2Flow(Flow):
             tls_out_data_len = p_tls_out.contents.used
             tls_out_data: bytes = ctypes.string_at(p_tls_out.contents.buf, tls_out_data_len)
             peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
-            reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
+            reply = AuthResponse.create_peap_response(code=PacketCode.CODE_ACCESS_CHALLENGE, request=request, peap=peap_reply, session_id=session.session_id)
             request.reply_to(reply)
             session.set_reply(reply)
         finally:
@@ -231,7 +232,7 @@ class EapPeapMschapv2Flow(Flow):
         tls_out_data: bytes = libhostapd.encrypt(session.tls_connection, tls_plaintext, peap_version=session.peap_version)
         #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
-        reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
+        reply = AuthResponse.create_peap_response(code=PacketCode.CODE_ACCESS_CHALLENGE, request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
 
@@ -253,14 +254,13 @@ class EapPeapMschapv2Flow(Flow):
             raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
         account_name = eap_identity.type_data.decode()
         # 保存用户名
-        session.auth_user_profile.set_peap_username(account_name)
+        session.auth_user_profile.packet.set_peap_username(account_name)
         # 查找用户密码
         account = Account.get_(username=account_name)
         if not account or account.is_expired():
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码
-        session.auth_user_profile.set_user_password(account.radius_password)
-        session.auth_user_profile.set_is_enable(account.is_enable)
+        session.auth_user_profile.account.copy_attribute(account)
 
         # 返回数据
         # MSCHAPV2_OP_CHALLENGE(01) + 与EAP_id相同(07) + MSCHAPV2_OP 到结束的长度(00 1c) +
@@ -278,7 +278,7 @@ class EapPeapMschapv2Flow(Flow):
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
         tls_plaintext: bytes = eap_random.ReplyPacket()
         # 保存服务端随机数
-        session.auth_user_profile.set_server_challenge(server_challenge)
+        session.auth_user_profile.packet.set_server_challenge(server_challenge)
 
         # 加密.
         # v0, v1: EAP-PEAP: Encrypting Phase 2 data - hexdump(len=33): 01 07 00 21 1a 01 07 00 1c 10 2d ae 52 bf 07 d0 de 7b 28 c4 d8 d9 8f 87 da 6a 68
@@ -286,7 +286,7 @@ class EapPeapMschapv2Flow(Flow):
         tls_out_data: bytes = libhostapd.encrypt(session.tls_connection, tls_plaintext, peap_version=session.peap_version)
         #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
-        reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
+        reply = AuthResponse.create_peap_response(code=PacketCode.CODE_ACCESS_CHALLENGE, request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
 
@@ -324,16 +324,16 @@ class EapPeapMschapv2Flow(Flow):
         peer_challenge, nt_response, flag, identity = struct.unpack(f'!24s 24s B {username_len}s', mschapv2_random.type_data[5:])
         peer_challenge = peer_challenge[:16]
         # 保存客户端随机数
-        session.auth_user_profile.set_peer_challenge(peer_challenge)
+        session.auth_user_profile.packet.set_peer_challenge(peer_challenge)
 
-        assert identity.decode() == session.auth_user_profile.peap_username
+        assert identity.decode() == session.auth_user_profile.packet.peap_username
         # 计算期望密码哈希值
-        p_username = ctypes.create_string_buffer(session.auth_user_profile.peap_username.encode())
+        p_username = ctypes.create_string_buffer(session.auth_user_profile.account.username.encode())
         l_username_len = ctypes.c_ulonglong(username_len)
-        p_password = ctypes.create_string_buffer(session.auth_user_profile.user_password.encode())
-        l_password_len = ctypes.c_ulonglong(len(session.auth_user_profile.user_password))
+        p_password = ctypes.create_string_buffer(session.auth_user_profile.account.password.encode())
+        l_password_len = ctypes.c_ulonglong(len(session.auth_user_profile.account.password))
         p_expect = libhostapd.call_generate_nt_response(
-            p_auth_challenge=session.auth_user_profile.server_challenge, p_peer_challenge=session.auth_user_profile.peer_challenge,
+            p_auth_challenge=session.auth_user_profile.packet.server_challenge, p_peer_challenge=session.auth_user_profile.packet.peer_challenge,
             p_username=p_username, l_username_len=l_username_len, p_password=p_password, l_password_len=l_password_len,
         )
         expect: bytes = ctypes.string_at(p_expect, len(p_expect))
@@ -346,16 +346,17 @@ class EapPeapMschapv2Flow(Flow):
 
         if not is_correct_password():
             # 密码整错
-            log.error(f'user_password not correct')
+            log.warning(f'input password not correct, hash mismatch')
             # 返回数据 eap_failure
             eap_failure = EapPacket(code=EapPacket.CODE_EAP_FAILURE, id=session.current_eap_id)
             tls_plaintext: bytes = eap_failure.ReplyPacket()
+            code = PacketCode.CODE_ACCESS_REJECT
         else:
             # 计算 md4(password)
             p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
             # 计算返回报文中的 authenticator_response
-            p_peer_challenge = ctypes.create_string_buffer(session.auth_user_profile.peer_challenge)
-            p_auth_challenge = ctypes.create_string_buffer(session.auth_user_profile.server_challenge)
+            p_peer_challenge = ctypes.create_string_buffer(session.auth_user_profile.packet.peer_challenge)
+            p_auth_challenge = ctypes.create_string_buffer(session.auth_user_profile.packet.server_challenge)
             p_nt_response = ctypes.create_string_buffer(nt_response)
             p_out_auth_response = libhostapd.call_generate_authenticator_response_pwhash(
                 p_password_md4=p_password_md4, p_peer_challenge=p_peer_challenge, p_auth_challenge=p_auth_challenge,
@@ -381,13 +382,14 @@ class EapPeapMschapv2Flow(Flow):
             eap_ok = EapPacket(code=EapPacket.CODE_EAP_REQUEST, id=session.current_eap_id,
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
             tls_plaintext: bytes = eap_ok.ReplyPacket()
+            code = PacketCode.CODE_ACCESS_CHALLENGE
         # 加密
         # v0, v1: EAP-PEAP: Encrypting Phase 2 data - hexdump(len=56): 01 07 00 38 1a 03 06 00 33 53 3d 45 37 35 35 44 37 30 42 43 42 42 35 44 31
         # 43 38 41 45 33 35 35 42 30 38 41 42 31 39 36 42 37 45 33 44 42 43 38 46 31 36 20 4d 3d 4f 4b
         tls_out_data: bytes = libhostapd.encrypt(session.tls_connection, tls_plaintext, peap_version=session.peap_version)
         #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
-        reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
+        reply = AuthResponse.create_peap_response(code=code, request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
 
@@ -419,7 +421,7 @@ class EapPeapMschapv2Flow(Flow):
         tls_out_data: bytes = libhostapd.encrypt(session.tls_connection, tls_plaintext)
         #
         peap_reply = EapPeapPacket(code=EapPeapPacket.CODE_EAP_REQUEST, id=session.current_eap_id, tls_data=tls_out_data, flag_version=session.peap_version)
-        reply = AuthResponse.create_peap_challenge(request=request, peap=peap_reply, session_id=session.session_id)
+        reply = AuthResponse.create_peap_response(code=PacketCode.CODE_ACCESS_CHALLENGE, request=request, peap=peap_reply, session_id=session.session_id)
         request.reply_to(reply)
         session.set_reply(reply)
 
@@ -448,7 +450,7 @@ class EapPeapMschapv2Flow(Flow):
             request.nas_ip,
             request.nas_name,
             request.auth_protocol,
-            session.auth_user_profile.peap_username,
+            session.auth_user_profile.packet.peap_username,
             request.user_mac,
             request.ssid,
             request.ap_mac,

@@ -18,7 +18,7 @@ class MsChapFlow(Flow):
     def authenticate_handler(cls, request: AuthRequest, auth_user_profile: AuthUserProfile):
         session = BaseSession(auth_user_profile=auth_user_profile)
         # 查找用户密码
-        account_name = session.auth_user_profile.outer_username
+        account_name = session.auth_user_profile.packet.outer_username
         account = Account.get_(username=account_name)
         if not account or account.is_expired():
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
@@ -31,12 +31,11 @@ class MsChapFlow(Flow):
                 log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, request.ssid: {request.ssid}')
                 raise AccessReject(reason=AccessReject.DATA_WRONG)
         # 保存用户密码
-        session.auth_user_profile.set_user_password(account.radius_password)
-        session.auth_user_profile.set_is_enable(account.is_enable)
+        session.auth_user_profile.account.copy_attribute(account)
 
         ################
-        username = session.auth_user_profile.outer_username
-        user_password = session.auth_user_profile.user_password
+        username = session.auth_user_profile.packet.outer_username
+        account_password = session.auth_user_profile.account.password
         auth_challenge: bytes = request['MS-CHAP-Challenge'][0]
         """ Microsoft Vendor-specific RADIUS Attributes:
                 https://www.rfc-editor.org/rfc/rfc2548.html
@@ -64,8 +63,8 @@ class MsChapFlow(Flow):
         nt_response: bytes = ms_chap2_response[26:50]
         p_username = ctypes.create_string_buffer(username.encode())
         l_username_len = ctypes.c_ulonglong(len(username))
-        p_password = ctypes.create_string_buffer(user_password.encode())
-        l_password_len = ctypes.c_ulonglong(len(user_password))
+        p_password = ctypes.create_string_buffer(account_password.encode())
+        l_password_len = ctypes.c_ulonglong(len(account_password))
         # 计算 md4(password)
         p_password_md4 = libhostapd.call_nt_password_hash(p_password=p_password, l_password_len=l_password_len)
         # 计算返回报文中的 authenticator_response
@@ -98,7 +97,7 @@ class MsChapFlow(Flow):
         if is_correct_password():
             return cls.access_accept(request=request, session=session)
         else:
-            log.error(f'user_password: {session.auth_user_profile.user_password} not correct')
+            log.warning(f'input password not correct, hash mismatch')
             raise AccessReject(reason=AccessReject.PASSWORD_WRONG)
 
     @classmethod
