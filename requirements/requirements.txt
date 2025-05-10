@@ -2,7 +2,6 @@ pytz==2019.1
 certifi==2022.9.14
 greenlet==2.0.2
 gevent==22.10.2
-six==1.15.0
 netaddr==0.8.0
 # pyrad==2.3      # https://github.com/wichert/pyrad.git
 # git+https://github.com/pyradius/pyrad.git@547422f2ee3255a5fd47d7db00ebe4c477018cc6#egg=pyrad
@@ -12,6 +11,5 @@ requests==2.27.0
 peewee==3.17.5
 psycopg2-binary==2.8.6
 redis==3.3.11
-python-dateutil==2.7.5
 sentry_sdk==2.2.0
 loguru==0.7.2

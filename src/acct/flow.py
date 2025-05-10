@@ -16,8 +16,8 @@ class Flow(object):
             request.nas_ip,
             request.nas_name,
             request.iut,
-            str(request.upload_bytes),
-            str(request.download_bytes),
+            str(request.upload_kb),
+            str(request.download_kb),
             acct_user_profile.outer_username,
             acct_user_profile.user_mac,
         ]

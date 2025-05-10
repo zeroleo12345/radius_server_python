@@ -1,3 +1,4 @@
+import math
 # 第三方库
 from pyrad.packet import AuthPacket, AcctPacket, CoAPacket
 from pyrad.dictionary import Dictionary
@@ -115,14 +116,14 @@ class AcctRequest(AcctPacket):
         self.username = self['User-Name'][0]
         self.nas_ip = self['NAS-IP-Address'][0]    # 如果获取自报文字段 self['NAS-IP-Address'][0], 会出现ip更新不及时, 与真实IP不一致的问题
         self.iut = self['Acct-Status-Type'][0]   # I,U,T包. Start-1; Stop-2; Alive-3; Accounting-On-7; Accounting-Off-8;
-        #
+        # https://www.h3c.com/cn/Service/Document_Software/Document_Center/Home/Wlan/00-Public/Configure/Radius_Attribute_List/H3C_RADIUS_V7-19485/
         default_string = (0, 0)
         self.session_time = self.get('Acct-Session-Time', default_string)[0]    # 秒
         self.event_timestamp = self.get('Event-Timestamp', default_string)[0]   # 秒
         _upload_gigabytes = self.get('Acct-Input-Gigawords', default_string)[0]
         _download_gigabytes = self.get('Acct-Output-Gigawords', default_string)[0]
-        self.upload_bytes = _upload_gigabytes * 1073741824 + self.get('Acct-Input-Octets', default_string)[0]
-        self.download_bytes = _download_gigabytes * 1073741824 + self.get('Acct-Output-Octets', default_string)[0]
+        self.upload_kb = math.floor(_upload_gigabytes * 1048576 + self.get('Acct-Input-Octets', default_string)[0] / 1024)
+        self.download_kb = math.floor(_download_gigabytes * 1048576 + self.get('Acct-Output-Octets', default_string)[0] / 1024)
         # optional:
         default_string = ('', 0)
         self.user_mac = self.get('Calling-Station-Id', default_string)[0]

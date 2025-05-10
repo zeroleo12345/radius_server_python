@@ -58,7 +58,7 @@
 #	Following are the proper new names. Use these.
 #
 ATTRIBUTE	User-Name		1	string
-ATTRIBUTE	User-Password		2	string
+ATTRIBUTE	User-Password		2	octets
 ATTRIBUTE	CHAP-Password		3	octets
 ATTRIBUTE	NAS-IP-Address		4	ipaddr
 ATTRIBUTE	NAS-Port		5	integer
@@ -102,8 +102,8 @@ ATTRIBUTE	Acct-Output-Octets	43	integer
 ATTRIBUTE	Acct-Session-Id		44	string
 ATTRIBUTE	Acct-Authentic		45	integer
 ATTRIBUTE	Acct-Session-Time	46	integer
-ATTRIBUTE       Acct-Input-Packets	47	integer
-ATTRIBUTE       Acct-Output-Packets	48	integer
+ATTRIBUTE   Acct-Input-Packets	47	integer
+ATTRIBUTE   Acct-Output-Packets	48	integer
 ATTRIBUTE	Acct-Terminate-Cause	49	integer
 ATTRIBUTE	Acct-Multi-Session-Id	50	string
 ATTRIBUTE	Acct-Link-Count		51	integer
@@ -111,10 +111,10 @@ ATTRIBUTE	Acct-Input-Gigawords    52      integer
 ATTRIBUTE	Acct-Output-Gigawords   53      integer
 ATTRIBUTE	Event-Timestamp         55      date
 
-ATTRIBUTE	CHAP-Challenge		60	string
+ATTRIBUTE	CHAP-Challenge		60	octets
 ATTRIBUTE	NAS-Port-Type		61	integer
 ATTRIBUTE	Port-Limit		62	integer
-ATTRIBUTE	Login-LAT-Port		63	integer
+ATTRIBUTE	Login-LAT-Port		63	string
 
 ATTRIBUTE	Acct-Tunnel-Connection	68	string
 
@@ -127,7 +127,7 @@ ATTRIBUTE	Password-Retry          75      integer
 ATTRIBUTE	Prompt                  76      integer
 ATTRIBUTE	Connect-Info		77	string
 ATTRIBUTE	Configuration-Token	78	string
-ATTRIBUTE	EAP-Message		79	string
+ATTRIBUTE	EAP-Message		79	octets
 ATTRIBUTE	Message-Authenticator	80	octets
 ATTRIBUTE	ARAP-Challenge-Response	84	string	# 10 octets
 ATTRIBUTE	Acct-Interim-Interval   85      integer
@@ -264,7 +264,7 @@ VALUE		Login-Service		PortMaster		3
 VALUE		Login-Service		LAT			4
 VALUE		Login-Service		X25-PAD			5
 VALUE		Login-Service		X25-T3POS		6
-VALUE		Login-Service		TCP-Clear-Quiet		7
+VALUE		Login-Service		TCP-Clear-Quiet		8
 
 #	Login-TCP-Port		(see /etc/services for more examples)
 

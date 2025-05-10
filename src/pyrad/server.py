@@ -114,7 +114,7 @@ class Server(host.Host):
         """
         results = set()
         try:
-            tmp = socket.getaddrinfo(addr, 'www')
+            tmp = socket.getaddrinfo(addr, 80)
         except socket.gaierror:
             return []
 
@@ -125,8 +125,8 @@ class Server(host.Host):
 
 
     def BindToAddress(self, addr):
-        """Add an address to listen to.
-        An empty string indicated you want to listen on all addresses.
+        """Add an address to listen on a specific interface.
+        String "0.0.0.0" indicates you want to listen on all interfaces.
 
         :param addr: IP address to listen on
         :type  addr: string
@@ -247,7 +247,6 @@ class Server(host.Host):
         :type  pkt: Packet class instance
         """
         self._AddSecret(pkt)
-        pkt.secret = self.hosts[pkt.source[0]].secret
         if pkt.code == packet.CoARequest:
             self.HandleCoaPacket(pkt)
         elif pkt.code == packet.DisconnectRequest:

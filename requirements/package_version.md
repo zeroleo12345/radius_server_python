@@ -33,12 +33,10 @@ loguru==0.5.3
 netaddr==0.8.0
 pycparser==2.21
 PyMySQL==0.9.3
-python-dateutil==2.7.5
 pytz==2019.1
 redis==3.3.11
 requests==2.20.0
 sentry-sdk==0.5.5
-six==1.15.0
 typing_extensions==4.1.1
 urllib3==1.24.3
 zipp==3.6.0

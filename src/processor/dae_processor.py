@@ -96,7 +96,7 @@ class DAEClient(object):
         # 发送报文
         try:
             self.socket.sendto(request.RequestPacket(), request.address)
-            res_data, from_address = self.socket.recvfrom(1024)
+            res_data, from_address = self.socket.recvfrom(__bufsize=1024)
         except Exception as e:
             log.error(traceback.format_exc())
             return False
