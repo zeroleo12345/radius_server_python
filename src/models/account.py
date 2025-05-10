@@ -21,7 +21,6 @@ class Account(models.Model, BaseModel):
     role = models.CharField(max_length=32)
     username = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
-    radius_password = models.CharField(max_length=255)
     expired_at = models.DateTimeField()
     #
     created_at = models.DateTimeField()

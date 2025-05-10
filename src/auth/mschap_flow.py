@@ -31,8 +31,7 @@ class MsChapFlow(Flow):
                 log.error(f'platform ssid not match. platform_ssid: {platform.ssid}, request.ssid: {request.ssid}')
                 raise AccessReject(reason=AccessReject.DATA_WRONG)
         # 保存用户密码
-        session.auth_user_profile.set_user_password(account.radius_password)
-        session.auth_user_profile.set_is_enable(account.is_enable)
+        session.auth_user_profile.account.copy_attribute(account)
 
         ################
         username = session.auth_user_profile.outer_username

@@ -253,7 +253,7 @@ class EapPeapMschapv2Flow(Flow):
             raise AccessReject(reason=AccessReject.UNKNOWN_ERROR)
         account_name = eap_identity.type_data.decode()
         # 保存用户名
-        session.auth_user_profile.set_peap_username(account_name)
+        session.auth_user_profile.packet.set_peap_username(account_name)
         # 查找用户密码
         account = Account.get_(username=account_name)
         if not account or account.is_expired():
@@ -278,7 +278,7 @@ class EapPeapMschapv2Flow(Flow):
                                type_dict={'type': EapPacket.TYPE_EAP_MSCHAPV2, 'type_data': type_data})
         tls_plaintext: bytes = eap_random.ReplyPacket()
         # 保存服务端随机数
-        session.auth_user_profile.set_server_challenge(server_challenge)
+        session.auth_user_profile.packet.set_server_challenge(server_challenge)
 
         # 加密.
         # v0, v1: EAP-PEAP: Encrypting Phase 2 data - hexdump(len=33): 01 07 00 21 1a 01 07 00 1c 10 2d ae 52 bf 07 d0 de 7b 28 c4 d8 d9 8f 87 da 6a 68
@@ -324,7 +324,7 @@ class EapPeapMschapv2Flow(Flow):
         peer_challenge, nt_response, flag, identity = struct.unpack(f'!24s 24s B {username_len}s', mschapv2_random.type_data[5:])
         peer_challenge = peer_challenge[:16]
         # 保存客户端随机数
-        session.auth_user_profile.set_peer_challenge(peer_challenge)
+        session.auth_user_profile.packet.set_peer_challenge(peer_challenge)
 
         assert identity.decode() == session.auth_user_profile.peap_username
         # 计算期望密码哈希值

@@ -229,15 +229,14 @@ class EapPeapGtcFlow(Flow):
         eap_identity = EapPacket.parse(packet=tls_decrypt_data)
         account_name = eap_identity.type_data.decode()
         # 保存用户名
-        session.auth_user_profile.set_peap_username(account_name)
+        session.auth_user_profile.packet.set_peap_username(account_name)
 
         # 查找用户密码
         account = Account.get_(username=account_name)
         if not account or account.is_expired():
             raise AccessReject(reason=AccessReject.ACCOUNT_EXPIRED)
         # 保存用户密码
-        session.auth_user_profile.set_user_password(account.radius_password)
-        session.auth_user_profile.set_is_enable(account.is_enable)
+        session.auth_user_profile.account.copy_attribute(account)
 
         # 返回数据
         response_data = b'Password'
