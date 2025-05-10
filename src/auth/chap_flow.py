@@ -29,7 +29,7 @@ class ChapFlow(Flow):
         if is_correct_password():
             return cls.access_accept(request=request, session=session)
         else:
-            log.error(f'user_password: {session.auth_user_profile.packet.user_password} not correct')
+            log.error(f'input_password: {session.auth_user_profile.packet.input_password} not correct')
             raise AccessReject(reason=AccessReject.PASSWORD_WRONG)
 
     @classmethod

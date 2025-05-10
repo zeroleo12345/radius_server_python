@@ -22,7 +22,7 @@ class _Packet(object):
         self.user_mac = user_mac
         self.server_challenge: bytes = b''
         self.peer_challenge: bytes = b''
-        self.user_password: str = ''
+        self.input_password: str = ''
 
     def set_peap_username(self, account_name: str):
         self.peap_username = account_name
