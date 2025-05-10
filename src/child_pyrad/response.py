@@ -7,6 +7,7 @@ from .eap_packet import EapPacket
 from .eap_peap_packet import EapPeapPacket
 from .packet import PacketProtocol
 from controls.stat import UserStat
+from models.speed import Speed
 from settings import ACCOUNTING_INTERVAL
 from loguru import logger as log
 import typing
@@ -34,14 +35,16 @@ class AuthResponse(AuthPacket):
         reply['Acct-Interim-Interval'] = ACCOUNTING_INTERVAL    # ATTRIBUTE	Acct-Interim-Interval   85    integer
         mega_bit = 1000000  # 1M bit = 1000000
         if request.auth_protocol in [PacketProtocol.CHAP_PROTOCOL, PacketProtocol.PAP_PROTOCOL]:
-            reply['Class'] = uuid4().hex.encode()
-            # 上载速度. 用户到NAS的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            log.info(f'speed_id: {auth_user_profile.account.speed_id}')
-            reply['H3C-Input-Average-Rate'] = int(8 * mega_bit)
-            reply['H3C-Input-Peak-Rate'] = int(10 * mega_bit)
-            # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
-            reply['H3C-Output-Average-Rate'] = int(50 * mega_bit)
-            reply['H3C-Output-Peak-Rate'] = int(60 * mega_bit)
+            if auth_user_profile.account.username:
+                speed = Speed.get_(speed_id=auth_user_profile.account.speed_id)
+                log.info(f'up_avg_rate: {speed.up_avg_rate}, up_peak_rate: {speed.up_peak_rate}, down_avg_rate: {speed.down_avg_rate}, down_peak_rate: {speed.down_peak_rate}')
+                reply['Class'] = uuid4().hex.encode()
+                # 上载速度. 用户到NAS的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
+                reply['H3C-Input-Average-Rate'] = int(speed.up_avg_rate * mega_bit)
+                reply['H3C-Input-Peak-Rate'] = int(speed.up_peak_rate * mega_bit)
+                # 下载速度. NAS到用户的峰值速率. 单位是bps:(即1/8字节每秒). 此参数对PPPoE用户有效, wlan用户无效
+                reply['H3C-Output-Average-Rate'] = int(speed.down_avg_rate * mega_bit)
+                reply['H3C-Output-Peak-Rate'] = int(speed.down_peak_rate * mega_bit)
         if request.auth_protocol in [PacketProtocol.EAP_PEAP_MSCHAPV2_PROTOCOL, PacketProtocol.EAP_PEAP_GTC_PROTOCOL, PacketProtocol.MSCHAPV2_PROTOCOL, PacketProtocol.MAC_PROTOCOL]:
             # User Profile 适用于wlan和PPPoE用户. 当AC profile disable时, 会连不上WIFi
             reply['Filter-Id'] = f'pay_user_100m'

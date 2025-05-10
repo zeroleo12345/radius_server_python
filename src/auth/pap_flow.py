@@ -26,7 +26,7 @@ class PapFlow(Flow):
 
     @classmethod
     def pap_auth(cls, request: AuthRequest, session: BaseSession):
-        log.info(f'PAP username: {request.username}, password: {session.auth_user_profile.packet.input_password}')
+        log.info(f'PAP username: {request.username}, input_password: {session.auth_user_profile.packet.input_password}')
         session.extra['Auth-Type'] = 'PAP'
         return cls.access_accept(request=request, session=session)
 
