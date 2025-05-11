@@ -27,13 +27,13 @@ class AuthRequest(AuthPacket):
             # access-request 需要 Message-Authenticator 字段验证报文合法性; 报文头Authenticator字段是随机生成的
             # log.warning(f'VerifyAuthRequest failed from address: {address}, authenticator: {self.authenticator}')
             assert self.authenticator != b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+            self.username = self['User-Name'][0]
+            self.nas_ip = self['NAS-IP-Address'][0]  # 如果获取自报文字段 self['NAS-IP-Address'][0], 会出现ip更新不及时, 与真实IP不一致的问题
         except Exception as e:
             raise PacketError(str(e))
-        self.socket, self.address = socket, address
+
         # 报文提取
-        # self['Service-Type'][0] 和 self['Service-Type'][1] 分别对应字典 dictionary.pyrad 里面 VALUE Service-Type Call-Check 10 的第1个和第2个值
-        self.username = self['User-Name'][0]
-        self.nas_ip = self['NAS-IP-Address'][0]    # 如果获取自报文字段 self['NAS-IP-Address'][0], 会出现ip更新不及时, 与真实IP不一致的问题
+        # self['Service-Type'][0] 和 self['Service-Type'][1] 对应字典 VALUE Service-Type Call-Check 10 中的字符串 Call-Check 和值 10
         # optional:
         default_string = ('', 0)
         self.user_mac = self.get('Calling-Station-Id', default_string)[0]
@@ -47,6 +47,7 @@ class AuthRequest(AuthPacket):
                 self.ap_mac, self.ssid = self.ap_mac.split(':', 1)
 
         self.auth_protocol = 'UNKNOWN-AUTH'
+        self.socket, self.address = socket, address
 
     def get_service_type(self) -> str:
         return self['Service-Type'][0]     # 2: Framed; 10: Call-Check;  https://datatracker.ietf.org/doc/html/rfc2865#page-31
@@ -109,13 +110,13 @@ class AcctRequest(AcctPacket):
             init_packet_from_receive(super(), code=self.code, id=0, secret=secret, authenticator=None, dict=dict, packet=packet)
             # account-request 可使用 Authenticator 字段验证报文合法性
             assert self.VerifyAcctRequest()
+            self.username = self['User-Name'][0]
+            self.nas_ip = self['NAS-IP-Address'][0]  # 如果获取自报文字段 self['NAS-IP-Address'][0], 会出现ip更新不及时, 与真实IP不一致的问题
+            self.iut = self['Acct-Status-Type'][0]  # I,U,T包. Start-1; Stop-2; Alive-3; Accounting-On-7; Accounting-Off-8;
         except Exception as e:
             raise PacketError(str(e))
-        self.socket, self.address = socket, address
+
         # 报文提取
-        self.username = self['User-Name'][0]
-        self.nas_ip = self['NAS-IP-Address'][0]    # 如果获取自报文字段 self['NAS-IP-Address'][0], 会出现ip更新不及时, 与真实IP不一致的问题
-        self.iut = self['Acct-Status-Type'][0]   # I,U,T包. Start-1; Stop-2; Alive-3; Accounting-On-7; Accounting-Off-8;
         # https://www.h3c.com/cn/Service/Document_Software/Document_Center/Home/Wlan/00-Public/Configure/Radius_Attribute_List/H3C_RADIUS_V7-19485/
         default_string = (0, 0)
         self.session_time = self.get('Acct-Session-Time', default_string)[0]    # 秒
@@ -129,6 +130,7 @@ class AcctRequest(AcctPacket):
         self.user_mac = self.get('Calling-Station-Id', default_string)[0]
         self.auth_class = self.get('Class', default_string)[0]
         self.nas_name = self.get('NAS-Identifier', default_string)[0]
+        self.socket, self.address = socket, address
 
     def reply_to(self, reply: AcctPacket):
         log.trace(f'reply: {reply}')

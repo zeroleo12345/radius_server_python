@@ -7,12 +7,14 @@ x-logging: &default-logging-settings
     driver: "json-file"
     options:
       max-size: "10m"
+      max-file: "1"
       tag: "radius_server.{{.Name}}.{{.ID}}"
 
   no_tag_logging: &no_tag_logging
     driver: "json-file"
     options:
       max-size: "10m"
+      max-file: "1"
 
 
 services:
