@@ -26,8 +26,7 @@ services:
        context: .
        dockerfile: ./docker/Dockerfile
     ports:
-      - "0.0.0.0:1812:1812/udp"   # IPv4
-      - "[::]:1812:1812/udp"      # IPv6
+      - "1812:1812/udp"   # IPv4 and IPv6
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
       # RADIUS_LISTEN_IP: "0.0.0.0"
@@ -53,8 +52,7 @@ services:
        context: .
        dockerfile: ./docker/Dockerfile
     ports:
-      - "0.0.0.0:2812:1812/udp"   # IPv4
-      - "[::]:2812:1812/udp"      # IPv6
+      - "2812:1812/udp"   # IPv4 and IPv6
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
       RADIUS_LISTEN_IP: "0.0.0.0"
@@ -78,6 +76,7 @@ services:
        dockerfile: ./docker/Dockerfile
     ports:
       - "0.0.0.0:1813:1813/udp"   # IPv4
+      # - "[::]:1813:1813/udp"      # IPv6
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/acct.sh}"
       RADIUS_LISTEN_IP: "0.0.0.0"
