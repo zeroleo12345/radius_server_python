@@ -18,7 +18,7 @@ from auth.pap_flow import PapFlow
 from auth.mac_flow import MacFlow
 from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT
 from loguru import logger as log
 from controls.user import AuthUserProfile
 from utils.config import config
@@ -47,8 +47,8 @@ class RadiusServer(DatagramServer):
         try:
             request = AuthRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
-        except PacketError as e:
-            log.warning(f'packet corrupt from {address}, {str(e)}')
+        except PacketError:
+            log.warning(f'packet corrupt from {address}')
             return
         except Exception as e:
             log.error(traceback.format_exc())
@@ -101,27 +101,18 @@ def verify_user(request: AuthRequest, auth_user_profile: AuthUserProfile):
 
 def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
-
-    # ipv4
-    listen_ip = '0.0.0.0'
-    log.debug(f'listening on {listen_ip}:{RADIUS_PORT}')
-    server_ipv4 = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{RADIUS_PORT}')
-
-    # ipv6
-    listen_ip = '::'
-    log.debug(f'listening on {listen_ip}:{RADIUS_PORT}')
-    server_ipv6 = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{RADIUS_PORT}')
+    assert RADIUS_LISTEN_IP and RADIUS_LISTEN_PORT
+    log.debug(f'listening on {RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}')
+    server = RadiusServer(dictionary=dictionary, listener=f'{RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}')
 
     def shutdown():
         log.info('exit gracefully')
-        server_ipv4.close()
-        server_ipv6.close()
+        server.close()
     signal_handler(SIGTERM, shutdown)
     #
     try:
         libhostapd.init()
-        server_ipv4.serve_forever(stop_timeout=3)
-        server_ipv6.serve_forever(stop_timeout=3)
+        server.serve_forever(stop_timeout=3)
     finally:
         shutdown()
         libhostapd.deinit()     # must deinit after server stopped

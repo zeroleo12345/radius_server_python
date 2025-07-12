@@ -18,7 +18,8 @@ sentry_sdk.init(
 
 RADIUS_DICTIONARY_DIR = config('RADIUS_DICTIONARY_DIR')
 RADIUS_SECRET: bytes = str.encode(config('RADIUS_SECRET'))
-RADIUS_PORT = config('RADIUS_PORT')
+RADIUS_LISTEN_IP = config('RADIUS_LISTEN_IP', default='')
+RADIUS_LISTEN_PORT = config('RADIUS_LISTEN_PORT', default='')
 ACCOUNTING_INTERVAL = config('ACCOUNTING_INTERVAL', default=60, cast='@int')
 API_URL = config('API_URL')
 
