@@ -101,19 +101,27 @@ def verify_user(request: AuthRequest, auth_user_profile: AuthUserProfile):
 
 def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
+
+    # ipv4
     listen_ip = '0.0.0.0'
-    listen_port = RADIUS_PORT
-    log.debug(f'listening on {listen_ip}:{listen_port}')
-    server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
+    log.debug(f'listening on {listen_ip}:{RADIUS_PORT}')
+    server_ipv4 = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{RADIUS_PORT}')
+
+    # ipv6
+    listen_ip = '::'
+    log.debug(f'listening on {listen_ip}:{RADIUS_PORT}')
+    server_ipv6 = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{RADIUS_PORT}')
 
     def shutdown():
         log.info('exit gracefully')
-        server.close()
+        server_ipv4.close()
+        server_ipv6.close()
     signal_handler(SIGTERM, shutdown)
     #
     try:
         libhostapd.init()
-        server.serve_forever(stop_timeout=3)
+        server_ipv4.serve_forever(stop_timeout=3)
+        server_ipv6.serve_forever(stop_timeout=3)
     finally:
         shutdown()
         libhostapd.deinit()     # must deinit after server stopped
