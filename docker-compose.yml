@@ -29,8 +29,8 @@ services:
       - "1812:1812/udp"
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
-      RADIUS_LISTEN_IP: 0.0.0.0
-      RADIUS_LISTEN_PORT: 1812
+      RADIUS_LISTEN_IP: "0.0.0.0"
+      RADIUS_LISTEN_PORT: "1812"
     volumes:
       - .:/app
       - ./data:/data
@@ -54,8 +54,8 @@ services:
       - "2812:1812/udp"
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
-      RADIUS_LISTEN_IP: 0.0.0.0
-      RADIUS_LISTEN_PORT: 1812
+      RADIUS_LISTEN_IP: "0.0.0.0"
+      RADIUS_LISTEN_PORT: "1812"
     volumes:
       - .:/app
       - ./data:/data
@@ -77,8 +77,8 @@ services:
       - "1813:1813/udp"
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/acct.sh}"
-      RADIUS_LISTEN_IP: 0.0.0.0
-      RADIUS_LISTEN_PORT: 1813
+      RADIUS_LISTEN_IP: "0.0.0.0"
+      RADIUS_LISTEN_PORT: "1813"
     volumes:
       - .:/app
       - ./data:/data
