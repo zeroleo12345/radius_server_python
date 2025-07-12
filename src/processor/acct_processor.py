@@ -33,7 +33,7 @@ class RadiusServer(DatagramServer):
             request = AcctRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
         except PacketError as e:
-            log.warning(f'packet corrupt from {address}, str{e}')
+            log.warning(f'packet corrupt from {address}, {str(e)}')
             return
         except Exception as e:
             log.error(traceback.format_exc())
