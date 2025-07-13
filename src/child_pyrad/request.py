@@ -1,4 +1,5 @@
 import math
+from ipaddress import IPv6Address
 # 第三方库
 from pyrad.packet import AuthPacket, AcctPacket, CoAPacket
 from pyrad.dictionary import Dictionary
@@ -31,7 +32,8 @@ class AuthRequest(AuthPacket):
             default_bytes = (b'', 0)
             nas_ipv4 = self.get('NAS-IP-Address', default_bytes)[0]
             nas_ipv6 = self.get('NAS-IPv6-Address', default_bytes)[0]
-            self.nas_ip = nas_ipv4 or nas_ipv6.decode()  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
+            log.info(f'NAS-IPv6-Address: {nas_ipv6}')
+            self.nas_ip = nas_ipv4 or IPv6Address(nas_ipv6)  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
             assert self.nas_ip
         except Exception as e:
             raise PacketError(str(e))
@@ -118,7 +120,7 @@ class AcctRequest(AcctPacket):
             default_bytes = (b'', 0)
             nas_ipv4 = self.get('NAS-IP-Address', default_bytes)[0]
             nas_ipv6 = self.get('NAS-IPv6-Address', default_bytes)[0]
-            self.nas_ip = nas_ipv4 or nas_ipv6.decode()  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
+            self.nas_ip = nas_ipv4 or IPv6Address(nas_ipv6)  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
             self.iut = self['Acct-Status-Type'][0]  # I,U,T包. Start-1; Stop-2; Alive-3; Accounting-On-7; Accounting-Off-8;
         except Exception as e:
             # repr将对象转化为供解释器读取的形式
