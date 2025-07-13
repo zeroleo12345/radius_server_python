@@ -36,7 +36,7 @@ class AuthRequest(AuthPacket):
             self.nas_ip = nas_ipv4 or str(IPv6Address(nas_ipv6))  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
             assert self.nas_ip
         except Exception as e:
-            raise PacketError(str(e))
+            raise PacketError(repr(e))
 
         # 报文提取
         # self['Service-Type'][0] 和 self['Service-Type'][1] 对应字典 VALUE Service-Type Call-Check 10 中的字符串 Call-Check 和值 10
