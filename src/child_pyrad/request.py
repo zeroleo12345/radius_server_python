@@ -32,7 +32,7 @@ class AuthRequest(AuthPacket):
             default_bytes = (b'', 0)
             nas_ipv4 = self.get('NAS-IP-Address', default_bytes)[0]
             nas_ipv6 = self.get('NAS-IPv6-Address', default_bytes)[0]
-            log.info(f'NAS-IPv6-Address: {nas_ipv6}')
+            # log.info(f'NAS-IPv6-Address: {nas_ipv6}')
             self.nas_ip = nas_ipv4 or str(IPv6Address(nas_ipv6))  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
             assert self.nas_ip
         except Exception as e:
