@@ -105,11 +105,16 @@ def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
 
     address_family = socket.AF_INET6 if ':' in RADIUS_LISTEN_IP else socket.AF_INET
+    sock = socket.socket(address_family, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)  # 可选：允许 IPv4
+    sock.bind((RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT))
+
     log.debug(f'listening on {RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}, family: {address_family}')
     server = RadiusServer(
         dictionary=dictionary,
-        # listener=(address_family, (RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT)),
-        listener=f'{RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}',
+        listener=sock,
+        # listener=f'{RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}',
     )
 
     def shutdown():
