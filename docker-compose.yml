@@ -26,10 +26,11 @@ services:
        context: .
        dockerfile: ./docker/Dockerfile
     ports:
-      - "1812:1812/udp"
+      - "1812:1812/udp"   # IPv4 and IPv6
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
-      RADIUS_PORT: 1812
+      RADIUS_LISTEN_IP: "0.0.0.0"
+      RADIUS_LISTEN_PORT: "1812"
     volumes:
       - .:/app
       - ./data:/data
@@ -50,10 +51,12 @@ services:
        context: .
        dockerfile: ./docker/Dockerfile
     ports:
-      - "2812:1812/udp"
+      - "2812:2812/udp"   # IPv4 and IPv6
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
-      RADIUS_PORT: 1812
+      RADIUS_LISTEN_IP: "0.0.0.0"
+      # RADIUS_LISTEN_IP: "::"
+      RADIUS_LISTEN_PORT: "2812"
     volumes:
       - .:/app
       - ./data:/data
@@ -72,10 +75,12 @@ services:
        context: .
        dockerfile: ./docker/Dockerfile
     ports:
-      - "1813:1813/udp"
+      - "0.0.0.0:1813:1813/udp"   # IPv4
+      # - "[::]:1813:1813/udp"      # IPv6
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/acct.sh}"
-      RADIUS_PORT: 1813
+      RADIUS_LISTEN_IP: "0.0.0.0"
+      RADIUS_LISTEN_PORT: "1813"
     volumes:
       - .:/app
       - ./data:/data
@@ -88,16 +93,14 @@ services:
 
 
   dae:
+    # request send to Access-Controller port 3799
     platform: linux/amd64
     container_name: radius_dae
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    ports:
-      - "3799:3799/udp"
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/dae.sh}"
-      RADIUS_PORT: 3799
     volumes:
       - .:/app
       - ./data:/data

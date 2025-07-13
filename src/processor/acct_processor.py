@@ -1,3 +1,4 @@
+import socket
 import traceback
 from signal import SIGTERM
 import sentry_sdk
@@ -10,7 +11,7 @@ from child_pyrad.exception import PacketError
 from acct.accounting_flow import AccountingFlow
 from acct.flow import Flow
 from child_pyrad.dictionary import get_dictionaries
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT
 from loguru import logger as log
 from child_pyrad.request import AcctRequest
 from controls.user import AcctUserProfile
@@ -57,11 +58,23 @@ def verify_user(request: AcctRequest, acct_user_profile: AcctUserProfile):
 
 
 def main():
+    assert RADIUS_LISTEN_IP and RADIUS_LISTEN_PORT
+
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
-    listen_ip = '0.0.0.0'
-    listen_port = 1813
-    log.debug(f'listening on {listen_ip}:{listen_port}')
-    server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
+
+    address_family = socket.AF_INET6 if ':' in RADIUS_LISTEN_IP else socket.AF_INET
+
+    sock = socket.socket(address_family, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind((RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT))
+
+    log.debug(f'listening on {RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}, family: {str(address_family)}')
+    server = RadiusServer(
+        dictionary=dictionary,
+        listener=sock,
+        # listener=f'{RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}',
+    )
+
     acct_thread = AcctThread()
     acct_thread.start()
 

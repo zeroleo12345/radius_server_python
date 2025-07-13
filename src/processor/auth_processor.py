@@ -1,9 +1,9 @@
-import os
 import traceback
 from signal import SIGTERM
 # 第三方库
 from gevent import signal_handler
 from gevent.server import DatagramServer
+from gevent import socket
 from pyrad.dictionary import Dictionary
 import sentry_sdk
 # 项目库
@@ -18,7 +18,7 @@ from auth.pap_flow import PapFlow
 from auth.mac_flow import MacFlow
 from auth.eap_peap_gtc_flow import EapPeapGtcFlow
 from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
-from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_PORT
+from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT
 from loguru import logger as log
 from controls.user import AuthUserProfile
 from utils.config import config
@@ -100,11 +100,22 @@ def verify_user(request: AuthRequest, auth_user_profile: AuthUserProfile):
 
 
 def main():
+    assert RADIUS_LISTEN_IP and RADIUS_LISTEN_PORT
+
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
-    listen_ip = '0.0.0.0'
-    listen_port = RADIUS_PORT
-    log.debug(f'listening on {listen_ip}:{listen_port}')
-    server = RadiusServer(dictionary=dictionary, listener=f'{listen_ip}:{listen_port}')
+
+    address_family = socket.AF_INET6 if ':' in RADIUS_LISTEN_IP else socket.AF_INET
+
+    sock = socket.socket(address_family, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind((RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT))
+
+    log.debug(f'listening on {RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}, family: {str(address_family)}')
+    server = RadiusServer(
+        dictionary=dictionary,
+        listener=sock,
+        # listener=f'{RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}',
+    )
 
     def shutdown():
         log.info('exit gracefully')
