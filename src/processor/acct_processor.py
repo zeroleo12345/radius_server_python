@@ -63,7 +63,7 @@ def main():
     dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
 
     address_family = socket.AF_INET6 if ':' in RADIUS_LISTEN_IP else socket.AF_INET
-    log.debug(f'listening on {RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}, family: {address_family}')
+    log.debug(f'listening on {RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}, family: {str(address_family)}')
     server = RadiusServer(
         dictionary=dictionary,
         # listener=(address_family, (RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT)),
