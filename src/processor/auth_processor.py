@@ -108,7 +108,8 @@ def main():
     log.debug(f'listening on {RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}, family: {address_family}')
     server = RadiusServer(
         dictionary=dictionary,
-        listener=(address_family, (RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT))
+        # listener=(address_family, (RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT)),
+        listener=f'{RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}',
     )
 
     def shutdown():
