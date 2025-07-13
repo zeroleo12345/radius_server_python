@@ -28,10 +28,10 @@ class AuthRequest(AuthPacket):
             # log.warning(f'VerifyAuthRequest failed from address: {address}, authenticator: {self.authenticator}')
             assert self.authenticator != b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
             self.username = self['User-Name'][0]
-            default_string = ('', 0)
-            nas_ipv4 = self.get('NAS-IP-Address', default_string)[0]
-            nas_ipv6 = str(self.get('NAS-IPv6-Address', default_string)[0])
-            self.nas_ip = nas_ipv4 or nas_ipv6  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
+            default_bytes = (b'', 0)
+            nas_ipv4 = self.get('NAS-IP-Address', default_bytes)[0]
+            nas_ipv6 = self.get('NAS-IPv6-Address', default_bytes)[0]
+            self.nas_ip = nas_ipv4 or nas_ipv6.decode()  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
             assert self.nas_ip
         except Exception as e:
             raise PacketError(str(e))
@@ -115,11 +115,10 @@ class AcctRequest(AcctPacket):
             # account-request 可使用 Authenticator 字段验证报文合法性
             assert self.VerifyAcctRequest()
             self.username = self['User-Name'][0]
-            default_string = ('', 0)
-            nas_ipv4 = self.get('NAS-IP-Address', default_string)[0]
-            nas_ipv6 = str(self.get('NAS-IPv6-Address', default_string)[0])
-            self.nas_ip = nas_ipv4 or nas_ipv6  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
-            assert self.nas_ip
+            default_bytes = (b'', 0)
+            nas_ipv4 = self.get('NAS-IP-Address', default_bytes)[0]
+            nas_ipv6 = self.get('NAS-IPv6-Address', default_bytes)[0]
+            self.nas_ip = nas_ipv4 or nas_ipv6.decode()  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
             self.iut = self['Acct-Status-Type'][0]  # I,U,T包. Start-1; Stop-2; Alive-3; Accounting-On-7; Accounting-Off-8;
         except Exception as e:
             # repr将对象转化为供解释器读取的形式
