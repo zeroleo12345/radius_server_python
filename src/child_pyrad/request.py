@@ -30,7 +30,7 @@ class AuthRequest(AuthPacket):
             self.username = self['User-Name'][0]
             default_string = ('', 0)
             nas_ipv4 = self.get('NAS-IP-Address', default_string)[0]
-            nas_ipv6 = self.get('NAS-IPv6-Address', default_string)[0]
+            nas_ipv6 = str(self.get('NAS-IPv6-Address', default_string)[0])
             self.nas_ip = nas_ipv4 or nas_ipv6  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
             assert self.nas_ip
         except Exception as e:
@@ -117,7 +117,7 @@ class AcctRequest(AcctPacket):
             self.username = self['User-Name'][0]
             default_string = ('', 0)
             nas_ipv4 = self.get('NAS-IP-Address', default_string)[0]
-            nas_ipv6 = self.get('NAS-IPv6-Address', default_string)[0]
+            nas_ipv6 = str(self.get('NAS-IPv6-Address', default_string)[0])
             self.nas_ip = nas_ipv4 or nas_ipv6  # 如果获取自报文字段 NAS-IP-Address, 会出现ip更新不及时, 与真实IP不一致的问题
             assert self.nas_ip
             self.iut = self['Acct-Status-Type'][0]  # I,U,T包. Start-1; Stop-2; Alive-3; Accounting-On-7; Accounting-Off-8;
