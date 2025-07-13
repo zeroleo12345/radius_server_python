@@ -87,10 +87,6 @@ cat README.md
 
 ### Authenticate: `CHAP`
 
-enter into authenticate container: `docker compose exec auth bash`
-
-run simulator in container:
-
 ```bash
 docker compose exec simulator bash
 
@@ -162,8 +158,6 @@ radclient -D /app/tools/simulator/etc/dictionary -d /app/etc/dictionary acct:181
 ## Send Dynamic Authorization Extensions request with simulator
   
 ### disconnect
-
-enter into accounting container: `docker compose exec dae bash` 
 
 run simulator in container directory `/app/tools/simulator/bin`:
 
