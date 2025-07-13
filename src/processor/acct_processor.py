@@ -1,3 +1,4 @@
+import socket
 import traceback
 from signal import SIGTERM
 import sentry_sdk
@@ -57,10 +58,17 @@ def verify_user(request: AcctRequest, acct_user_profile: AcctUserProfile):
 
 
 def main():
-    dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
     assert RADIUS_LISTEN_IP and RADIUS_LISTEN_PORT
-    log.debug(f'listening on {RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}')
-    server = RadiusServer(dictionary=dictionary, listener=f'{RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}')
+
+    dictionary = Dictionary(*get_dictionaries(RADIUS_DICTIONARY_DIR))
+
+    address_family = socket.AF_INET6 if ':' in RADIUS_LISTEN_IP else socket.AF_INET
+    log.debug(f'listening on {RADIUS_LISTEN_IP}:{RADIUS_LISTEN_PORT}, family: {address_family}')
+    server = RadiusServer(
+        dictionary=dictionary,
+        listener=(address_family, (RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT))
+    )
+
     acct_thread = AcctThread()
     acct_thread.start()
 

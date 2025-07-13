@@ -29,6 +29,7 @@ services:
       - "1812:1812/udp"   # IPv4 and IPv6
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
+      RADIUS_LISTEN_FAMILY: "socket.AF_INET6"  # ipv4: socket.AF_INET; ipv6: socket.AF_INET6
       RADIUS_LISTEN_IP: "0.0.0.0"
       RADIUS_LISTEN_PORT: "1812"
     volumes:
