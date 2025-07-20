@@ -21,7 +21,6 @@ RADIUS_SECRET: bytes = str.encode(config('RADIUS_SECRET'))
 RADIUS_LISTEN_IP = config('RADIUS_LISTEN_IP', default='')
 RADIUS_LISTEN_PORT = config('RADIUS_LISTEN_PORT', default='')
 ACCOUNTING_INTERVAL = config('ACCOUNTING_INTERVAL', default=60, cast='@int')
-log.info(f'accouting interval: {ACCOUNTING_INTERVAL}')
 API_URL = config('API_URL')
 
 # DB
