@@ -29,7 +29,10 @@ services:
       - "1812:1812/udp"   # IPv4 and IPv6
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
-      RADIUS_LISTEN_IP: "0.0.0.0"
+      # docker container with IPv4 inside
+      # RADIUS_LISTEN_IP: "0.0.0.0"
+      # docker container with IPv6 inside
+      RADIUS_LISTEN_IP: "::"
       RADIUS_LISTEN_PORT: "1812"
     volumes:
       - .:/app
@@ -54,8 +57,10 @@ services:
       - "2812:2812/udp"   # IPv4 and IPv6
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/auth.sh}"
-      RADIUS_LISTEN_IP: "0.0.0.0"
-      # RADIUS_LISTEN_IP: "::"
+      # docker container with IPv4 inside
+      # RADIUS_LISTEN_IP: "0.0.0.0"
+      # docker container with IPv6 inside
+      RADIUS_LISTEN_IP: "::"
       RADIUS_LISTEN_PORT: "2812"
     volumes:
       - .:/app
@@ -80,7 +85,10 @@ services:
       # - "[::]:1813:1813/udp"      # IPv6 only
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/acct.sh}"
-      RADIUS_LISTEN_IP: "0.0.0.0"
+      # docker container with IPv4 inside
+      # RADIUS_LISTEN_IP: "0.0.0.0"
+      # docker container with IPv6 inside
+      RADIUS_LISTEN_IP: "::"
       RADIUS_LISTEN_PORT: "1813"
     volumes:
       - .:/app
