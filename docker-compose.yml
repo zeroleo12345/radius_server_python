@@ -75,8 +75,9 @@ services:
        context: .
        dockerfile: ./docker/Dockerfile
     ports:
-      - "0.0.0.0:1813:1813/udp"   # IPv4
-      # - "[::]:1813:1813/udp"      # IPv6
+      - "1813:1813/udp"   # IPv4 and IPv6
+      # - "0.0.0.0:1813:1813/udp"   # IPv4 only
+      # - "[::]:1813:1813/udp"      # IPv6 only
     environment:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/acct.sh}"
       RADIUS_LISTEN_IP: "0.0.0.0"
