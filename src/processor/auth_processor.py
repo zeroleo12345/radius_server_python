@@ -47,8 +47,8 @@ class RadiusServer(DatagramServer):
         try:
             request = AuthRequest(secret=RADIUS_SECRET, dict=self.dictionary, packet=data, socket=self.socket, address=address)
             log.trace(f'request Radius: {request}')
-        except PacketError:
-            log.warning(f'packet corrupt from {address}')
+        except PacketError as e:
+            log.warning(f'packet corrupt from {address}, error: {e}')
             return
         except Exception as e:
             log.error(traceback.format_exc())
