@@ -16,9 +16,9 @@ class Flow(object):
             request.nas_ip,
             request.nas_name,
             request.iut,
+            acct_user_profile.packet.outer_username,
             str(request.upload_kb),
             str(request.download_kb),
-            acct_user_profile.packet.outer_username,
             acct_user_profile.packet.user_mac,
         ]
         log.info(f'OUT: acct|{"|".join(data)}|')
