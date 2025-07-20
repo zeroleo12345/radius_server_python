@@ -1,9 +1,9 @@
-import socket
 import traceback
 from signal import SIGTERM
 import sentry_sdk
 # 第三方库
 from gevent import signal_handler
+from gevent import socket
 from gevent.server import DatagramServer
 from pyrad.dictionary import Dictionary
 # 项目库
