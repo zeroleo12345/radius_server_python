@@ -82,7 +82,9 @@ class AccountingFlow(object):
         redis.lpush(key, json.dumps(data, ensure_ascii=False))
 
     @classmethod
-    def push_metric(cls, username, request: AcctRequest):
+    def push_metric(cls, username, request: AcctRequest, enabled=False):
+        if not enabled:
+            return
         if request.upload_kb == 0 and request.download_kb == 0:
             return
         metrics = [
