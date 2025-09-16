@@ -40,7 +40,7 @@ class AccountingFlow(object):
                 Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=text)
                 # cls.disconnect(user_name=acct_user_profile.packet.outer_username, user_mac=acct_user_profile.packet.user_mac)
 
-        cls.push_metric(username=account.username, request=request)
+        # cls.push_metric(username=account.username, request=request)
         return
 
     @classmethod
