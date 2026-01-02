@@ -13,14 +13,22 @@
     #dir     = ./demoCA      # TSA root directory
     dir     = ./     # TSA root directory
 
+
+# 进入目录
+cd ~/github/radius_server_python/tools/simulator/etc/certs
+
+
 # 清理
 rm -rf  ./newcerts/  ./*.old  ./*.attr  index.txt  serial  dh  *.csr *.key *.cer *.p12
+
 
 # 创建 CA状态信息 数据文件: index.txt
 touch index.txt
 
+
 # 生成dh文件: dh
 openssl dhparam -out ./dh 2048
+
 
 # 报错则更换序列号: ERROR:Serial number 99 has already been issued
 [ ! -f serial ] && echo 01 > serial
@@ -29,8 +37,10 @@ openssl dhparam -out ./dh 2048
 # 生成CA根证书私钥(KEY): ca.key
 openssl genrsa -out ./ca.key 2048
 
+
 # 生成 ca.cer
 openssl req -config ./openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./ca.key -out ./ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
+
     # 生成CA根证书(CER). 提供CA根证书私钥
     | 字段         | 含义    | 你填的值                                |
     | ------------ | ------- | --------------------------------------- |
@@ -59,6 +69,7 @@ openssl req -config ./openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./ca
 
 # 生成服务端私钥(KEY), 并使用des3加密: server.key
 openssl genrsa  -des3 -passout pass:123456  -out ./server.key 2048
+
     Generating RSA private key, 2048 bit long modulus
     ...............................................+++
     ..............................................+++
@@ -66,8 +77,10 @@ openssl genrsa  -des3 -passout pass:123456  -out ./server.key 2048
     Enter pass phrase for server.key:123456
     Verifying - Enter pass phrase for server.key:123456
 
+
 # 生成服务端证书签名请求(CSR). 提供服务端私钥: server.csr
 openssl req -config ./openssl.macOS.cnf -new -sha256 -key ./server.key  -passin pass:123456 -out ./server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
+
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
     What you are about to enter is what is called a Distinguished Name or a DN.
@@ -93,9 +106,10 @@ openssl req -config ./openssl.macOS.cnf -new -sha256 -key ./server.key  -passin 
 ls -al index.txt serial
 
 
-# 生成服务端证书(CER). 提供CA根证书私钥、CA根证书、服务端证书签名请求
+# 生成服务端证书(CER). 提供CA根证书私钥、CA根证书、服务端证书签名请求: server.cer
 mkdir newcerts
 openssl ca -config ./openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./ca.key -cert ./ca.cer -in ./server.csr -out ./server.cer
+
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
     Signature ok
@@ -128,30 +142,39 @@ openssl ca -config ./openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./ca.key 
     Data Base Updated
 
 
-# 合成p12证书文件(暂不用.p12证书)
+# 合成p12证书文件(暂不用.p12证书): certificate.p12
 openssl pkcs12 -export -out certificate.p12 -inkey server.key -in server.cer
+
+    Enter pass phrase for server.key: 123456
+    Enter Export Password: 123456
+    Verifying - Enter Export Password: 123456
 
 
 # 查看公钥CER过期时间
 openssl x509 -noout -dates -in server.cer
 
+
 # 验证私钥KEY密码
 openssl rsa -check -in server.key
 
+    Enter pass phrase for server.key:
+
 
 ## hostapd 不需要用到 client 证书 !!!!
-# 生成客户端私钥
+# 生成客户端私钥: client.key
 openssl genrsa -des3 -out ./client.key 2048
     Generating RSA private key, 2048 bit long modulus
     ....++++++++++++
     .++++++++++++
     e is 65537 (0x10001)
-    Enter pass phrase for client.key:123456
-    Verifying - Enter pass phrase for client.key:123456
+    Enter pass phrase for client.key: 123456
+    Verifying - Enter pass phrase for client.key: 123456
+
 
 # 通过客户端私钥, 生成客户端证书签名请求
 openssl req -config openssl.macOS.cnf -new -days 36500 -key ./client.key -out ./client.csr
-    Enter pass phrase for client.key:123456
+
+    Enter pass phrase for client.key: 123456
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
     What you are about to enter is what is called a Distinguished Name or a DN.
@@ -171,6 +194,7 @@ openssl req -config openssl.macOS.cnf -new -days 36500 -key ./client.key -out ./
     to be sent with your certificate request
     A challenge password []:123456
     An optional company name []:WIFI
+
 
 # 通过CA根证书私钥、CA根证书、客户端证书签名请求, 生成客户端证书
 openssl ca -config ./openssl.macOS.cnf -days 36500 -keyfile ./ca.key -cert ./ca.cer -in ./client.csr -out ./client.cer
