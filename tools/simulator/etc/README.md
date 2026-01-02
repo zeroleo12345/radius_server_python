@@ -142,7 +142,7 @@ openssl ca -config ../openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./ca.key
     Data Base Updated
 
 
-# 合成p12证书文件(暂不用.p12证书): certificate.p12
+# 合成p12证书文件(AC侧需要使用.p12证书): certificate.p12
 openssl pkcs12 -export -out certificate.p12 -inkey server.key -in server.cer
 
     Enter pass phrase for server.key: 123456
