@@ -39,7 +39,7 @@ openssl genrsa -out ./ca.key 2048
 
 
 # 生成 ca.cer
-openssl req -config ./openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./ca.key -out ./ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
+openssl req -config ../openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./ca.key -out ./ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
 
     # 生成CA根证书(CER). 提供CA根证书私钥
     | 字段         | 含义    | 你填的值                                |
@@ -79,7 +79,7 @@ openssl genrsa  -des3 -passout pass:123456  -out ./server.key 2048
 
 
 # 生成服务端证书签名请求(CSR). 提供服务端私钥: server.csr
-openssl req -config ./openssl.macOS.cnf -new -sha256 -key ./server.key  -passin pass:123456 -out ./server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
+openssl req -config ../openssl.macOS.cnf -new -sha256 -key ./server.key  -passin pass:123456 -out ./server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
 
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
@@ -108,7 +108,7 @@ ls -al index.txt serial
 
 # 生成服务端证书(CER). 提供CA根证书私钥、CA根证书、服务端证书签名请求: server.cer
 mkdir newcerts
-openssl ca -config ./openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./ca.key -cert ./ca.cer -in ./server.csr -out ./server.cer
+openssl ca -config ../openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./ca.key -cert ./ca.cer -in ./server.csr -out ./server.cer
 
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
@@ -160,7 +160,7 @@ openssl rsa -check -in server.key
     Enter pass phrase for server.key:
 
 
-## hostapd 不需要用到 client 证书 !!!!
+## hostapd 不需要用到 client 证书, 用于 mTLS !!!!
 # 生成客户端私钥: client.key
 openssl genrsa -des3 -out ./client.key 2048
     Generating RSA private key, 2048 bit long modulus
@@ -172,32 +172,14 @@ openssl genrsa -des3 -out ./client.key 2048
 
 
 # 通过客户端私钥, 生成客户端证书签名请求
-openssl req -config openssl.macOS.cnf -new -days 36500 -key ./client.key -out ./client.csr
+openssl req -config ../openssl.macOS.cnf -new -days 36500 -key ./client.key -out ./client.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=client/OU=client/CN=WIFI/emailAddress=10000@gmail.com"
 
-    Enter pass phrase for client.key: 123456
-    You are about to be asked to enter information that will be incorporated
-    into your certificate request.
-    What you are about to enter is what is called a Distinguished Name or a DN.
-    There are quite a few fields but you can leave some blank
-    For some fields there will be a default value,
-    If you enter '.', the field will be left blank.
-    -----
-    Country Name (2 letter code) [AU]:CN
-    State or Province Name (full name) [Some-State]:GuangDong
-    Locality Name (eg, city) []:GuangZhou
-    Organization Name (eg, company) [Internet Widgits Pty Ltd]:zhuzaiyuan
-    Organizational Unit Name (eg, section) []:zhuzaiyuan
-    Common Name (e.g. server FQDN or YOUR name) []:WIFI
-    Email Address []:10000@gmail.com
-
-    Please enter the following 'extra' attributes
-    to be sent with your certificate request
-    A challenge password []:123456
-    An optional company name []:WIFI
+    Enter pass phrase for ./client.key: 123456
 
 
 # 通过CA根证书私钥、CA根证书、客户端证书签名请求, 生成客户端证书
-openssl ca -config ./openssl.macOS.cnf -days 36500 -keyfile ./ca.key -cert ./ca.cer -in ./client.csr -out ./client.cer
+openssl ca -config ../openssl.macOS.cnf -days 36500 -keyfile ./ca.key -cert ./ca.cer -in ./client.csr -out ./client.cer
+
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
     Signature ok
