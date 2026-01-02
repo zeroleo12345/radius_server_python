@@ -30,7 +30,7 @@ openssl dhparam -out ./dh 2048
 openssl genrsa -out ./ca.key 2048
 
 # 生成 ca.cer
-openssl req -new -sha256 -x509 -days 36500 -key ./ca.key -out ./ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
+openssl req -config ./openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./ca.key -out ./ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
     # 生成CA根证书(CER). 提供CA根证书私钥
     | 字段         | 含义    | 你填的值                                |
     | ------------ | ------- | --------------------------------------- |
@@ -67,7 +67,7 @@ openssl genrsa  -des3 -passout pass:123456  -out ./server.key 2048
     Verifying - Enter pass phrase for server.key:123456
 
 # 生成服务端证书签名请求(CSR). 提供服务端私钥: server.csr
-openssl req -new -sha256 -key ./server.key  -passin pass:123456 -out ./server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
+openssl req -config ./openssl.macOS.cnf -new -sha256 -key ./server.key  -passin pass:123456 -out ./server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
     What you are about to enter is what is called a Distinguished Name or a DN.
@@ -150,7 +150,7 @@ openssl genrsa -des3 -out ./client.key 2048
     Verifying - Enter pass phrase for client.key:123456
 
 # 通过客户端私钥, 生成客户端证书签名请求
-openssl req -new -days 36500 -key ./client.key -out ./client.csr
+openssl req -config openssl.macOS.cnf -new -days 36500 -key ./client.key -out ./client.csr
     Enter pass phrase for client.key:123456
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
@@ -203,4 +203,3 @@ openssl ca -config ./openssl.macOS.cnf -days 36500 -keyfile ./ca.key -cert ./ca.
     Sign the certificate? [y/n]:y
     failed to update database
     TXT_DB error number 2
-
