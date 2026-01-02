@@ -17,13 +17,13 @@
 rm -rf  ./newcerts/  ./*.old  ./*.attr  index.txt  serial  dh  *.csr *.key *.cer *.p12
 
 # 创建 CA状态信息 数据文件: index.txt
-touch index.txt 
+touch index.txt
 
 # 生成dh文件: dh
 openssl dhparam -out ./dh 2048
 
-> 报错则更换序列号: ERROR:Serial number 99 has already been issued
-    echo 01 > serial
+# 报错则更换序列号: ERROR:Serial number 99 has already been issued
+[ ! -f serial ] && echo 01 > serial
 
 
 # 生成CA根证书私钥(KEY): ca.key
