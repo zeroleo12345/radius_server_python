@@ -210,3 +210,7 @@ openssl ca -config ../openssl.macOS.cnf -days 36500 -keyfile ./radius.ca.key -ce
     Sign the certificate? [y/n]:y
     failed to update database
     TXT_DB error number 2
+
+
+# 修改证书权限
+chmod 644 *.key *.cer
