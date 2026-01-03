@@ -121,8 +121,9 @@ ls -al index.txt serial
 
 
 # 生成服务端证书(CER). 提供CA根证书私钥、CA根证书、服务端证书签名请求: server.cer
+> 可以指定 -notext 不生成 Certificate Details: 文本
 mkdir newcerts
-openssl ca -config ../openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./radius.ca.key -cert ./radius.ca.cer -in ./radius.server.csr -notext -out ./radius.server.cer
+openssl ca -config ../openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./radius.ca.key -cert ./radius.ca.cer -in ./radius.server.csr -out ./radius.server.cer
 
 cat radius.server.cer
 
