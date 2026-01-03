@@ -29,17 +29,22 @@ touch index.txt
 # 生成dh文件: dh
 openssl dhparam -out ./dh 2048
 
+cat ./dh
 
 # 报错则更换序列号: ERROR:Serial number 99 has already been issued
 [ ! -f serial ] && echo 01 > serial
 
+cat ./serial
 
 # 生成CA根证书私钥(KEY): ca.key
 openssl genrsa -out ./radius.ca.key 2048
 
+cat ./radius.ca.key
 
 # 生成 ca.cer
 openssl req -config ../openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./radius.ca.key -out ./radius.ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
+
+cat ./radius.ca.cer
 
     # 生成CA根证书(CER). 提供CA根证书私钥
     | 字段         | 含义    | 你填的值                                |
@@ -70,6 +75,8 @@ openssl req -config ../openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./r
 # 生成服务端私钥(KEY), 并使用des3加密: server.key
 openssl genrsa  -des3 -passout pass:123456  -out ./radius.server.key 2048
 
+cat ./radius.server.key
+
     Generating RSA private key, 2048 bit long modulus
     ...............................................+++
     ..............................................+++
@@ -80,6 +87,8 @@ openssl genrsa  -des3 -passout pass:123456  -out ./radius.server.key 2048
 
 # 生成服务端证书签名请求(CSR). 提供服务端私钥: server.csr
 openssl req -config ../openssl.macOS.cnf -new -sha256 -key ./radius.server.key  -passin pass:123456 -out ./radius.server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
+
+cat ./radius.server.csr
 
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
@@ -109,6 +118,8 @@ ls -al index.txt serial
 # 生成服务端证书(CER). 提供CA根证书私钥、CA根证书、服务端证书签名请求: server.cer
 mkdir newcerts
 openssl ca -config ../openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./radius.ca.key -cert ./radius.ca.cer -in ./radius.server.csr -out ./radius.server.cer
+
+cat radius.server.cer
 
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
