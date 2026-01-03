@@ -3,16 +3,21 @@
     vim /usr/local/ssl/openssl.cnf
 
 - MacOS
-    $ alias openssl=/usr/bin/openssl
-    $ openssl version -a | grep OPENSSLDIR
+> LibreSSL 不是标准的 OpenSSL
+``` bash
+    alias openssl=/usr/bin/openssl
+    # alias openssl=/$HOMEBREW_PREFIX/bin/openssl
+    openssl version
+        LibreSSL 3.3.6
+    openssl version -a | grep OPENSSLDIR
         OPENSSLDIR: "/private/etc/ssl"
-    $ sudo ln -s /usr/local/etc/openssl/openssl.cnf   /private/etc/ssl/openssl.cnf
-    $ vim /private/etc/ssl/openssl.cnf
+    # sudo ln -s /usr/local/etc/openssl/openssl.cnf   /private/etc/ssl/openssl.cnf
+    # vim /private/etc/ssl/openssl.cnf
 
     [ CA_default ]
     #dir     = ./demoCA      # TSA root directory
     dir     = ./     # TSA root directory
-
+```
 
 # 进入目录
 cd ~/github/radius_server_python/tools/simulator/etc/certs
@@ -117,7 +122,7 @@ ls -al index.txt serial
 
 # 生成服务端证书(CER). 提供CA根证书私钥、CA根证书、服务端证书签名请求: server.cer
 mkdir newcerts
-openssl ca -config ../openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./radius.ca.key -cert ./radius.ca.cer -in ./radius.server.csr -out ./radius.server.cer
+openssl ca -config ../openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./radius.ca.key -cert ./radius.ca.cer -in ./radius.server.csr -notext -out ./radius.server.cer
 
 cat radius.server.cer
 
