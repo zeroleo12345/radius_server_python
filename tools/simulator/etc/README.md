@@ -213,4 +213,4 @@ openssl ca -config ../openssl.macOS.cnf -days 36500 -keyfile ./radius.ca.key -ce
 
 
 # 修改证书权限
-chmod 644 *.key *.cer
+chmod 600 *.key *.cer
