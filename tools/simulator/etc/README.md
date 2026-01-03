@@ -41,12 +41,12 @@ cat ./dh
 
 cat ./serial
 
-# 生成CA根证书私钥(KEY): ca.key
+# 生成CA根证书私钥(KEY): radius.ca.key
 openssl genrsa -out ./radius.ca.key 2048
 
 cat ./radius.ca.key
 
-# 生成 ca.cer
+# 生成 radius.ca.cer
 openssl req -config ../openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./radius.ca.key -out ./radius.ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
 
 cat ./radius.ca.cer
@@ -77,7 +77,7 @@ cat ./radius.ca.cer
     Email Address []:10000@gmail.com
 
 
-# 生成服务端私钥(KEY), 并使用des3加密: server.key
+# 生成服务端私钥(KEY-加密格式的), 并使用des3加密: radius.server.key
 openssl genrsa  -des3 -passout pass:123456  -out ./radius.server.key 2048
 
 cat ./radius.server.key
@@ -89,8 +89,10 @@ cat ./radius.server.key
     Enter pass phrase for server.key:123456
     Verifying - Enter pass phrase for server.key:123456
 
+-----BEGIN ENCRYPTED PRIVATE KEY-----
+-----END ENCRYPTED PRIVATE KEY-----
 
-# 生成服务端证书签名请求(CSR). 提供服务端私钥: server.csr
+# 生成服务端证书签名请求(CSR). 提供服务端私钥: radius.server.csr
 openssl req -config ../openssl.macOS.cnf -new -sha256 -key ./radius.server.key  -passin pass:123456 -out ./radius.server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
 
 cat ./radius.server.csr
@@ -159,7 +161,7 @@ cat radius.server.cer
     Data Base Updated
 
 
-# 合成p12证书文件(AC侧需要使用.p12证书): certificate.p12
+# 合成p12证书文件(AC侧需要使用.p12证书): radius.certificate.p12
 openssl pkcs12 -export -out radius.certificate.p12 -inkey ./radius.server.key -in ./radius.server.cer
 
     Enter pass phrase for server.key: 123456
