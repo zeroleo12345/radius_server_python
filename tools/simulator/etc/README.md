@@ -35,11 +35,11 @@ openssl dhparam -out ./dh 2048
 
 
 # 生成CA根证书私钥(KEY): ca.key
-openssl genrsa -out ./ca.key 2048
+openssl genrsa -out ./radius.ca.key 2048
 
 
 # 生成 ca.cer
-openssl req -config ../openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./ca.key -out ./ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
+openssl req -config ../openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./radius.ca.key -out ./radius.ca.cer -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
 
     # 生成CA根证书(CER). 提供CA根证书私钥
     | 字段         | 含义    | 你填的值                                |
@@ -68,7 +68,7 @@ openssl req -config ../openssl.macOS.cnf -new -sha256 -x509 -days 36500 -key ./c
 
 
 # 生成服务端私钥(KEY), 并使用des3加密: server.key
-openssl genrsa  -des3 -passout pass:123456  -out ./server.key 2048
+openssl genrsa  -des3 -passout pass:123456  -out ./radius.server.key 2048
 
     Generating RSA private key, 2048 bit long modulus
     ...............................................+++
@@ -79,7 +79,7 @@ openssl genrsa  -des3 -passout pass:123456  -out ./server.key 2048
 
 
 # 生成服务端证书签名请求(CSR). 提供服务端私钥: server.csr
-openssl req -config ../openssl.macOS.cnf -new -sha256 -key ./server.key  -passin pass:123456 -out ./server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
+openssl req -config ../openssl.macOS.cnf -new -sha256 -key ./radius.server.key  -passin pass:123456 -out ./radius.server.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=zhuzaiyuan/OU=zhuzaiyuan/CN=WIFI/emailAddress=10000@gmail.com"
 
     You are about to be asked to enter information that will be incorporated
     into your certificate request.
@@ -108,7 +108,7 @@ ls -al index.txt serial
 
 # 生成服务端证书(CER). 提供CA根证书私钥、CA根证书、服务端证书签名请求: server.cer
 mkdir newcerts
-openssl ca -config ../openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./ca.key -cert ./ca.cer -in ./server.csr -out ./server.cer
+openssl ca -config ../openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./radius.ca.key -cert ./radius.ca.cer -in ./radius.server.csr -out ./radius.server.cer
 
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
@@ -143,7 +143,7 @@ openssl ca -config ../openssl.macOS.cnf -md sha256 -days 36500 -keyfile ./ca.key
 
 
 # 合成p12证书文件(AC侧需要使用.p12证书): certificate.p12
-openssl pkcs12 -export -out certificate.p12 -inkey server.key -in server.cer
+openssl pkcs12 -export -out radius.certificate.p12 -inkey ./radius.server.key -in ./radius.server.cer
 
     Enter pass phrase for server.key: 123456
     Enter Export Password: 123456
@@ -151,18 +151,18 @@ openssl pkcs12 -export -out certificate.p12 -inkey server.key -in server.cer
 
 
 # 查看公钥CER过期时间
-openssl x509 -noout -dates -in server.cer
+openssl x509 -noout -dates -in ./radius.server.cer
 
 
 # 验证私钥KEY密码
-openssl rsa -check -in server.key
+openssl rsa -check -in ./radius.server.key
 
     Enter pass phrase for server.key:
 
 
 ## hostapd 不需要用到 client 证书, 用于 mTLS !!!!
 # 生成客户端私钥: client.key
-openssl genrsa -des3 -out ./client.key 2048
+openssl genrsa -des3 -out ./radius.client.key 2048
     Generating RSA private key, 2048 bit long modulus
     ....++++++++++++
     .++++++++++++
@@ -172,13 +172,13 @@ openssl genrsa -des3 -out ./client.key 2048
 
 
 # 通过客户端私钥, 生成客户端证书签名请求
-openssl req -config ../openssl.macOS.cnf -new -days 36500 -key ./client.key -out ./client.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=client/OU=client/CN=WIFI/emailAddress=10000@gmail.com"
+openssl req -config ../openssl.macOS.cnf -new -days 36500 -key ./radius.client.key -out ./radius.client.csr -subj "/C=CN/ST=GuangDong/L=GuangZhou/O=client/OU=client/CN=WIFI/emailAddress=10000@gmail.com"
 
     Enter pass phrase for ./client.key: 123456
 
 
 # 通过CA根证书私钥、CA根证书、客户端证书签名请求, 生成客户端证书
-openssl ca -config ../openssl.macOS.cnf -days 36500 -keyfile ./ca.key -cert ./ca.cer -in ./client.csr -out ./client.cer
+openssl ca -config ../openssl.macOS.cnf -days 36500 -keyfile ./radius.ca.key -cert ./radius.ca.cer -in ./radius.client.csr -out ./radius.client.cer
 
     Using configuration from /usr/local/ssl/openssl.cnf
     Check that the request matches the signature
