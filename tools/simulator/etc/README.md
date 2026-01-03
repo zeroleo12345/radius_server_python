@@ -157,12 +157,13 @@ openssl x509 -noout -dates -in ./radius.server.cer
 # 验证私钥KEY密码
 openssl rsa -check -in ./radius.server.key
 
-    Enter pass phrase for server.key:
+    Enter pass phrase for server.key: 123456
 
 
 ## hostapd 不需要用到 client 证书, 用于 mTLS !!!!
 # 生成客户端私钥: client.key
 openssl genrsa -des3 -out ./radius.client.key 2048
+
     Generating RSA private key, 2048 bit long modulus
     ....++++++++++++
     .++++++++++++
