@@ -93,7 +93,7 @@ class Feishu(object):
             "updated": false,
             "chat_id": "oc_5ad11d72b830411d72bxxxxxx",
             "sender": {
-                "id": "cli_9f427eec54ae901b",
+                "id": "cli_9f427eec54axxxxxx",
                 "id_type": "app_id",
                 "sender_type": "app",
                 "tenant_key": "736588c926xxxxxx"
@@ -107,7 +107,7 @@ class Feishu(object):
                     "id": "ou_155184d1e73cbfb8973e5axxxxxx",
                     "id_type": "open_id",
                     "name": "Tom",
-                    "tenant_key": "736588c9260f175e"
+                    "tenant_key": "736588c9xxxxxx"
                 }
             ],
             "upper_message_id": "om_40eb06e7b84dc71c03e009axxxxxx"
