@@ -16,8 +16,8 @@ class Dingding(object):
     DINGDING_APP_SECRET = settings.get('DINGDING_APP_SECRET')
     DINGDING_ROBOT_CODE = settings.get('DINGDING_ROBOT_CODE', default='dingqnettcbcq4tpecq7')
     # Optional:
-    DINGDING_MAC_CHAT_ID = settings.get('FEISHU_MAC_CHAT_ID', default='cidVhnIuNh9n5Q0MoN8ddMqNw==')            # MAC请求放通群
-    DINGDING_SESSION_CHAT_ID = settings.get('FEISHU_SESSION_CHAT_ID', default='cidVhnIuNh9n5Q0MoN8ddMqNw==')    # 多拨告警群
+    DINGDING_MAC_CHAT_ID = settings.get('DINGDING_MAC_CHAT_ID', default='cidVhnIuNh9n5Q0MoN8ddMqNw==')            # MAC请求放通群
+    DINGDING_SESSION_CHAT_ID = settings.get('DINGDING_SESSION_CHAT_ID', default='cidVhnIuNh9n5Q0MoN8ddMqNw==')    # 多拨告警群
     #
     _ACCESS_TOKEN = Token()
 
