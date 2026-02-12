@@ -123,16 +123,16 @@ class Feishu(object):
             'Authorization': f'Bearer {access_token}'
         }
         data = {
-            'chat_id': receiver_id,
+            'receive_id': receiver_id,
             'msg_type': 'text',
-            'content': {
+            'content': json.dumps({
                 'text': text,
-            }
+            })
         }
-        response = requests.post('https://open.feishu.cn/open-apis/message/v4/send/', json=data, headers=headers)
-        assert response.ok
+        response = requests.post('https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=chat_id', json=data, headers=headers)
         body = response.json()
         log.debug(f'API send_group_msg: {body}')
+        assert response.ok
         if body['code'] != 0:
             raise Exception('飞书群消息发送失败')
 
