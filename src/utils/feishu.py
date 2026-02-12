@@ -63,20 +63,20 @@ class Feishu(object):
         return cls._ACCESS_TOKEN.token
 
     """
-    发送消息. 目前使用的是 历史版本的 发送消息卡片(/open-apis/message/v4/send/) 接口
+    发送消息
     https://feishu.apifox.cn/api-58348294
 
-    POST /open-apis/im/v1/messages?receive_id_type=null HTTP/1.1
+    POST /open-apis/im/v1/messages?receive_id_type=chat_id HTTP/1.1
     Host: open.feishu.cn
     Authorization: Bearer <token>
     Content-Type: application/json
     Content-Length: 189
 
     {
-        "receive_id": "ou_7d8a6e6df7621556ce0d219xxxxxx",
+        "receive_id": "ou_7d8a6e6df7621556ce0d21922bxxxxxx",
         "msg_type": "text",
         "content": "{\"text\":\"test content\"}",
-        "uuid": "a0d69e20-1dd1-458b-k525-dfexxxxxx"
+        "uuid": "a0d69e20-1dd1-458b-k525-dfecaxxxxxx"
     }
 
     :return:
@@ -84,17 +84,17 @@ class Feishu(object):
         "code": 0,
         "msg": "success",
         "data": {
-            "message_id": "om_dc13264520392913993dd051xxxxxx",
-            "root_id": "om_40eb06e7b84dc71c03e0xxxxxx",
-            "parent_id": "om_d4be107c616aed9c1da8edxxxxxx",
+            "message_id": "om_dc13264520392913993dd05xxxxxx",
+            "root_id": "om_40eb06e7b84dc71c03e009ad3cxxxxxx",
+            "parent_id": "om_d4be107c616aed9c1da8ed8xxxxxx",
             "msg_type": "card",
             "create_time": "1615380573411",
             "update_time": "1615380573411",
             "deleted": false,
             "updated": false,
-            "chat_id": "oc_5ad11d72b830411d72bxxxxxx",
+            "chat_id": "oc_5ad11d72b830411d72xxxxxx",
             "sender": {
-                "id": "cli_9f427eec54axxxxxx",
+                "id": "cli_9f427eec54ae901b",
                 "id_type": "app_id",
                 "sender_type": "app",
                 "tenant_key": "736588c926xxxxxx"
@@ -105,17 +105,16 @@ class Feishu(object):
             "mentions": [
                 {
                     "key": "@_user_1",
-                    "id": "ou_155184d1e73cbfb8973e5axxxxxx",
+                    "id": "ou_155184d1e73cbfb8973e5a9exxxxxx",
                     "id_type": "open_id",
                     "name": "Tom",
-                    "tenant_key": "736588c9xxxxxx"
+                    "tenant_key": "736588c9260xxxxxx"
                 }
             ],
-            "upper_message_id": "om_40eb06e7b84dc71c03e009axxxxxx"
+            "upper_message_id": "om_40eb06e7b84dc71c03e009adxxxxxx"
         }
     }
     """
-
     @classmethod
     def send_group_msg(cls, receiver_id: str, text: str):
         access_token = cls.get_access_token()
