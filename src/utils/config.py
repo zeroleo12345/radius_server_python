@@ -10,11 +10,12 @@ class Config(object):
         dotenv_override=False,  # 设置.env配置是否覆盖环境变量
     )
 
-    def __call__(self, key, default=None, cast=None, mandatory=True, fresh=False, dotted_lookup=True, parent=None):
-        value = self._settings.get(key, default=default, cast=cast, fresh=fresh, dotted_lookup=dotted_lookup, parent=None)
+    @classmethod
+    def get(cls, key, default=None, cast=None, mandatory=True, fresh=False, dotted_lookup=True, parent=None):
+        value = cls._settings.get(key, default=default, cast=cast, fresh=fresh, dotted_lookup=dotted_lookup, parent=None)
         if mandatory and value is None:
             raise Exception(f'config key: {key} is missing')
         return value
 
 
-config = Config()
+settings = Config

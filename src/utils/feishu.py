@@ -1,28 +1,124 @@
-import json
 import requests
+import time
 # 第三方库
-from utils.config import config
+from utils.myconf import settings
+from loguru import logger as log
 
 
 class Feishu(object):
-    FEISHU_APP_ID = config('FEISHU_APP_ID')
-    FEISHU_APP_SECRET = config('FEISHU_APP_SECRET')
-    FEISHU_CHARGE_CHAT_ID = config('FEISHU_CHARGE_CHAT_ID', default='oc_a4bc2f10dd9ec84f08f2bbcaa82e08cd')
-    FEISHU_MAC_CHAT_ID = config('FEISHU_MAC_CHAT_ID', default='oc_3a7065d01efdb36d949088341aada466')
-    FEISHU_SESSION_CHAT_ID = config('FEISHU_SESSION_CHAT_ID', default='oc_19b2404bb0917fc066cce1b3a58c3558')
+    class Token(object):
+        def __init__(self, token='', ttl=-1):
+            self.token = token
+            self.expired_at = int(time.time()) + ttl
+
+    # Must:
+    FEISHU_APP_ID = settings.get('FEISHU_APP_ID')
+    FEISHU_APP_SECRET = settings.get('FEISHU_APP_SECRET')
+    # Optional:
+    FEISHU_CHARGE_CHAT_ID = settings.get('FEISHU_CHARGE_CHAT_ID', default='oc_a4bc2f10dd9ec84f08f2bbcaa82e08cd')      # 充值统计群
+    FEISHU_MAC_CHAT_ID = settings.get('FEISHU_MAC_CHAT_ID', default='oc_3a7065d01efdb36d949088341aada466')            # MAC请求放通群
+    FEISHU_SESSION_CHAT_ID = settings.get('FEISHU_SESSION_CHAT_ID', default='oc_19b2404bb0917fc066cce1b3a58c3558')    # 多拨告警群
+    #
+    _ACCESS_TOKEN = Token()
+
+    """
+    获取access_token
+    https://feishu.apifox.cn/api-58156651
+
+    POST /open-apis/auth/v3/tenant_access_token/internal HTTP/1.1
+    Host: open.feishu.cn
+    Authorization: Bearer <token>
+    Content-Type: application/json
+    Content-Length: 81
+
+    {
+        "app_id": "cli_slkdjalasdkjasd",
+        "app_secret": "dskLLdkasdjlasdKK"
+    }
+
+    :return:
+    {
+        "code": 0,
+        "msg": "ok",
+        "tenant_access_token": "t-caecc734c2e3328a62489fe0648c4b98779515d3",
+        "expire": 7200
+    }
+    """
+    @classmethod
+    def get_access_token(cls) -> str:
+        assert cls.FEISHU_APP_ID and cls.FEISHU_APP_SECRET
+        if int(time.time()) > cls._ACCESS_TOKEN.expired_at:
+            data = {
+                'app_id': cls.FEISHU_APP_ID,
+                'app_secret': cls.FEISHU_APP_SECRET,
+            }
+            response = requests.post('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal/', json=data)
+            assert response.ok
+            body = response.json()
+            log.debug(f'API get_access_token: {body}')
+            if body['code'] != 0:
+                raise Exception('飞书获取access_token失败')
+            cls._ACCESS_TOKEN = cls.Token(token=body['tenant_access_token'], ttl=body['expire'])
+        log.debug(f'fetched access token: {cls._ACCESS_TOKEN.token}')
+        return cls._ACCESS_TOKEN.token
+
+    """
+    发送消息. 目前使用的是 历史版本的 发送消息卡片(/open-apis/message/v4/send/) 接口
+    https://feishu.apifox.cn/api-58348294
+
+    POST /open-apis/im/v1/messages?receive_id_type=null HTTP/1.1
+    Host: open.feishu.cn
+    Authorization: Bearer <token>
+    Content-Type: application/json
+    Content-Length: 189
+
+    {
+        "receive_id": "ou_7d8a6e6df7621556ce0d21922b676706ccs",
+        "msg_type": "text",
+        "content": "{\"text\":\"test content\"}",
+        "uuid": "a0d69e20-1dd1-458b-k525-dfeca4015204"
+    }
+
+    :return:
+    {
+        "code": 0,
+        "msg": "success",
+        "data": {
+            "message_id": "om_dc13264520392913993dd051dba21dcf",
+            "root_id": "om_40eb06e7b84dc71c03e009ad3c754195",
+            "parent_id": "om_d4be107c616aed9c1da8ed8068570a9f",
+            "msg_type": "card",
+            "create_time": "1615380573411",
+            "update_time": "1615380573411",
+            "deleted": false,
+            "updated": false,
+            "chat_id": "oc_5ad11d72b830411d72b836c20",
+            "sender": {
+                "id": "cli_9f427eec54ae901b",
+                "id_type": "app_id",
+                "sender_type": "app",
+                "tenant_key": "736588c9260f175e"
+            },
+            "body": {
+                "content": "text:测试消息"
+            },
+            "mentions": [
+                {
+                    "key": "@_user_1",
+                    "id": "ou_155184d1e73cbfb8973e5a9e698e74f2",
+                    "id_type": "open_id",
+                    "name": "Tom",
+                    "tenant_key": "736588c9260f175e"
+                }
+            ],
+            "upper_message_id": "om_40eb06e7b84dc71c03e009ad3c754195"
+        }
+    }
+    """
 
     @classmethod
-    def send_groud_msg(cls, receiver_id: str, text: str):
-        data = {
-            'app_id': cls.FEISHU_APP_ID,
-            'app_secret': cls.FEISHU_APP_SECRET,
-        }
-        response = requests.post('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal/', json=data)
-        assert response.ok
-        body = json.loads(response.text)
-        if body['code'] != 0:
-            raise Exception('飞书获取access_token失败')
-        access_token = response.json()['tenant_access_token']
+    def send_group_msg(cls, receiver_id: str, text: str):
+        access_token = cls.get_access_token()
         #
         headers = {
             'Authorization': f'Bearer {access_token}'
@@ -36,6 +132,34 @@ class Feishu(object):
         }
         response = requests.post('https://open.feishu.cn/open-apis/message/v4/send/', json=data, headers=headers)
         assert response.ok
-        body = json.loads(response.text)
+        body = response.json()
+        log.debug(f'API send_group_msg: {body}')
         if body['code'] != 0:
-            raise Exception('信息发送到飞书败')
+            raise Exception('飞书群消息发送失败')
+
+    @classmethod
+    def send_webhook_msg(cls, webhook_url: str, text: str):
+        data = {
+            'msg_type': 'text',
+            'content': {
+                'text': text,
+            }
+        }
+        response = requests.post(webhook_url, json=data)
+        assert response.ok
+        body = response.json()
+        log.debug(f'API send_webhook_msg: {body}')
+        if body['code'] != 0:
+            raise Exception('飞书webhook消息发送失败')
+
+
+if __name__ == "__main__":
+    import sys
+    #
+    LOG_LEVEL = settings.get('LOG_LEVEL', default='debug')
+    log.info(f'start log. LOG_LEVEL: {LOG_LEVEL}')
+    #
+    if sys.argv[1] == "2":
+        assert Feishu.FEISHU_CHARGE_CHAT_ID
+        Feishu.send_group_msg(Feishu.FEISHU_CHARGE_CHAT_ID, text="feishu group msg test")
+        log.info('Send feishu group msg done')
