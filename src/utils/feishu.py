@@ -12,8 +12,8 @@ class Feishu(object):
             self.expired_at = int(time.time()) + ttl
 
     # Must:
-    FEISHU_APP_ID = settings.get('FEISHU_APP_ID')
-    FEISHU_APP_SECRET = settings.get('FEISHU_APP_SECRET')
+    FEISHU_APP_ID = settings.get('FEISHU_APP_ID', default='')
+    FEISHU_APP_SECRET = settings.get('FEISHU_APP_SECRET', default='')
     # Optional:
     FEISHU_MAC_CHAT_ID = settings.get('FEISHU_MAC_CHAT_ID', default='oc_3a7065d01efdb36d949088341aada466')            # MAC请求放通群
     FEISHU_SESSION_CHAT_ID = settings.get('FEISHU_SESSION_CHAT_ID', default='oc_19b2404bb0917fc066cce1b3a58c3558')    # 多拨告警群
