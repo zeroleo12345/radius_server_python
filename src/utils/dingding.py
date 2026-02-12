@@ -60,20 +60,20 @@ class Dingding(object):
 
     POST /v1.0/robot/groupMessages/send HTTP/1.1
     Host:api.dingtalk.com
-    x-acs-dingtalk-access-token:nvosnghskaknz8an3b82
+    x-acs-dingtalk-access-token:nvosnghskaknz8xxxxxx
     Content-Type:application/json
 
     {
       "msgParam" : "{\"content\":\"钉钉，让进步发生\"}",
       "msgKey" : "sampleText",
-      "openConversationId" : "cid6KeBBLoveMJOGXoYKF5x7EeiodoA==",
+      "openConversationId" : "cid6KeBBLoveMJOGXoYKF5xxxxxxx==",
       "robotCode" : "dingue4kfzdxbynxxxxxx",
-      "coolAppCode" : "COOLAPP-1-10182EEDD1AC0BA600D9000J"
+      "coolAppCode" : "COOLAPP-1-10182EEDD1AC0BA60xxxxxx"
     }
 
     :return:
     {
-      "processQueryKey" : "jkasdfb8va9hndjksnvzkj"
+      "processQueryKey" : "jkasdfb8va9hnxxxxxx"
     }
     """
     @classmethod
