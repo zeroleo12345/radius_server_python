@@ -1,7 +1,7 @@
 import requests
 import time
 # 第三方库
-from utils.myconf import settings
+from utils.config import settings
 from loguru import logger as log
 
 
@@ -15,7 +15,6 @@ class Feishu(object):
     FEISHU_APP_ID = settings.get('FEISHU_APP_ID')
     FEISHU_APP_SECRET = settings.get('FEISHU_APP_SECRET')
     # Optional:
-    FEISHU_CHARGE_CHAT_ID = settings.get('FEISHU_CHARGE_CHAT_ID', default='oc_a4bc2f10dd9ec84f08f2bbcaa82e08cd')      # 充值统计群
     FEISHU_MAC_CHAT_ID = settings.get('FEISHU_MAC_CHAT_ID', default='oc_3a7065d01efdb36d949088341aada466')            # MAC请求放通群
     FEISHU_SESSION_CHAT_ID = settings.get('FEISHU_SESSION_CHAT_ID', default='oc_19b2404bb0917fc066cce1b3a58c3558')    # 多拨告警群
     #
@@ -160,6 +159,6 @@ if __name__ == "__main__":
     log.info(f'start log. LOG_LEVEL: {LOG_LEVEL}')
     #
     if sys.argv[1] == "2":
-        assert Feishu.FEISHU_CHARGE_CHAT_ID
-        Feishu.send_group_msg(Feishu.FEISHU_CHARGE_CHAT_ID, text="feishu group msg test")
+        assert Feishu.FEISHU_PAYMENT_CHAT_ID
+        Feishu.send_group_msg(Feishu.FEISHU_PAYMENT_CHAT_ID, text="feishu group msg test")
         log.info('Send feishu group msg done')
