@@ -5,7 +5,7 @@ from child_pyrad.request import AcctRequest
 # 项目库
 from .accounting_session import AccountingSession
 from settings import ACCOUNTING_INTERVAL
-from utils.feishu import Feishu
+from utils.dingding import Dingding
 from utils.redispool import get_redis
 from utils.prometheus import Prometheus
 from loguru import logger as log
@@ -37,7 +37,7 @@ class AccountingFlow(object):
             current_session = AccountingSession.put(acct_user_profile.packet.outer_username, acct_user_profile.packet.user_mac)
             if current_session > 1 and account.role != Account.Role.PLATFORM_OWNER.value:
                 text = f'{acct_user_profile.packet.outer_username} 账号多拨!'
-                Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=text)
+                Dingding.send_group_msg(receiver_id=Dingding.DINGDING_SESSION_CHAT_ID, text=text)
                 # cls.disconnect(user_name=acct_user_profile.packet.outer_username, user_mac=acct_user_profile.packet.user_mac)
 
         # cls.push_metric(username=account.username, request=request)

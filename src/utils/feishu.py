@@ -150,15 +150,3 @@ class Feishu(object):
         log.debug(f'API send_webhook_msg: {body}')
         if body['code'] != 0:
             raise Exception('飞书webhook消息发送失败')
-
-
-if __name__ == "__main__":
-    import sys
-    #
-    LOG_LEVEL = settings.get('LOG_LEVEL', default='debug')
-    log.info(f'start log. LOG_LEVEL: {LOG_LEVEL}')
-    #
-    if sys.argv[1] == "2":
-        assert Feishu.FEISHU_PAYMENT_CHAT_ID
-        Feishu.send_group_msg(Feishu.FEISHU_PAYMENT_CHAT_ID, text="feishu group msg test")
-        log.info('Send feishu group msg done')
