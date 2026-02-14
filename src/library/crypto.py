@@ -6,15 +6,15 @@ import os
 import ctypes
 from loguru import logger as log
 # 项目库
-from utils.config import config
+from utils.config import settings
 
 # HOSTAPD 动态库
-HOSTAPD_LIBRARY = config('HOSTAPD_LIBRARY')
-CA_CERT = config('CA_CERT')
-CLIENT_CERT = config('CLIENT_CERT')
-PRIVATE_KEY = config('PRIVATE_KEY')
-PRIVATE_KEY_PASSWORD = str(config('PRIVATE_KEY_PASSWORD'))
-DH_FILE = config('DH_FILE')
+HOSTAPD_LIBRARY = settings.get('HOSTAPD_LIBRARY')
+CA_CERT = settings.get('CA_CERT')
+CLIENT_CERT = settings.get('CLIENT_CERT')
+PRIVATE_KEY = settings.get('PRIVATE_KEY')
+PRIVATE_KEY_PASSWORD = str(settings.get('PRIVATE_KEY_PASSWORD'))
+DH_FILE = settings.get('DH_FILE')
 
 
 class EapCryptoError(Exception):

@@ -1,10 +1,10 @@
 import requests
 # 项目库
-from utils.config import config
+from utils.config import settings
 
 
 class Prometheus(object):
-    ENDPOINT = config('PROMETHEUS_ENDPOINT', default='http://metric:8428/prometheus/api/v1/import/prometheus')
+    ENDPOINT = settings.get('PROMETHEUS_ENDPOINT', default='http://metric:8428/prometheus/api/v1/import/prometheus')
 
     @classmethod
     def push_metric(cls, metrics: list):

@@ -21,11 +21,11 @@ from auth.eap_peap_mschapv2_flow import EapPeapMschapv2Flow
 from settings import RADIUS_DICTIONARY_DIR, RADIUS_SECRET, RADIUS_LISTEN_IP, RADIUS_LISTEN_PORT
 from loguru import logger as log
 from controls.user import AuthUserProfile
-from utils.config import config
+from utils.config import settings
 from library.crypto import libhostapd
 
 
-if config('USE_GTC', default=False, cast='@bool'):
+if settings.get('USE_GTC', default=False, cast='@bool'):
     log.info('## PEAP-GTC mode ##')
     USE_GTC = True
 else:
