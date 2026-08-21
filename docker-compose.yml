@@ -3,7 +3,7 @@ version: '3.7'
 
 x-logging: &default-logging-settings
 
-  no_tag_logging: &no_tag_logging
+  tag_logging: &tag_logging
     driver: "json-file"
     options:
       max-size: "10m"
@@ -37,7 +37,7 @@ services:
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY:-on-failure}"
-    logging: *no_tag_logging
+    logging: *tag_logging
     networks:
       - pppoe_system
 
@@ -87,7 +87,7 @@ services:
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY:-on-failure}"
-    logging: *no_tag_logging
+    logging: *tag_logging
     networks:
       - pppoe_system
 
@@ -107,7 +107,7 @@ services:
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY:-on-failure}"
-    logging: *no_tag_logging
+    logging: *tag_logging
     networks:
       - pppoe_system
 
