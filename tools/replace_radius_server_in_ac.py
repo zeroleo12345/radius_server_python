@@ -12,23 +12,27 @@ print(f"\nRadius Server IPv6: {radius_server_ipv6}\n")
 msg = f"""
 # MSR3600
 acl number 2422
-    undo rule 99
-    rule 99 permit source {radius_server_ip} 0
+    undo rule 98
+    rule 98 permit source {radius_server_ip} 0
+    dis this
 quit
 
 acl ipv6 number 2622
-    undo rule 99
-    rule 99 permit source {radius_server_ipv6}/128
+    undo rule 98
+    rule 98 permit source {radius_server_ipv6}/128
+    dis this
 quit
 
 radius scheme eap_and_mac_radius_server
-    primary authentication {radius_server_ipv6} test-profile user_probe
+    primary authentication ipv6 {radius_server_ipv6} test-profile user_probe
     primary accounting {radius_server_ip}
+    dis this
 quit
 
 radius dynamic-author server
     client ip {radius_server_ip} key simple testing123
     client ipv6 {radius_server_ipv6} key simple testing123
+    dis this
 quit
 
 save f
