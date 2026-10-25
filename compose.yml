@@ -30,7 +30,6 @@ services:
       RADIUS_LISTEN_PORT: "1812"
     volumes:
       - .:/app
-      - ./data:/data
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY:-on-failure}"
@@ -55,7 +54,6 @@ services:
       RADIUS_LISTEN_PORT: "2812"
     volumes:
       - .:/app
-      - ./data:/data
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY:-on-failure}"
@@ -80,7 +78,6 @@ services:
       RADIUS_LISTEN_PORT: "1813"
     volumes:
       - .:/app
-      - ./data:/data
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY:-on-failure}"
@@ -100,7 +97,6 @@ services:
       ENTRYPOINT: "${ENTRYPOINT:-/app/bin/dae.sh}"
     volumes:
       - .:/app
-      - ./data:/data
     entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
     tty: true
     restart: "${RESTART_POLICY:-on-failure}"
