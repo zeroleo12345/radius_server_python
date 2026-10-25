@@ -109,6 +109,28 @@ services:
       - pppoe_system
 
 
+  proxy:
+    platform: linux/amd64
+    container_name: radius_proxy
+    image: bgernert/docker-radsecproxy:v1.11.2
+    network_mode: host
+    restart: "${RESTART_POLICY:-on-failure}"
+    volumes:
+      - ./etc/radius_proxy/proxy.conf:/etc/proxy.conf:ro
+    entrypoint: ["/bin/sh","-c"]
+    command:
+    - | 
+      set -eu
+      : "${RADIUS_SERVER_HOST:?RADIUS_SERVER_HOST is required}"
+      : "${RADIUS_SECRET:?RADIUS_SECRET is required}"
+
+      sed -e "s|\${RADIUS_SERVER_HOST}|${RADIUS_SERVER_HOST}|g" \
+          -e "s|\${RADIUS_SECRET}|${RADIUS_SECRET}|g" \
+          /etc/proxy.conf.template > /etc/proxy.conf
+
+      exec radsecproxy -f -c /etc/proxy.conf
+
+
   simulator:
     platform: linux/amd64
     container_name: simulator
