@@ -1,0 +1,33 @@
+ListenUDP *:1812
+ListenUDP *:1813
+
+LogLevel 4
+
+# Define Radius client secret
+client radius_client {
+    host 0.0.0.0/0
+    type UDP
+    secret ${RADIUS_SECRET}
+}
+
+# Define New Radius Server for Auth
+server new_radius_auth {
+    host ${RADIUS_SERVER_HOST}
+    port 1812
+    type UDP
+    secret ${RADIUS_SECRET}
+}
+
+# Define New Radius Server for Accounting
+server new_radius_acct {
+    host ${RADIUS_SERVER_HOST}
+    port 1813
+    type UDP
+    secret ${RADIUS_SECRET}
+}
+
+# All request forward to New Radius Server
+realm * {
+    server new_radius_auth
+    AccountingServer new_radius_acct
+}
